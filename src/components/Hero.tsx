@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import SectionContainer from "./SectionContainer";
+import VideoBackground from "./VideoBackground";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 
@@ -11,14 +12,21 @@ interface HeroProps {
 const Hero = ({ activeSection, direction }: HeroProps) => {
   return (
     <section className="relative min-h-screen flex flex-col justify-end overflow-hidden px-6 pb-12 lg:px-12 lg:pb-20">
+      {/* Video Background */}
+      <VideoBackground
+        src="/code.mp4"
+        overlay={true}
+        overlayOpacity={0.4}
+      />
+
       {/* Animated Section Container */}
-      <div className="absolute inset-0 flex items-center justify-center pt-20">
+      <div className="absolute inset-0 flex items-center justify-center pt-20 z-10">
         <SectionContainer activeSection={activeSection} direction={direction} />
       </div>
 
       {/* Content - Only show on home */}
       {activeSection === "home" && (
-        <div className="relative z-10 max-w-7xl mx-auto w-full">
+        <div className="relative z-20 max-w-7xl mx-auto w-full">
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 lg:gap-16">
             {/* Left: Headline */}
             <div className="flex-1">
@@ -34,7 +42,7 @@ const Hero = ({ activeSection, direction }: HeroProps) => {
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-6">
                 We're a tech agency that builds professional-grade software using AI, delivering weeks of work in days without compromising quality.
               </p>
-              
+
               <div className="flex items-center gap-2">
                 <button className="gradient-btn px-6 py-3 rounded-full text-sm font-medium text-primary-foreground">
                   Start Your Project
@@ -49,7 +57,7 @@ const Hero = ({ activeSection, direction }: HeroProps) => {
       )}
 
       {/* Subtle bottom gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none z-30" />
     </section>
   );
 };
