@@ -1,9 +1,19 @@
-type ChatMessage = {
-  role: "assistant" | "user";
-  content: string;
-};
+import { useState, useRef, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Send, Loader2 } from "lucide-react";
+import { sendChatMessage, type ChatMessage } from "@/lib/chat";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-const chatMessages: ChatMessage[] = [
+const chatFormSchema = z.object({
+  message: z.string().min(1, "Message cannot be empty"),
+});
+
+type ChatFormValues = z.infer<typeof chatFormSchema>;
+
+const initialMessages: ChatMessage[] = [
   {
     role: "assistant",
     content: "Hi, I am CodeBay AI. Tell me about your product goals and timeline."
@@ -18,14 +28,60 @@ const chatMessages: ChatMessage[] = [
   }
 ];
 
-const trainingFocus = [
-  "MVP scoping",
-  "AI integration",
-  "Full-stack builds",
-  "Delivery timelines"
-];
-
 const HomeSection = () => {
+  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const form = useForm<ChatFormValues>({
+    resolver: zodResolver(chatFormSchema),
+    defaultValues: {
+      message: "",
+    },
+  });
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const onSubmit = async (values: ChatFormValues) => {
+    const userMessage: ChatMessage = {
+      role: "user",
+      content: values.message,
+    };
+
+    // Add user message immediately
+    setMessages((prev) => [...prev, userMessage]);
+    form.reset();
+    setIsLoading(true);
+
+    try {
+      // Get all messages including the new user message
+      const updatedMessages = [...messages, userMessage];
+      const response = await sendChatMessage(updatedMessages);
+
+      // Add assistant response
+      const assistantMessage: ChatMessage = {
+        role: "assistant",
+        content: response.message,
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage: ChatMessage = {
+        role: "assistant",
+        content: "Sorry, there was an error processing your message. Please try again.",
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="relative w-full h-full flex items-start sm:items-center justify-center pt-0 pb-16 sm:pb-24 md:pb-28 lg:pb-32 xl:pb-40 -mt-6 sm:mt-0">
       <div className="video-placeholder w-full h-full flex items-center justify-center">
@@ -68,7 +124,7 @@ const HomeSection = () => {
                   </div>
 
                   <div className="flex-1 min-h-0 space-y-3 px-4 py-3 overflow-y-auto">
-                    {chatMessages.map((message, index) => (
+                    {messages.map((message, index) => (
                       <div
                         key={`${message.role}-${index}`}
                         className={`max-w-[85%] rounded-2xl px-3 py-2 text-[10px] sm:text-[11px] leading-relaxed ${message.role === "assistant"
@@ -79,22 +135,39 @@ const HomeSection = () => {
                         {message.content}
                       </div>
                     ))}
+                    {isLoading && (
+                      <div className="max-w-[85%] rounded-2xl px-3 py-2 text-[10px] sm:text-[11px] leading-relaxed bg-white/5 text-foreground border border-white/10">
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                          <span>Thinking...</span>
+                        </div>
+                      </div>
+                    )}
+                    <div ref={messagesEndRef} />
                   </div>
 
                   <div className="px-4 pb-4">
-                    <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-background/40 px-3 py-2">
-                      <input
-                        type="text"
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-background/40 px-3 py-2">
+                      <Input
+                        {...form.register("message")}
                         placeholder="Ask about your product, timeline, or tech stack..."
-                        className="pointer-events-none w-full bg-transparent text-[10px] sm:text-[11px] text-foreground placeholder:text-muted-foreground outline-none"
-                        readOnly
-                        aria-disabled="true"
-                        tabIndex={-1}
+                        className="w-full bg-transparent border-0 text-[10px] sm:text-[11px] text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                        disabled={isLoading}
+                        autoComplete="off"
                       />
-                      <span className="flex h-6 min-w-[44px] items-center justify-center rounded-full bg-primary/20 px-3 text-[10px] font-medium text-primary-foreground/90">
-                        Send
-                      </span>
-                    </div>
+                      <Button
+                        type="submit"
+                        disabled={isLoading || !form.watch("message")?.trim()}
+                        className="flex h-6 min-w-[44px] items-center justify-center rounded-full bg-primary/20 px-3 text-[10px] font-medium text-primary-foreground/90 hover:bg-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                        size="sm"
+                      >
+                        {isLoading ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Send className="h-3 w-3" />
+                        )}
+                      </Button>
+                    </form>
 
                     {/* <div className="mt-3 flex flex-wrap gap-2">
                       {trainingFocus.map((topic) => (
