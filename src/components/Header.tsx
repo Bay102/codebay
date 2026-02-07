@@ -55,14 +55,34 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
   }, [activeSection]);
 
   useEffect(() => {
-    updateIndicator();
-    updateMobileIndicator();
+    // Use requestAnimationFrame to ensure DOM is fully laid out before calculating positions
+    const updateAfterLayout = () => {
+      requestAnimationFrame(() => {
+        updateIndicator();
+        updateMobileIndicator();
+      });
+    };
+    
+    // Initial update after layout
+    updateAfterLayout();
+    
+    // Also update after a short delay to catch any late layout changes
+    const timeoutId = setTimeout(() => {
+      updateIndicator();
+      updateMobileIndicator();
+    }, 100);
+    
     const handleResize = () => {
       updateIndicator();
       updateMobileIndicator();
     };
+    
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", handleResize);
+    };
   }, [updateIndicator, updateMobileIndicator]);
 
   const handleNavClick = (section: SectionType) => {
@@ -98,11 +118,44 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                 }}
               />
               <ul className="flex items-center gap-1 relative z-10">
-                {/* Home/AI Chat Icon Button */}
+                {navLinks.slice(0, 2).map((link) => (
+                  <li key={link.section}>
+                    <button
+                      ref={(el) => {
+                        if (el) {
+                          buttonRefs.current.set(link.section, el);
+                          // Trigger update after ref is set
+                          requestAnimationFrame(() => {
+                            if (activeSection === link.section) {
+                              updateIndicator();
+                            }
+                          });
+                        }
+                      }}
+                      onClick={() => handleNavClick(link.section)}
+                      className={`px-5 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
+                        activeSection === link.section
+                          ? "text-primary font-medium"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
+                {/* Home/AI Chat Icon Button - Positioned in the middle */}
                 <li>
                   <button
                     ref={(el) => {
-                      if (el) buttonRefs.current.set("home", el);
+                      if (el) {
+                        buttonRefs.current.set("home", el);
+                        // Trigger update after ref is set
+                        requestAnimationFrame(() => {
+                          if (activeSection === "home") {
+                            updateIndicator();
+                          }
+                        });
+                      }
                     }}
                     onClick={() => handleNavClick("home")}
                     className={`px-3 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${
@@ -115,14 +168,22 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                     <MessageSquare className="w-4 h-4" />
                   </button>
                 </li>
-                {navLinks.map((link) => (
+                {navLinks.slice(2).map((link) => (
                   <li key={link.section}>
                     <button
                       ref={(el) => {
-                        if (el) buttonRefs.current.set(link.section, el);
+                        if (el) {
+                          buttonRefs.current.set(link.section, el);
+                          // Trigger update after ref is set
+                          requestAnimationFrame(() => {
+                            if (activeSection === link.section) {
+                              updateIndicator();
+                            }
+                          });
+                        }
                       }}
                       onClick={() => handleNavClick(link.section)}
-                      className={`px-5 py-2 text-sm transition-all duration-300 rounded-full relative z-10 ${
+                      className={`px-5 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
                         activeSection === link.section
                           ? "text-primary font-medium"
                           : "text-muted-foreground hover:text-foreground"
@@ -161,11 +222,44 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
               }}
             />
             <ul className="flex items-center gap-1 relative z-10">
-              {/* Home/AI Chat Icon Button */}
+              {navLinks.slice(0, 2).map((link) => (
+                <li key={link.section} className="flex-1">
+                  <button
+                    ref={(el) => {
+                      if (el) {
+                        mobileButtonRefs.current.set(link.section, el);
+                        // Trigger update after ref is set
+                        requestAnimationFrame(() => {
+                          if (activeSection === link.section) {
+                            updateMobileIndicator();
+                          }
+                        });
+                      }
+                    }}
+                    onClick={() => handleNavClick(link.section)}
+                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
+                      activeSection === link.section
+                        ? "text-primary font-medium"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {link.label}
+                  </button>
+                </li>
+              ))}
+              {/* Home/AI Chat Icon Button - Positioned in the middle */}
               <li>
                 <button
                   ref={(el) => {
-                    if (el) mobileButtonRefs.current.set("home", el);
+                    if (el) {
+                      mobileButtonRefs.current.set("home", el);
+                      // Trigger update after ref is set
+                      requestAnimationFrame(() => {
+                        if (activeSection === "home") {
+                          updateMobileIndicator();
+                        }
+                      });
+                    }
                   }}
                   onClick={() => handleNavClick("home")}
                   className={`px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${
@@ -178,14 +272,22 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                   <MessageSquare className="w-4 h-4" />
                 </button>
               </li>
-              {navLinks.map((link) => (
+              {navLinks.slice(2).map((link) => (
                 <li key={link.section} className="flex-1">
                   <button
                     ref={(el) => {
-                      if (el) mobileButtonRefs.current.set(link.section, el);
+                      if (el) {
+                        mobileButtonRefs.current.set(link.section, el);
+                        // Trigger update after ref is set
+                        requestAnimationFrame(() => {
+                          if (activeSection === link.section) {
+                            updateMobileIndicator();
+                          }
+                        });
+                      }
                     }}
                     onClick={() => handleNavClick(link.section)}
-                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 ${
+                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
                       activeSection === link.section
                         ? "text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground"

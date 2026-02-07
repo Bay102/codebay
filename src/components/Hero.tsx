@@ -16,7 +16,7 @@ const Hero = ({ activeSection, direction }: HeroProps) => {
       <VideoBackground
         src="/code.mp4"
         overlay={true}
-        overlayOpacity={0.7}
+        overlayOpacity={0.8}
       />
 
       {/* Animated Section Container */}
