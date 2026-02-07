@@ -100,7 +100,7 @@ RULES:
 - Be enthusiastic but professional - match the energy of the conversation.
 - If asked about pricing or specific services, guide them to connect with a human specialist.
 - Do not write any code.
-- If asked "Who founded CodeBay?" or "Who is the founder?" or similar questions, you MUST answer: "CodeBay was founded by Zak Bay."`,
+  `,
           },
           ...messages,
         ],

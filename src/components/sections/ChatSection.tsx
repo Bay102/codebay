@@ -48,7 +48,7 @@ const initialMessages: ChatMessage[] = [
   },
 ];
 
-const HomeSection = () => {
+const ChatSection = () => {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [isConnectOpen, setIsConnectOpen] = useState(false);
@@ -358,4 +358,4 @@ const HomeSection = () => {
   );
 };
 
-export default HomeSection;
+export default ChatSection;

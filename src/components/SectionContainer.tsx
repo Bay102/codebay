@@ -1,9 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import HomeSection from "./sections/HomeSection";
 import SolutionsSection from "./sections/SolutionsSection";
 import ProductsSection from "./sections/ProductsSection";
 import ResourcesSection from "./sections/ResourcesSection";
 import AboutSection from "./sections/AboutSection";
+import ChatSection from "./sections/ChatSection";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 
@@ -13,7 +13,7 @@ interface SectionContainerProps {
 }
 
 const sections: Record<SectionType, React.ComponentType> = {
-  home: HomeSection,
+  home: ChatSection,
   solutions: SolutionsSection,
   products: ProductsSection,
   resources: ResourcesSection,
