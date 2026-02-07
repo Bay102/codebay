@@ -7,11 +7,11 @@ interface VideoBackgroundProps {
   overlayOpacity?: number;
 }
 
-const VideoBackground = ({ 
-  src, 
-  className = "", 
+const VideoBackground = ({
+  src,
+  className = "",
   overlay = false,
-  overlayOpacity = 0.3 
+  overlayOpacity = 0.5
 }: VideoBackgroundProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -48,7 +48,7 @@ const VideoBackground = ({
         Your browser does not support the video tag.
       </video>
       {overlay && (
-        <div 
+        <div
           className="absolute inset-0 bg-background"
           style={{ opacity: overlayOpacity }}
           aria-hidden="true"

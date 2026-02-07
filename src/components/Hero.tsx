@@ -16,11 +16,11 @@ const Hero = ({ activeSection, direction }: HeroProps) => {
       <VideoBackground
         src="/code.mp4"
         overlay={true}
-        overlayOpacity={0.4}
+        overlayOpacity={0.7}
       />
 
       {/* Animated Section Container */}
-      <div className="absolute inset-0 flex items-center justify-center pt-20 z-10">
+      <div className="absolute inset-0 z-10">
         <SectionContainer activeSection={activeSection} direction={direction} />
       </div>
 
