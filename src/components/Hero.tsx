@@ -31,9 +31,9 @@ const Hero = ({ activeSection, direction }: HeroProps) => {
             {/* Left: Headline */}
             <div className="flex-1">
               <h1 className="font-display font-light text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground leading-[1.1] tracking-tight">
-                AI-Powered Software
+                AI-Driven Solutions
                 <br />
-                <span className="gradient-text">Built at Insane Speed</span>
+                <span className="gradient-text">Shipped at Insane Speed</span>
               </h1>
             </div>
 

@@ -43,15 +43,15 @@ const ResourcesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {resources.map((resource, index) => (
             <div
               key={resource.title}
-              className="glass-nav rounded-2xl p-5 text-center hover:border-primary/30 transition-all duration-300 group cursor-pointer"
+              className="liquid-glass-nav rounded-2xl p-6 text-center hover:border-primary/30 hover:scale-105 transition-all duration-300 group cursor-pointer"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="w-14 h-14 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                <resource.icon className="w-7 h-7 text-primary" />
+              <div className="w-16 h-16 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                <resource.icon className="w-8 h-8 text-primary" />
               </div>
               <h3 className="font-display text-base text-foreground mb-1">
                 {resource.title}

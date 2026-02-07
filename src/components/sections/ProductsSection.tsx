@@ -37,11 +37,11 @@ const ProductsSection = () => {
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {products.map((product, index) => (
             <div
               key={product.name}
-              className="glass-nav rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-primary/30 transition-all duration-300 group cursor-pointer"
+              className="liquid-glass-nav rounded-2xl p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-primary/30 hover:scale-105 transition-all duration-300 group cursor-pointer"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex-1">
@@ -49,11 +49,10 @@ const ProductsSection = () => {
                   <h3 className="font-display text-xl text-foreground">
                     {product.name}
                   </h3>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    product.status === "Available" 
-                      ? "bg-green-500/20 text-green-400" 
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${product.status === "Available"
+                      ? "bg-green-500/20 text-green-400"
                       : "bg-primary/20 text-primary"
-                  }`}>
+                    }`}>
                     {product.status}
                   </span>
                 </div>
