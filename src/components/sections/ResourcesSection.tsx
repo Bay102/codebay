@@ -3,27 +3,27 @@ import { FileText, Video, BookOpen, Users } from "lucide-react";
 const resources = [
   {
     icon: FileText,
-    title: "Documentation",
-    description: "Comprehensive guides and API references",
-    count: "200+ pages"
+    title: "Case Studies",
+    description: "See how we've helped clients ship faster",
+    count: "15+ projects"
   },
   {
     icon: Video,
-    title: "Video Tutorials",
-    description: "Step-by-step visual learning content",
-    count: "50+ videos"
+    title: "Tech Talks",
+    description: "Deep dives into AI-powered development",
+    count: "Coming soon"
   },
   {
     icon: BookOpen,
-    title: "Blog & Articles",
-    description: "Latest insights and industry updates",
+    title: "Blog",
+    description: "Insights on modern software development",
     count: "Weekly posts"
   },
   {
     icon: Users,
     title: "Community",
-    description: "Join our developer community",
-    count: "10k+ members"
+    description: "Connect with fellow builders",
+    count: "Growing"
   }
 ];
 
@@ -33,13 +33,13 @@ const ResourcesSection = () => {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
-            Learn & Grow
+            Learn & Connect
           </span>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
             Resources
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-            Everything you need to build, learn, and succeed with Nexora.
+            Insights, case studies, and community to help you build better software.
           </p>
         </div>
 
@@ -68,7 +68,7 @@ const ResourcesSection = () => {
 
         <div className="mt-8 text-center">
           <button className="gradient-btn px-6 py-3 rounded-full text-sm font-medium text-primary-foreground">
-            Explore All Resources
+            View All Resources
           </button>
         </div>
       </div>

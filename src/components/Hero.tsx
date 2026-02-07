@@ -23,21 +23,21 @@ const Hero = ({ activeSection, direction }: HeroProps) => {
             {/* Left: Headline */}
             <div className="flex-1">
               <h1 className="font-display font-light text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-foreground leading-[1.1] tracking-tight">
-                Smarter Innovation
+                AI-Powered Software
                 <br />
-                with Web3 & AI
+                <span className="gradient-text">Built at Insane Speed</span>
               </h1>
             </div>
 
             {/* Right: Description & CTA */}
             <div className="lg:max-w-sm">
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-6">
-                Building the future of digital innovation by merging Web3 and AI through research, development.
+                We're a tech agency that builds professional-grade software using AI, delivering weeks of work in days without compromising quality.
               </p>
               
               <div className="flex items-center gap-2">
                 <button className="gradient-btn px-6 py-3 rounded-full text-sm font-medium text-primary-foreground">
-                  Get Started
+                  Start Your Project
                 </button>
                 <button className="icon-btn w-12 h-12 rounded-full flex items-center justify-center">
                   <ArrowUpRight className="w-5 h-5 text-primary" />

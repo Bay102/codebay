@@ -2,22 +2,22 @@ import { ArrowUpRight } from "lucide-react";
 
 const products = [
   {
-    name: "Nexora Chain",
-    category: "Blockchain",
-    description: "High-performance Layer 1 blockchain with AI-powered consensus.",
-    status: "Live"
+    name: "CodeBay Studio",
+    category: "Development Platform",
+    description: "Our internal AI-powered development environment that accelerates every project we build.",
+    status: "Internal"
   },
   {
-    name: "Neural SDK",
-    category: "Developer Tools",
-    description: "Build AI-enhanced dApps with our comprehensive toolkit.",
-    status: "Beta"
+    name: "Rapid Prototyping",
+    category: "Service",
+    description: "Go from idea to interactive prototype in 48 hours. Test your concept before committing.",
+    status: "Available"
   },
   {
-    name: "DataVault",
-    category: "Storage",
-    description: "Decentralized storage with end-to-end encryption.",
-    status: "Live"
+    name: "AI Code Audit",
+    category: "Service",
+    description: "Comprehensive code review and optimization using AI to identify bottlenecks and security issues.",
+    status: "Available"
   }
 ];
 
@@ -27,13 +27,13 @@ const ProductsSection = () => {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
-            Our Products
+            Our Offerings
           </span>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
-            Built for Scale
+            Products & Services
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-            Production-ready products powering the next generation of applications.
+            Tools and services designed to accelerate your software development journey.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ const ProductsSection = () => {
                     {product.name}
                   </h3>
                   <span className={`text-xs px-2 py-0.5 rounded-full ${
-                    product.status === "Live" 
+                    product.status === "Available" 
                       ? "bg-green-500/20 text-green-400" 
                       : "bg-primary/20 text-primary"
                   }`}>

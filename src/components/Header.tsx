@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X, ArrowUpRight } from "lucide-react";
+import codebayLogo from "@/assets/codebay-logo.svg";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 
@@ -29,14 +30,13 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
         {/* Logo */}
         <button
           onClick={() => onSectionChange("home")}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
-          <div className="w-8 h-8 rounded-lg gradient-btn flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">N</span>
-          </div>
-          <span className="text-foreground font-display font-semibold text-xl">
-            Nexora
-          </span>
+          <img 
+            src={codebayLogo} 
+            alt="CodeBay" 
+            className="h-8 md:h-10 w-auto invert"
+          />
         </button>
 
         {/* Desktop Navigation */}
