@@ -53,14 +53,22 @@ const HomeSection = () => {
       content: values.message,
     };
 
-    // Add user message immediately
-    setMessages((prev) => [...prev, userMessage]);
+    // Get updated messages using functional update to avoid stale closure
+    // This ensures we always have the latest state, even with rapid submissions
+    const updatedMessages = (() => {
+      let messagesWithUser: ChatMessage[] = [];
+      setMessages((prev) => {
+        messagesWithUser = [...prev, userMessage];
+        return messagesWithUser;
+      });
+      return messagesWithUser;
+    })();
+    
     form.reset();
     setIsLoading(true);
 
     try {
-      // Get all messages including the new user message
-      const updatedMessages = [...messages, userMessage];
+      // Use the updated messages that include the new user message
       const response = await sendChatMessage(updatedMessages);
 
       // Add assistant response
@@ -127,7 +135,7 @@ const HomeSection = () => {
                     {messages.map((message, index) => (
                       <div
                         key={`${message.role}-${index}`}
-                        className={`max-w-[85%] rounded-2xl px-3 py-2 text-[10px] sm:text-[11px] leading-relaxed ${message.role === "assistant"
+                        className={`max-w-[85%] rounded-2xl px-3 py-2 text-[11px] sm:text-[12px] leading-relaxed ${message.role === "assistant"
                           ? "bg-white/5 text-foreground border border-white/10"
                           : "ml-auto bg-primary/20 text-foreground border border-primary/30"
                           }`}
@@ -136,7 +144,7 @@ const HomeSection = () => {
                       </div>
                     ))}
                     {isLoading && (
-                      <div className="max-w-[85%] rounded-2xl px-3 py-2 text-[10px] sm:text-[11px] leading-relaxed bg-white/5 text-foreground border border-white/10">
+                      <div className="max-w-[85%] rounded-2xl px-3 py-2 text-[11px] sm:text-[12px] leading-relaxed bg-white/5 text-foreground border border-white/10">
                         <div className="flex items-center gap-2">
                           <Loader2 className="h-3 w-3 animate-spin" />
                           <span>Thinking...</span>
@@ -151,7 +159,7 @@ const HomeSection = () => {
                       <Input
                         {...form.register("message")}
                         placeholder="Ask about your product, timeline, or tech stack..."
-                        className="w-full bg-transparent border-0 text-[10px] sm:text-[11px] text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="w-full bg-transparent border-0 text-[11px] sm:text-[12px] text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                         disabled={isLoading}
                         autoComplete="off"
                       />
