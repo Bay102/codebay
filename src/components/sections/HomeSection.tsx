@@ -1,6 +1,6 @@
 const HomeSection = () => {
   return (
-    <div className="relative w-full h-full flex items-center justify-center">
+    <div className="relative w-full h-full flex items-start justify-center pt-8">
       {/* Video/Graphic Placeholder */}
       <div className="video-placeholder w-full h-full flex items-center justify-center">
         <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] rounded-full animate-float">

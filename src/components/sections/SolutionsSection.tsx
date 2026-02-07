@@ -25,9 +25,9 @@ const solutions = [
 
 const SolutionsSection = () => {
   return (
-    <div className="w-full h-full flex items-center justify-center p-8">
+    <div className="w-full h-full flex items-start justify-center pt-8 pb-8 px-8 overflow-y-auto">
       <div className="max-w-4xl w-full">
-        <div className="text-center mb-12">
+        <div className="text-center mb-6">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             What We Build
           </span>
@@ -38,7 +38,7 @@ const SolutionsSection = () => {
             Professional software development powered by AI, delivering enterprise-quality results at startup speed.
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {solutions.map((solution, index) => (
             <div
