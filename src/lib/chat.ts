@@ -17,12 +17,7 @@ export async function sendChatMessage(
   messages: ChatMessage[]
 ): Promise<ChatResponse> {
   try {
-    // Get the anon key to ensure it's available
-    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    if (!anonKey) {
-      throw new Error("Supabase anon key is not configured");
-    }
-
+    // Supabase client automatically includes authentication headers
     const { data, error } = await supabase.functions.invoke("chat", {
       body: { messages },
     });

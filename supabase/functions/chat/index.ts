@@ -22,14 +22,23 @@ serve(async (req) => {
   }
 
   try {
-    // Verify the request has proper authorization
+    // Verify the request has proper authorization from Supabase client
     const authHeader = req.headers.get("Authorization");
     const apikeyHeader = req.headers.get("apikey");
     
     // Edge Functions require either Authorization Bearer token or apikey header
-    // The Supabase client should send this automatically, but we log for debugging
+    // The Supabase client should send this automatically with the anon key
     if (!authHeader && !apikeyHeader) {
-      console.log("Request headers:", Object.fromEntries(req.headers.entries()));
+      return new Response(
+        JSON.stringify({ error: "Unauthorized: Missing authentication headers" }),
+        { 
+          status: 401, 
+          headers: { 
+            ...corsHeaders,
+            "Content-Type": "application/json" 
+          } 
+        }
+      );
     }
 
     if (!OPENAI_API_KEY) {
