@@ -1,25 +1,25 @@
-import { Zap, Shield, Globe, Cpu } from "lucide-react";
+import { Zap, Rocket, Code2, Layers } from "lucide-react";
 
 const solutions = [
   {
     icon: Zap,
-    title: "Smart Contracts",
-    description: "Automated, trustless agreements powered by blockchain technology."
+    title: "Rapid MVP Development",
+    description: "Launch your minimum viable product in weeks, not months. AI-accelerated development without cutting corners."
   },
   {
-    icon: Shield,
-    title: "Secure Infrastructure",
-    description: "Enterprise-grade security for your digital assets and data."
+    icon: Rocket,
+    title: "Full-Stack Applications",
+    description: "End-to-end web and mobile apps built with modern tech stacks and scalable architecture."
   },
   {
-    icon: Globe,
-    title: "Global Network",
-    description: "Decentralized systems spanning across continents."
-  },
-  {
-    icon: Cpu,
+    icon: Code2,
     title: "AI Integration",
-    description: "Machine learning models optimized for Web3 applications."
+    description: "Embed powerful AI capabilities into your existing products or build AI-native solutions from scratch."
+  },
+  {
+    icon: Layers,
+    title: "Legacy Modernization",
+    description: "Transform outdated systems into modern, maintainable applications at unprecedented speed."
   }
 ];
 
@@ -29,13 +29,13 @@ const SolutionsSection = () => {
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
-            What We Offer
+            What We Build
           </span>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
-            Innovative Solutions
+            Solutions That Ship Fast
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
-            Cutting-edge technology solutions designed for the decentralized future.
+            Professional software development powered by AI, delivering enterprise-quality results at startup speed.
           </p>
         </div>
         

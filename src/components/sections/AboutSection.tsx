@@ -1,14 +1,14 @@
 const stats = [
-  { value: "$2B+", label: "Total Value Locked" },
-  { value: "150+", label: "Partner Projects" },
-  { value: "1M+", label: "Active Users" },
-  { value: "99.9%", label: "Uptime" }
+  { value: "10x", label: "Faster Delivery" },
+  { value: "50+", label: "Projects Shipped" },
+  { value: "100%", label: "Client Satisfaction" },
+  { value: "24/7", label: "AI-Powered" }
 ];
 
-const team = [
-  { name: "Alex Chen", role: "CEO & Co-founder" },
-  { name: "Sarah Kim", role: "CTO" },
-  { name: "Marcus Wei", role: "Head of AI" }
+const values = [
+  { title: "Speed Without Sacrifice", description: "We leverage AI to move fast, but never at the cost of quality or security." },
+  { title: "Transparent Partnership", description: "You're never in the dark. Real-time updates and honest communication, always." },
+  { title: "Future-Ready Code", description: "Every line we write is maintainable, scalable, and built for tomorrow." }
 ];
 
 const AboutSection = () => {
@@ -20,12 +20,12 @@ const AboutSection = () => {
             Who We Are
           </span>
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
-            About Nexora
+            About CodeBay
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto leading-relaxed">
-            We're a team of innovators, engineers, and dreamers building at the intersection 
-            of artificial intelligence and decentralized technology. Our mission is to create 
-            tools that empower the next billion users to participate in the digital economy.
+            We're a team of senior engineers and AI specialists who believe professional software 
+            development shouldn't take months. We combine deep technical expertise with cutting-edge 
+            AI tools to deliver exceptional results at unprecedented speed.
           </p>
         </div>
 
@@ -47,21 +47,16 @@ const AboutSection = () => {
           ))}
         </div>
 
-        {/* Team Preview */}
+        {/* Values */}
         <div className="glass-nav rounded-2xl p-6">
-          <h3 className="font-display text-lg text-foreground mb-4 text-center">
-            Leadership Team
+          <h3 className="font-display text-lg text-foreground mb-6 text-center">
+            Our Principles
           </h3>
-          <div className="flex flex-wrap justify-center gap-6">
-            {team.map((member) => (
-              <div key={member.name} className="text-center">
-                <div className="w-16 h-16 rounded-full bg-secondary/50 mx-auto mb-2 flex items-center justify-center">
-                  <span className="text-foreground font-display text-lg">
-                    {member.name.split(' ').map(n => n[0]).join('')}
-                  </span>
-                </div>
-                <div className="text-foreground text-sm font-medium">{member.name}</div>
-                <div className="text-muted-foreground text-xs">{member.role}</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {values.map((value) => (
+              <div key={value.title} className="text-center">
+                <div className="text-foreground font-medium mb-2">{value.title}</div>
+                <div className="text-muted-foreground text-sm leading-relaxed">{value.description}</div>
               </div>
             ))}
           </div>
