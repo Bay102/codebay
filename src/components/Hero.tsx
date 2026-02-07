@@ -11,7 +11,7 @@ interface HeroProps {
 
 const Hero = ({ activeSection, direction }: HeroProps) => {
   return (
-    <section className="relative min-h-screen flex flex-col justify-end overflow-hidden px-6 pb-12 lg:px-12 lg:pb-20">
+    <section className="relative min-h-screen flex flex-col justify-end overflow-hidden px-6 pb-12 lg:px-12">
       {/* Video Background */}
       <VideoBackground
         src="/code.mp4"

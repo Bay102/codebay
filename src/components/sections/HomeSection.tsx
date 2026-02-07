@@ -27,9 +27,9 @@ const trainingFocus = [
 
 const HomeSection = () => {
   return (
-    <div className="relative w-full h-full flex items-start justify-center pt-8">
+    <div className="relative w-full h-full flex items-start sm:items-center justify-center pt-0 pb-16 sm:pb-24 md:pb-28 lg:pb-32 xl:pb-40 -mt-6 sm:mt-0">
       <div className="video-placeholder w-full h-full flex items-center justify-center">
-        <div className="relative w-[300px] h-[300px] md:w-[500px] md:h-[500px] lg:w-[600px] lg:h-[600px] rounded-full animate-float">
+        <div className="relative w-[100vw] sm:w-full max-w-[520px] sm:max-w-[580px] md:max-w-[660px] lg:max-w-[740px] xl:max-w-[800px] aspect-square rounded-full animate-float">
           <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl animate-pulse-glow" />
           <div className="absolute inset-[6%] rounded-full border border-white/10" />
           <div className="absolute inset-[12%] rounded-full border border-primary/20 animate-[spin_18s_linear_infinite]" />
@@ -38,8 +38,8 @@ const HomeSection = () => {
           <div className="absolute left-[15%] bottom-[18%] h-3 w-3 rounded-full bg-primary/70 shadow-[0_0_16px_rgba(249,115,22,0.8)]" />
           <div className="absolute right-[20%] top-[16%] h-2 w-2 rounded-full bg-accent/70 shadow-[0_0_12px_rgba(244,63,94,0.8)]" />
 
-          <div className="absolute inset-[12%] md:inset-[16%] lg:inset-[18%]">
-            <div className="glass-nav relative h-full w-full rounded-3xl p-2 md:p-3 shadow-[0_25px_80px_rgba(0,0,0,0.45)]">
+          <div className="flex items-center justify-center absolute inset-[1%] sm:inset-[8%] md:inset-[16%] lg:inset-[18%]">
+            <div className="glass-nav relative w-full rounded-3xl p-2 -mt-32 md:p-3 shadow-[0_25px_80px_rgba(0,0,0,0.45)] md:-mt-0">
               <div className="relative h-full w-full overflow-hidden rounded-2xl">
                 <div
                   className="absolute inset-0 rounded-2xl opacity-80"
@@ -67,13 +67,13 @@ const HomeSection = () => {
                     </span>
                   </div>
 
-                  <div className="flex-1 space-y-3 px-4 py-3">
+                  <div className="flex-1 min-h-0 space-y-3 px-4 py-3 overflow-y-auto">
                     {chatMessages.map((message, index) => (
                       <div
                         key={`${message.role}-${index}`}
                         className={`max-w-[85%] rounded-2xl px-3 py-2 text-[10px] sm:text-[11px] leading-relaxed ${message.role === "assistant"
-                            ? "bg-white/5 text-foreground border border-white/10"
-                            : "ml-auto bg-primary/20 text-foreground border border-primary/30"
+                          ? "bg-white/5 text-foreground border border-white/10"
+                          : "ml-auto bg-primary/20 text-foreground border border-primary/30"
                           }`}
                       >
                         {message.content}
