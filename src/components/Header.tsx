@@ -32,9 +32,9 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
           onClick={() => onSectionChange("home")}
           className="flex items-center gap-3 hover:opacity-80 transition-opacity"
         >
-          <img 
-            src={codebayLogo} 
-            alt="CodeBay" 
+          <img
+            src={codebayLogo}
+            alt="CodeBay"
             className="h-8 md:h-10 w-auto invert"
           />
         </button>
@@ -47,11 +47,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                 <li key={link.section}>
                   <button
                     onClick={() => handleNavClick(link.section)}
-                    className={`px-5 py-2 text-sm transition-colors rounded-full ${
-                      activeSection === link.section
+                    className={`px-5 py-2 text-sm transition-colors rounded-full ${activeSection === link.section
                         ? "bg-primary/20 text-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                    }`}
+                      }`}
                   >
                     {link.label}
                   </button>
@@ -88,11 +87,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
               <button
                 key={link.section}
                 onClick={() => handleNavClick(link.section)}
-                className={`text-left py-2 transition-colors ${
-                  activeSection === link.section
+                className={`text-left py-2 transition-colors ${activeSection === link.section
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 {link.label}
               </button>
