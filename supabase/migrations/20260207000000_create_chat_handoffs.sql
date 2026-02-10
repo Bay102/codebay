@@ -5,7 +5,7 @@ create table if not exists public.chat_handoffs (
   created_at timestamptz not null default now(),
   name text not null,
   email text not null,
-  phone text not null,
+  phone text,
   chat_history jsonb not null
 );
 

@@ -17,26 +17,26 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
+import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
+import { isPossiblePhoneNumber } from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 
 const chatFormSchema = z.object({
   message: z.string().min(1, "Message cannot be empty"),
 });
-
-const phoneRegex = /^[+]?[\d\s().-]{7,20}$/;
 
 const humanConnectFormSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Enter a valid email"),
   phone: z
     .string()
-    .trim()
-    .refine((value) => value.length === 0 || phoneRegex.test(value), {
+    .nullish()
+    .refine((value) => !value || isPossiblePhoneNumber(value), {
       message: "Enter a valid phone number",
-    })
-    .refine((value) => value.length === 0 || value.replace(/\D/g, "").length >= 7, {
-      message: "Phone number is too short",
     }),
+  notes: z.string().max(2000, "Notes must be 2000 characters or less").optional().default(""),
 });
 
 type ChatFormValues = z.infer<typeof chatFormSchema>;
@@ -207,7 +207,7 @@ const ChatCard = ({
                 {connectStatus === "success" ? "Request sent" : "Connect with CodeBay"}
               </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[420px]">
+            <DialogContent className="sm:max-w-[420px] bg-white text-gray-900 [&_input]:bg-white [&_input]:border-gray-200 [&_input]:text-gray-900 [&_textarea]:bg-white [&_textarea]:border-gray-200 [&_textarea]:text-gray-900 [&_.text-muted-foreground]:text-gray-500 [&_.PhoneInput]:border-gray-200 [&_.PhoneInput]:bg-white [&_.PhoneInputInput]:bg-transparent [&_.PhoneInputInput]:text-gray-900">
               <DialogHeader>
                 <DialogTitle>Connect with CodeBay</DialogTitle>
                 <DialogDescription>
@@ -250,17 +250,33 @@ const ChatCard = ({
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="connect-phone">Phone (optional)</Label>
-                    <Input
+                    <PhoneInputWithCountry
                       id="connect-phone"
-                      type="tel"
-                      autoComplete="tel"
-                      placeholder="+1 (555) 000-0000"
-                      {...connectForm.register("phone")}
+                      name="phone"
+                      control={connectForm.control}
+                      defaultCountry="US"
+                      placeholder="Enter phone number"
                       disabled={connectStatus === "submitting"}
                     />
                     {connectForm.formState.errors.phone && (
                       <p className="text-xs text-destructive">
                         {connectForm.formState.errors.phone.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="connect-notes">Notes (optional)</Label>
+                    <Textarea
+                      id="connect-notes"
+                      placeholder="Any additional context, timeline, or questions..."
+                      rows={3}
+                      className="resize-none"
+                      {...connectForm.register("notes")}
+                      disabled={connectStatus === "submitting"}
+                    />
+                    {connectForm.formState.errors.notes && (
+                      <p className="text-xs text-destructive">
+                        {connectForm.formState.errors.notes.message}
                       </p>
                     )}
                   </div>
@@ -341,7 +357,7 @@ const ChatSection = () => {
 
   const connectForm = useForm<HumanConnectFormValues>({
     resolver: zodResolver(humanConnectFormSchema),
-    defaultValues: { name: "", email: "", phone: "" },
+    defaultValues: { name: "", email: "", phone: undefined, notes: "" },
   });
 
   const scrollToBottom = useCallback(() => {
@@ -393,11 +409,13 @@ const ChatSection = () => {
     setConnectStatus("submitting");
     setConnectError(null);
 
-    const trimmedPhone = values.phone.trim();
+    const trimmedPhone = values.phone?.trim();
+    const trimmedNotes = values.notes?.trim();
     const response = await requestHumanConnect({
       name: values.name.trim(),
       email: values.email.trim(),
-      phone: trimmedPhone.length > 0 ? trimmedPhone : null,
+      phone: trimmedPhone && trimmedPhone.length > 0 ? trimmedPhone : null,
+      notes: trimmedNotes && trimmedNotes.length > 0 ? trimmedNotes : null,
       messages,
     });
 

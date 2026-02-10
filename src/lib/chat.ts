@@ -9,6 +9,7 @@ export type HumanConnectPayload = {
   name: string;
   email: string;
   phone: string | null;
+  notes: string | null;
   messages: ChatMessage[];
 };
 
@@ -71,9 +72,20 @@ export async function requestHumanConnect(
 
     if (error) {
       console.error("Supabase function error:", error);
+      // Extract error message from response body (error.context is the Response)
+      let errorMessage = error.message;
+      try {
+        const res = (error as { context?: Response }).context;
+        if (res && typeof res.json === "function") {
+          const body = (await res.json()) as { error?: string };
+          if (body?.error) errorMessage = body.error;
+        }
+      } catch {
+        // Fall back to error.message
+      }
       return {
         success: false,
-        error: error.message,
+        error: errorMessage,
       };
     }
 

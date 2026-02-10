@@ -10,6 +10,7 @@ type ConnectHumanPayload = {
   name: string;
   email: string;
   phone?: string | null;
+  notes?: string | null;
   messages: ChatMessage[];
 };
 
@@ -27,11 +28,14 @@ const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0;
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const phoneRegex = /^[+]?[\d\s().-]{7,20}$/;
+// E.164 format: + followed by 7-15 digits (optional spaces/dashes/dots/parens)
+const phoneRegex = /^\+?[\d\s().-]{7,25}$/;
 
 const isValidEmail = (value: string) => emailRegex.test(value);
-const isValidPhone = (value: string) =>
-  phoneRegex.test(value) && value.replace(/\D/g, "").length >= 7;
+const isValidPhone = (value: string) => {
+  const digits = value.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15 && phoneRegex.test(value);
+};
 
 const isChatMessage = (value: unknown): value is ChatMessage => {
   if (!value || typeof value !== "object") {
@@ -100,10 +104,12 @@ serve(async (req) => {
       });
     }
 
-    const { name, email, phone, messages } = body;
+    const { name, email, phone, notes, messages } = body;
     const normalizedName = typeof name === "string" ? name.trim() : "";
     const normalizedEmail = typeof email === "string" ? email.trim() : "";
-    const normalizedPhone = typeof phone === "string" ? phone.trim() : "";
+    const normalizedPhone =
+      phone == null || phone === "" ? "" : typeof phone === "string" ? phone.trim() : "";
+    const normalizedNotes = typeof notes === "string" ? notes.trim() : "";
 
     if (!isNonEmptyString(normalizedName) || !isNonEmptyString(normalizedEmail)) {
       return new Response(JSON.stringify({ error: "Name and email are required" }), {
@@ -149,6 +155,7 @@ serve(async (req) => {
       name: normalizedName,
       email: normalizedEmail,
       phone: normalizedPhone.length > 0 ? normalizedPhone : null,
+      notes: normalizedNotes.length > 0 ? normalizedNotes : null,
       chat_history: messages,
     });
 
