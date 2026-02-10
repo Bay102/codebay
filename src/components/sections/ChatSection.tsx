@@ -373,7 +373,7 @@ const ChatCard = ({
           <Input
             {...chatForm.register("message")}
             placeholder="Ask about your product, timeline, or tech stack..."
-            className="w-full border-0 bg-transparent text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
+            className="w-full border-0 bg-transparent text-base md:text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
             disabled={isLoading}
             autoComplete="off"
           />

@@ -59,7 +59,7 @@ const SectionContainer = ({ activeSection, direction }: SectionContainerProps) =
     <div className="absolute inset-0 overflow-hidden">
       <div
         ref={scrollRef}
-        className="absolute inset-x-0 top-20 bottom-0 pt-2 overflow-y-auto md:overflow-hidden overscroll-contain"
+        className="absolute inset-x-0 top-20 bottom-[6.5rem] md:bottom-0 pt-2 overflow-y-auto md:overflow-hidden overscroll-contain"
       >
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
@@ -69,7 +69,7 @@ const SectionContainer = ({ activeSection, direction }: SectionContainerProps) =
             initial="enter"
             animate="center"
             exit="exit"
-            className="absolute inset-x-0 top-0 min-h-full pb-20 md:pb-0"
+            className="absolute inset-x-0 top-0 min-h-full pb-4 md:pb-0"
           >
             <ActiveComponent />
           </motion.div>
