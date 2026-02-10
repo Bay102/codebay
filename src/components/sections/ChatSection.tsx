@@ -60,7 +60,7 @@ const CAPABILITIES = [
 ] as const;
 
 const OUTCOMES = [
-  { icon: ArrowRight, label: "Weeks → Days", sub: "Delivery speed" },
+  { icon: ArrowRight, label: "Months → Weeks", sub: "Delivery speed" },
   { icon: ShieldCheck, label: "Professional-grade", sub: "Enterprise quality" },
   { icon: Zap, label: "Zero Compromise", sub: "Speed + quality" },
 ] as const;
@@ -72,8 +72,8 @@ const ChatSectionCopy = () => (
       <span className="gradient-text"> Shipped at Insane Speed</span>
     </h1>
     <p className="text-sm sm:text-base text-white/90 leading-relaxed">
-      We&apos;re a tech agency that builds professional-grade software using AI, delivering weeks of
-      work in days without compromising quality.
+      We&apos;re a tech agency that builds professional-grade software using AI, delivering months of
+      work in weeks without compromising quality.
     </p>
 
     {/* Capability badges */}
