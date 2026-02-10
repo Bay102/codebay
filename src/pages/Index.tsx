@@ -18,7 +18,7 @@ const Index = () => {
   }, [activeSection]);
 
   return (
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-[100dvh] bg-background">
       <Header activeSection={activeSection} onSectionChange={handleSectionChange} />
       <Hero activeSection={activeSection} direction={direction} />
     </div>
