@@ -408,6 +408,7 @@ const ChatSection = () => {
   const [isConnectOpen, setIsConnectOpen] = useState(false);
   const [connectStatus, setConnectStatus] = useState<ConnectStatus>("idle");
   const [connectError, setConnectError] = useState<string | null>(null);
+  const [isChromeMobile, setIsChromeMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -431,6 +432,17 @@ const ChatSection = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined") return;
+
+    const ua = navigator.userAgent;
+    const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    const isChromeFamily = /CriOS|Chrome/i.test(ua);
+    const isExcludedBrowser = /EdgA|EdgiOS|OPR|OPiOS|SamsungBrowser|FxiOS/i.test(ua);
+
+    setIsChromeMobile(isMobileDevice && isChromeFamily && !isExcludedBrowser);
+  }, []);
 
   const onChatSubmit = async (values: ChatFormValues) => {
     const userMessage: ChatMessage = { role: "user", content: values.message };
@@ -523,6 +535,7 @@ const ChatSection = () => {
               connectForm={connectForm}
               onConnectSubmit={onConnectSubmit}
             />
+            {isChromeMobile && <div aria-hidden="true" className="h-20 md:hidden" />}
           </div>
         </div>
       </div>
