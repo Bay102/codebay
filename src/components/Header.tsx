@@ -92,8 +92,8 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
         </div>
       </header>
 
-      {/* Mobile Navigation - Fixed at bottom */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-3 pb-3">
+      {/* Mobile Navigation - Fixed at top */}
+      <nav className="fixed top-20 left-0 right-0 z-50 md:hidden px-3 pt-2">
         <div className="max-w-7xl mx-auto">
           <div ref={mobileNavRef} className="liquid-glass-nav relative rounded-full px-2 py-1.5">
             {/* Sliding indicator */}
@@ -120,10 +120,11 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                       }
                     }}
                     onClick={() => handleNavClick(link.section)}
-                    className={`w-full px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
+                    className={`w-full px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
+                      activeSection === link.section
                         ? "text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground"
-                      }`}
+                    }`}
                   >
                     {link.label}
                   </button>
@@ -144,10 +145,11 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                     }
                   }}
                   onClick={() => handleNavClick("home")}
-                  className={`px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${activeSection === "home"
+                  className={`px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${
+                    activeSection === "home"
                       ? "text-primary font-medium"
                       : "text-muted-foreground hover:text-foreground"
-                    }`}
+                  }`}
                   title="AI Chat"
                 >
                   <Sparkles className="w-4 h-4" />
@@ -168,10 +170,11 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                       }
                     }}
                     onClick={() => handleNavClick(link.section)}
-                    className={`w-full px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
+                    className={`w-full px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
+                      activeSection === link.section
                         ? "text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground"
-                      }`}
+                    }`}
                   >
                     {link.label}
                   </button>

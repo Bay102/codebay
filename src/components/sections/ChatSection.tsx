@@ -168,7 +168,7 @@ const ChatCard = ({
           delay: 0.5,
         },
       }}
-      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground flex flex-col h-[415px] md:flex-1 md:min-h-0 shadow-2xl relative rounded-xl overflow-hidden"
+      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground flex flex-col h-[min(415px,62dvh)] md:h-[415px] md:flex-1 md:min-h-0 shadow-2xl relative rounded-xl overflow-hidden"
     >
       <div className="chat-scan-line" />
 
@@ -246,14 +246,16 @@ const ChatCard = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="px-3 md:px-4 pb-3 md:pb-4 relative z-10 space-y-2">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/90 via-black/55 to-transparent md:hidden" />
+
+      <div className="px-3 md:px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] md:pb-4 relative z-10 space-y-2 bg-transparent backdrop-blur-md md:backdrop-blur-0 border-t border-white/10 md:border-t-0">
         <div className="flex items-center justify-end">
           <Dialog open={isConnectOpen} onOpenChange={onConnectOpenChange}>
             <DialogTrigger asChild>
               <button
                 type="button"
                 disabled={isLoading || connectStatus === "submitting"}
-                className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 hover:shadow-[0_0_12px_hsla(24,95%,53%,0.25)] transition-all disabled:opacity-50 disabled:pointer-events-none"
+                className="group inline-flex items-center gap-1.5 px-2.5 pt-3 rounded-full text-xs font-medium hover:bg-primary/20 hover:border-primary/40 hover:shadow-[0_0_12px_hsla(24,95%,53%,0.25)] transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
                 <UserCircle className="h-3.5 w-3.5" />
                 {connectStatus === "success" ? "Request sent" : "Connect with CodeBay"}
@@ -374,13 +376,13 @@ const ChatCard = ({
 
         <form
           onSubmit={chatForm.handleSubmit(onChatSubmit)}
-          className="flex items-center gap-2 border border-[hsla(187,85%,53%,0.2)] bg-[hsla(0,0%,0%,0.4)] backdrop-blur-sm px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg transition-all shadow-[0_0_20px_hsla(187,85%,53%,0.06)] hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)]"
+          className="flex items-center gap-2 border border-white md:border-[hsla(187,85%,53%,0.2)] bg-white md:bg-[hsla(0,0%,0%,0.4)] backdrop-blur-md px-3 md:px-3 py-2 md:py-2 rounded-lg transition-all ring-2 ring-black/25 md:ring-black/10 shadow-[0_12px_36px_rgba(0,0,0,0.42)] md:shadow-[0_0_20px_hsla(187,85%,53%,0.06)] hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)]"
         >
-          <span className="text-[hsl(187,85%,53%)] font-mono font-semibold text-sm select-none">›</span>
+          <span className="text-[hsl(187,85%,53%)] font-mono font-semibold text-base md:text-sm select-none">›</span>
           <Input
             {...chatForm.register("message")}
             placeholder="Ask about your product, timeline, or tech stack..."
-            className="w-full border-0 bg-transparent text-base md:text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
+            className="w-full border-0 bg-transparent text-slate-950 md:text-foreground text-[1.05rem] leading-6 md:text-sm md:leading-5 placeholder:text-slate-500 md:placeholder:text-muted-foreground caret-slate-950 md:caret-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
             disabled={isLoading}
             autoComplete="off"
           />
@@ -388,7 +390,7 @@ const ChatCard = ({
             type="submit"
             disabled={isLoading || !chatForm.watch("message")?.trim()}
             size="sm"
-            className="transition-all hover:scale-110 disabled:opacity-50"
+            className="h-9 min-w-9 px-2.5 md:h-8 md:min-w-8 md:px-2 transition-all hover:scale-110 disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -408,7 +410,6 @@ const ChatSection = () => {
   const [isConnectOpen, setIsConnectOpen] = useState(false);
   const [connectStatus, setConnectStatus] = useState<ConnectStatus>("idle");
   const [connectError, setConnectError] = useState<string | null>(null);
-  const [isChromeMobile, setIsChromeMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -432,17 +433,6 @@ const ChatSection = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
-
-  useEffect(() => {
-    if (typeof navigator === "undefined") return;
-
-    const ua = navigator.userAgent;
-    const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-    const isChromeFamily = /CriOS|Chrome/i.test(ua);
-    const isExcludedBrowser = /EdgA|EdgiOS|OPR|OPiOS|SamsungBrowser|FxiOS/i.test(ua);
-
-    setIsChromeMobile(isMobileDevice && isChromeFamily && !isExcludedBrowser);
-  }, []);
 
   const onChatSubmit = async (values: ChatFormValues) => {
     const userMessage: ChatMessage = { role: "user", content: values.message };
@@ -535,7 +525,6 @@ const ChatSection = () => {
               connectForm={connectForm}
               onConnectSubmit={onConnectSubmit}
             />
-            {isChromeMobile && <div aria-hidden="true" className="h-20 md:hidden" />}
           </div>
         </div>
       </div>
