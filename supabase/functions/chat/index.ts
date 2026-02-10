@@ -8,11 +8,100 @@ interface ChatMessage {
   content: string;
 }
 
+type ClientRateLimitState = {
+  shortWindowStart: number;
+  shortCount: number;
+  longWindowStart: number;
+  longCount: number;
+};
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const CHAT_SHORT_WINDOW_MS = 20_000;
+const CHAT_SHORT_WINDOW_MAX = 4;
+const CHAT_LONG_WINDOW_MS = 5 * 60_000;
+const CHAT_LONG_WINDOW_MAX = 20;
+const MAX_MESSAGES = 20;
+const MAX_CONTENT_LENGTH = 500;
+
+const rateLimitStore = new Map<string, ClientRateLimitState>();
+
+const jsonHeaders = {
+  ...corsHeaders,
+  "Content-Type": "application/json",
+};
+
+const getClientIdentifier = (req: Request) => {
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  const realIp = req.headers.get("x-real-ip");
+  const cfConnectingIp = req.headers.get("cf-connecting-ip");
+  const authHeader = req.headers.get("Authorization");
+  const apikeyHeader = req.headers.get("apikey");
+  const ip = forwardedFor?.split(",")[0]?.trim() || realIp || cfConnectingIp || "unknown-ip";
+  const authSuffix = authHeader?.slice(-12) || apikeyHeader?.slice(-12) || "anonymous";
+  return `${ip}:${authSuffix}`;
+};
+
+const checkRateLimit = (clientKey: string) => {
+  const now = Date.now();
+  const existing = rateLimitStore.get(clientKey);
+  const state: ClientRateLimitState = existing ?? {
+    shortWindowStart: now,
+    shortCount: 0,
+    longWindowStart: now,
+    longCount: 0,
+  };
+
+  if (now - state.shortWindowStart >= CHAT_SHORT_WINDOW_MS) {
+    state.shortWindowStart = now;
+    state.shortCount = 0;
+  }
+
+  if (now - state.longWindowStart >= CHAT_LONG_WINDOW_MS) {
+    state.longWindowStart = now;
+    state.longCount = 0;
+  }
+
+  if (state.shortCount >= CHAT_SHORT_WINDOW_MAX) {
+    return {
+      limited: true,
+      retryAfterSeconds: Math.max(
+        1,
+        Math.ceil((CHAT_SHORT_WINDOW_MS - (now - state.shortWindowStart)) / 1000),
+      ),
+    };
+  }
+
+  if (state.longCount >= CHAT_LONG_WINDOW_MAX) {
+    return {
+      limited: true,
+      retryAfterSeconds: Math.max(
+        1,
+        Math.ceil((CHAT_LONG_WINDOW_MS - (now - state.longWindowStart)) / 1000),
+      ),
+    };
+  }
+
+  state.shortCount += 1;
+  state.longCount += 1;
+  rateLimitStore.set(clientKey, state);
+  return { limited: false, retryAfterSeconds: 0 };
+};
+
+const isClientMessage = (value: unknown): value is ChatMessage => {
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  return (
+    (record.role === "assistant" || record.role === "user") &&
+    typeof record.content === "string" &&
+    record.content.trim().length > 0 &&
+    record.content.length <= MAX_CONTENT_LENGTH
+  );
 };
 
 serve(async (req) => {
@@ -33,11 +122,23 @@ serve(async (req) => {
         JSON.stringify({ error: "Unauthorized: Missing authentication headers" }),
         { 
           status: 401, 
-          headers: { 
-            ...corsHeaders,
-            "Content-Type": "application/json" 
-          } 
+          headers: jsonHeaders 
         }
+      );
+    }
+
+    const clientKey = getClientIdentifier(req);
+    const rateLimit = checkRateLimit(clientKey);
+    if (rateLimit.limited) {
+      return new Response(
+        JSON.stringify({ error: "Too many chat requests. Please slow down and try again shortly." }),
+        {
+          status: 429,
+          headers: {
+            ...jsonHeaders,
+            "Retry-After": String(rateLimit.retryAfterSeconds),
+          },
+        },
       );
     }
 
@@ -46,28 +147,48 @@ serve(async (req) => {
         JSON.stringify({ error: "OPENAI_API_KEY environment variable is not set" }),
         { 
           status: 500, 
-          headers: { 
-            ...corsHeaders,
-            "Content-Type": "application/json" 
-          } 
+          headers: jsonHeaders 
         }
       );
     }
 
-    const { messages } = await req.json();
+    const body = (await req.json().catch(() => null)) as { messages?: unknown } | null;
+    const messages = body?.messages;
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(
         JSON.stringify({ error: "Messages array is required" }),
         { 
           status: 400, 
-          headers: { 
-            ...corsHeaders,
-            "Content-Type": "application/json" 
-          } 
+          headers: jsonHeaders 
         }
       );
     }
+
+    if (messages.length === 0 || messages.length > MAX_MESSAGES) {
+      return new Response(
+        JSON.stringify({ error: `Messages must contain between 1 and ${MAX_MESSAGES} entries` }),
+        {
+          status: 400,
+          headers: jsonHeaders,
+        },
+      );
+    }
+
+    if (!messages.every(isClientMessage)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid message payload" }),
+        {
+          status: 400,
+          headers: jsonHeaders,
+        },
+      );
+    }
+
+    const sanitizedMessages = messages.map((message) => ({
+      role: message.role,
+      content: message.content.trim(),
+    }));
 
     // Call OpenAI API
     const response = await fetch(OPENAI_API_URL, {
@@ -103,7 +224,7 @@ RULES:
 - Do NOT write any code.
   `,
           },
-          ...messages,
+          ...sanitizedMessages,
         ],
         temperature: 0.7,
         max_tokens: 125,
@@ -117,10 +238,7 @@ RULES:
         JSON.stringify({ error: "Failed to get response from OpenAI" }),
         { 
           status: response.status, 
-          headers: { 
-            ...corsHeaders,
-            "Content-Type": "application/json" 
-          } 
+          headers: jsonHeaders 
         }
       );
     }
@@ -131,10 +249,7 @@ RULES:
     return new Response(
       JSON.stringify({ message }),
       { 
-        headers: { 
-          ...corsHeaders,
-          "Content-Type": "application/json" 
-        } 
+        headers: jsonHeaders 
       }
     );
   } catch (error) {
@@ -143,10 +258,7 @@ RULES:
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       { 
         status: 500, 
-        headers: { 
-          ...corsHeaders,
-          "Content-Type": "application/json" 
-        } 
+        headers: jsonHeaders 
       }
     );
   }

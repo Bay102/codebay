@@ -11,6 +11,9 @@ export type HumanConnectPayload = {
   phone: string | null;
   notes: string | null;
   messages: ChatMessage[];
+  antiBot?: {
+    formFillMs?: number;
+  };
 };
 
 export interface ChatResponse {
@@ -36,9 +39,24 @@ export async function sendChatMessage(
   messages: ChatMessage[]
 ): Promise<ChatResponse> {
   try {
+    const sanitizedMessages = messages
+      .slice(-20)
+      .map((message) => ({
+        role: message.role,
+        content: message.content.trim().slice(0, 500),
+      }))
+      .filter((message) => message.content.length > 0);
+
+    if (sanitizedMessages.length === 0) {
+      return {
+        message: "Please enter a message before submitting.",
+        error: "No valid message content",
+      };
+    }
+
     // Supabase client automatically includes authentication headers
     const { data, error } = await supabase.functions.invoke("chat", {
-      body: { messages },
+      body: { messages: sanitizedMessages },
     });
 
     if (error) {
@@ -66,8 +84,23 @@ export async function requestHumanConnect(
   payload: HumanConnectPayload
 ): Promise<HumanConnectResponse> {
   try {
+    const sanitizedPayload: HumanConnectPayload = {
+      name: payload.name.trim().slice(0, 120),
+      email: payload.email.trim().slice(0, 254),
+      phone: payload.phone?.trim().slice(0, 30) ?? null,
+      notes: payload.notes?.trim().slice(0, 2000) ?? null,
+      messages: payload.messages
+        .slice(-25)
+        .map((message) => ({
+          role: message.role,
+          content: message.content.trim().slice(0, 500),
+        }))
+        .filter((message) => message.content.length > 0),
+      antiBot: payload.antiBot,
+    };
+
     const { data, error } = await supabase.functions.invoke("connect-human", {
-      body: payload,
+      body: sanitizedPayload,
     });
 
     if (error) {

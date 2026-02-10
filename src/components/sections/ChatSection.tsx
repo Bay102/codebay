@@ -24,7 +24,11 @@ import { isPossiblePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 
 const chatFormSchema = z.object({
-  message: z.string().min(1, "Message cannot be empty"),
+  message: z
+    .string()
+    .trim()
+    .min(1, "Message cannot be empty")
+    .max(500, "Message must be 500 characters or less"),
 });
 
 const humanConnectFormSchema = z.object({
@@ -37,6 +41,7 @@ const humanConnectFormSchema = z.object({
       message: "Enter a valid phone number",
     }),
   notes: z.string().max(2000, "Notes must be 2000 characters or less").optional().default(""),
+  website: z.string().max(0, "Invalid submission").optional().default(""),
 });
 
 type ChatFormValues = z.infer<typeof chatFormSchema>;
@@ -51,6 +56,10 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 ];
 
 type ConnectStatus = "idle" | "submitting" | "success" | "error";
+
+const CHAT_MIN_INTERVAL_MS = 2500;
+const CONNECT_MIN_INTERVAL_MS = 30_000;
+const CONNECT_MIN_FILL_MS = 2000;
 
 const CAPABILITIES = [
   { icon: Smartphone, label: "Mobile Apps", color: "text-[hsl(187,85%,53%)]" },
@@ -277,6 +286,14 @@ const ChatCard = ({
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={connectForm.handleSubmit(onConnectSubmit)} className="grid gap-4">
+                <input
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                  className="hidden"
+                  {...connectForm.register("website")}
+                />
                 <div className="grid gap-3">
                   <div className="grid gap-2">
                     <Label htmlFor="connect-name">Name</Label>
@@ -385,6 +402,7 @@ const ChatCard = ({
             className="w-full border-0 bg-transparent text-slate-950 md:text-foreground text-[1.05rem] leading-6 md:text-sm md:leading-5 placeholder:text-slate-500 md:placeholder:text-muted-foreground caret-slate-950 md:caret-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
             disabled={isLoading}
             autoComplete="off"
+            maxLength={500}
           />
           <Button
             type="submit"
@@ -412,6 +430,9 @@ const ChatSection = () => {
   const [connectError, setConnectError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const lastChatSubmitAtRef = useRef(0);
+  const lastConnectSubmitAtRef = useRef(0);
+  const connectFormOpenedAtRef = useRef<number | null>(null);
 
   const chatForm = useForm<ChatFormValues>({
     resolver: zodResolver(chatFormSchema),
@@ -420,7 +441,7 @@ const ChatSection = () => {
 
   const connectForm = useForm<HumanConnectFormValues>({
     resolver: zodResolver(humanConnectFormSchema),
-    defaultValues: { name: "", email: "", phone: undefined, notes: "" },
+    defaultValues: { name: "", email: "", phone: undefined, notes: "", website: "" },
   });
 
   const scrollToBottom = useCallback(() => {
@@ -435,7 +456,22 @@ const ChatSection = () => {
   }, [messages, scrollToBottom]);
 
   const onChatSubmit = async (values: ChatFormValues) => {
-    const userMessage: ChatMessage = { role: "user", content: values.message };
+    const now = Date.now();
+    const elapsedSinceLastSubmit = now - lastChatSubmitAtRef.current;
+    if (elapsedSinceLastSubmit < CHAT_MIN_INTERVAL_MS) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "You're sending messages too quickly. Please wait a moment and try again.",
+        },
+      ]);
+      return;
+    }
+
+    lastChatSubmitAtRef.current = now;
+    const trimmedMessage = values.message.trim();
+    const userMessage: ChatMessage = { role: "user", content: trimmedMessage };
     const updatedMessages = [...messages, userMessage];
 
     setMessages(updatedMessages);
@@ -468,10 +504,33 @@ const ChatSection = () => {
       setConnectError(null);
       if (connectStatus !== "submitting") setConnectStatus("idle");
       connectForm.reset();
+      connectFormOpenedAtRef.current = Date.now();
     }
   };
 
   const onConnectSubmit = async (values: HumanConnectFormValues) => {
+    const now = Date.now();
+    const elapsedSinceLastSubmit = now - lastConnectSubmitAtRef.current;
+    if (elapsedSinceLastSubmit < CONNECT_MIN_INTERVAL_MS) {
+      setConnectStatus("error");
+      setConnectError("Please wait before sending another request.");
+      return;
+    }
+
+    const formFillMs = connectFormOpenedAtRef.current ? now - connectFormOpenedAtRef.current : 0;
+    if (formFillMs > 0 && formFillMs < CONNECT_MIN_FILL_MS) {
+      setConnectStatus("error");
+      setConnectError("Please review your details before submitting.");
+      return;
+    }
+
+    if (values.website?.trim()) {
+      setConnectStatus("error");
+      setConnectError("Unable to submit your request right now.");
+      return;
+    }
+
+    lastConnectSubmitAtRef.current = now;
     setConnectStatus("submitting");
     setConnectError(null);
 
@@ -483,6 +542,9 @@ const ChatSection = () => {
       phone: trimmedPhone && trimmedPhone.length > 0 ? trimmedPhone : null,
       notes: trimmedNotes && trimmedNotes.length > 0 ? trimmedNotes : null,
       messages,
+      antiBot: {
+        formFillMs,
+      },
     });
 
     if (!response.success) {
