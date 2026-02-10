@@ -61,7 +61,7 @@ const CAPABILITIES = [
 
 const OUTCOMES = [
   { icon: ArrowRight, label: "Months → Weeks", sub: "Delivery speed" },
-  { icon: ShieldCheck, label: "Professional-grade", sub: "Enterprise quality" },
+  { icon: ShieldCheck, label: "Professional Grade", sub: "Enterprise quality" },
   { icon: Zap, label: "Zero Compromise", sub: "Speed + quality" },
 ] as const;
 
@@ -502,7 +502,7 @@ const ChatSection = () => {
   };
 
   return (
-    <div className="w-full min-h-full md:h-full flex items-center justify-center py-4 md:py-0 md:pt-12">
+    <div className="w-full min-h-full md:h-full flex items-center justify-center md:pt-12">
       <div className="w-full max-w-5xl px-3 sm:px-6 md:px-8">
         <div className="flex flex-col md:flex-row md:items-stretch md:gap-12 md:justify-between">
           <div className="order-1 w-full md:flex-1 mb-4 md:mb-0 p-4 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
