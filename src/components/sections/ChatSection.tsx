@@ -62,27 +62,27 @@ const CONNECT_MIN_INTERVAL_MS = 30_000;
 const CONNECT_MIN_FILL_MS = 2000;
 
 const CAPABILITIES = [
-  { icon: Smartphone, label: "Mobile Apps", color: "text-[hsl(187,85%,53%)]" },
-  { icon: Globe, label: "Web Apps", color: "text-[hsl(187,85%,53%)]" },
-  { icon: Code2, label: "Custom Software", color: "text-primary" },
-  { icon: Sparkles, label: "AI Integration", color: "text-[hsl(187,85%,53%)]" },
+  { icon: Smartphone, label: "Mobile App Development", color: "text-[hsl(187,85%,53%)]" },
+  { icon: Globe, label: "Web App Development", color: "text-[hsl(187,85%,53%)]" },
+  { icon: Code2, label: "Custom Software Development", color: "text-primary" },
+  { icon: Sparkles, label: "AI Integration Services", color: "text-[hsl(187,85%,53%)]" },
 ] as const;
 
 const OUTCOMES = [
-  { icon: ArrowRight, label: "Months → Weeks", sub: "Delivery speed" },
-  { icon: ShieldCheck, label: "Professional Grade", sub: "Enterprise quality" },
-  { icon: Zap, label: "Zero Compromise", sub: "Speed + quality" },
+  { icon: ArrowRight, label: "Launch Faster", sub: "Months to weeks delivery" },
+  { icon: ShieldCheck, label: "Enterprise-Grade Software", sub: "Production-ready quality" },
+  { icon: Zap, label: "AI-Accelerated Development", sub: "Speed without compromise" },
 ] as const;
 
 const ChatSectionCopy = () => (
   <div className="flex flex-col gap-4 md:gap-5">
     <h1 className="text-3xl sm:text-4xl md:text-4xl font-light tracking-tight text-foreground">
-      AI-Driven Development,
-      <span className="gradient-text"> Shipped at Insane Speed</span>
+      AI Software Development Agency,
+      <span className="gradient-text"> Web, Mobile, and Custom Products</span>
     </h1>
     <p className="text-sm sm:text-base text-white/90 leading-relaxed">
-      We&apos;re a tech agency that builds professional-grade software using AI, delivering months of
-      work in weeks without compromising quality.
+      CodeBay helps startups and teams build production-grade web apps, mobile apps, and custom
+      software faster with AI-assisted delivery.
     </p>
 
     {/* Capability badges */}
@@ -93,10 +93,10 @@ const ChatSectionCopy = () => (
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: i * 0.08, ease: [0.4, 0, 0.2, 1] }}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm hover:border-[hsla(187,85%,53%,0.3)] hover:bg-[hsla(187,85%,53%,0.06)] transition-all duration-300 group"
+          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm hover:border-[hsla(187,85%,53%,0.3)] hover:bg-[hsla(187,85%,53%,0.06)] transition-all duration-300 group"
         >
           <Icon className={`h-3.5 w-3.5 ${color} group-hover:scale-110 transition-transform`} />
-          <span className="text-xs sm:text-sm font-medium text-white/90">{label}</span>
+          <span className="text-[11px] sm:text-xs font-medium text-white/90">{label}</span>
         </motion.div>
       ))}
     </div>
