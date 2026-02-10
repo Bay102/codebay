@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, type CSSProperties } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -127,6 +127,7 @@ const ChatSectionCopy = () => (
 interface ChatCardProps {
   messages: ChatMessage[];
   isLoading: boolean;
+  desktopChatHeight: number | null;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   messagesContainerRef: React.RefObject<HTMLDivElement | null>;
   chatForm: UseFormReturn<ChatFormValues>;
@@ -142,6 +143,7 @@ interface ChatCardProps {
 const ChatCard = ({
   messages,
   isLoading,
+  desktopChatHeight,
   messagesEndRef,
   messagesContainerRef,
   chatForm,
@@ -157,6 +159,9 @@ const ChatCard = ({
     role === "assistant"
       ? "chat-ai-bubble bg-muted/60 text-foreground border border-[hsla(187,85%,53%,0.15)]"
       : "ml-auto bg-primary/20 border-primary/30 text-foreground shadow-[0_2px_8px_rgba(249,115,22,0.2)]";
+  const chatHeightStyle: CSSProperties | undefined = desktopChatHeight
+    ? ({ "--desktop-chat-height": `${desktopChatHeight}px` } as CSSProperties)
+    : undefined;
 
   return (
     <motion.div
@@ -177,7 +182,8 @@ const ChatCard = ({
           delay: 0.5,
         },
       }}
-      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground flex flex-col h-[min(415px,62dvh)] md:h-[415px] md:flex-1 md:min-h-0 shadow-2xl relative rounded-xl overflow-hidden"
+      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground grid grid-rows-[auto_minmax(0,1fr)_auto] !h-[415px] !min-h-[415px] !max-h-[415px] md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)] shadow-2xl relative rounded-xl overflow-hidden"
+      style={chatHeightStyle}
     >
       <div className="chat-scan-line" />
 
@@ -200,7 +206,10 @@ const ChatCard = ({
         </span>
       </div>
 
-      <div ref={messagesContainerRef} className="flex-1 min-h-0 space-y-2 md:space-y-3 px-3 md:px-4 py-2 md:py-3 overflow-y-auto relative z-10">
+      <div
+        ref={messagesContainerRef}
+        className="min-h-0 space-y-2 md:space-y-3 px-3 md:px-4 py-2 md:py-3 overflow-y-auto overscroll-contain relative z-10"
+      >
         <AnimatePresence mode="popLayout">
           {messages.map((message, index) => (
             <motion.div
@@ -428,6 +437,8 @@ const ChatSection = () => {
   const [isConnectOpen, setIsConnectOpen] = useState(false);
   const [connectStatus, setConnectStatus] = useState<ConnectStatus>("idle");
   const [connectError, setConnectError] = useState<string | null>(null);
+  const [desktopChatHeight, setDesktopChatHeight] = useState<number | null>(null);
+  const ctaPanelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const lastChatSubmitAtRef = useRef(0);
@@ -454,6 +465,29 @@ const ChatSection = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const ctaPanel = ctaPanelRef.current;
+    if (!ctaPanel) return;
+
+    const updateDesktopChatHeight = () => {
+      const nextHeight = Math.round(ctaPanel.getBoundingClientRect().height);
+      if (nextHeight > 0) {
+        setDesktopChatHeight(nextHeight);
+      }
+    };
+
+    updateDesktopChatHeight();
+    const resizeObserver = new ResizeObserver(updateDesktopChatHeight);
+    resizeObserver.observe(ctaPanel);
+    window.addEventListener("resize", updateDesktopChatHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("resize", updateDesktopChatHeight);
+    };
+  }, []);
 
   const onChatSubmit = async (values: ChatFormValues) => {
     const now = Date.now();
@@ -569,13 +603,17 @@ const ChatSection = () => {
     <div className="w-full min-h-full pt-11 md:h-full flex items-start md:items-center justify-center md:py-0 md:pt-12">
       <div className="w-full max-w-5xl px-3 sm:px-6 md:px-8">
         <div className="flex flex-col md:flex-row md:items-stretch md:gap-12 md:justify-between">
-          <div className="order-1 w-full md:flex-1 mb-4 md:mb-0 p-4 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          <div
+            ref={ctaPanelRef}
+            className="order-1 w-full md:flex-1 mb-4 md:mb-0 p-4 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+          >
             <ChatSectionCopy />
           </div>
           <div className="order-2 w-full md:w-auto md:flex md:flex-col md:flex-shrink-0 md:min-w-[28rem]">
             <ChatCard
               messages={messages}
               isLoading={isLoading}
+              desktopChatHeight={desktopChatHeight}
               messagesEndRef={messagesEndRef}
               messagesContainerRef={messagesContainerRef}
               chatForm={chatForm}
