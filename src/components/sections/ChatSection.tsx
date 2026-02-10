@@ -119,6 +119,7 @@ interface ChatCardProps {
   messages: ChatMessage[];
   isLoading: boolean;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  messagesContainerRef: React.RefObject<HTMLDivElement | null>;
   chatForm: UseFormReturn<ChatFormValues>;
   onChatSubmit: (values: ChatFormValues) => Promise<void>;
   isConnectOpen: boolean;
@@ -133,6 +134,7 @@ const ChatCard = ({
   messages,
   isLoading,
   messagesEndRef,
+  messagesContainerRef,
   chatForm,
   onChatSubmit,
   isConnectOpen,
@@ -189,7 +191,7 @@ const ChatCard = ({
         </span>
       </div>
 
-      <div className="flex-1 min-h-0 space-y-3 px-4 py-3 overflow-y-auto relative z-10">
+      <div ref={messagesContainerRef} className="flex-1 min-h-0 space-y-3 px-4 py-3 overflow-y-auto relative z-10">
         <AnimatePresence mode="popLayout">
           {messages.map((message, index) => (
             <motion.div
@@ -400,6 +402,7 @@ const ChatSection = () => {
   const [connectStatus, setConnectStatus] = useState<ConnectStatus>("idle");
   const [connectError, setConnectError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const chatForm = useForm<ChatFormValues>({
     resolver: zodResolver(chatFormSchema),
@@ -412,7 +415,10 @@ const ChatSection = () => {
   });
 
   const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
   }, []);
 
   useEffect(() => {
@@ -489,7 +495,7 @@ const ChatSection = () => {
   };
 
   return (
-    <div className="w-full min-h-full md:h-full flex items-center justify-center py-6 md:py-0">
+    <div className="w-full min-h-full md:h-full flex items-center justify-center py-6 md:py-0 md:pt-12">
       <div className="w-full max-w-5xl px-4 sm:px-6 md:px-8">
         <div className="flex flex-col md:flex-row md:items-stretch md:gap-12 md:justify-between">
           <div className="order-1 w-full md:flex-1 mb-6 md:mb-0 p-6 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
@@ -500,6 +506,7 @@ const ChatSection = () => {
               messages={messages}
               isLoading={isLoading}
               messagesEndRef={messagesEndRef}
+              messagesContainerRef={messagesContainerRef}
               chatForm={chatForm}
               onChatSubmit={onChatSubmit}
               isConnectOpen={isConnectOpen}

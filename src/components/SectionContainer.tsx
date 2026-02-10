@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import SolutionsSection from "./sections/SolutionsSection";
 import ProductsSection from "./sections/ProductsSection";
@@ -48,22 +49,32 @@ const slideVariants = {
 
 const SectionContainer = ({ activeSection, direction }: SectionContainerProps) => {
   const ActiveComponent = sections[activeSection];
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [activeSection]);
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      <AnimatePresence initial={false} custom={direction} mode="wait">
-        <motion.div
-          key={activeSection}
-          custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          className="absolute inset-x-0 top-20 bottom-0 pt-2 pb-24 md:pt-0 md:pb-0 overflow-y-auto md:overflow-hidden overscroll-contain"
-        >
-          <ActiveComponent />
-        </motion.div>
-      </AnimatePresence>
+      <div
+        ref={scrollRef}
+        className="absolute inset-x-0 top-20 bottom-0 pt-2 overflow-y-auto md:overflow-hidden overscroll-contain"
+      >
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          <motion.div
+            key={activeSection}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="absolute inset-x-0 top-0 min-h-full pb-20 md:pb-0"
+          >
+            <ActiveComponent />
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };
