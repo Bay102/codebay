@@ -259,7 +259,14 @@ const ChatCard = ({
                 {connectStatus === "success" ? "Request sent" : "Connect with CodeBay"}
               </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[420px] bg-white text-gray-900 [&_input]:bg-white [&_input]:border-gray-200 [&_input]:text-gray-900 [&_textarea]:bg-white [&_textarea]:border-gray-200 [&_textarea]:text-gray-900 [&_.text-muted-foreground]:text-gray-500 [&_.PhoneInput]:border-gray-200 [&_.PhoneInput]:bg-white [&_.PhoneInputInput]:bg-transparent [&_.PhoneInputInput]:text-gray-900">
+            <DialogContent
+              className="sm:max-w-[420px] bg-white text-gray-900 [&_input]:bg-white [&_input]:border-gray-200 [&_input]:text-gray-900 [&_textarea]:bg-white [&_textarea]:border-gray-200 [&_textarea]:text-gray-900 [&_.text-muted-foreground]:text-gray-500 [&_.PhoneInput]:border-gray-200 [&_.PhoneInput]:bg-white [&_.PhoneInputInput]:bg-transparent [&_.PhoneInputInput]:text-gray-900"
+              onOpenAutoFocus={(e) => {
+                if (typeof window !== "undefined" && window.innerWidth < 768) {
+                  e.preventDefault();
+                }
+              }}
+            >
               <DialogHeader>
                 <DialogTitle>Connect with CodeBay</DialogTitle>
                 <DialogDescription>
@@ -323,7 +330,7 @@ const ChatCard = ({
                       id="connect-notes"
                       placeholder="Any additional context, timeline, or questions..."
                       rows={3}
-                      className="resize-none"
+                      className="resize-none text-base md:text-sm"
                       {...connectForm.register("notes")}
                       disabled={connectStatus === "submitting"}
                     />

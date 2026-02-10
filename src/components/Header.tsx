@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowUpRight, MessageSquare } from "lucide-react";
+import { ArrowUpRight, Sparkles } from "lucide-react";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import DesktopNav from "@/components/DesktopNav";
 
@@ -150,7 +150,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                     }`}
                   title="AI Chat"
                 >
-                  <MessageSquare className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4" />
                 </button>
               </li>
               {navLinks.slice(2).map((link) => (
