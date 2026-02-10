@@ -19,7 +19,7 @@ const AboutSection = () => {
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             Who We Are
           </span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
+          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
             About CodeBay
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto leading-relaxed">

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, Loader2, Sparkles } from "lucide-react";
+import { Send, Loader2, Sparkles, UserCircle } from "lucide-react";
 import { requestHumanConnect, sendChatMessage, type ChatMessage } from "@/lib/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,7 +45,8 @@ type HumanConnectFormValues = z.infer<typeof humanConnectFormSchema>;
 const INITIAL_MESSAGES: ChatMessage[] = [
   {
     role: "assistant",
-    content: "Hi, I'm Anton. Tell me, what brings you here? Do you have a project in mind?",
+    content:
+      "Hey! I'm Anton. Most people land here with an idea—a mobile app, web app, or custom software. What are you looking to build?",
   },
 ];
 
@@ -193,49 +194,22 @@ const ChatCard = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="px-4 pb-4 relative z-10">
-        <form
-          onSubmit={chatForm.handleSubmit(onChatSubmit)}
-          className="flex items-center gap-2 border border-[hsla(187,85%,53%,0.2)] bg-[hsla(0,0%,0%,0.4)] backdrop-blur-sm px-3 py-2 rounded-lg transition-all shadow-[0_0_20px_hsla(187,85%,53%,0.06)] hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)]"
-        >
-          <span className="text-[hsl(187,85%,53%)] font-mono font-semibold text-sm select-none">›</span>
-          <Input
-            {...chatForm.register("message")}
-            placeholder="Ask about your product, timeline, or tech stack..."
-            className="w-full border-0 bg-transparent text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
-            disabled={isLoading}
-            autoComplete="off"
-          />
-          <Button
-            type="submit"
-            disabled={isLoading || !chatForm.watch("message")?.trim()}
-            size="sm"
-            className="transition-all hover:scale-110 disabled:opacity-50"
-          >
-            {isLoading ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
-            ) : (
-              <Send className="h-3 w-3" />
-            )}
-          </Button>
-        </form>
-
-        <div className="mt-3 flex items-center justify-end">
+      <div className="px-4 pb-4 relative z-10 space-y-2">
+        <div className="flex items-center justify-end">
           <Dialog open={isConnectOpen} onOpenChange={onConnectOpenChange}>
             <DialogTrigger asChild>
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="sm"
                 disabled={isLoading || connectStatus === "submitting"}
-                className="transition-all hover:scale-105 hover:border-primary/50 hover:bg-primary/10"
+                className="group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:border-primary/40 hover:shadow-[0_0_12px_hsla(24,95%,53%,0.25)] transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
-                {connectStatus === "success" ? "Request Sent" : "Connect with Human"}
-              </Button>
+                <UserCircle className="h-3.5 w-3.5" />
+                {connectStatus === "success" ? "Request sent" : "Connect with CodeBay"}
+              </button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[420px]">
               <DialogHeader>
-                <DialogTitle>Connect with a human</DialogTitle>
+                <DialogTitle>Connect with CodeBay</DialogTitle>
                 <DialogDescription>
                   Share your contact details and we will follow up. We may use your chat history to
                   better understand your needs.
@@ -321,6 +295,32 @@ const ChatCard = ({
             </DialogContent>
           </Dialog>
         </div>
+
+        <form
+          onSubmit={chatForm.handleSubmit(onChatSubmit)}
+          className="flex items-center gap-2 border border-[hsla(187,85%,53%,0.2)] bg-[hsla(0,0%,0%,0.4)] backdrop-blur-sm px-3 py-2 rounded-lg transition-all shadow-[0_0_20px_hsla(187,85%,53%,0.06)] hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)]"
+        >
+          <span className="text-[hsl(187,85%,53%)] font-mono font-semibold text-sm select-none">›</span>
+          <Input
+            {...chatForm.register("message")}
+            placeholder="Ask about your product, timeline, or tech stack..."
+            className="w-full border-0 bg-transparent text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
+            disabled={isLoading}
+            autoComplete="off"
+          />
+          <Button
+            type="submit"
+            disabled={isLoading || !chatForm.watch("message")?.trim()}
+            size="sm"
+            className="transition-all hover:scale-110 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Send className="h-3 w-3" />
+            )}
+          </Button>
+        </form>
       </div>
     </motion.div>
   );
@@ -423,7 +423,7 @@ const ChatSection = () => {
     <div className="w-full h-full flex items-center justify-center">
       <div className="w-full max-w-5xl px-4 sm:px-6 md:px-8">
         <div className="flex flex-col md:flex-row md:items-center md:gap-12 md:justify-between">
-          <div className="order-1 md:flex-1 mb-6 md:mb-0">
+          <div className="order-1 md:flex-1 mb-6 md:mb-0 p-6 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
             <ChatSectionCopy />
           </div>
           <div className="order-2 md:flex-shrink-0 md:min-w-[28rem]">
