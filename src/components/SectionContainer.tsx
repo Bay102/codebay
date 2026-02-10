@@ -59,7 +59,7 @@ const SectionContainer = ({ activeSection, direction }: SectionContainerProps) =
           initial="enter"
           animate="center"
           exit="exit"
-          className="absolute inset-x-0 top-16 sm:top-20 bottom-0 md:bottom-0 pb-20 md:pb-0 overflow-hidden"
+          className="absolute inset-x-0 top-20 bottom-0 pt-2 pb-24 md:pt-0 md:pb-0 overflow-y-auto md:overflow-hidden overscroll-contain"
         >
           <ActiveComponent />
         </motion.div>
