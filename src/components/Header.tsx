@@ -12,7 +12,6 @@ interface HeaderProps {
 
 const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
   const [mobileIndicatorStyle, setMobileIndicatorStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
-  const mobileNavWrapperRef = useRef<HTMLElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const mobileButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
@@ -38,19 +37,6 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
     }
   }, [activeSection]);
 
-  const updateMobileNavOffset = useCallback(() => {
-    const root = document.documentElement;
-
-    if (window.innerWidth >= 768) {
-      root.style.setProperty("--mobile-nav-offset", "0px");
-      return;
-    }
-
-    const navHeight = mobileNavWrapperRef.current?.getBoundingClientRect().height ?? 0;
-    // Add a small buffer so section content never touches the nav.
-    root.style.setProperty("--mobile-nav-offset", `${Math.ceil(navHeight + 8)}px`);
-  }, []);
-
   useEffect(() => {
     const updateAfterLayout = () => {
       requestAnimationFrame(() => updateMobileIndicator());
@@ -66,23 +52,6 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
       window.removeEventListener("resize", updateMobileIndicator);
     };
   }, [updateMobileIndicator]);
-
-  useEffect(() => {
-    updateMobileNavOffset();
-
-    window.addEventListener("resize", updateMobileNavOffset);
-    window.addEventListener("orientationchange", updateMobileNavOffset);
-    window.visualViewport?.addEventListener("resize", updateMobileNavOffset);
-    window.visualViewport?.addEventListener("scroll", updateMobileNavOffset);
-
-    return () => {
-      window.removeEventListener("resize", updateMobileNavOffset);
-      window.removeEventListener("orientationchange", updateMobileNavOffset);
-      window.visualViewport?.removeEventListener("resize", updateMobileNavOffset);
-      window.visualViewport?.removeEventListener("scroll", updateMobileNavOffset);
-      document.documentElement.style.setProperty("--mobile-nav-offset", "0px");
-    };
-  }, [updateMobileNavOffset]);
 
   const handleNavClick = (section: SectionType) => {
     onSectionChange(section);
@@ -124,7 +93,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
       </header>
 
       {/* Mobile Navigation - Fixed at bottom */}
-      <nav ref={mobileNavWrapperRef} className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-3 pb-3">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-3 pb-3">
         <div className="max-w-7xl mx-auto">
           <div ref={mobileNavRef} className="liquid-glass-nav relative rounded-full px-2 py-1.5">
             {/* Sliding indicator */}
