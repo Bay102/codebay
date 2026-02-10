@@ -168,7 +168,7 @@ const ChatCard = ({
           delay: 0.5,
         },
       }}
-      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground flex flex-col h-[340px] md:flex-1 md:min-h-0 shadow-2xl relative rounded-xl overflow-hidden"
+      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground flex flex-col h-[415px] md:flex-1 md:min-h-0 shadow-2xl relative rounded-xl overflow-hidden"
     >
       <div className="chat-scan-line" />
 
@@ -514,7 +514,7 @@ const ChatSection = () => {
   };
 
   return (
-    <div className="w-full min-h-full md:h-full flex items-start md:items-center justify-center py-4 md:py-0 md:pt-12">
+    <div className="w-full min-h-full md:h-full flex items-start md:items-center justify-center md:py-0 md:pt-12">
       <div className="w-full max-w-5xl px-3 sm:px-6 md:px-8">
         <div className="flex flex-col md:flex-row md:items-stretch md:gap-12 md:justify-between">
           <div className="order-1 w-full md:flex-1 mb-4 md:mb-0 p-4 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
