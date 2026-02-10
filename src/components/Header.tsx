@@ -93,12 +93,12 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
       </header>
 
       {/* Mobile Navigation - Fixed at bottom */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-4 pb-4">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden px-3 pb-3">
         <div className="max-w-7xl mx-auto">
-          <div ref={mobileNavRef} className="liquid-glass-nav relative rounded-full px-2 py-2">
+          <div ref={mobileNavRef} className="liquid-glass-nav relative rounded-full px-2 py-1.5">
             {/* Sliding indicator */}
             <div
-              className="liquid-indicator absolute top-2 bottom-2 rounded-full transition-all duration-500 ease-out"
+              className="liquid-indicator absolute top-1.5 bottom-1.5 rounded-full transition-all duration-500 ease-out"
               style={{
                 left: `${mobileIndicatorStyle.left}px`,
                 width: `${mobileIndicatorStyle.width}px`,
@@ -120,7 +120,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                       }
                     }}
                     onClick={() => handleNavClick(link.section)}
-                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
+                    className={`w-full px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
                         ? "text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground"
                       }`}
@@ -144,7 +144,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                     }
                   }}
                   onClick={() => handleNavClick("home")}
-                  className={`px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${activeSection === "home"
+                  className={`px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${activeSection === "home"
                       ? "text-primary font-medium"
                       : "text-muted-foreground hover:text-foreground"
                     }`}
@@ -168,7 +168,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                       }
                     }}
                     onClick={() => handleNavClick(link.section)}
-                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
+                    className={`w-full px-3 py-1.5 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
                         ? "text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground"
                       }`}

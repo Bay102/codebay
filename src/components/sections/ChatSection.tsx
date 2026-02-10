@@ -66,7 +66,7 @@ const OUTCOMES = [
 ] as const;
 
 const ChatSectionCopy = () => (
-  <div className="flex flex-col gap-5">
+  <div className="flex flex-col gap-4 md:gap-5">
     <h1 className="text-3xl sm:text-4xl md:text-4xl font-light tracking-tight text-foreground">
       AI-Driven Development,
       <span className="gradient-text"> Shipped at Insane Speed</span>
@@ -93,7 +93,7 @@ const ChatSectionCopy = () => (
     </div>
 
     {/* Outcome stats */}
-    <div className="flex flex-col gap-2.5 pt-1">
+    <div className="flex flex-col gap-2 md:gap-2.5 pt-0 md:pt-1">
       {OUTCOMES.map(({ icon: Icon, label, sub }, i) => (
         <motion.div
           key={label}
@@ -168,11 +168,11 @@ const ChatCard = ({
           delay: 0.5,
         },
       }}
-      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground flex flex-col h-[420px] md:flex-1 md:min-h-0 shadow-2xl relative rounded-xl overflow-hidden"
+      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground flex flex-col h-[340px] md:flex-1 md:min-h-0 shadow-2xl relative rounded-xl overflow-hidden"
     >
       <div className="chat-scan-line" />
 
-      <div className="flex items-center justify-between border-b border-[hsla(187,85%,53%,0.15)] bg-[hsla(0,0%,0%,0.3)] px-4 py-3 relative z-10">
+      <div className="flex items-center justify-between border-b border-[hsla(187,85%,53%,0.15)] bg-[hsla(0,0%,0%,0.3)] px-3 py-2.5 md:px-4 md:py-3 relative z-10">
         <div className="flex items-center gap-3">
           <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsla(187,85%,53%,0.6)]" />
@@ -191,7 +191,7 @@ const ChatCard = ({
         </span>
       </div>
 
-      <div ref={messagesContainerRef} className="flex-1 min-h-0 space-y-3 px-4 py-3 overflow-y-auto relative z-10">
+      <div ref={messagesContainerRef} className="flex-1 min-h-0 space-y-2 md:space-y-3 px-3 md:px-4 py-2 md:py-3 overflow-y-auto relative z-10">
         <AnimatePresence mode="popLayout">
           {messages.map((message, index) => (
             <motion.div
@@ -246,7 +246,7 @@ const ChatCard = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="px-4 pb-4 relative z-10 space-y-2">
+      <div className="px-3 md:px-4 pb-3 md:pb-4 relative z-10 space-y-2">
         <div className="flex items-center justify-end">
           <Dialog open={isConnectOpen} onOpenChange={onConnectOpenChange}>
             <DialogTrigger asChild>
@@ -367,7 +367,7 @@ const ChatCard = ({
 
         <form
           onSubmit={chatForm.handleSubmit(onChatSubmit)}
-          className="flex items-center gap-2 border border-[hsla(187,85%,53%,0.2)] bg-[hsla(0,0%,0%,0.4)] backdrop-blur-sm px-3 py-2 rounded-lg transition-all shadow-[0_0_20px_hsla(187,85%,53%,0.06)] hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)]"
+          className="flex items-center gap-2 border border-[hsla(187,85%,53%,0.2)] bg-[hsla(0,0%,0%,0.4)] backdrop-blur-sm px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg transition-all shadow-[0_0_20px_hsla(187,85%,53%,0.06)] hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)]"
         >
           <span className="text-[hsl(187,85%,53%)] font-mono font-semibold text-sm select-none">›</span>
           <Input
@@ -495,10 +495,10 @@ const ChatSection = () => {
   };
 
   return (
-    <div className="w-full min-h-full md:h-full flex items-center justify-center py-6 md:py-0 md:pt-12">
-      <div className="w-full max-w-5xl px-4 sm:px-6 md:px-8">
+    <div className="w-full min-h-full md:h-full flex items-center justify-center py-4 md:py-0 md:pt-12">
+      <div className="w-full max-w-5xl px-3 sm:px-6 md:px-8">
         <div className="flex flex-col md:flex-row md:items-stretch md:gap-12 md:justify-between">
-          <div className="order-1 w-full md:flex-1 mb-6 md:mb-0 p-6 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          <div className="order-1 w-full md:flex-1 mb-4 md:mb-0 p-4 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
             <ChatSectionCopy />
           </div>
           <div className="order-2 w-full md:w-auto md:flex md:flex-col md:flex-shrink-0 md:min-w-[28rem]">

@@ -13,7 +13,7 @@ const values = [
 
 const AboutSection = () => {
   return (
-    <div className="w-full h-full flex items-start justify-center pt-8 pb-8 px-8 overflow-y-auto">
+    <div className="w-full h-full flex items-start justify-center pt-6 pb-6 px-4 md:pt-8 md:pb-8 md:px-8 overflow-y-auto">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
