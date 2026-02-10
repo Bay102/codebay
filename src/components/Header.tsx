@@ -21,17 +21,17 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
     { label: "Solutions", section: "solutions" },
     { label: "Products", section: "products" },
     { label: "Resources", section: "resources" },
-    { label: "About Us", section: "about-us" },
+    { label: "About", section: "about-us" },
   ];
 
   const updateIndicator = useCallback(() => {
     const activeButton = buttonRefs.current.get(activeSection);
     const navContainer = navRef.current;
-    
+
     if (activeButton && navContainer) {
       const navRect = navContainer.getBoundingClientRect();
       const buttonRect = activeButton.getBoundingClientRect();
-      
+
       setIndicatorStyle({
         left: buttonRect.left - navRect.left,
         width: buttonRect.width,
@@ -42,11 +42,11 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
   const updateMobileIndicator = useCallback(() => {
     const activeButton = mobileButtonRefs.current.get(activeSection);
     const navContainer = mobileNavRef.current;
-    
+
     if (activeButton && navContainer) {
       const navRect = navContainer.getBoundingClientRect();
       const buttonRect = activeButton.getBoundingClientRect();
-      
+
       setMobileIndicatorStyle({
         left: buttonRect.left - navRect.left,
         width: buttonRect.width,
@@ -62,23 +62,23 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
         updateMobileIndicator();
       });
     };
-    
+
     // Initial update after layout
     updateAfterLayout();
-    
+
     // Also update after a short delay to catch any late layout changes
     const timeoutId = setTimeout(() => {
       updateIndicator();
       updateMobileIndicator();
     }, 100);
-    
+
     const handleResize = () => {
       updateIndicator();
       updateMobileIndicator();
     };
-    
+
     window.addEventListener("resize", handleResize);
-    
+
     return () => {
       clearTimeout(timeoutId);
       window.removeEventListener("resize", handleResize);
@@ -93,11 +93,11 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
     <>
       {/* Top Header - Logo only on mobile, full header on desktop */}
       <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 lg:px-12">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center">
           {/* Logo */}
           <button
             onClick={() => onSectionChange("home")}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity justify-self-start"
           >
             <img
               src={codebayLogo}
@@ -107,7 +107,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
           </button>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center">
+          <nav className="hidden md:flex items-center justify-self-center">
             <div ref={navRef} className="liquid-glass-nav relative rounded-full px-2 py-2">
               {/* Sliding indicator */}
               <div
@@ -133,11 +133,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                         }
                       }}
                       onClick={() => handleNavClick(link.section)}
-                      className={`px-5 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
-                        activeSection === link.section
+                      className={`px-5 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
                           ? "text-primary font-medium"
                           : "text-muted-foreground hover:text-foreground"
-                      }`}
+                        }`}
                     >
                       {link.label}
                     </button>
@@ -158,11 +157,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                       }
                     }}
                     onClick={() => handleNavClick("home")}
-                    className={`px-3 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${
-                      activeSection === "home"
+                    className={`px-3 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${activeSection === "home"
                         ? "text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground"
-                    }`}
+                      }`}
                     title="AI Chat"
                   >
                     <MessageSquare className="w-4 h-4" />
@@ -183,11 +181,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                         }
                       }}
                       onClick={() => handleNavClick(link.section)}
-                      className={`px-5 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
-                        activeSection === link.section
+                      className={`px-5 py-2 text-sm transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
                           ? "text-primary font-medium"
                           : "text-muted-foreground hover:text-foreground"
-                      }`}
+                        }`}
                     >
                       {link.label}
                     </button>
@@ -198,7 +195,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
           </nav>
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 justify-self-end">
             <button className="gradient-btn px-5 py-2.5 rounded-full text-sm font-medium text-primary-foreground">
               Get Started
             </button>
@@ -237,11 +234,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                       }
                     }}
                     onClick={() => handleNavClick(link.section)}
-                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
-                      activeSection === link.section
+                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
                         ? "text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground"
-                    }`}
+                      }`}
                   >
                     {link.label}
                   </button>
@@ -262,11 +258,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                     }
                   }}
                   onClick={() => handleNavClick("home")}
-                  className={`px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${
-                    activeSection === "home"
+                  className={`px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center ${activeSection === "home"
                       ? "text-primary font-medium"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                    }`}
                   title="AI Chat"
                 >
                   <MessageSquare className="w-4 h-4" />
@@ -287,11 +282,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
                       }
                     }}
                     onClick={() => handleNavClick(link.section)}
-                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${
-                      activeSection === link.section
+                    className={`w-full px-3 py-2 text-xs transition-all duration-300 rounded-full relative z-10 flex items-center justify-center text-center ${activeSection === link.section
                         ? "text-primary font-medium"
                         : "text-muted-foreground hover:text-foreground"
-                    }`}
+                      }`}
                   >
                     {link.label}
                   </button>

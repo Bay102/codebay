@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useForm, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, Sparkles } from "lucide-react";
 import { requestHumanConnect, sendChatMessage, type ChatMessage } from "@/lib/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { motion, AnimatePresence } from "framer-motion";
 
 const chatFormSchema = z.object({
   message: z.string().min(1, "Message cannot be empty"),
@@ -41,72 +42,339 @@ const humanConnectFormSchema = z.object({
 type ChatFormValues = z.infer<typeof chatFormSchema>;
 type HumanConnectFormValues = z.infer<typeof humanConnectFormSchema>;
 
-const initialMessages: ChatMessage[] = [
+const INITIAL_MESSAGES: ChatMessage[] = [
   {
     role: "assistant",
-    content: "Hi, I'm Agent Cody. Tell me about your product goals and timeline.",
+    content: "Hi, I'm Anton. Tell me, what brings you here? Do you have a project in mind?",
   },
 ];
 
+type ConnectStatus = "idle" | "submitting" | "success" | "error";
+
+const ChatSectionCopy = () => (
+  <div className="flex flex-col gap-4">
+    <h1 className="text-3xl sm:text-4xl md:text-4xl font-light tracking-tight text-foreground">
+      AI-Driven Development,
+      <span className="gradient-text"> Shipped at Insane Speed</span>
+    </h1>
+    <p className="text-sm sm:text-base text-white/90 leading-relaxed">
+      We&apos;re a tech agency that builds professional-grade software using AI, delivering weeks of
+      work in days without compromising quality.
+    </p>
+  </div>
+);
+
+interface ChatCardProps {
+  messages: ChatMessage[];
+  isLoading: boolean;
+  messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  chatForm: UseFormReturn<ChatFormValues>;
+  onChatSubmit: (values: ChatFormValues) => Promise<void>;
+  isConnectOpen: boolean;
+  onConnectOpenChange: (open: boolean) => void;
+  connectStatus: ConnectStatus;
+  connectError: string | null;
+  connectForm: UseFormReturn<HumanConnectFormValues>;
+  onConnectSubmit: (values: HumanConnectFormValues) => Promise<void>;
+}
+
+const ChatCard = ({
+  messages,
+  isLoading,
+  messagesEndRef,
+  chatForm,
+  onChatSubmit,
+  isConnectOpen,
+  onConnectOpenChange,
+  connectStatus,
+  connectError,
+  connectForm,
+  onConnectSubmit,
+}: ChatCardProps) => {
+  const messageBubbleClass = (role: ChatMessage["role"]) =>
+    role === "assistant"
+      ? "chat-ai-bubble bg-muted/60 text-foreground border border-[hsla(187,85%,53%,0.15)]"
+      : "ml-auto bg-primary/20 border-primary/30 text-foreground shadow-[0_2px_8px_rgba(249,115,22,0.2)]";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{
+        opacity: 1,
+        scale: 1,
+        y: [0, -24, 0],
+      }}
+      transition={{
+        opacity: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+        scale: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+        y: {
+          duration: 10,
+          repeat: Infinity,
+          ease: [0.37, 0, 0.63, 1],
+          times: [0, 0.5, 1],
+          delay: 0.5,
+        },
+      }}
+      className="mx-auto w-full max-w-md chat-container text-foreground flex flex-col h-[420px] shadow-2xl relative rounded-xl overflow-hidden"
+    >
+      <div className="chat-scan-line" />
+
+      <div className="flex items-center justify-between border-b border-[hsla(187,85%,53%,0.15)] bg-[hsla(0,0%,0%,0.3)] px-4 py-3 relative z-10">
+        <div className="flex items-center gap-3">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsla(187,85%,53%,0.6)]" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[hsl(187,85%,53%)] shadow-[0_0_8px_hsl(187,85%,53%)]" />
+          </span>
+          <div>
+            <p className="text-sm font-medium flex items-center gap-1.5">
+              Anton
+              <Sparkles className="h-3 w-3 text-[hsl(187,85%,53%)]" />
+            </p>
+            <p className="text-xs text-muted-foreground font-mono">Neural AI Assistant</p>
+          </div>
+        </div>
+        <span className="text-[10px] uppercase tracking-widest text-[hsla(187,85%,53%,0.9)] bg-[hsla(187,85%,53%,0.1)] px-2 py-0.5 rounded border border-[hsla(187,85%,53%,0.3)]">
+          AI
+        </span>
+      </div>
+
+      <div className="flex-1 min-h-0 space-y-3 px-4 py-3 overflow-y-auto relative z-10">
+        <AnimatePresence mode="popLayout">
+          {messages.map((message, index) => (
+            <motion.div
+              key={`${message.role}-${index}`}
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{
+                duration: 0.3,
+                ease: [0.4, 0, 0.2, 1],
+                delay: index === messages.length - 1 ? 0.1 : 0,
+              }}
+              className={`max-w-[85%] border border-border px-3 py-2 text-sm leading-relaxed rounded-lg backdrop-blur-sm transition-all hover:scale-[1.02] ${messageBubbleClass(
+                message.role
+              )}`}
+            >
+              {message.content}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+        {isLoading && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="chat-ai-bubble max-w-[85%] border border-[hsla(187,85%,53%,0.15)] px-3 py-2 text-sm leading-relaxed bg-muted/60 text-foreground rounded-lg backdrop-blur-sm"
+          >
+            <div className="flex items-center gap-2 font-mono">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsla(187,85%,53%,0.6)]" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[hsl(187,85%,53%)]" />
+              </span>
+              <span className="text-[hsla(187,85%,53%,0.95)]">Processing</span>
+              <span className="flex gap-0.5">
+                {[0, 1, 2].map((i) => (
+                  <motion.span
+                    key={i}
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      delay: i * 0.2,
+                    }}
+                    className="text-[hsl(187,85%,53%)]"
+                  >
+                    .
+                  </motion.span>
+                ))}
+              </span>
+            </div>
+          </motion.div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      <div className="px-4 pb-4 relative z-10">
+        <form
+          onSubmit={chatForm.handleSubmit(onChatSubmit)}
+          className="flex items-center gap-2 border border-[hsla(187,85%,53%,0.2)] bg-[hsla(0,0%,0%,0.4)] backdrop-blur-sm px-3 py-2 rounded-lg transition-all shadow-[0_0_20px_hsla(187,85%,53%,0.06)] hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)]"
+        >
+          <span className="text-[hsl(187,85%,53%)] font-mono font-semibold text-sm select-none">›</span>
+          <Input
+            {...chatForm.register("message")}
+            placeholder="Ask about your product, timeline, or tech stack..."
+            className="w-full border-0 bg-transparent text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
+            disabled={isLoading}
+            autoComplete="off"
+          />
+          <Button
+            type="submit"
+            disabled={isLoading || !chatForm.watch("message")?.trim()}
+            size="sm"
+            className="transition-all hover:scale-110 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Send className="h-3 w-3" />
+            )}
+          </Button>
+        </form>
+
+        <div className="mt-3 flex items-center justify-end">
+          <Dialog open={isConnectOpen} onOpenChange={onConnectOpenChange}>
+            <DialogTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isLoading || connectStatus === "submitting"}
+                className="transition-all hover:scale-105 hover:border-primary/50 hover:bg-primary/10"
+              >
+                {connectStatus === "success" ? "Request Sent" : "Connect with Human"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[420px]">
+              <DialogHeader>
+                <DialogTitle>Connect with a human</DialogTitle>
+                <DialogDescription>
+                  Share your contact details and we will follow up. We may use your chat history to
+                  better understand your needs.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={connectForm.handleSubmit(onConnectSubmit)} className="grid gap-4">
+                <div className="grid gap-3">
+                  <div className="grid gap-2">
+                    <Label htmlFor="connect-name">Name</Label>
+                    <Input
+                      id="connect-name"
+                      autoComplete="name"
+                      placeholder="Jane Doe"
+                      {...connectForm.register("name")}
+                      disabled={connectStatus === "submitting"}
+                    />
+                    {connectForm.formState.errors.name && (
+                      <p className="text-xs text-destructive">
+                        {connectForm.formState.errors.name.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="connect-email">Email</Label>
+                    <Input
+                      id="connect-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="jane@company.com"
+                      {...connectForm.register("email")}
+                      disabled={connectStatus === "submitting"}
+                    />
+                    {connectForm.formState.errors.email && (
+                      <p className="text-xs text-destructive">
+                        {connectForm.formState.errors.email.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="connect-phone">Phone (optional)</Label>
+                    <Input
+                      id="connect-phone"
+                      type="tel"
+                      autoComplete="tel"
+                      placeholder="+1 (555) 000-0000"
+                      {...connectForm.register("phone")}
+                      disabled={connectStatus === "submitting"}
+                    />
+                    {connectForm.formState.errors.phone && (
+                      <p className="text-xs text-destructive">
+                        {connectForm.formState.errors.phone.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {connectError && (
+                  <p className="text-xs text-destructive">{connectError}</p>
+                )}
+
+                <DialogFooter className="gap-2 sm:gap-2">
+                  <DialogClose asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      disabled={connectStatus === "submitting"}
+                    >
+                      Cancel
+                    </Button>
+                  </DialogClose>
+                  <Button type="submit" disabled={connectStatus === "submitting"}>
+                    {connectStatus === "submitting" ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Send Request"
+                    )}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const ChatSection = () => {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [isLoading, setIsLoading] = useState(false);
   const [isConnectOpen, setIsConnectOpen] = useState(false);
-  const [connectStatus, setConnectStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [connectStatus, setConnectStatus] = useState<ConnectStatus>("idle");
   const [connectError, setConnectError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const form = useForm<ChatFormValues>({
+
+  const chatForm = useForm<ChatFormValues>({
     resolver: zodResolver(chatFormSchema),
-    defaultValues: {
-      message: "",
-    },
-  });
-  const connectForm = useForm<HumanConnectFormValues>({
-    resolver: zodResolver(humanConnectFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-    },
+    defaultValues: { message: "" },
   });
 
-  const scrollToBottom = () => {
+  const connectForm = useForm<HumanConnectFormValues>({
+    resolver: zodResolver(humanConnectFormSchema),
+    defaultValues: { name: "", email: "", phone: "" },
+  });
+
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  const onSubmit = async (values: ChatFormValues) => {
-    const userMessage: ChatMessage = {
-      role: "user",
-      content: values.message,
-    };
-
+  const onChatSubmit = async (values: ChatFormValues) => {
+    const userMessage: ChatMessage = { role: "user", content: values.message };
     const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
 
-    form.reset();
+    setMessages(updatedMessages);
+    chatForm.reset();
     setIsLoading(true);
 
     try {
       const response = await sendChatMessage(updatedMessages);
-
-      // Add assistant response
-      const assistantMessage: ChatMessage = {
-        role: "assistant",
-        content: response.message,
-      };
-
-      setMessages((prev) => [...prev, assistantMessage]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: response.message },
+      ]);
     } catch (error) {
       console.error("Error sending message:", error);
-      const errorMessage: ChatMessage = {
-        role: "assistant",
-        content: "Sorry, there was an error processing your message. Please try again.",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Sorry, there was an error processing your message. Please try again.",
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -116,9 +384,7 @@ const ChatSection = () => {
     setIsConnectOpen(open);
     if (open) {
       setConnectError(null);
-      if (connectStatus !== "submitting") {
-        setConnectStatus("idle");
-      }
+      if (connectStatus !== "submitting") setConnectStatus("idle");
       connectForm.reset();
     }
   };
@@ -154,203 +420,26 @@ const ChatSection = () => {
   };
 
   return (
-    <div className="relative w-full h-full flex items-start sm:items-center justify-center pt-0 pb-16 sm:pb-24 md:pb-28 lg:pb-32 xl:pb-40 -mt-6 sm:mt-0">
-      <div className="video-placeholder w-full h-full flex items-center justify-center">
-        <div className="relative w-[100vw] sm:w-full max-w-[520px] sm:max-w-[580px] md:max-w-[660px] lg:max-w-[740px] xl:max-w-[800px] aspect-square rounded-full animate-float">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 blur-3xl animate-pulse-glow" />
-          <div className="absolute inset-[6%] rounded-full border border-white/10" />
-          <div className="absolute inset-[12%] rounded-full border border-primary/20 animate-[spin_18s_linear_infinite]" />
-          <div className="absolute -left-8 top-12 h-24 w-24 rounded-full bg-primary/20 blur-3xl" />
-          <div className="absolute -right-10 bottom-10 h-28 w-28 rounded-full bg-accent/20 blur-3xl" />
-          <div className="absolute left-[15%] bottom-[18%] h-3 w-3 rounded-full bg-primary/70 shadow-[0_0_16px_rgba(249,115,22,0.8)]" />
-          <div className="absolute right-[20%] top-[16%] h-2 w-2 rounded-full bg-accent/70 shadow-[0_0_12px_rgba(244,63,94,0.8)]" />
-
-          <div className="flex items-center justify-center absolute inset-[1%] sm:inset-[8%] md:inset-[16%] lg:inset-[18%]">
-            <div className="glass-nav relative w-full h-[360px] sm:h-[400px] md:h-[420px] lg:h-[440px] xl:h-[460px] rounded-3xl p-2 -mt-32 md:p-3 shadow-[0_25px_80px_rgba(0,0,0,0.45)] md:-mt-0">
-              <div className="relative h-full w-full overflow-hidden rounded-2xl">
-                <div
-                  className="absolute inset-0 rounded-2xl opacity-80"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.1), transparent 45%), radial-gradient(circle at 80% 30%, rgba(249,115,22,0.18), transparent 55%), radial-gradient(circle at 40% 85%, rgba(244,63,94,0.12), transparent 50%)"
-                  }}
-                  aria-hidden="true"
-                />
-
-                <div className="relative flex h-full flex-col">
-                  <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <span className="relative flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-                      </span>
-                      <div>
-                        <p className="text-xs font-medium text-foreground">Agent Cody</p>
-                        <p className="text-[10px] text-muted-foreground">Agency concierge</p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-                      BETA
-                    </span>
-                  </div>
-
-                  <div className="flex-1 min-h-0 space-y-3 px-4 py-3 overflow-y-auto">
-                    {messages.map((message, index) => (
-                      <div
-                        key={`${message.role}-${index}`}
-                        className={`max-w-[85%] rounded-2xl px-3 py-2 text-[11px] sm:text-[12px] leading-relaxed ${message.role === "assistant"
-                          ? "bg-white/5 text-foreground border border-white/10"
-                          : "ml-auto bg-primary/20 text-foreground border border-primary/30"
-                          }`}
-                      >
-                        {message.content}
-                      </div>
-                    ))}
-                    {isLoading && (
-                      <div className="max-w-[85%] rounded-2xl px-3 py-2 text-[11px] sm:text-[12px] leading-relaxed bg-white/5 text-foreground border border-white/10">
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                          <span>Thinking...</span>
-                        </div>
-                      </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                  </div>
-
-                  <div className="px-4 pb-4">
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="flex items-center gap-2 rounded-2xl border border-white/10 bg-background/40 px-3 py-2">
-                      <Input
-                        {...form.register("message")}
-                        placeholder="Ask about your product, timeline, or tech stack..."
-                        className="w-full bg-transparent border-0 text-[11px] sm:text-[12px] text-foreground placeholder:text-muted-foreground outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                        disabled={isLoading}
-                        autoComplete="off"
-                      />
-                      <Button
-                        type="submit"
-                        disabled={isLoading || !form.watch("message")?.trim()}
-                        className="flex h-6 min-w-[44px] items-center justify-center rounded-full bg-primary/20 px-3 text-[10px] font-medium text-primary-foreground/90 hover:bg-primary/30 disabled:opacity-50 disabled:cursor-not-allowed"
-                        size="sm"
-                      >
-                        {isLoading ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Send className="h-3 w-3" />
-                        )}
-                      </Button>
-                    </form>
-
-                    <div className="mt-3 flex items-center justify-end">
-                      <Dialog open={isConnectOpen} onOpenChange={handleConnectOpenChange}>
-                        <DialogTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-7 rounded-full px-3 text-[10px] font-medium"
-                            disabled={isLoading || connectStatus === "submitting"}
-                          >
-                            {connectStatus === "success" ? "Request Sent" : "Connect with Human"}
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[420px]">
-                          <DialogHeader>
-                            <DialogTitle>Connect with a human</DialogTitle>
-                            <DialogDescription>
-                              Share your contact details and we will follow up with your chat history.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <form onSubmit={connectForm.handleSubmit(onConnectSubmit)} className="grid gap-4">
-                            <div className="grid gap-3">
-                              <div className="grid gap-2">
-                                <Label htmlFor="connect-name">Name</Label>
-                                <Input
-                                  id="connect-name"
-                                  autoComplete="name"
-                                  placeholder="Jane Doe"
-                                  {...connectForm.register("name")}
-                                  disabled={connectStatus === "submitting"}
-                                />
-                                {connectForm.formState.errors.name && (
-                                  <p className="text-xs text-destructive">
-                                    {connectForm.formState.errors.name.message}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="grid gap-2">
-                                <Label htmlFor="connect-email">Email</Label>
-                                <Input
-                                  id="connect-email"
-                                  type="email"
-                                  autoComplete="email"
-                                  placeholder="jane@company.com"
-                                  {...connectForm.register("email")}
-                                  disabled={connectStatus === "submitting"}
-                                />
-                                {connectForm.formState.errors.email && (
-                                  <p className="text-xs text-destructive">
-                                    {connectForm.formState.errors.email.message}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="grid gap-2">
-                                <Label htmlFor="connect-phone">Phone (optional)</Label>
-                                <Input
-                                  id="connect-phone"
-                                  type="tel"
-                                  autoComplete="tel"
-                                  placeholder="+1 (555) 000-0000"
-                                  {...connectForm.register("phone")}
-                                  disabled={connectStatus === "submitting"}
-                                />
-                                {connectForm.formState.errors.phone && (
-                                  <p className="text-xs text-destructive">
-                                    {connectForm.formState.errors.phone.message}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-
-                            {connectError && (
-                              <p className="text-xs text-destructive">{connectError}</p>
-                            )}
-
-                            <DialogFooter className="gap-2 sm:gap-2">
-                              <DialogClose asChild>
-                                <Button type="button" variant="ghost" disabled={connectStatus === "submitting"}>
-                                  Cancel
-                                </Button>
-                              </DialogClose>
-                              <Button type="submit" disabled={connectStatus === "submitting"}>
-                                {connectStatus === "submitting" ? (
-                                  <>
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                    Sending...
-                                  </>
-                                ) : (
-                                  "Send Request"
-                                )}
-                              </Button>
-                            </DialogFooter>
-                          </form>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-
-                    {/* <div className="mt-3 flex flex-wrap gap-2">
-                      {trainingFocus.map((topic) => (
-                        <span
-                          key={topic}
-                          className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[9px] uppercase tracking-wider text-muted-foreground"
-                        >
-                          {topic}
-                        </span>
-                      ))}
-                    </div> */}
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="w-full max-w-5xl px-4 sm:px-6 md:px-8">
+        <div className="flex flex-col md:flex-row md:items-center md:gap-12 md:justify-between">
+          <div className="order-1 md:flex-1 mb-6 md:mb-0">
+            <ChatSectionCopy />
+          </div>
+          <div className="order-2 md:flex-shrink-0 md:min-w-[28rem]">
+            <ChatCard
+              messages={messages}
+              isLoading={isLoading}
+              messagesEndRef={messagesEndRef}
+              chatForm={chatForm}
+              onChatSubmit={onChatSubmit}
+              isConnectOpen={isConnectOpen}
+              onConnectOpenChange={handleConnectOpenChange}
+              connectStatus={connectStatus}
+              connectError={connectError}
+              connectForm={connectForm}
+              onConnectSubmit={onConnectSubmit}
+            />
           </div>
         </div>
       </div>
