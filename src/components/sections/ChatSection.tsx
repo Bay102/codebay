@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useForm, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, Loader2, Sparkles, UserCircle } from "lucide-react";
+import { Send, Loader2, Sparkles, UserCircle, Smartphone, Globe, Code2, Zap, ShieldCheck, ArrowRight } from "lucide-react";
 import { requestHumanConnect, sendChatMessage, type ChatMessage } from "@/lib/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,8 +52,21 @@ const INITIAL_MESSAGES: ChatMessage[] = [
 
 type ConnectStatus = "idle" | "submitting" | "success" | "error";
 
+const CAPABILITIES = [
+  { icon: Smartphone, label: "Mobile Apps", color: "text-[hsl(187,85%,53%)]" },
+  { icon: Globe, label: "Web Apps", color: "text-[hsl(187,85%,53%)]" },
+  { icon: Code2, label: "Custom Software", color: "text-primary" },
+  { icon: Sparkles, label: "AI Integration", color: "text-[hsl(187,85%,53%)]" },
+] as const;
+
+const OUTCOMES = [
+  { icon: ArrowRight, label: "Weeks → Days", sub: "Delivery speed" },
+  { icon: ShieldCheck, label: "Professional-grade", sub: "Enterprise quality" },
+  { icon: Zap, label: "Zero Compromise", sub: "Speed + quality" },
+] as const;
+
 const ChatSectionCopy = () => (
-  <div className="flex flex-col gap-4">
+  <div className="flex flex-col gap-5">
     <h1 className="text-3xl sm:text-4xl md:text-4xl font-light tracking-tight text-foreground">
       AI-Driven Development,
       <span className="gradient-text"> Shipped at Insane Speed</span>
@@ -62,6 +75,43 @@ const ChatSectionCopy = () => (
       We&apos;re a tech agency that builds professional-grade software using AI, delivering weeks of
       work in days without compromising quality.
     </p>
+
+    {/* Capability badges */}
+    <div className="flex flex-wrap gap-2">
+      {CAPABILITIES.map(({ icon: Icon, label, color }, i) => (
+        <motion.div
+          key={label}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: i * 0.08, ease: [0.4, 0, 0.2, 1] }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm hover:border-[hsla(187,85%,53%,0.3)] hover:bg-[hsla(187,85%,53%,0.06)] transition-all duration-300 group"
+        >
+          <Icon className={`h-3.5 w-3.5 ${color} group-hover:scale-110 transition-transform`} />
+          <span className="text-xs sm:text-sm font-medium text-white/90">{label}</span>
+        </motion.div>
+      ))}
+    </div>
+
+    {/* Outcome stats */}
+    <div className="flex flex-col gap-2.5 pt-1">
+      {OUTCOMES.map(({ icon: Icon, label, sub }, i) => (
+        <motion.div
+          key={label}
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 + i * 0.1, ease: [0.4, 0, 0.2, 1] }}
+          className="flex items-center gap-3 py-2 px-3 rounded-lg bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-primary/5 transition-all duration-300"
+        >
+          <div className="flex-shrink-0 w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center">
+            <Icon className="h-4 w-4 text-primary" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-foreground truncate">{label}</p>
+            <p className="text-xs text-muted-foreground">{sub}</p>
+          </div>
+        </motion.div>
+      ))}
+    </div>
   </div>
 );
 
@@ -116,7 +166,7 @@ const ChatCard = ({
           delay: 0.5,
         },
       }}
-      className="mx-auto w-full max-w-md chat-container text-foreground flex flex-col h-[420px] shadow-2xl relative rounded-xl overflow-hidden"
+      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground flex flex-col h-[420px] md:flex-1 md:min-h-0 shadow-2xl relative rounded-xl overflow-hidden"
     >
       <div className="chat-scan-line" />
 
@@ -257,6 +307,7 @@ const ChatCard = ({
                       defaultCountry="US"
                       placeholder="Enter phone number"
                       disabled={connectStatus === "submitting"}
+                      limitMaxLength
                     />
                     {connectForm.formState.errors.phone && (
                       <p className="text-xs text-destructive">
@@ -440,11 +491,11 @@ const ChatSection = () => {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="w-full max-w-5xl px-4 sm:px-6 md:px-8">
-        <div className="flex flex-col md:flex-row md:items-center md:gap-12 md:justify-between">
-          <div className="order-1 md:flex-1 mb-6 md:mb-0 p-6 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+        <div className="flex flex-col md:flex-row md:items-stretch md:gap-12 md:justify-between">
+          <div className="order-1 w-full md:flex-1 mb-6 md:mb-0 p-6 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
             <ChatSectionCopy />
           </div>
-          <div className="order-2 md:flex-shrink-0 md:min-w-[28rem]">
+          <div className="order-2 w-full md:w-auto md:flex md:flex-col md:flex-shrink-0 md:min-w-[28rem]">
             <ChatCard
               messages={messages}
               isLoading={isLoading}
