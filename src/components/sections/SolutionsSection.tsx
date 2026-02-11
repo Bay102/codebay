@@ -9,8 +9,8 @@ const solutions = [
   },
   {
     icon: Rocket,
-    title: "Full-Stack Applications",
-    description: "End-to-end web and mobile apps built with modern tech stacks and scalable architecture."
+    title: "Vibe Code Assistance",
+    description: "Professional code assistance from tech professionals for your existing AI created codebase. Stuck on a project? We'll help you get unstuck."
   },
   {
     icon: Code2,

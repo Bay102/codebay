@@ -206,7 +206,7 @@ function ConnectFormDialog({
             Connect with <span className="text-ai-accent">CodeBay</span>
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Share your contact details and we will follow up.
+            Share your contact details and we will follow up, usually within 48 hours.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={connectForm.handleSubmit(onSubmit)} className="relative z-10 grid gap-4">

@@ -266,7 +266,7 @@ const ChatCard = ({
                   Connect with <span className="text-ai-accent">CodeBay</span>
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground">
-                  Share your contact details and we will follow up. We may use your chat history to
+                  Share your contact details and we will follow up, usually within 48 hours. We may use your chat history to
                   better understand your needs.
                 </DialogDescription>
               </DialogHeader>
