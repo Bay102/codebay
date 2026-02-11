@@ -72,10 +72,10 @@ const CONNECT_MIN_INTERVAL_MS = 30_000;
 const CONNECT_MIN_FILL_MS = 2000;
 
 const CAPABILITIES = [
-  { icon: Smartphone, label: "Mobile App Development", color: "text-[hsl(187,85%,53%)]" },
-  { icon: Globe, label: "Web App Development", color: "text-[hsl(187,85%,53%)]" },
+  { icon: Smartphone, label: "Mobile App Development", color: "text-ai-accent" },
+  { icon: Globe, label: "Web App Development", color: "text-ai-accent" },
   { icon: Code2, label: "Custom Software Development", color: "text-primary" },
-  { icon: Sparkles, label: "AI Integration Services", color: "text-[hsl(187,85%,53%)]" },
+  { icon: Sparkles, label: "AI Integration Services", color: "text-ai-accent" },
 ] as const;
 
 const OUTCOMES = [
@@ -90,7 +90,7 @@ const ChatSectionCopy = () => (
       AI Software Development Agency,
       <span className="gradient-text"> Web, Mobile, and Custom Products</span>
     </h1>
-    <p className="text-sm text-white/90 leading-relaxed sm:text-base">
+    <p className="text-sm text-foreground/90 leading-relaxed sm:text-base">
       CodeBay helps startups and teams build production-grade web apps, mobile apps, and custom
       software faster with AI-assisted delivery.
     </p>
@@ -100,11 +100,11 @@ const ChatSectionCopy = () => (
       {CAPABILITIES.map(({ icon: Icon, label, color }, i) => (
         <div
           key={label}
-          className="inline-flex animate-in fade-in slide-in-from-bottom-2 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 backdrop-blur-sm transition-all duration-300 group hover:border-[hsla(187,85%,53%,0.3)] hover:bg-[hsla(187,85%,53%,0.06)]"
+          className="inline-flex animate-in fade-in slide-in-from-bottom-2 items-center gap-1 rounded-full border border-border bg-muted/50 px-2.5 py-1.5 backdrop-blur-sm transition-all duration-300 group hover:border-ai-accent/30 hover:bg-ai-accent/10"
           style={{ animationDelay: `${i * 80}ms` }}
         >
           <Icon className={`h-3.5 w-3.5 ${color} group-hover:scale-110 transition-transform`} />
-          <span className="text-[11px] font-medium text-white/90 sm:text-xs">{label}</span>
+          <span className="text-[11px] font-medium text-foreground/90 sm:text-xs">{label}</span>
         </div>
       ))}
     </div>
@@ -114,7 +114,7 @@ const ChatSectionCopy = () => (
       {OUTCOMES.map(({ icon: Icon, label, sub }, i) => (
         <div
           key={label}
-          className="flex animate-in fade-in slide-in-from-left-3 items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 transition-all duration-300 hover:border-primary/20 hover:bg-primary/5"
+          className="flex animate-in fade-in slide-in-from-left-3 items-center gap-3 rounded-lg border border-border bg-muted/30 px-3 py-2 transition-all duration-300 hover:border-primary/20 hover:bg-primary/5"
           style={{ animationDelay: `${200 + i * 100}ms` }}
         >
           <div className="flex-shrink-0 w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center">
@@ -163,7 +163,7 @@ const ChatCard = ({
 }: ChatCardProps) => {
   const messageBubbleClass = (role: ChatMessage["role"]) =>
     role === "assistant"
-      ? "chat-ai-bubble bg-muted/60 text-foreground border border-[hsla(187,85%,53%,0.15)]"
+      ? "chat-ai-bubble bg-muted/60 text-foreground border border-ai-accent/20"
       : "ml-auto bg-primary/20 border-primary/30 text-foreground shadow-[0_2px_8px_rgba(249,115,22,0.2)]";
   const chatHeightStyle: CSSProperties | undefined = desktopChatHeight
     ? ({ "--desktop-chat-height": `${desktopChatHeight}px` } as CSSProperties)
@@ -176,21 +176,21 @@ const ChatCard = ({
     >
       <div className="chat-scan-line" />
 
-      <div className="relative z-10 flex items-center justify-between border-b border-[hsla(187,85%,53%,0.15)] bg-[hsla(0,0%,0%,0.3)] px-3 py-2.5 md:px-4 md:py-3">
+      <div className="chat-header-bar relative z-10 flex items-center justify-between border-b px-3 py-2.5 md:px-4 md:py-3">
         <div className="flex items-center gap-3">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsla(187,85%,53%,0.6)]" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[hsl(187,85%,53%)] shadow-[0_0_8px_hsl(187,85%,53%)]" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ai-accent/60" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-ai-accent shadow-[0_0_8px_hsl(var(--ai-accent))]" />
           </span>
           <div>
             <p className="text-sm font-medium flex items-center gap-1.5">
               Anton
-              <Sparkles className="h-3 w-3 text-[hsl(187,85%,53%)]" />
+              <Sparkles className="h-3 w-3 text-ai-accent" />
             </p>
             <p className="text-xs text-muted-foreground font-mono">Neural AI Assistant</p>
           </div>
         </div>
-        <span className="text-[10px] uppercase tracking-widest text-[hsla(187,85%,53%,0.9)] bg-[hsla(187,85%,53%,0.1)] px-2 py-0.5 rounded border border-[hsla(187,85%,53%,0.3)]">
+        <span className="text-[10px] uppercase tracking-widest text-ai-accent/90 bg-ai-accent/10 px-2 py-0.5 rounded border border-ai-accent/30">
           AI
         </span>
       </div>
@@ -210,18 +210,18 @@ const ChatCard = ({
           </div>
         ))}
         {isLoading && (
-          <div className="chat-ai-bubble max-w-[85%] animate-message-slide rounded-lg border border-[hsla(187,85%,53%,0.15)] bg-muted/60 px-3 py-2 text-sm leading-relaxed text-foreground backdrop-blur-sm">
+          <div className="chat-ai-bubble max-w-[85%] animate-message-slide rounded-lg border border-ai-accent/20 bg-muted/60 px-3 py-2 text-sm leading-relaxed text-foreground backdrop-blur-sm">
             <div className="flex items-center gap-2 font-mono">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsla(187,85%,53%,0.6)]" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[hsl(187,85%,53%)]" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ai-accent/60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-ai-accent" />
               </span>
-              <span className="text-[hsla(187,85%,53%,0.95)]">Processing</span>
+              <span className="text-ai-accent/95">Processing</span>
               <span className="flex gap-0.5">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="text-[hsl(187,85%,53%)] animate-pulse"
+                    className="text-ai-accent animate-pulse"
                     style={{ animationDelay: `${i * 0.2}s` }}
                   >
                     .
@@ -234,9 +234,9 @@ const ChatCard = ({
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/90 via-black/55 to-transparent md:hidden" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-background/90 via-background/55 to-transparent md:hidden" />
 
-      <div className="relative z-10 space-y-2 border-t border-white/10 bg-transparent px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-md md:border-t-0 md:px-4 md:pb-4 md:backdrop-blur-0">
+      <div className="relative z-10 space-y-2 border-t border-border/50 bg-transparent px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-md md:border-t-0 md:px-4 md:pb-4 md:backdrop-blur-0">
         <div className="flex items-center justify-end">
           <Dialog open={isConnectOpen} onOpenChange={onConnectOpenChange}>
             <DialogTrigger asChild>
@@ -246,13 +246,13 @@ const ChatCard = ({
                 className="group inline-flex items-center gap-1.5 px-2.5 py-2 leading-none rounded-full text-xs font-medium hover:bg-primary/20 hover:border-primary/40 hover:shadow-[0_0_12px_hsla(24,95%,53%,0.25)] transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
                 <UserCircle className="h-3.5 w-3.5" />
-                <span className="ai-shimmer-text">
+                <span className="text-foreground">
                   {connectStatus === "success" ? "Request sent" : "Connect with CodeBay"}
                 </span>
               </button>
             </DialogTrigger>
             <DialogContent
-              className="connect-dialog sm:max-w-[420px] rounded-xl text-foreground [&>button]:text-muted-foreground [&>button]:hover:text-foreground [&_input]:border-[hsla(187,85%,53%,0.2)] [&_input]:bg-[hsla(0,0%,0%,0.4)] [&_input]:text-foreground [&_input]:placeholder:text-muted-foreground [&_input]:focus-visible:ring-[hsla(187,85%,53%,0.4)] [&_textarea]:border-[hsla(187,85%,53%,0.2)] [&_textarea]:bg-[hsla(0,0%,0%,0.4)] [&_textarea]:text-foreground [&_textarea]:placeholder:text-muted-foreground [&_textarea]:focus-visible:ring-[hsla(187,85%,53%,0.4)]"
+              className="connect-dialog sm:max-w-[420px] rounded-xl text-foreground [&>button]:text-muted-foreground [&>button]:hover:text-foreground [&_input]:text-foreground [&_input]:placeholder:text-muted-foreground [&_textarea]:text-foreground [&_textarea]:placeholder:text-muted-foreground [&_input]:focus-visible:ring-ai-accent/40 [&_textarea]:focus-visible:ring-ai-accent/40"
               onOpenAutoFocus={(e) => {
                 if (typeof window !== "undefined" && window.innerWidth < 768) {
                   e.preventDefault();
@@ -263,7 +263,7 @@ const ChatCard = ({
 
               <DialogHeader className="relative z-10">
                 <DialogTitle className="text-foreground">
-                  Connect with <span className="text-[hsl(187,85%,53%)]">CodeBay</span>
+                  Connect with <span className="text-ai-accent">CodeBay</span>
                 </DialogTitle>
                 <DialogDescription className="text-muted-foreground">
                   Share your contact details and we will follow up. We may use your chat history to
@@ -312,7 +312,7 @@ const ChatCard = ({
                     )}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="connect-phone">Phone (optional)</Label>
+                    <Label htmlFor="connect-phone">Phone</Label>
                     <Controller
                       name="phone"
                       control={connectForm.control}
@@ -341,7 +341,7 @@ const ChatCard = ({
                     )}
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="connect-notes">Notes (optional)</Label>
+                    <Label htmlFor="connect-notes">How can we help?</Label>
                     <Textarea
                       id="connect-notes"
                       placeholder="Any additional context, timeline, or questions..."
@@ -390,13 +390,13 @@ const ChatCard = ({
 
         <form
           onSubmit={chatForm.handleSubmit(onChatSubmit)}
-          className="flex items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 shadow-[0_12px_36px_rgba(0,0,0,0.42)] ring-2 ring-black/25 backdrop-blur-md transition-all hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)] md:border-[hsla(187,85%,53%,0.2)] md:bg-[hsla(0,0%,0%,0.4)] md:px-3 md:py-2 md:shadow-[0_0_20px_hsla(187,85%,53%,0.06)] md:ring-black/10"
+          className="chat-input-bar flex items-center gap-2 rounded-lg border px-3 py-2 shadow-lg backdrop-blur-md transition-all hover:border-ai-accent/35 hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)] md:px-3 md:py-2 md:shadow-[0_0_20px_hsla(187,85%,53%,0.06)]"
         >
-          <span className="font-mono text-base font-semibold text-[hsl(187,85%,53%)] select-none md:text-sm">›</span>
+          <span className="font-mono text-base font-semibold text-ai-accent select-none md:text-sm">›</span>
           <Input
             {...chatForm.register("message")}
             placeholder="Ask about your product, timeline, or tech stack..."
-            className="w-full border-0 bg-transparent font-mono text-[1.05rem] leading-6 text-slate-950 placeholder:text-slate-500 caret-slate-950 focus-visible:ring-0 focus-visible:ring-offset-0 md:text-sm md:leading-5 md:text-foreground md:placeholder:text-muted-foreground md:caret-foreground"
+            className="w-full border-0 bg-transparent font-mono text-[1.05rem] leading-6 text-foreground placeholder:text-muted-foreground caret-foreground focus-visible:ring-0 focus-visible:ring-offset-0 md:text-sm md:leading-5"
             disabled={isLoading}
             autoComplete="off"
             maxLength={500}
@@ -593,7 +593,7 @@ const ChatSection = () => {
         <div className="flex flex-col md:flex-row md:items-stretch md:justify-between md:gap-12">
           <div
             ref={ctaPanelRef}
-            className="order-1 mb-4 w-full rounded-xl border border-white/10 bg-black/40 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-xl md:mb-0 md:flex-1 md:p-8"
+            className="order-1 mb-4 w-full rounded-xl border border-border bg-card/80 p-4 shadow-xl backdrop-blur-xl md:mb-0 md:flex-1 md:p-8 dark:border-white/10 dark:bg-black/40 dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
           >
             <ChatSectionCopy />
           </div>

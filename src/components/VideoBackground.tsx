@@ -105,8 +105,7 @@ const VideoBackground = ({
       )}
       {overlay && (
         <div
-          className="absolute inset-0 bg-background"
-          style={{ opacity: overlayOpacity }}
+          className="absolute inset-0 bg-background opacity-[var(--video-overlay-opacity)]"
           aria-hidden="true"
         />
       )}

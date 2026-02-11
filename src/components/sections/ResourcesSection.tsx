@@ -9,16 +9,16 @@ const resources = [
     count: "15+ projects"
   },
   {
-    icon: Video,
-    title: "Tech Talks",
-    description: "Deep dives into AI-powered development",
-    count: "Coming soon"
-  },
-  {
     icon: BookOpen,
     title: "Blog",
     description: "Insights on modern software development",
     count: "Weekly posts"
+  },
+  {
+    icon: Video,
+    title: "Tech Talks",
+    description: "Deep dives into AI-powered development",
+    count: "Coming soon"
   },
   {
     icon: Users,

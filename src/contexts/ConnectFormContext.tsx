@@ -192,7 +192,7 @@ function ConnectFormDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="connect-dialog sm:max-w-[420px] rounded-xl text-foreground [&>button]:text-muted-foreground [&>button]:hover:text-foreground [&_input]:border-[hsla(187,85%,53%,0.2)] [&_input]:bg-[hsla(0,0%,0%,0.4)] [&_input]:text-foreground [&_input]:placeholder:text-muted-foreground [&_input]:focus-visible:ring-[hsla(187,85%,53%,0.4)] [&_textarea]:border-[hsla(187,85%,53%,0.2)] [&_textarea]:bg-[hsla(0,0%,0%,0.4)] [&_textarea]:text-foreground [&_textarea]:placeholder:text-muted-foreground [&_textarea]:focus-visible:ring-[hsla(187,85%,53%,0.4)]"
+        className="connect-dialog sm:max-w-[420px] rounded-xl text-foreground [&>button]:text-muted-foreground [&>button]:hover:text-foreground [&_input]:text-foreground [&_input]:placeholder:text-muted-foreground [&_textarea]:text-foreground [&_textarea]:placeholder:text-muted-foreground [&_input]:focus-visible:ring-ai-accent/40 [&_textarea]:focus-visible:ring-ai-accent/40"
         onOpenAutoFocus={(e) => {
           if (typeof window !== "undefined" && window.innerWidth < 768) {
             e.preventDefault();
@@ -203,7 +203,7 @@ function ConnectFormDialog({
 
         <DialogHeader className="relative z-10">
           <DialogTitle className="text-foreground">
-            Connect with <span className="text-[hsl(187,85%,53%)]">CodeBay</span>
+            Connect with <span className="text-ai-accent">CodeBay</span>
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
             Share your contact details and we will follow up.
@@ -251,7 +251,7 @@ function ConnectFormDialog({
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="connect-phone">Phone (optional)</Label>
+              <Label htmlFor="connect-phone">Phone</Label>
               <Controller
                 name="phone"
                 control={connectForm.control}
@@ -280,7 +280,7 @@ function ConnectFormDialog({
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="connect-notes">Notes (optional)</Label>
+              <Label htmlFor="connect-notes">How can we help?</Label>
               <Textarea
                 id="connect-notes"
                 placeholder="Any additional context, timeline, or questions..."

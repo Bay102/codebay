@@ -1,5 +1,14 @@
 ---
+description: 
 alwaysApply: true
 ---
 
-when creating styles with tailwind, always do so in the mobile first order as follows:  base → sm → md → lg → xl,
+When creating Tailwind styles with responsive breakpoints, always use mobile-first order. Apply variants in this sequence: base (no prefix) → sm → md → lg → xl → 2xl.
+
+Example (correct):
+<div className="p-4 sm:p-6 md:p-8 lg:p-10" />
+
+Example (incorrect - breakpoints out of order):
+<div className="p-4 lg:p-10 sm:p-6 md:p-8" />
+
+This keeps cascading predictable and makes responsive changes easier to reason about.

@@ -72,7 +72,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
             <img
               src={codebayLogo}
               alt="CodeBay"
-              className="h-8 w-auto invert md:h-10"
+              className="h-8 w-auto dark:invert md:h-10"
             />
           </button>
 

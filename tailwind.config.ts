@@ -52,6 +52,7 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "ai-accent": "hsl(var(--ai-accent))",
       },
       borderRadius: {
         lg: "var(--radius)",
