@@ -246,7 +246,9 @@ const ChatCard = ({
                 className="group inline-flex items-center gap-1.5 px-2.5 py-2 leading-none rounded-full text-xs font-medium hover:bg-primary/20 hover:border-primary/40 hover:shadow-[0_0_12px_hsla(24,95%,53%,0.25)] transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
                 <UserCircle className="h-3.5 w-3.5" />
-                {connectStatus === "success" ? "Request sent" : "Connect with CodeBay"}
+                <span className="ai-shimmer-text">
+                  {connectStatus === "success" ? "Request sent" : "Connect with CodeBay"}
+                </span>
               </button>
             </DialogTrigger>
             <DialogContent

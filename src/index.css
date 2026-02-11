@@ -154,6 +154,28 @@
   background-clip: text;
  }
 
+ /* Cyan AI shimmer sweep on text - matches chat container scan-line feel */
+ .ai-shimmer-text {
+  background: linear-gradient(
+   90deg,
+   hsl(0, 0%, 100%) 0%,
+   hsl(0, 0%, 100%) 35%,
+   hsl(187, 85%, 53%) 50%,
+   hsl(0, 0%, 100%) 65%,
+   hsl(0, 0%, 100%) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: ai-shimmer-text 3s ease-in-out infinite;
+ }
+
+ @keyframes ai-shimmer-text {
+  0% { background-position: 0% 0; }
+  100% { background-position: -200% 0; }
+ }
+
  .gradient-btn {
   background: var(--gradient-primary);
   transition: all 0.3s ease;
