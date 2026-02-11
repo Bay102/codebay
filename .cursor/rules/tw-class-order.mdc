@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+when creating styles with tailwind, always do so in the mobile first order as follows:  base → sm → md → lg → xl,

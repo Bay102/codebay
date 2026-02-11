@@ -63,7 +63,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
     <>
       {/* Top Header - Logo only on mobile, full header on desktop */}
       <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 lg:px-12 bg-background/95 backdrop-blur-md md:bg-transparent md:backdrop-blur-none">
-        <div className="max-w-7xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center">
+        <div className="max-w-7xl mx-auto flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-normal">
           {/* Logo */}
           <button
             onClick={() => onSectionChange("home")}
@@ -83,10 +83,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
           />
 
           {/* CTA Buttons */}
-          <div className="hidden md:flex items-center gap-2 justify-self-end">
+          <div className="flex items-center justify-end gap-2 justify-self-end md:col-start-3">
             <button
               onClick={openConnectForm}
-              className="gradient-btn px-5 py-2.5 rounded-full text-sm font-medium text-primary-foreground"
+              className="gradient-btn px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-medium text-primary-foreground"
             >
               Inquire
             </button>

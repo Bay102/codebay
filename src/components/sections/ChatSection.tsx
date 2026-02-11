@@ -79,7 +79,7 @@ const CAPABILITIES = [
 ] as const;
 
 const OUTCOMES = [
-  { icon: ArrowRight, label: "Launch Faster", sub: "Months to weeks delivery" },
+  { icon: ArrowRight, label: "Launch Faster", sub: "MVPs in weeks, not months" },
   { icon: ShieldCheck, label: "Enterprise-Grade Software", sub: "Production-ready quality" },
   { icon: Zap, label: "AI-Accelerated Development", sub: "Speed without compromise" },
 ] as const;
@@ -171,7 +171,7 @@ const ChatCard = ({
 
   return (
     <div
-      className="chat-container relative grid w-full max-w-none animate-in fade-in zoom-in-95 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl text-foreground shadow-2xl !h-[415px] !min-h-[415px] !max-h-[415px] md:mx-auto md:max-w-md md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)] lg:animate-float"
+      className="chat-container relative grid w-full max-w-none animate-in fade-in zoom-in-95 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl text-foreground shadow-2xl !h-[475px] !min-h-[475px] !max-h-[415px] md:mx-auto md:max-w-md md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)] lg:animate-float"
       style={chatHeightStyle}
     >
       <div className="chat-scan-line" />
