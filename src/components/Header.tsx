@@ -62,7 +62,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
   return (
     <>
       {/* Top Header - Logo only on mobile, full header on desktop */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 lg:px-12 bg-background/95 backdrop-blur-md md:bg-transparent md:backdrop-blur-none">
+      <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 lg:px-12 bg-background/95 backdrop-blur-md md:bg-background/80 md:backdrop-blur-sm">
         <div className="max-w-7xl mx-auto flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-normal">
           {/* Logo */}
           <button
