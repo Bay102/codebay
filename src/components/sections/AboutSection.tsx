@@ -13,13 +13,13 @@ const values = [
 
 const AboutSection = () => {
   return (
-    <div className="w-full min-h-full flex items-start justify-center pt-6 pb-10 px-4 md:pt-8 md:pb-8 md:px-8">
+    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             Who We Are
           </span>
-          <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
+          <h2 className="font-heading text-3xl text-foreground mt-3 sm:text-4xl lg:text-5xl">
             About CodeBay
           </h2>
           <p className="text-muted-foreground mt-4 max-w-2xl mx-auto leading-relaxed">
@@ -30,14 +30,14 @@ const AboutSection = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="grid grid-cols-2 gap-4 mb-10 lg:grid-cols-4">
           {stats.map((stat, index) => (
             <div
               key={stat.label}
               className="glass-nav rounded-2xl p-5 text-center"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="font-display text-2xl md:text-3xl gradient-text font-bold">
+              <div className="font-display text-2xl font-bold gradient-text sm:text-3xl">
                 {stat.value}
               </div>
               <div className="text-muted-foreground text-xs mt-1">
@@ -52,7 +52,7 @@ const AboutSection = () => {
           <h3 className="font-display text-lg text-foreground mb-6 text-center">
             Our Principles
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {values.map((value) => (
               <div key={value.title} className="text-center">
                 <div className="text-foreground font-medium mb-2">{value.title}</div>

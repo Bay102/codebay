@@ -23,13 +23,13 @@ const products = [
 
 const ProductsSection = () => {
   return (
-    <div className="w-full min-h-full flex items-start justify-center pt-6 pb-10 px-4 md:pt-8 md:pb-8 md:px-8">
+    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             Our Offerings
           </span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
+          <h2 className="font-display text-3xl text-foreground mt-3 sm:text-4xl lg:text-5xl">
             Products & Services
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
@@ -41,7 +41,7 @@ const ProductsSection = () => {
           {products.map((product, index) => (
             <div
               key={product.name}
-              className="liquid-glass-nav rounded-2xl p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-primary/30 hover:scale-105 transition-all duration-300 group cursor-pointer"
+              className="liquid-glass-nav flex flex-col gap-6 rounded-2xl p-7 transition-all duration-300 group cursor-pointer hover:scale-105 hover:border-primary/30 sm:flex-row sm:items-center sm:justify-between"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex-1">

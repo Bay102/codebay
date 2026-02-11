@@ -76,11 +76,11 @@ const OUTCOMES = [
 
 const ChatSectionCopy = () => (
   <div className="flex flex-col gap-4 md:gap-5">
-    <h1 className="text-3xl sm:text-4xl md:text-4xl font-light tracking-tight text-foreground">
+    <h1 className="text-3xl font-light tracking-tight text-foreground sm:text-4xl">
       AI Software Development Agency,
       <span className="gradient-text"> Web, Mobile, and Custom Products</span>
     </h1>
-    <p className="text-sm sm:text-base text-white/90 leading-relaxed">
+    <p className="text-sm text-white/90 leading-relaxed sm:text-base">
       CodeBay helps startups and teams build production-grade web apps, mobile apps, and custom
       software faster with AI-assisted delivery.
     </p>
@@ -96,13 +96,13 @@ const ChatSectionCopy = () => (
           className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm hover:border-[hsla(187,85%,53%,0.3)] hover:bg-[hsla(187,85%,53%,0.06)] transition-all duration-300 group"
         >
           <Icon className={`h-3.5 w-3.5 ${color} group-hover:scale-110 transition-transform`} />
-          <span className="text-[11px] sm:text-xs font-medium text-white/90">{label}</span>
+          <span className="text-[11px] font-medium text-white/90 sm:text-xs">{label}</span>
         </motion.div>
       ))}
     </div>
 
     {/* Outcome stats */}
-    <div className="flex flex-col gap-2 md:gap-2.5 pt-0 md:pt-1">
+    <div className="flex flex-col gap-2 pt-0 md:gap-2.5 md:pt-1">
       {OUTCOMES.map(({ icon: Icon, label, sub }, i) => (
         <motion.div
           key={label}
@@ -182,12 +182,12 @@ const ChatCard = ({
           delay: 0.5,
         },
       }}
-      className="w-full max-w-none md:max-w-md md:mx-auto chat-container text-foreground grid grid-rows-[auto_minmax(0,1fr)_auto] !h-[415px] !min-h-[415px] !max-h-[415px] md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)] shadow-2xl relative rounded-xl overflow-hidden"
+      className="chat-container relative grid w-full max-w-none grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl text-foreground shadow-2xl !h-[415px] !min-h-[415px] !max-h-[415px] md:mx-auto md:max-w-md md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)]"
       style={chatHeightStyle}
     >
       <div className="chat-scan-line" />
 
-      <div className="flex items-center justify-between border-b border-[hsla(187,85%,53%,0.15)] bg-[hsla(0,0%,0%,0.3)] px-3 py-2.5 md:px-4 md:py-3 relative z-10">
+      <div className="relative z-10 flex items-center justify-between border-b border-[hsla(187,85%,53%,0.15)] bg-[hsla(0,0%,0%,0.3)] px-3 py-2.5 md:px-4 md:py-3">
         <div className="flex items-center gap-3">
           <span className="relative flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsla(187,85%,53%,0.6)]" />
@@ -208,7 +208,7 @@ const ChatCard = ({
 
       <div
         ref={messagesContainerRef}
-        className="min-h-0 space-y-2 md:space-y-3 px-3 md:px-4 py-2 md:py-3 overflow-y-auto overscroll-contain relative z-10"
+        className="relative z-10 min-h-0 space-y-2 overflow-y-auto overscroll-contain px-3 py-2 md:space-y-3 md:px-4 md:py-3"
       >
         <AnimatePresence mode="popLayout">
           {messages.map((message, index) => (
@@ -266,7 +266,7 @@ const ChatCard = ({
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/90 via-black/55 to-transparent md:hidden" />
 
-      <div className="px-3 md:px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] md:pb-4 relative z-10 space-y-2 bg-transparent backdrop-blur-md md:backdrop-blur-0 border-t border-white/10 md:border-t-0">
+      <div className="relative z-10 space-y-2 border-t border-white/10 bg-transparent px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-md md:border-t-0 md:px-4 md:pb-4 md:backdrop-blur-0">
         <div className="flex items-center justify-end">
           <Dialog open={isConnectOpen} onOpenChange={onConnectOpenChange}>
             <DialogTrigger asChild>
@@ -402,13 +402,13 @@ const ChatCard = ({
 
         <form
           onSubmit={chatForm.handleSubmit(onChatSubmit)}
-          className="flex items-center gap-2 border border-white md:border-[hsla(187,85%,53%,0.2)] bg-white md:bg-[hsla(0,0%,0%,0.4)] backdrop-blur-md px-3 md:px-3 py-2 md:py-2 rounded-lg transition-all ring-2 ring-black/25 md:ring-black/10 shadow-[0_12px_36px_rgba(0,0,0,0.42)] md:shadow-[0_0_20px_hsla(187,85%,53%,0.06)] hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)]"
+          className="flex items-center gap-2 rounded-lg border border-white bg-white px-3 py-2 shadow-[0_12px_36px_rgba(0,0,0,0.42)] ring-2 ring-black/25 backdrop-blur-md transition-all hover:border-[hsla(187,85%,53%,0.35)] hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)] md:border-[hsla(187,85%,53%,0.2)] md:bg-[hsla(0,0%,0%,0.4)] md:px-3 md:py-2 md:shadow-[0_0_20px_hsla(187,85%,53%,0.06)] md:ring-black/10"
         >
-          <span className="text-[hsl(187,85%,53%)] font-mono font-semibold text-base md:text-sm select-none">›</span>
+          <span className="font-mono text-base font-semibold text-[hsl(187,85%,53%)] select-none md:text-sm">›</span>
           <Input
             {...chatForm.register("message")}
             placeholder="Ask about your product, timeline, or tech stack..."
-            className="w-full border-0 bg-transparent text-slate-950 md:text-foreground text-[1.05rem] leading-6 md:text-sm md:leading-5 placeholder:text-slate-500 md:placeholder:text-muted-foreground caret-slate-950 md:caret-foreground focus-visible:ring-0 focus-visible:ring-offset-0 font-mono"
+            className="w-full border-0 bg-transparent font-mono text-[1.05rem] leading-6 text-slate-950 placeholder:text-slate-500 caret-slate-950 focus-visible:ring-0 focus-visible:ring-offset-0 md:text-sm md:leading-5 md:text-foreground md:placeholder:text-muted-foreground md:caret-foreground"
             disabled={isLoading}
             autoComplete="off"
             maxLength={500}
@@ -417,7 +417,7 @@ const ChatCard = ({
             type="submit"
             disabled={isLoading || !chatForm.watch("message")?.trim()}
             size="sm"
-            className="h-9 min-w-9 px-2.5 md:h-8 md:min-w-8 md:px-2 transition-all hover:scale-110 disabled:opacity-50"
+            className="h-9 min-w-9 px-2.5 transition-all hover:scale-110 disabled:opacity-50 md:h-8 md:min-w-8 md:px-2"
           >
             {isLoading ? (
               <Loader2 className="h-3 w-3 animate-spin" />
@@ -600,16 +600,16 @@ const ChatSection = () => {
   };
 
   return (
-    <div className="w-full min-h-full md:h-full flex items-start md:items-center justify-center">
+    <div className="flex w-full min-h-full items-start justify-center md:h-full md:items-center">
       <div className="w-full max-w-5xl md:max-h-[calc(100dvh-9rem)] md:overflow-y-auto lg:max-h-none lg:overflow-visible">
-        <div className="flex flex-col md:flex-row md:items-stretch md:gap-12 md:justify-between">
+        <div className="flex flex-col md:flex-row md:items-stretch md:justify-between md:gap-12">
           <div
             ref={ctaPanelRef}
-            className="order-1 w-full md:flex-1 mb-4 md:mb-0 p-4 md:p-8 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+            className="order-1 mb-4 w-full rounded-xl border border-white/10 bg-black/40 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-xl md:mb-0 md:flex-1 md:p-8"
           >
             <ChatSectionCopy />
           </div>
-          <div className="order-2 w-full md:w-auto md:flex md:flex-col md:flex-shrink-0 md:min-w-[28rem]">
+          <div className="order-2 w-full md:flex md:min-w-[28rem] md:w-auto md:flex-shrink-0 md:flex-col">
             <ChatCard
               messages={messages}
               isLoading={isLoading}

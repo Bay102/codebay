@@ -10,7 +10,7 @@ interface HeroProps {
 
 const Hero = ({ activeSection, direction }: HeroProps) => {
   return (
-    <section className="min-h-[100dvh] md:min-h-screen grid grid-rows-1 overflow-hidden">
+    <section className="min-h-[100dvh] grid grid-rows-1 overflow-hidden md:min-h-screen">
       {/* Video Background */}
       <VideoBackground
         src="/code.mp4"

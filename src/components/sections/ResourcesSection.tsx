@@ -29,13 +29,13 @@ const resources = [
 
 const ResourcesSection = () => {
   return (
-    <div className="w-full min-h-full flex items-start justify-center pt-6 pb-10 px-4 md:pt-8 md:pb-8 md:px-8">
+    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             Learn & Connect
           </span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
+          <h2 className="font-display text-3xl text-foreground mt-3 sm:text-4xl lg:text-5xl">
             Resources
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
@@ -43,7 +43,7 @@ const ResourcesSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
           {resources.map((resource, index) => (
             <div
               key={resource.title}

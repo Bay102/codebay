@@ -31,7 +31,7 @@ const SolutionsSection = () => {
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             What We Build
           </span>
-          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl text-foreground mt-3">
+          <h2 className="font-display text-3xl text-foreground mt-3 sm:text-4xl lg:text-5xl">
             Solutions That Ship Fast
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
@@ -39,7 +39,7 @@ const SolutionsSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-5 ">
+        <div className="grid grid-cols-1 gap-6 mb-5 sm:grid-cols-2">
           {solutions.map((solution, index) => (
             <div
               key={solution.title}
