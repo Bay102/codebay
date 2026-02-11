@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, type CSSProperties } from "react";
-import { useForm, type UseFormReturn } from "react-hook-form";
+import { useForm, Controller, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Send, Loader2, Sparkles, UserCircle, Smartphone, Globe, Code2, Zap, ShieldCheck, ArrowRight } from "lucide-react";
@@ -27,14 +27,28 @@ const chatFormSchema = z.object({
     .max(500, "Message must be 500 characters or less"),
 });
 
+/** Formats phone input as (XXX) XXX-XXXX, max 11 digits. Strips non-digits internally. */
+function formatPhoneInput(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length === 0) return "";
+  if (digits.length <= 3) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  return `1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+}
+
 const humanConnectFormSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Enter a valid email"),
   phone: z
     .string()
     .nullish()
-    .refine((value) => !value || /^[+]?[\d\s().-]{7,20}$/.test(value), {
-      message: "Enter a valid phone number",
+    .refine((value) => {
+      if (!value) return true;
+      const digits = value.replace(/\D/g, "");
+      return digits.length >= 7 && digits.length <= 11 && /^\d+$/.test(digits);
+    }, {
+      message: "Enter a valid phone number (7–11 digits)",
     }),
   notes: z.string().max(2000, "Notes must be 2000 characters or less").optional().default(""),
   website: z.string().max(0, "Invalid submission").optional().default(""),
@@ -47,7 +61,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     role: "assistant",
     content:
-      "Hey! I'm Anton. Most people land here with an idea—a mobile app, web app, or custom software. What are you looking to build?",
+      "Hey! I'm Anton. Most people land here with an idea—a mobile app, web app, or custom software. What brings you here?",
   },
 ];
 
@@ -229,7 +243,7 @@ const ChatCard = ({
               <button
                 type="button"
                 disabled={isLoading || connectStatus === "submitting"}
-                className="group inline-flex items-center gap-1.5 px-2.5 pt-3 rounded-full text-xs font-medium hover:bg-primary/20 hover:border-primary/40 hover:shadow-[0_0_12px_hsla(24,95%,53%,0.25)] transition-all disabled:opacity-50 disabled:pointer-events-none"
+                className="group inline-flex items-center gap-1.5 px-2.5 py-2 leading-none rounded-full text-xs font-medium hover:bg-primary/20 hover:border-primary/40 hover:shadow-[0_0_12px_hsla(24,95%,53%,0.25)] transition-all disabled:opacity-50 disabled:pointer-events-none"
               >
                 <UserCircle className="h-3.5 w-3.5" />
                 {connectStatus === "success" ? "Request sent" : "Connect with CodeBay"}
@@ -297,14 +311,26 @@ const ChatCard = ({
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="connect-phone">Phone (optional)</Label>
-                    <Input
-                      id="connect-phone"
-                      placeholder="Enter phone number"
-                      type="tel"
-                      autoComplete="tel"
-                      inputMode="tel"
-                      {...connectForm.register("phone")}
-                      disabled={connectStatus === "submitting"}
+                    <Controller
+                      name="phone"
+                      control={connectForm.control}
+                      render={({ field }) => (
+                        <Input
+                          id="connect-phone"
+                          placeholder="(555) 123-4567"
+                          type="tel"
+                          autoComplete="tel"
+                          inputMode="tel"
+                          maxLength={18}
+                          value={field.value ?? ""}
+                          onChange={(e) => {
+                            const formatted = formatPhoneInput(e.target.value);
+                            field.onChange(formatted || undefined);
+                          }}
+                          onBlur={field.onBlur}
+                          disabled={connectStatus === "submitting"}
+                        />
+                      )}
                     />
                     {connectForm.formState.errors.phone && (
                       <p className="text-xs text-destructive">
