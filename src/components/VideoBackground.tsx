@@ -34,7 +34,7 @@ const VideoBackground = ({
   }, []);
 
   return (
-    <div className={`absolute inset-0 overflow-hidden ${className}`}>
+    <div className={`[grid-area:1/1] relative overflow-hidden ${className}`}>
       <video
         ref={videoRef}
         autoPlay

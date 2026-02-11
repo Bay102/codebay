@@ -25,7 +25,7 @@ const solutions = [
 
 const SolutionsSection = () => {
   return (
-    <div className="w-full min-h-full flex items-start justify-center pt-6 pb-10 px-4 md:pt-8 md:pb-8 md:px-8">
+    <div className="w-full min-h-full flex items-start justify-center">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-6">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
@@ -39,7 +39,7 @@ const SolutionsSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-5 ">
           {solutions.map((solution, index) => (
             <div
               key={solution.title}

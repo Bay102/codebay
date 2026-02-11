@@ -600,8 +600,8 @@ const ChatSection = () => {
   };
 
   return (
-    <div className="w-full min-h-full pt-7 md:h-full flex items-start md:items-center justify-center md:py-0 md:pt-12">
-      <div className="w-full max-w-5xl px-3 sm:px-6 md:px-8">
+    <div className="w-full min-h-full md:h-full flex items-start md:items-center justify-center">
+      <div className="w-full max-w-5xl md:max-h-[calc(100dvh-9rem)] md:overflow-y-auto lg:max-h-none lg:overflow-visible">
         <div className="flex flex-col md:flex-row md:items-stretch md:gap-12 md:justify-between">
           <div
             ref={ctaPanelRef}
