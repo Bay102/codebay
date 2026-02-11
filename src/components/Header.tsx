@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowUpRight, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import DesktopNav from "@/components/DesktopNav";
+import { useConnectForm } from "@/contexts/ConnectFormContext";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 
@@ -11,6 +12,7 @@ interface HeaderProps {
 }
 
 const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
+  const { openConnectForm } = useConnectForm();
   const [mobileIndicatorStyle, setMobileIndicatorStyle] = useState<{ left: number; width: number }>({ left: 0, width: 0 });
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const mobileButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
@@ -82,12 +84,15 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-2 justify-self-end">
-            <button className="gradient-btn px-5 py-2.5 rounded-full text-sm font-medium text-primary-foreground">
-              Get Started
+            <button
+              onClick={openConnectForm}
+              className="gradient-btn px-5 py-2.5 rounded-full text-sm font-medium text-primary-foreground"
+            >
+              Inquire
             </button>
-            <button className="icon-btn w-10 h-10 rounded-full flex items-center justify-center">
+            {/* <button className="icon-btn w-10 h-10 rounded-full flex items-center justify-center">
               <ArrowUpRight className="w-4 h-4 text-primary" />
-            </button>
+            </button> */}
           </div>
         </div>
       </header>

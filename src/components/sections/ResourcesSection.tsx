@@ -1,4 +1,5 @@
 import { FileText, Video, BookOpen, Users } from "lucide-react";
+import { useConnectForm } from "@/contexts/ConnectFormContext";
 
 const resources = [
   {
@@ -28,6 +29,7 @@ const resources = [
 ];
 
 const ResourcesSection = () => {
+  const { openConnectForm } = useConnectForm();
   return (
     <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
       <div className="max-w-4xl w-full">
@@ -67,8 +69,11 @@ const ResourcesSection = () => {
         </div>
 
         <div className="mt-8 text-center">
-          <button className="gradient-btn px-6 py-3 rounded-full text-sm font-medium text-primary-foreground">
-            View All Resources
+          <button
+            onClick={openConnectForm}
+            className="gradient-btn px-6 py-3 rounded-full text-sm font-medium text-primary-foreground"
+          >
+            Get in Touch
           </button>
         </div>
       </div>

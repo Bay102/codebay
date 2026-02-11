@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import { useConnectForm } from "@/contexts/ConnectFormContext";
 
 const products = [
   {
@@ -22,6 +23,7 @@ const products = [
 ];
 
 const ProductsSection = () => {
+  const { openConnectForm } = useConnectForm();
   return (
     <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
       <div className="max-w-4xl w-full">
@@ -68,6 +70,15 @@ const ProductsSection = () => {
               </button>
             </div>
           ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <button
+            onClick={openConnectForm}
+            className="gradient-btn px-6 py-3 rounded-full text-sm font-medium text-primary-foreground"
+          >
+            Get in Touch
+          </button>
         </div>
       </div>
     </div>

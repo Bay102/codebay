@@ -1,3 +1,5 @@
+import { useConnectForm } from "@/contexts/ConnectFormContext";
+
 const stats = [
   { value: "10x", label: "Faster Delivery" },
   { value: "50+", label: "Projects Shipped" },
@@ -12,6 +14,7 @@ const values = [
 ];
 
 const AboutSection = () => {
+  const { openConnectForm } = useConnectForm();
   return (
     <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
       <div className="max-w-4xl w-full">
@@ -60,6 +63,15 @@ const AboutSection = () => {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="text-center mt-10">
+          <button
+            onClick={openConnectForm}
+            className="gradient-btn px-6 py-3 rounded-full text-sm font-medium text-primary-foreground"
+          >
+            Get in Touch
+          </button>
         </div>
       </div>
     </div>
