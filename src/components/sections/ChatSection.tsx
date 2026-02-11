@@ -236,21 +236,25 @@ const ChatCard = ({
               </button>
             </DialogTrigger>
             <DialogContent
-              className="sm:max-w-[420px] bg-white text-gray-900 [&_input]:bg-white [&_input]:border-gray-200 [&_input]:text-gray-900 [&_textarea]:bg-white [&_textarea]:border-gray-200 [&_textarea]:text-gray-900 [&_.text-muted-foreground]:text-gray-500 [&_.PhoneInput]:border-gray-200 [&_.PhoneInput]:bg-white [&_.PhoneInputInput]:bg-transparent [&_.PhoneInputInput]:text-gray-900"
+              className="connect-dialog sm:max-w-[420px] rounded-xl text-foreground [&>button]:text-muted-foreground [&>button]:hover:text-foreground [&_input]:border-[hsla(187,85%,53%,0.2)] [&_input]:bg-[hsla(0,0%,0%,0.4)] [&_input]:text-foreground [&_input]:placeholder:text-muted-foreground [&_input]:focus-visible:ring-[hsla(187,85%,53%,0.4)] [&_textarea]:border-[hsla(187,85%,53%,0.2)] [&_textarea]:bg-[hsla(0,0%,0%,0.4)] [&_textarea]:text-foreground [&_textarea]:placeholder:text-muted-foreground [&_textarea]:focus-visible:ring-[hsla(187,85%,53%,0.4)]"
               onOpenAutoFocus={(e) => {
                 if (typeof window !== "undefined" && window.innerWidth < 768) {
                   e.preventDefault();
                 }
               }}
             >
-              <DialogHeader>
-                <DialogTitle>Connect with CodeBay</DialogTitle>
-                <DialogDescription>
+              <div className="chat-scan-line" />
+
+              <DialogHeader className="relative z-10">
+                <DialogTitle className="text-foreground">
+                  Connect with <span className="text-[hsl(187,85%,53%)]">CodeBay</span>
+                </DialogTitle>
+                <DialogDescription className="text-muted-foreground">
                   Share your contact details and we will follow up. We may use your chat history to
                   better understand your needs.
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={connectForm.handleSubmit(onConnectSubmit)} className="grid gap-4">
+              <form onSubmit={connectForm.handleSubmit(onConnectSubmit)} className="relative z-10 grid gap-4">
                 <input
                   type="text"
                   tabIndex={-1}
