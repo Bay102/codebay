@@ -18,10 +18,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { motion, AnimatePresence } from "framer-motion";
-import PhoneInputWithCountry from "react-phone-number-input/react-hook-form";
-import { isPossiblePhoneNumber } from "react-phone-number-input";
-import "react-phone-number-input/style.css";
 
 const chatFormSchema = z.object({
   message: z
@@ -37,7 +33,7 @@ const humanConnectFormSchema = z.object({
   phone: z
     .string()
     .nullish()
-    .refine((value) => !value || isPossiblePhoneNumber(value), {
+    .refine((value) => !value || /^[+]?[\d\s().-]{7,20}$/.test(value), {
       message: "Enter a valid phone number",
     }),
   notes: z.string().max(2000, "Notes must be 2000 characters or less").optional().default(""),
@@ -88,28 +84,24 @@ const ChatSectionCopy = () => (
     {/* Capability badges */}
     <div className="flex flex-wrap gap-2">
       {CAPABILITIES.map(({ icon: Icon, label, color }, i) => (
-        <motion.div
+        <div
           key={label}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: i * 0.08, ease: [0.4, 0, 0.2, 1] }}
-          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm hover:border-[hsla(187,85%,53%,0.3)] hover:bg-[hsla(187,85%,53%,0.06)] transition-all duration-300 group"
+          className="inline-flex animate-in fade-in slide-in-from-bottom-2 items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1.5 backdrop-blur-sm transition-all duration-300 group hover:border-[hsla(187,85%,53%,0.3)] hover:bg-[hsla(187,85%,53%,0.06)]"
+          style={{ animationDelay: `${i * 80}ms` }}
         >
           <Icon className={`h-3.5 w-3.5 ${color} group-hover:scale-110 transition-transform`} />
           <span className="text-[11px] font-medium text-white/90 sm:text-xs">{label}</span>
-        </motion.div>
+        </div>
       ))}
     </div>
 
     {/* Outcome stats */}
     <div className="flex flex-col gap-2 pt-0 md:gap-2.5 md:pt-1">
       {OUTCOMES.map(({ icon: Icon, label, sub }, i) => (
-        <motion.div
+        <div
           key={label}
-          initial={{ opacity: 0, x: -12 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 + i * 0.1, ease: [0.4, 0, 0.2, 1] }}
-          className="flex items-center gap-3 py-2 px-3 rounded-lg bg-white/[0.02] border border-white/5 hover:border-primary/20 hover:bg-primary/5 transition-all duration-300"
+          className="flex animate-in fade-in slide-in-from-left-3 items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 transition-all duration-300 hover:border-primary/20 hover:bg-primary/5"
+          style={{ animationDelay: `${200 + i * 100}ms` }}
         >
           <div className="flex-shrink-0 w-8 h-8 rounded-md bg-primary/15 flex items-center justify-center">
             <Icon className="h-4 w-4 text-primary" />
@@ -118,7 +110,7 @@ const ChatSectionCopy = () => (
             <p className="text-sm font-medium text-foreground truncate">{label}</p>
             <p className="text-xs text-muted-foreground">{sub}</p>
           </div>
-        </motion.div>
+        </div>
       ))}
     </div>
   </div>
@@ -164,25 +156,8 @@ const ChatCard = ({
     : undefined;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{
-        opacity: 1,
-        scale: 1,
-        y: [0, -24, 0],
-      }}
-      transition={{
-        opacity: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
-        scale: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
-        y: {
-          duration: 10,
-          repeat: Infinity,
-          ease: [0.37, 0, 0.63, 1],
-          times: [0, 0.5, 1],
-          delay: 0.5,
-        },
-      }}
-      className="chat-container relative grid w-full max-w-none grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl text-foreground shadow-2xl !h-[415px] !min-h-[415px] !max-h-[415px] md:mx-auto md:max-w-md md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)]"
+    <div
+      className="chat-container relative grid w-full max-w-none animate-in fade-in zoom-in-95 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl text-foreground shadow-2xl !h-[415px] !min-h-[415px] !max-h-[415px] md:mx-auto md:max-w-md md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)] lg:animate-float"
       style={chatHeightStyle}
     >
       <div className="chat-scan-line" />
@@ -210,32 +185,18 @@ const ChatCard = ({
         ref={messagesContainerRef}
         className="relative z-10 min-h-0 space-y-2 overflow-y-auto overscroll-contain px-3 py-2 md:space-y-3 md:px-4 md:py-3"
       >
-        <AnimatePresence mode="popLayout">
-          {messages.map((message, index) => (
-            <motion.div
-              key={`${message.role}-${index}`}
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{
-                duration: 0.3,
-                ease: [0.4, 0, 0.2, 1],
-                delay: index === messages.length - 1 ? 0.1 : 0,
-              }}
-              className={`max-w-[85%] border border-border px-3 py-2 text-sm leading-relaxed rounded-lg backdrop-blur-sm transition-all hover:scale-[1.02] ${messageBubbleClass(
-                message.role
-              )}`}
-            >
-              {message.content}
-            </motion.div>
-          ))}
-        </AnimatePresence>
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="chat-ai-bubble max-w-[85%] border border-[hsla(187,85%,53%,0.15)] px-3 py-2 text-sm leading-relaxed bg-muted/60 text-foreground rounded-lg backdrop-blur-sm"
+        {messages.map((message, index) => (
+          <div
+            key={`${message.role}-${index}`}
+            className={`max-w-[85%] animate-message-slide rounded-lg border border-border px-3 py-2 text-sm leading-relaxed backdrop-blur-sm transition-all hover:scale-[1.02] ${messageBubbleClass(
+              message.role
+            )}`}
           >
+            {message.content}
+          </div>
+        ))}
+        {isLoading && (
+          <div className="chat-ai-bubble max-w-[85%] animate-message-slide rounded-lg border border-[hsla(187,85%,53%,0.15)] bg-muted/60 px-3 py-2 text-sm leading-relaxed text-foreground backdrop-blur-sm">
             <div className="flex items-center gap-2 font-mono">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[hsla(187,85%,53%,0.6)]" />
@@ -244,22 +205,17 @@ const ChatCard = ({
               <span className="text-[hsla(187,85%,53%,0.95)]">Processing</span>
               <span className="flex gap-0.5">
                 {[0, 1, 2].map((i) => (
-                  <motion.span
+                  <span
                     key={i}
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{
-                      duration: 0.8,
-                      repeat: Infinity,
-                      delay: i * 0.2,
-                    }}
-                    className="text-[hsl(187,85%,53%)]"
+                    className="text-[hsl(187,85%,53%)] animate-pulse"
+                    style={{ animationDelay: `${i * 0.2}s` }}
                   >
                     .
-                  </motion.span>
+                  </span>
                 ))}
               </span>
             </div>
-          </motion.div>
+          </div>
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -337,14 +293,14 @@ const ChatCard = ({
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="connect-phone">Phone (optional)</Label>
-                    <PhoneInputWithCountry
+                    <Input
                       id="connect-phone"
-                      name="phone"
-                      control={connectForm.control}
-                      defaultCountry="US"
                       placeholder="Enter phone number"
+                      type="tel"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      {...connectForm.register("phone")}
                       disabled={connectStatus === "submitting"}
-                      limitMaxLength
                     />
                     {connectForm.formState.errors.phone && (
                       <p className="text-xs text-destructive">
@@ -427,7 +383,7 @@ const ChatCard = ({
           </Button>
         </form>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -15,8 +15,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        display: ['Plus Jakarta Sans', 'sans-serif'],
-        heading: ['IBM Plex Sans', 'sans-serif'],
+        display: ['Inter', 'sans-serif'],
+        heading: ['Inter', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
