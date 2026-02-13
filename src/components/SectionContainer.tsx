@@ -25,10 +25,10 @@ const SectionContainer = ({ activeSection, direction: _direction }: SectionConta
   }, [activeSection]);
 
   return (
-    <div className="[grid-area:1/1] z-10 overflow-hidden bg-background/65 px-6 pt-36 pb-6 backdrop-blur-[9px] md:pt-28 md:pb-8 lg:px-12 dark:bg-background/40">
+    <div className="[grid-area:1/1] z-10 h-[100dvh] overflow-hidden bg-background/65 px-6 pt-36 pb-6 backdrop-blur-[9px] md:pt-28 md:pb-8 lg:px-12 dark:bg-background/40">
       <div
         ref={scrollRef}
-        className="h-full flex flex-col overflow-y-auto overscroll-contain"
+        className="flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain"
       >
         <Suspense fallback={<div className="relative flex-1" />}>
           <div key={activeSection} className="relative flex-1 animate-in fade-in duration-300">

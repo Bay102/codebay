@@ -83,7 +83,11 @@ const VideoBackground = ({
   const showVideo = shouldLoadVideo && shouldAutoplay;
 
   return (
-    <div ref={wrapperRef} className={`[grid-area:1/1] relative overflow-hidden ${className}`}>
+    <div
+      ref={wrapperRef}
+      className={`[grid-area:1/1] pointer-events-none relative overflow-hidden ${className}`}
+      aria-hidden="true"
+    >
       {showVideo ? (
         <video
           ref={videoRef}
@@ -95,18 +99,16 @@ const VideoBackground = ({
           disablePictureInPicture
           controlsList="nodownload noplaybackrate noremoteplayback"
           className="absolute inset-0 h-full w-full object-cover"
-          aria-hidden="true"
         >
           <source src={src} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       ) : (
-        <div className="video-placeholder absolute inset-0" aria-hidden="true" />
+        <div className="video-placeholder absolute inset-0" />
       )}
       {overlay && (
         <div
           className="absolute inset-0 bg-background opacity-[var(--video-overlay-opacity)]"
-          aria-hidden="true"
         />
       )}
     </div>

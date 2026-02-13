@@ -33,7 +33,7 @@ const SolutionsSection = () => {
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             What We Build
           </span>
-          <h2 className="font-display text-3xl text-foreground mt-3 sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-2xl text-foreground mt-3 sm:text-3xl lg:text-4xl">
             Solutions That Ship Fast
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
@@ -45,7 +45,7 @@ const SolutionsSection = () => {
           {solutions.map((solution, index) => (
             <div
               key={solution.title}
-              className="glass-nav rounded-2xl p-6 hover:border-primary/30 transition-all duration-300 group"
+              className="glass-nav rounded-2xl p-4 hover:border-primary/30 transition-all duration-300 group"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="w-12 h-12 rounded-xl gradient-btn flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">

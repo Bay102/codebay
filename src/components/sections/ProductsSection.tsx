@@ -224,7 +224,7 @@ const ProductsSection = () => {
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             Our Offerings
           </span>
-          <h2 className="font-display text-3xl text-foreground mt-3 sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-2xl text-foreground mt-3 sm:text-3xl lg:text-4xl">
             Products & Services
           </h2>
           <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
@@ -240,60 +240,60 @@ const ProductsSection = () => {
               {paginatedProducts.map((product, index) => {
                 const Icon = product.icon;
                 return (
-                <div
-                  key={product.name}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => handleCardClick(product)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      handleCardClick(product);
+                  <div
+                    key={product.name}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleCardClick(product)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleCardClick(product);
+                      }
+                    }}
+                    className={cn(
+                      "liquid-glass-nav flex flex-col gap-6 rounded-2xl p-7 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:border-primary/30 sm:flex-row sm:items-center sm:justify-between",
+                      selectedProduct?.name === product.name && !isMobile
+                        ? "ring-2 ring-primary/50 border-primary/40"
+                        : ""
+                    )}
+                    style={{ animationDelay: `${index * 100}ms` }}
+                    aria-expanded={
+                      !isMobile && selectedProduct?.name === product.name
                     }
-                  }}
-                  className={cn(
-                    "liquid-glass-nav flex flex-col gap-6 rounded-2xl p-7 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:border-primary/30 sm:flex-row sm:items-center sm:justify-between",
-                    selectedProduct?.name === product.name && !isMobile
-                      ? "ring-2 ring-primary/50 border-primary/40"
-                      : ""
-                  )}
-                  style={{ animationDelay: `${index * 100}ms` }}
-                  aria-expanded={
-                    !isMobile && selectedProduct?.name === product.name
-                  }
-                  aria-haspopup={isMobile ? "dialog" : undefined}
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="font-display text-xl text-foreground">
-                        {product.name}
-                      </h3>
-                      <span
-                        className={cn(
-                          "text-xs px-2 py-0.5 rounded-full",
-                          product.status === "Available"
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-primary/20 text-primary"
-                        )}
-                      >
-                        {product.status}
+                    aria-haspopup={isMobile ? "dialog" : undefined}
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="font-display text-xl text-foreground">
+                          {product.name}
+                        </h3>
+                        <span
+                          className={cn(
+                            "text-xs px-2 py-0.5 rounded-full",
+                            product.status === "Available"
+                              ? "bg-green-500/20 text-green-400"
+                              : "bg-primary/20 text-primary"
+                          )}
+                        >
+                          {product.status}
+                        </span>
+                      </div>
+                      <p className="text-muted-foreground text-sm">
+                        {product.description}
+                      </p>
+                      <span className="text-xs text-muted-foreground/60 mt-1 inline-block">
+                        {product.category}
                       </span>
                     </div>
-                    <p className="text-muted-foreground text-sm">
-                      {product.description}
-                    </p>
-                    <span className="text-xs text-muted-foreground/60 mt-1 inline-block">
-                      {product.category}
-                    </span>
+                    <button
+                      className="icon-btn w-10 h-10 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform pointer-events-none"
+                      aria-hidden
+                    >
+                      <Icon className="w-4 h-4 text-primary" />
+                    </button>
                   </div>
-                  <button
-                    className="icon-btn w-10 h-10 rounded-full flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform pointer-events-none"
-                    aria-hidden
-                  >
-                    <Icon className="w-4 h-4 text-primary" />
-                  </button>
-                </div>
-              );
+                );
               })}
             </div>
 
@@ -332,20 +332,20 @@ const ProductsSection = () => {
 
           {/* Detail panel - MD and up, slides in from right */}
           {!isMobile && selectedProduct && (
-            <div className="liquid-glass-nav flex min-h-0 w-full flex-col md:w-[360px] lg:w-[400px] shrink-0 rounded-2xl p-6 animate-in slide-in-from-right-2 fade-in duration-300 border border-border/80">
-              <div className="flex shrink-0 justify-end mb-2">
-                <button
-                  onClick={handleCloseDetail}
-                  className="icon-btn w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-border/50 bg-background/80 backdrop-blur-sm hover:bg-background/95 shadow-lg"
-                  aria-label="Close details"
-                >
-                  <X className="w-4 h-4 text-primary" />
-                </button>
+            <div className="liquid-glass-nav relative flex min-h-0 w-full flex-col md:w-[360px] lg:w-[400px] shrink-0 rounded-2xl p-6 animate-in slide-in-from-right-2 fade-in duration-300 border border-border/80">
+              <button
+                onClick={handleCloseDetail}
+                className="icon-btn absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-border/50 bg-background/80 backdrop-blur-sm hover:bg-background/95 shadow-lg"
+                aria-label="Close details"
+              >
+                <X className="w-3.5 h-3.5 text-primary" />
+              </button>
+              <div className="pt-7">
+                <ProductDetailContent
+                  product={selectedProduct}
+                  onInquire={openConnectForm}
+                />
               </div>
-              <ProductDetailContent
-                product={selectedProduct}
-                onInquire={openConnectForm}
-              />
             </div>
           )}
         </div>

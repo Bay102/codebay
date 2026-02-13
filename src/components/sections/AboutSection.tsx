@@ -16,18 +16,18 @@ const values = [
 const AboutSection = () => {
   const { openConnectForm } = useConnectForm();
   return (
-    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
+    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-5 md:pb-5">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
             Who We Are
           </span>
-          <h2 className="font-heading text-3xl text-foreground mt-3 sm:text-4xl lg:text-5xl">
+          <h2 className="font-heading text-2xl text-foreground mt-3 sm:text-3xl lg:text-4xl">
             About CodeBay
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-2xl mx-auto leading-relaxed">
-            We're a team of senior engineers and AI specialists who believe professional software 
-            development shouldn't take months. We combine deep technical expertise with cutting-edge 
+          <p className="text-muted-foreground mt-4 max-w-3xl mx-auto leading-relaxed">
+            We're a team of senior engineers and AI specialists who believe professional software
+            development shouldn't take months. We combine deep technical expertise with cutting-edge
             AI tools to deliver exceptional results at unprecedented speed.
           </p>
         </div>
