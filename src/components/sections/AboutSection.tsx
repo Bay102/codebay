@@ -1,3 +1,4 @@
+import { Zap, Handshake, Code2 } from "lucide-react";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 
 const stats = [
@@ -8,9 +9,21 @@ const stats = [
 ];
 
 const values = [
-  { title: "Speed Without Sacrifice", description: "We leverage AI to move fast, but never at the cost of quality or security." },
-  { title: "Transparent Partnership", description: "You're never in the dark. Real-time updates and honest communication, always." },
-  { title: "Future-Ready Code", description: "Every line we write is maintainable, scalable, and built for tomorrow." }
+  {
+    icon: Zap,
+    title: "Speed Without Sacrifice",
+    description: "We leverage AI to move fast, but never at the cost of quality or security."
+  },
+  {
+    icon: Handshake,
+    title: "Transparent Partnership",
+    description: "You're never in the dark. Real-time updates and honest communication, always."
+  },
+  {
+    icon: Code2,
+    title: "Future-Ready Code",
+    description: "Every line we write is maintainable, scalable, and built for tomorrow."
+  }
 ];
 
 const AboutSection = () => {
@@ -52,12 +65,21 @@ const AboutSection = () => {
 
         {/* Values */}
         <div className="glass-nav rounded-2xl p-6">
-          <h3 className="font-display text-lg text-foreground mb-6 text-center">
-            Our Principles
-          </h3>
+          <div className="mb-6 text-center">
+            <p className="text-primary/80 mb-2 text-xs font-semibold tracking-[0.18em] uppercase">
+              What Drives Us
+            </p>
+            <h3 className="font-display gradient-text text-xl sm:text-2xl">
+              Our Principles
+            </h3>
+            <div className="mx-auto mt-3 h-px w-24 bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+          </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {values.map((value) => (
               <div key={value.title} className="text-center">
+                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <value.icon className="h-5 w-5" />
+                </div>
                 <div className="text-foreground font-medium mb-2">{value.title}</div>
                 <div className="text-muted-foreground text-sm leading-relaxed">{value.description}</div>
               </div>
