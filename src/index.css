@@ -134,6 +134,16 @@
   @apply border-border;
  }
 
+ /* Hide scrollbars globally while preserving scroll behavior */
+ * {
+  -ms-overflow-style: none; /* IE and legacy Edge */
+  scrollbar-width: none; /* Firefox */
+ }
+
+ *::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+ }
+
  html {
   scroll-behavior: smooth;
  }
