@@ -5,12 +5,12 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
-  <ThemeProvider defaultTheme="system" storageKey="codebay-theme" attribute="class">
+  <ThemeProvider defaultTheme="light" storageKey="codebay-theme" attribute="class">
     <BrowserRouter>
       <ConnectFormProvider>
         <Routes>
           <Route path="/" element={<Index />} />
-        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </ConnectFormProvider>
