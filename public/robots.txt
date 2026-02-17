@@ -1,16 +1,21 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/leads
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin/leads
 
 User-agent: Twitterbot
 Allow: /
+Disallow: /admin/leads
 
 User-agent: facebookexternalhit
 Allow: /
+Disallow: /admin/leads
 
 User-agent: *
 Allow: /
+Disallow: /admin/leads
 
 Sitemap: https://codebay.dev/sitemap.xml
