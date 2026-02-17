@@ -237,7 +237,7 @@ const ChatCard = ({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-background/90 via-background/55 to-transparent md:hidden" />
 
       <div className="relative z-10 space-y-2 border-t border-border/50 bg-transparent px-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] backdrop-blur-md md:border-t-0 md:px-4 md:pb-4 md:backdrop-blur-0">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end pt-2">
           <Dialog open={isConnectOpen} onOpenChange={onConnectOpenChange}>
             <DialogTrigger asChild>
               <button
