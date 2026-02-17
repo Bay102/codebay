@@ -128,6 +128,14 @@ const Admin = () => {
 
     return { total, read, newLeads };
   }, [handoffs]);
+  const newHandoffs = useMemo(
+    () => handoffs.filter((handoff) => handoff.archived !== true),
+    [handoffs]
+  );
+  const archivedHandoffs = useMemo(
+    () => handoffs.filter((handoff) => handoff.archived === true),
+    [handoffs]
+  );
 
   const selectedChatHistoryMessages = useMemo(
     () => parseChatHistoryMessages(selectedHandoff?.chat_history),
@@ -168,6 +176,99 @@ const Admin = () => {
     },
     []
   );
+
+  const renderHandoffRows = (records: ChatHandoffRecord[], emptyMessage: string) => {
+    if (isLoading) {
+      return (
+        <TableRow>
+          <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+            <div className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading chat handoffs...
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    if (records.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
+            {emptyMessage}
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return records.map((handoff) => {
+      const serializedChatHistory = serializeChatHistory(handoff.chat_history);
+      const chatHistoryPreview = getChatHistoryPreviewText(handoff.chat_history);
+      const messageCount = getChatHistoryMessageCount(handoff.chat_history);
+      const isArchived = handoff.archived === true;
+      const isUpdatingArchived = updatingArchivedById[handoff.id] === true;
+
+      return (
+        <TableRow key={handoff.id}>
+          <TableCell className="max-w-[180px] font-mono text-xs break-all">{handoff.id}</TableCell>
+          <TableCell className="whitespace-nowrap text-xs">
+            {formatTimestamp(handoff.created_at)}
+          </TableCell>
+          <TableCell>{handoff.name}</TableCell>
+          <TableCell className="max-w-[220px] truncate" title={handoff.email}>
+            {handoff.email}
+          </TableCell>
+          <TableCell>{formatTextCell(handoff.phone)}</TableCell>
+          <TableCell className="max-w-[360px]">
+            <button
+              type="button"
+              onClick={() => setSelectedHandoff(handoff)}
+              className="w-full rounded-md p-1 text-left transition-colors hover:bg-muted/40"
+              title="Open full chat history"
+            >
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">{messageCount} messages</p>
+                <p className="font-mono text-xs text-foreground/80" title={serializedChatHistory}>
+                  {chatHistoryPreview}
+                </p>
+              </div>
+            </button>
+          </TableCell>
+          <TableCell className="max-w-[240px]">
+            <p className="truncate" title={formatTextCell(handoff.notes)}>
+              {formatTextCell(handoff.notes)}
+            </p>
+          </TableCell>
+          <TableCell>
+            <Badge variant={isArchived ? "secondary" : "default"}>
+              {isArchived ? "true" : "false"}
+            </Badge>
+          </TableCell>
+          <TableCell>
+            <Button
+              type="button"
+              size="sm"
+              variant={isArchived ? "secondary" : "default"}
+              disabled={isUpdatingArchived}
+              onClick={() => void handleToggleArchived(handoff.id, handoff.archived)}
+              className="min-w-28"
+            >
+              {isUpdatingArchived ? (
+                <>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Saving
+                </>
+              ) : isArchived ? (
+                "Mark as New"
+              ) : (
+                "Mark as Read"
+              )}
+            </Button>
+          </TableCell>
+        </TableRow>
+      );
+    });
+  };
 
   return (
     <>
@@ -225,7 +326,7 @@ const Admin = () => {
             </div>
           </section>
 
-          <section className="glass-nav rounded-2xl border border-border/60 p-2 sm:p-3">
+          <section className="space-y-4">
             {error ? (
               <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 Failed to load handoffs: {error}
@@ -237,114 +338,59 @@ const Admin = () => {
               </div>
             ) : null}
 
-            <Table className="min-w-[1080px]">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>created_at</TableHead>
-                  <TableHead>name</TableHead>
-                  <TableHead>email</TableHead>
-                  <TableHead>phone</TableHead>
-                  <TableHead>chat_history</TableHead>
-                  <TableHead>notes</TableHead>
-                  <TableHead>archived</TableHead>
-                  <TableHead>actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
+            <div className="glass-nav rounded-2xl border border-border/60 p-2 sm:p-3">
+              <div className="px-3 pt-2 pb-3">
+                <h2 className="text-base font-semibold text-foreground">New Chats</h2>
+                <p className="text-sm text-muted-foreground">
+                  Incoming chat handoffs that are not archived.
+                </p>
+              </div>
+              <Table className="min-w-[1080px]">
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                      <div className="inline-flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Loading chat handoffs...
-                      </div>
-                    </TableCell>
+                    <TableHead>ID</TableHead>
+                    <TableHead>created_at</TableHead>
+                    <TableHead>name</TableHead>
+                    <TableHead>email</TableHead>
+                    <TableHead>phone</TableHead>
+                    <TableHead>chat_history</TableHead>
+                    <TableHead>notes</TableHead>
+                    <TableHead>archived</TableHead>
+                    <TableHead>actions</TableHead>
                   </TableRow>
-                ) : handoffs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                      No form submissions found in `chat_handoffs`.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  handoffs.map((handoff) => {
-                    const serializedChatHistory = serializeChatHistory(handoff.chat_history);
-                    const chatHistoryPreview = getChatHistoryPreviewText(handoff.chat_history);
-                    const messageCount = getChatHistoryMessageCount(handoff.chat_history);
-                    const isArchived = handoff.archived === true;
-                    const isUpdatingArchived = updatingArchivedById[handoff.id] === true;
+                </TableHeader>
+                <TableBody>
+                  {renderHandoffRows(newHandoffs, "No new chats in `chat_handoffs`.")}
+                </TableBody>
+              </Table>
+            </div>
 
-                    return (
-                      <TableRow key={handoff.id}>
-                        <TableCell className="max-w-[180px] font-mono text-xs break-all">
-                          {handoff.id}
-                        </TableCell>
-                        <TableCell className="whitespace-nowrap text-xs">
-                          {formatTimestamp(handoff.created_at)}
-                        </TableCell>
-                        <TableCell>{handoff.name}</TableCell>
-                        <TableCell className="max-w-[220px] truncate" title={handoff.email}>
-                          {handoff.email}
-                        </TableCell>
-                        <TableCell>{formatTextCell(handoff.phone)}</TableCell>
-                        <TableCell className="max-w-[360px]">
-                          <button
-                            type="button"
-                            onClick={() => setSelectedHandoff(handoff)}
-                            className="w-full rounded-md p-1 text-left transition-colors hover:bg-muted/40"
-                            title="Open full chat history"
-                          >
-                            <div className="space-y-1">
-                              <p className="text-xs text-muted-foreground">{messageCount} messages</p>
-                              <p
-                                className="font-mono text-xs text-foreground/80"
-                                title={serializedChatHistory}
-                              >
-                                {chatHistoryPreview}
-                              </p>
-                            </div>
-                          </button>
-                        </TableCell>
-                        <TableCell className="max-w-[240px]">
-                          <p className="truncate" title={formatTextCell(handoff.notes)}>
-                            {formatTextCell(handoff.notes)}
-                          </p>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={isArchived ? "secondary" : "default"}>
-                            {isArchived ? "true" : "false"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant={isArchived ? "secondary" : "default"}
-                            disabled={isUpdatingArchived}
-                            onClick={() =>
-                              void handleToggleArchived(handoff.id, handoff.archived)
-                            }
-                            className="min-w-28"
-                          >
-                            {isUpdatingArchived ? (
-                              <>
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                Saving
-                              </>
-                            ) : isArchived ? (
-                              "Mark as New"
-                            ) : (
-                              "Mark as Read"
-                            )}
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+            <div className="glass-nav rounded-2xl border border-border/60 p-2 sm:p-3">
+              <div className="px-3 pt-2 pb-3">
+                <h2 className="text-base font-semibold text-foreground">Archived Chats</h2>
+                <p className="text-sm text-muted-foreground">
+                  Handoffs that were marked as read/archived.
+                </p>
+              </div>
+              <Table className="min-w-[1080px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>ID</TableHead>
+                    <TableHead>created_at</TableHead>
+                    <TableHead>name</TableHead>
+                    <TableHead>email</TableHead>
+                    <TableHead>phone</TableHead>
+                    <TableHead>chat_history</TableHead>
+                    <TableHead>notes</TableHead>
+                    <TableHead>archived</TableHead>
+                    <TableHead>actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {renderHandoffRows(archivedHandoffs, "No archived chats in `chat_handoffs`.")}
+                </TableBody>
+              </Table>
+            </div>
           </section>
         </div>
       </div>
