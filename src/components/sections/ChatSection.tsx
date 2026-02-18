@@ -629,7 +629,7 @@ const ChatSection = () => {
           >
             <ChatSectionCopy />
           </div>
-          <div className="order-2 w-full md:flex md:min-w-[28rem] md:w-auto md:flex-shrink-0 md:flex-col">
+          <div className="order-2 w-full md:flex md:min-w-[28rem] md:w-auto md:flex-shrink-0 md:flex-col mb-4 md:mb-0">
             <ChatCard
               messages={messages}
               isLoading={isLoading}

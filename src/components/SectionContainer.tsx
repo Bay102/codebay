@@ -51,7 +51,7 @@ const SectionContainer = ({ activeSection, direction }: SectionContainerProps) =
   }, [activeSection]);
 
   return (
-    <div className="[grid-area:1/1] z-10 h-[100dvh] overflow-hidden bg-background/93 px-6 pt-36 pb-14 backdrop-blur-sm md:pt-28 md:pb-16 lg:px-12 dark:bg-background/88 dark:backdrop-blur-md">
+    <div className="[grid-area:1/1] z-10 h-[100dvh] overflow-hidden bg-background/93 px-6 pt-32 pb-14 backdrop-blur-sm md:pt-28 md:pb-16 lg:px-12 dark:bg-background/88 dark:backdrop-blur-md">
       <div
         ref={scrollRef}
         className="relative flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain"
