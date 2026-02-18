@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import HomeHeroController from "@/components/HomeHeroController";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
@@ -21,6 +22,7 @@ const Index = () => {
     <div className="relative min-h-[100dvh] bg-background">
       <Header activeSection={activeSection} onSectionChange={handleSectionChange} />
       <HomeHeroController activeSection={activeSection} direction={direction} />
+      <Footer />
     </div>
   );
 };
