@@ -90,9 +90,6 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
             >
               Inquire
             </button>
-            {/* <button className="icon-btn w-10 h-10 rounded-full flex items-center justify-center">
-              <ArrowUpRight className="w-4 h-4 text-primary" />
-            </button> */}
           </div>
         </div>
       </header>

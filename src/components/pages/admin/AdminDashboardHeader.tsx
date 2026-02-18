@@ -31,7 +31,7 @@ export const AdminDashboardHeader = ({
           Admin Dashboard
         </p>
         <h1 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
-          Chat Handoffs
+          Leads
         </h1>
         <p className="text-sm text-muted-foreground">Live view of the `chat_handoffs` table.</p>
       </div>

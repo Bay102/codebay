@@ -161,6 +161,7 @@ const ChatCard = ({
   connectForm,
   onConnectSubmit,
 }: ChatCardProps) => {
+  const isFxActive = isLoading || isConnectOpen;
   const messageBubbleClass = (role: ChatMessage["role"]) =>
     role === "assistant"
       ? "chat-ai-bubble bg-muted/60 text-foreground border border-ai-accent/20"
@@ -171,15 +172,14 @@ const ChatCard = ({
 
   return (
     <div
-      className="chat-container relative grid w-full max-w-none animate-in fade-in zoom-in-95 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl text-foreground shadow-2xl !h-[475px] !min-h-[475px] !max-h-[415px] md:mx-auto md:max-w-md md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)] lg:animate-float"
+      className={`chat-container relative grid w-full max-w-none animate-in fade-in zoom-in-95 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-xl text-foreground shadow-2xl !h-[475px] !min-h-[475px] !max-h-[415px] md:mx-auto md:max-w-md md:!h-[var(--desktop-chat-height,415px)] md:!min-h-[var(--desktop-chat-height,415px)] md:!max-h-[var(--desktop-chat-height,415px)] ${isFxActive ? "chat-container-active" : ""}`}
       style={chatHeightStyle}
     >
-      <div className="chat-scan-line" />
+      {isFxActive && <div className="chat-scan-line" />}
 
       <div className="chat-header-bar relative z-10 flex items-center justify-between border-b px-3 py-2.5 md:px-4 md:py-3">
         <div className="flex items-center gap-3">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ai-accent/60" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-ai-accent shadow-[0_0_8px_hsl(var(--ai-accent))]" />
           </span>
           <div>

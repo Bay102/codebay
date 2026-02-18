@@ -206,7 +206,8 @@
    hsla(187, 85%, 53%, 0.06),
    transparent
   );
-  animation: shimmer 3s infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
  }
 
  .dark .liquid-glass-nav::before {
@@ -217,6 +218,12 @@
    transparent
   );
  }
+
+.liquid-glass-nav:hover::before,
+.liquid-glass-nav:focus-within::before {
+  opacity: 1;
+  animation: shimmer 3s infinite;
+}
 
  .liquid-indicator {
   background: linear-gradient(
@@ -325,8 +332,8 @@
  .chat-container {
   position: relative;
   background: var(--chat-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--chat-border);
   box-shadow:
    var(--chat-shadow),
@@ -379,10 +386,15 @@
    hsla(187, 85%, 53%, 0.02),
    transparent
   );
-  animation: ai-shimmer 6s ease-in-out infinite;
+  opacity: 0;
   pointer-events: none;
   z-index: 1;
  }
+
+.chat-container-active::after {
+  animation: ai-shimmer 6s ease-in-out infinite;
+  opacity: 1;
+}
 
  @keyframes ai-shimmer {
   0%,
@@ -432,8 +444,8 @@
   position: relative;
   overflow: hidden;
   background: var(--chat-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--chat-border);
   box-shadow:
    var(--chat-shadow),
@@ -519,6 +531,30 @@
   border-color: var(--chat-input-border);
   background: var(--chat-input-bg);
  }
+
+:root[data-dev-effects='lite'] .chat-container,
+:root[data-dev-effects='lite'] .connect-dialog,
+:root[data-dev-effects='lite'] .liquid-glass-nav,
+:root[data-dev-effects='lite'] .liquid-indicator {
+ backdrop-filter: none !important;
+ -webkit-backdrop-filter: none !important;
+ box-shadow: none !important;
+}
+
+:root[data-dev-effects='lite'] .chat-container::after,
+:root[data-dev-effects='lite'] .connect-dialog::after,
+:root[data-dev-effects='lite'] .chat-scan-line,
+:root[data-dev-effects='lite'] .liquid-glass-nav::before {
+ display: none !important;
+}
+
+:root[data-dev-effects='lite'] [class*="animate-"] {
+ animation: none !important;
+}
+
+:root[data-dev-effects='lite'] [class*="transition-"] {
+ transition: none !important;
+}
 }
 
 @layer utilities {
