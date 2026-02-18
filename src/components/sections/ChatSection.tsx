@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback, type CSSProperties } from "re
 import { useForm, Controller, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, Loader2, Sparkles, UserCircle, Smartphone, Globe, Code2, Zap, ShieldCheck, ArrowRight } from "lucide-react";
+import { Send, Loader2, Sparkles, UserCircle, Smartphone, Globe, Code2, Zap, ShieldCheck, ArrowRight, ChartBarBig } from "lucide-react";
 import { requestHumanConnect, sendChatMessage, type ChatMessage } from "@/lib/chat";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,11 +70,13 @@ type ConnectStatus = "idle" | "submitting" | "success" | "error";
 const CHAT_MIN_INTERVAL_MS = 2500;
 const CONNECT_MIN_INTERVAL_MS = 30_000;
 const CONNECT_MIN_FILL_MS = 2000;
+const CHAT_INPUT_MAX_HEIGHT_PX = 140;
 
 const CAPABILITIES = [
-  { icon: Smartphone, label: "Mobile App Development", color: "text-ai-accent" },
-  { icon: Globe, label: "Web App Development", color: "text-ai-accent" },
-  { icon: Code2, label: "Custom Software Development", color: "text-primary" },
+  { icon: Smartphone, label: "Mobile Apps", color: "text-ai-accent" },
+  { icon: ChartBarBig, label: "Internal Tools", color: "text-green-500" },
+  { icon: Globe, label: "Websites", color: "text-ai-accent" },
+  { icon: Code2, label: "Custom Software", color: "text-primary" },
   { icon: Sparkles, label: "AI Integration Services", color: "text-ai-accent" },
 ] as const;
 
@@ -87,11 +89,12 @@ const OUTCOMES = [
 const ChatSectionCopy = () => (
   <div className="flex flex-col gap-4 md:gap-5">
     <h1 className="text-3xl font-light tracking-tight text-foreground sm:text-4xl">
-      AI Software Development Agency,
-      <span className="gradient-text"> Web, Mobile, and Custom Products</span>
+      Software Development
+      <span aria-hidden="true" className="my-1.5 block h-px w-full max-w-xs bg-gradient-to-r from-primary/80 to-transparent sm:my-2 sm:max-w-sm" />
+      <span className="gradient-text">Mobile · Web · Internal Tools</span>
     </h1>
     <p className="text-sm text-foreground/90 leading-relaxed sm:text-base">
-      CodeBay helps startups and teams build production-grade web apps, mobile apps, and custom
+      CodeBay helps startups and businesses build production-grade web apps, mobile apps, and custom
       software faster with AI-assisted delivery.
     </p>
 
@@ -162,6 +165,7 @@ const ChatCard = ({
   onConnectSubmit,
 }: ChatCardProps) => {
   const isFxActive = isLoading || isConnectOpen;
+  const chatInputRef = useRef<HTMLTextAreaElement | null>(null);
   const messageBubbleClass = (role: ChatMessage["role"]) =>
     role === "assistant"
       ? "chat-ai-bubble bg-muted/60 text-foreground border border-ai-accent/20"
@@ -169,6 +173,22 @@ const ChatCard = ({
   const chatHeightStyle: CSSProperties | undefined = desktopChatHeight
     ? ({ "--desktop-chat-height": `${desktopChatHeight}px` } as CSSProperties)
     : undefined;
+  const messageField = chatForm.register("message");
+  const messageValue = chatForm.watch("message") ?? "";
+
+  const resizeChatInput = useCallback(() => {
+    const input = chatInputRef.current;
+    if (!input) return;
+
+    input.style.height = "0px";
+    const nextHeight = Math.min(input.scrollHeight, CHAT_INPUT_MAX_HEIGHT_PX);
+    input.style.height = `${nextHeight}px`;
+    input.style.overflowY = input.scrollHeight > CHAT_INPUT_MAX_HEIGHT_PX ? "auto" : "hidden";
+  }, []);
+
+  useEffect(() => {
+    resizeChatInput();
+  }, [messageValue, resizeChatInput]);
 
   return (
     <div
@@ -390,20 +410,32 @@ const ChatCard = ({
 
         <form
           onSubmit={chatForm.handleSubmit(onChatSubmit)}
-          className="chat-input-bar flex items-center gap-2 rounded-lg border px-3 py-2 shadow-lg backdrop-blur-md transition-all hover:border-ai-accent/35 hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)] md:px-3 md:py-2 md:shadow-[0_0_20px_hsla(187,85%,53%,0.06)]"
+          className="chat-input-bar flex items-end gap-2 rounded-lg border px-3 py-2 shadow-lg backdrop-blur-md transition-all hover:border-ai-accent/35 hover:shadow-[0_0_24px_hsla(187,85%,53%,0.1)] md:px-3 md:py-2 md:shadow-[0_0_20px_hsla(187,85%,53%,0.06)]"
         >
-          <span className="font-mono text-base font-semibold text-ai-accent select-none md:text-sm">›</span>
-          <Input
-            {...chatForm.register("message")}
+          <span className="mb-2 font-mono text-base font-semibold text-ai-accent select-none md:mb-1.5 md:text-sm">›</span>
+          <textarea
+            {...messageField}
             placeholder="Ask about your product, timeline, or tech stack..."
-            className="w-full border-0 bg-transparent font-mono text-[1.05rem] leading-6 text-foreground placeholder:text-muted-foreground caret-foreground focus-visible:ring-0 focus-visible:ring-offset-0 md:text-sm md:leading-5"
+            rows={1}
+            ref={(element) => {
+              messageField.ref(element);
+              chatInputRef.current = element;
+            }}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+              event.preventDefault();
+              const trimmedMessage = chatForm.getValues("message").trim();
+              if (!trimmedMessage || isLoading) return;
+              void chatForm.handleSubmit(onChatSubmit)();
+            }}
+            className="max-h-[140px] w-full resize-none border-0 bg-transparent py-0.5 font-mono text-[1.05rem] leading-6 text-foreground placeholder:text-muted-foreground caret-foreground focus-visible:outline-none md:text-sm md:leading-5"
             disabled={isLoading}
             autoComplete="off"
             maxLength={500}
           />
           <Button
             type="submit"
-            disabled={isLoading || !chatForm.watch("message")?.trim()}
+            disabled={isLoading || !messageValue.trim()}
             size="sm"
             className="h-9 min-w-9 px-2.5 transition-all hover:scale-110 disabled:opacity-50 md:h-8 md:min-w-8 md:px-2"
           >
