@@ -37,8 +37,8 @@ const VideoBackground = ({
       };
       const shouldSaveData = nav.connection?.saveData === true;
       const isSlowNetwork = ["slow-2g", "2g", "3g"].includes(nav.connection?.effectiveType ?? "");
-      const hasLowMemory = typeof nav.deviceMemory === "number" && nav.deviceMemory <= 4;
-      const hasLowCpu = typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 4;
+      const hasLowMemory = typeof nav.deviceMemory === "number" && nav.deviceMemory <= 2;
+      const hasLowCpu = typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 2;
 
       setShouldAutoplay(!shouldReduceMotion && !shouldSaveData && !isSlowNetwork && !hasLowMemory && !hasLowCpu);
     };
