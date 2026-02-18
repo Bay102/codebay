@@ -227,7 +227,7 @@ const ProductsSection = () => {
           <h2 className="font-display text-2xl text-foreground mt-3 sm:text-3xl lg:text-4xl">
             Products & Services
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
+          <p className="mt-4 max-w-xl mx-auto light:text-muted-foreground dark:text-foreground">
             Tools and services designed to accelerate your software development
             journey.
           </p>

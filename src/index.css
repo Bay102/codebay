@@ -219,11 +219,11 @@
   );
  }
 
-.liquid-glass-nav:hover::before,
-.liquid-glass-nav:focus-within::before {
+ .liquid-glass-nav:hover::before,
+ .liquid-glass-nav:focus-within::before {
   opacity: 1;
   animation: shimmer 3s infinite;
-}
+ }
 
  .liquid-indicator {
   background: linear-gradient(
@@ -391,10 +391,10 @@
   z-index: 1;
  }
 
-.chat-container-active::after {
+ .chat-container-active::after {
   animation: ai-shimmer 6s ease-in-out infinite;
   opacity: 1;
-}
+ }
 
  @keyframes ai-shimmer {
   0%,
@@ -532,29 +532,29 @@
   background: var(--chat-input-bg);
  }
 
-:root[data-dev-effects='lite'] .chat-container,
-:root[data-dev-effects='lite'] .connect-dialog,
-:root[data-dev-effects='lite'] .liquid-glass-nav,
-:root[data-dev-effects='lite'] .liquid-indicator {
- backdrop-filter: none !important;
- -webkit-backdrop-filter: none !important;
- box-shadow: none !important;
-}
+ :root[data-dev-effects='lite'] .chat-container,
+ :root[data-dev-effects='lite'] .connect-dialog,
+ :root[data-dev-effects='lite'] .liquid-glass-nav,
+ :root[data-dev-effects='lite'] .liquid-indicator {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+ }
 
-:root[data-dev-effects='lite'] .chat-container::after,
-:root[data-dev-effects='lite'] .connect-dialog::after,
-:root[data-dev-effects='lite'] .chat-scan-line,
-:root[data-dev-effects='lite'] .liquid-glass-nav::before {
- display: none !important;
-}
+ :root[data-dev-effects='lite'] .chat-container::after,
+ :root[data-dev-effects='lite'] .connect-dialog::after,
+ :root[data-dev-effects='lite'] .chat-scan-line,
+ :root[data-dev-effects='lite'] .liquid-glass-nav::before {
+  display: none !important;
+ }
 
-:root[data-dev-effects='lite'] [class*="animate-"] {
- animation: none !important;
-}
+ :root[data-dev-effects='lite'] [class*='animate-'] {
+  animation: none !important;
+ }
 
-:root[data-dev-effects='lite'] [class*="transition-"] {
- transition: none !important;
-}
+ :root[data-dev-effects='lite'] [class*='transition-'] {
+  transition: none !important;
+ }
 }
 
 @layer utilities {

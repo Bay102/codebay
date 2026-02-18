@@ -38,7 +38,7 @@ const AboutSection = () => {
           <h2 className="font-heading text-2xl text-foreground mt-3 sm:text-3xl lg:text-4xl">
             About CodeBay
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-3xl mx-auto leading-relaxed">
+          <p className="mt-4 max-w-3xl mx-auto leading-relaxed light:text-muted-foreground dark:text-foreground">
             We're a team of senior engineers and AI specialists who believe professional software
             development shouldn't take months. We combine deep technical expertise with cutting-edge
             AI tools to deliver exceptional results at unprecedented speed.

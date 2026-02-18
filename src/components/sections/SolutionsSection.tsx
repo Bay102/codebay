@@ -1,5 +1,4 @@
 import { Zap, Rocket, Code2, Layers } from "lucide-react";
-import { useConnectForm } from "@/contexts/ConnectFormContext";
 
 const solutions = [
   {
@@ -25,7 +24,7 @@ const solutions = [
 ];
 
 const SolutionsSection = () => {
-  const { openConnectForm } = useConnectForm();
+
   return (
     <div className="w-full min-h-full flex items-start justify-center">
       <div className="max-w-4xl w-full">
@@ -36,7 +35,7 @@ const SolutionsSection = () => {
           <h2 className="font-display text-2xl text-foreground mt-3 sm:text-3xl lg:text-4xl">
             Solutions That Ship Fast
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-xl mx-auto">
+          <p className="mt-4 max-w-xl mx-auto light:text-muted-foreground dark:text-foreground">
             Professional software development powered by AI, delivering enterprise-quality results at startup speed.
           </p>
         </div>
@@ -59,15 +58,6 @@ const SolutionsSection = () => {
               </p>
             </div>
           ))}
-        </div>
-
-        <div className="text-center my-8">
-          <button
-            onClick={openConnectForm}
-            className="gradient-btn px-6 py-3 rounded-full text-sm font-medium text-primary-foreground"
-          >
-            Get in Touch
-          </button>
         </div>
       </div>
     </div>
