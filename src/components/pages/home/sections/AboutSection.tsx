@@ -50,7 +50,7 @@ const AboutSection = () => {
           {stats.map((stat, index) => (
             <div
               key={stat.label}
-              className="glass-nav rounded-2xl p-5 text-center"
+              className="glass-nav home-card-surface rounded-2xl p-5 text-center"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="font-display text-2xl font-bold gradient-text sm:text-3xl">
@@ -64,7 +64,7 @@ const AboutSection = () => {
         </div>
 
         {/* Values */}
-        <div className="glass-nav rounded-2xl p-6">
+        <div className="glass-nav home-card-surface rounded-2xl p-6">
           <div className="mb-6 text-center">
             <p className="text-primary/80 mb-2 text-xs font-semibold tracking-[0.18em] uppercase">
               What Drives Us

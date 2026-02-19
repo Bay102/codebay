@@ -24,6 +24,30 @@ const resources = [
     title: "Community",
     description: "Connect with fellow builders",
     count: "Growing"
+  },
+  {
+    icon: FileText,
+    title: "Case Studies",
+    description: "See how we've helped clients ship faster",
+    count: "15+ projects"
+  },
+  {
+    icon: BookOpen,
+    title: "Blog",
+    description: "Insights on modern software development",
+    count: "Weekly posts"
+  },
+  {
+    icon: Video,
+    title: "Tech Talks",
+    description: "Deep dives into AI-powered development",
+    count: "Coming soon"
+  },
+  {
+    icon: Users,
+    title: "Community",
+    description: "Connect with fellow builders",
+    count: "Growing"
   }
 ];
 
@@ -47,7 +71,7 @@ const ResourcesSection = () => {
           {resources.map((resource, index) => (
             <div
               key={resource.title}
-              className="liquid-glass-nav rounded-2xl p-6 text-center hover:border-primary/30 hover:scale-105 transition-all duration-300 group cursor-pointer"
+              className="liquid-glass-nav home-card-surface rounded-2xl p-6 text-center hover:border-primary/30 hover:scale-105 transition-all duration-300 group cursor-pointer"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="w-16 h-16 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
