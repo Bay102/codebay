@@ -5,7 +5,7 @@ import { AdminDashboardHeader } from "@/components/pages/admin/AdminDashboardHea
 import { AdminHandoffsSection } from "@/components/pages/admin/AdminHandoffsSection";
 import { AdminSessionLoading } from "@/components/pages/admin/AdminSessionLoading";
 import { AdminSignInForm } from "@/components/pages/admin/AdminSignInForm";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "supabase/supabase";
 import {
   getChatHandoffs,
   updateChatHandoffArchived,
