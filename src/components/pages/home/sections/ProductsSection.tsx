@@ -34,6 +34,18 @@ type Product = {
 
 const products: Product[] = [
   {
+    name: "Custom Software Development",
+    category: "Service",
+    description:
+      "Custom software development tailored to your needs. We build software that is tailored to your needs and your business.",
+    status: "Available",
+    icon: ClipboardCheck,
+    detailText: `We build software that is tailored to your needs and your business. We use the latest technologies and best practices to build software that is efficient, scalable, and maintainable.`,
+    detailImage:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+    detailImageAlt: "Analytics and due diligence",
+  },
+  {
     name: "Virtual CTO",
     category: "Service",
     description:
@@ -47,32 +59,7 @@ We'll help you make informed decisions on stack selection, scaling strategies, a
       "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
     detailImageAlt: "Team collaboration and strategy discussion",
   },
-  {
-    name: "Tech Community",
-    category: "Product",
-    description:
-      "Access a community of senior engineers and AI specialists who are willing to help you with whatever you need in the tech space.",
-    status: "Available",
-    icon: Users,
-    detailText: `Access a community of senior engineers and AI specialists who are willing to help you with whatever you need in the tech space.`,
-    detailImage:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80",
-    detailImageAlt: "Community of senior engineers and AI specialists",
-  },
-  {
-    name: "CodeBay Studio",
-    category: "Development Platform",
-    description:
-      "Our internal AI-powered development environment that accelerates every project we build.",
-    status: "Internal",
-    icon: Code2,
-    detailText: `CodeBay Studio is our proprietary development environment that supercharges our engineering workflow. It integrates AI-assisted coding, real-time collaboration, and intelligent project scaffolding into a single cohesive experience.
 
-While currently internal, the platform embodies everything we've learned about building software at speed—context-aware completions, automated testing, and seamless deployment pipelines.`,
-    detailImage:
-      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80",
-    detailImageAlt: "Code editor and development workspace",
-  },
   {
     name: "Rapid Prototyping",
     category: "Service",
@@ -88,7 +75,7 @@ We use modern low-code and AI tools to compress the prototype-to-feedback cycle,
     detailImageAlt: "Wireframes and design prototyping",
   },
   {
-    name: "AI Code Audit",
+    name: "Vibe Code Audit",
     category: "Service",
     description:
       "Comprehensive code review and optimization using AI to identify bottlenecks and security issues.",
@@ -102,18 +89,18 @@ Our audit combines automated scanning with human expertise—delivering actionab
     detailImageAlt: "Code review and analysis",
   },
   {
-    name: "Technical Due Diligence",
-    category: "Service",
+    name: "CodeBay Studio",
+    category: "Development Platform",
     description:
-      "Investor-ready technical assessments. We evaluate codebases, architecture, and team readiness for funding rounds.",
-    status: "Available",
-    icon: ClipboardCheck,
-    detailText: `Prepare for investor scrutiny with a comprehensive technical due diligence report. We assess your codebase quality, architecture scalability, security posture, and team capabilities.
+      "Our internal AI-powered development environment that accelerates every project we build.",
+    status: "Internal",
+    icon: Code2,
+    detailText: `CodeBay Studio is our proprietary development environment that supercharges our engineering workflow. It integrates AI-assisted coding, real-time collaboration, and intelligent project scaffolding into a single cohesive experience.
 
-Our reports give investors confidence in your technical foundation and help you address gaps before they become deal-breakers.`,
+While currently internal, the platform embodies everything we've learned about building software at speed—context-aware completions, automated testing, and seamless deployment pipelines.`,
     detailImage:
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
-    detailImageAlt: "Analytics and due diligence",
+      "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80",
+    detailImageAlt: "Code editor and development workspace",
   },
 ];
 

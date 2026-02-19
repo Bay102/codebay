@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 
-interface HomeHeroControllerProps {
+interface HomeSectionControllerProps {
   activeSection: SectionType;
   direction: number;
 }
@@ -21,7 +21,7 @@ const themeOptions: { value: ThemeOption; label: string; icon: typeof Sun }[] = 
   { value: "system", label: "System", icon: Monitor },
 ];
 
-const HomeHeroController = ({ activeSection, direction }: HomeHeroControllerProps) => {
+const HomeSectionController = ({ activeSection, direction }: HomeSectionControllerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -106,4 +106,4 @@ const HomeHeroController = ({ activeSection, direction }: HomeHeroControllerProp
   );
 };
 
-export default HomeHeroController;
+export default HomeSectionController;

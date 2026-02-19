@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import Header from "@/components/pages/home/Header";
 import Footer from "@/components/Footer";
-import HomeHeroController from "@/components/pages/home/HomeHeroController";
+import HomeSectionController from "@/components/pages/home/HomeSectionController";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 
@@ -21,7 +21,7 @@ const Index = () => {
   return (
     <div className="relative min-h-[100dvh] bg-background">
       <Header activeSection={activeSection} onSectionChange={handleSectionChange} />
-      <HomeHeroController activeSection={activeSection} direction={direction} />
+      <HomeSectionController activeSection={activeSection} direction={direction} />
       <Footer />
     </div>
   );

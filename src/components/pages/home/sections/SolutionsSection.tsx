@@ -44,7 +44,7 @@ const SolutionsSection = () => {
           {solutions.map((solution, index) => (
             <div
               key={solution.title}
-              className="glass-nav home-card-surface rounded-2xl p-4 hover:border-primary/30 transition-all duration-300 group"
+              className="liquid-glass-nav home-card-surface rounded-2xl p-4 hover:border-primary/30 hover:scale-[1.02] transition-all duration-300 group cursor-pointer"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="w-12 h-12 rounded-xl gradient-btn flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
