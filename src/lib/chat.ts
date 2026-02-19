@@ -1,4 +1,4 @@
-import { supabase } from "../../supabase/supabase";
+import { supabase } from "./supabase";
 
 export type ChatMessage = {
   role: "assistant" | "user";

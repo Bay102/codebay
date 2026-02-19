@@ -5,12 +5,13 @@ import { AdminDashboardHeader } from "@/components/pages/admin/AdminDashboardHea
 import { AdminHandoffsSection } from "@/components/pages/admin/AdminHandoffsSection";
 import { AdminSessionLoading } from "@/components/pages/admin/AdminSessionLoading";
 import { AdminSignInForm } from "@/components/pages/admin/AdminSignInForm";
-import { supabase } from "supabase/supabase";
+
 import {
   getChatHandoffs,
   updateChatHandoffArchived,
   type ChatHandoffRecord,
 } from "../../supabase/api/api";
+import { supabase } from "@/lib/supabase";
 
 const Admin = () => {
   const [session, setSession] = useState<Session | null>(null);
