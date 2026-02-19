@@ -18,10 +18,10 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
   const mobileButtonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   const navLinks: { label: string; section: SectionType }[] = [
+    { label: "About", section: "about-us" },
     { label: "Solutions", section: "solutions" },
     { label: "Products", section: "products" },
     { label: "Resources", section: "resources" },
-    { label: "About", section: "about-us" },
   ];
 
   const updateMobileIndicator = useCallback(() => {

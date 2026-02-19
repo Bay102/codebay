@@ -117,7 +117,7 @@ Our reports give investors confidence in your technical foundation and help you 
   },
 ];
 
-const CARDS_PER_PAGE = 4;
+const CARDS_PER_PAGE = 3;
 
 interface ProductDetailContentProps {
   product: Product;

@@ -24,6 +24,30 @@ const resources = [
     title: "Community",
     description: "Connect with fellow builders",
     count: "Growing"
+  },
+  {
+    icon: FileText,
+    title: "Case Studies",
+    description: "See how we've helped clients ship faster",
+    count: "15+ projects"
+  },
+  {
+    icon: BookOpen,
+    title: "Blog",
+    description: "Insights on modern software development",
+    count: "Weekly posts"
+  },
+  {
+    icon: Video,
+    title: "Tech Talks",
+    description: "Deep dives into AI-powered development",
+    count: "Coming soon"
+  },
+  {
+    icon: Users,
+    title: "Community",
+    description: "Connect with fellow builders",
+    count: "Growing"
   }
 ];
 
