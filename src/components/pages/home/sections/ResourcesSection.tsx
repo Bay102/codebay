@@ -1,53 +1,53 @@
-import { FileText, Video, BookOpen, Users } from "lucide-react";
+import { FileText, Video, BookOpen, Users, LayoutTemplate, Mail, GitBranch, Github } from "lucide-react";
 
 const resources = [
   {
     icon: FileText,
     title: "Case Studies",
-    description: "See how we've helped clients ship faster",
+    description: "Real-world examples from MVPs to enterprise systems",
     count: "15+ projects"
   },
   {
     icon: BookOpen,
     title: "Blog",
-    description: "Insights on modern software development",
+    description: "Practical guides, patterns, and lessons from production",
     count: "Weekly posts"
   },
   {
     icon: Video,
     title: "Tech Talks",
-    description: "Deep dives into AI-powered development",
+    description: "Live workshops and demos on AI-powered workflows",
     count: "Coming soon"
   },
   {
     icon: Users,
     title: "Community",
-    description: "Connect with fellow builders",
+    description: "Discord, office hours, and events for AI builders",
     count: "Growing"
   },
   {
-    icon: FileText,
-    title: "Case Studies",
-    description: "See how we've helped clients ship faster",
-    count: "15+ projects"
+    icon: LayoutTemplate,
+    title: "Templates",
+    description: "Production-ready starter kits for common stacks",
+    count: "10+ templates"
   },
   {
-    icon: BookOpen,
-    title: "Blog",
-    description: "Insights on modern software development",
-    count: "Weekly posts"
+    icon: Mail,
+    title: "Newsletter",
+    description: "Weekly insights on AI dev and shipping faster",
+    count: "Free"
   },
   {
-    icon: Video,
-    title: "Tech Talks",
-    description: "Deep dives into AI-powered development",
-    count: "Coming soon"
+    icon: GitBranch,
+    title: "Changelog",
+    description: "Latest product updates and feature releases",
+    count: "Updated weekly"
   },
   {
-    icon: Users,
-    title: "Community",
-    description: "Connect with fellow builders",
-    count: "Growing"
+    icon: Github,
+    title: "Open Source",
+    description: "Tools and libraries we build and maintain",
+    count: "On GitHub"
   }
 ];
 

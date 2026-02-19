@@ -5,7 +5,7 @@ const stats = [
   { value: "10x", label: "Faster Delivery" },
   { value: "50+", label: "Projects Shipped" },
   { value: "100%", label: "Client Satisfaction" },
-  { value: "24/7", label: "AI-Powered" }
+  { value: "Small Team", label: "Big Results" }
 ];
 
 const values = [
@@ -39,9 +39,9 @@ const AboutSection = () => {
             About CodeBay
           </h2>
           <p className="mt-4 max-w-3xl mx-auto leading-relaxed light:text-muted-foreground dark:text-foreground">
-            We're a team of senior engineers and AI specialists who believe professional software
-            development shouldn't take months. We combine deep technical expertise with cutting-edge
-            AI tools to deliver exceptional results at unprecedented speed.
+            Custom software used to mean hiring armies of developers. Not anymore. With AI, a small
+            team of senior engineers can build what used to require dozens—delivering
+            enterprise-grade solutions without the enterprise overhead.
           </p>
         </div>
 
@@ -50,7 +50,7 @@ const AboutSection = () => {
           {stats.map((stat, index) => (
             <div
               key={stat.label}
-              className="glass-nav home-card-surface rounded-2xl p-5 text-center"
+              className="liquid-glass-nav home-card-surface rounded-2xl p-5 text-center hover:border-primary/30 hover:scale-[1.02] transition-all duration-300 cursor-pointer"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="font-display text-2xl font-bold gradient-text sm:text-3xl">
@@ -64,7 +64,7 @@ const AboutSection = () => {
         </div>
 
         {/* Values */}
-        <div className="glass-nav home-card-surface rounded-2xl p-6">
+        <div className="liquid-glass-nav home-card-surface rounded-2xl p-6 hover:border-primary/30 hover:scale-[1.02] transition-all duration-300 cursor-pointer">
           <div className="mb-6 text-center">
             <p className="text-primary/80 mb-2 text-xs font-semibold tracking-[0.18em] uppercase">
               What Drives Us
