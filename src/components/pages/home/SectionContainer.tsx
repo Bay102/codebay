@@ -51,10 +51,11 @@ const SectionContainer = ({ activeSection, direction }: SectionContainerProps) =
   }, [activeSection]);
 
   return (
-    <div className="[grid-area:1/1] z-10 h-[100dvh] overflow-hidden bg-background/93 px-3 pt-32 pb-14 backdrop-blur-sm md:px-6 md:pt-28 md:pb-16 lg:px-12 dark:bg-background/88 dark:backdrop-blur">
+    <div className="[grid-area:1/1] relative z-10 h-[100dvh] overflow-hidden bg-background/66 px-3 pt-32 pb-14 backdrop-blur-none md:px-6 md:pt-28 md:pb-16 lg:px-12 dark:bg-background/72 dark:backdrop-blur-none">
+      <div className="tech-section-grid pointer-events-none absolute inset-0" aria-hidden="true" />
       <div
         ref={scrollRef}
-        className="relative flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain"
+        className="relative z-10 flex h-full min-h-0 flex-col overflow-y-auto overscroll-contain"
       >
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div

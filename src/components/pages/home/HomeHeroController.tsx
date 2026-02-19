@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { Settings, Sun, Moon, Monitor, Sparkles, Video } from "lucide-react";
+import { Settings, Sun, Moon, Monitor, Sparkles } from "lucide-react";
 import Hero from "@/components/pages/home/Hero";
 import { Button } from "@/components/ui/button";
 
@@ -11,7 +11,6 @@ interface HomeHeroControllerProps {
   direction: number;
 }
 
-const VIDEO_BG_STORAGE_KEY = "codebay.video-bg-enabled";
 const EFFECTS_STORAGE_KEY = "codebay.effects-enabled";
 
 type ThemeOption = "light" | "dark" | "system";
@@ -26,18 +25,10 @@ const HomeHeroController = ({ activeSection, direction }: HomeHeroControllerProp
   const [isOpen, setIsOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
-  const [videoEnabled, setVideoEnabled] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
-    return window.localStorage.getItem(VIDEO_BG_STORAGE_KEY) !== "false";
-  });
   const [effectsEnabled, setEffectsEnabled] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     return window.localStorage.getItem(EFFECTS_STORAGE_KEY) !== "false";
   });
-
-  useEffect(() => {
-    window.localStorage.setItem(VIDEO_BG_STORAGE_KEY, String(videoEnabled));
-  }, [videoEnabled]);
 
   useEffect(() => {
     window.localStorage.setItem(EFFECTS_STORAGE_KEY, String(effectsEnabled));
@@ -50,7 +41,7 @@ const HomeHeroController = ({ activeSection, direction }: HomeHeroControllerProp
 
   return (
     <>
-      <Hero activeSection={activeSection} direction={direction} videoEnabled={videoEnabled} />
+      <Hero activeSection={activeSection} direction={direction} />
 
       <div className="fixed right-4 bottom-3 z-[60] flex flex-col items-end gap-2">
         {isOpen && (
@@ -94,16 +85,6 @@ const HomeHeroController = ({ activeSection, direction }: HomeHeroControllerProp
               >
                 <Sparkles className="h-3.5 w-3.5" />
                 {effectsEnabled ? "Effects On" : "Effects Off"}
-              </Button>
-              <Button
-                type="button"
-                variant={videoEnabled ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setVideoEnabled((prev) => !prev)}
-                className="justify-start gap-2 text-xs"
-              >
-                <Video className="h-3.5 w-3.5" />
-                {videoEnabled ? "Video BG On" : "Video BG Off"}
               </Button>
             </div>
           </div>

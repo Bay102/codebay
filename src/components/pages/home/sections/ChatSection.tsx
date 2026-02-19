@@ -625,7 +625,7 @@ const ChatSection = () => {
         <div className="flex flex-col md:flex-row md:items-stretch md:justify-between md:gap-12">
           <div
             ref={ctaPanelRef}
-            className="order-1 mb-4 w-full rounded-xl border border-border bg-card/80 p-4 shadow-xl backdrop-blur-xl md:mb-0 md:flex-1 md:p-8 dark:border-white/10 dark:bg-black/40 dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
+            className="home-card-surface order-1 mb-4 w-full rounded-xl border border-border p-4 shadow-xl md:mb-0 md:flex-1 md:p-8 dark:border-white/10 dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)]"
           >
             <ChatSectionCopy />
           </div>

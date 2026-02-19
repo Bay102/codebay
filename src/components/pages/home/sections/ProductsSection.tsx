@@ -252,7 +252,7 @@ const ProductsSection = () => {
                       }
                     }}
                     className={cn(
-                      "liquid-glass-nav flex flex-col gap-6 rounded-2xl p-7 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:border-primary/30 sm:flex-row sm:items-center sm:justify-between",
+                      "liquid-glass-nav home-card-surface flex flex-col gap-6 rounded-2xl p-7 transition-all duration-300 group cursor-pointer hover:scale-[1.02] hover:border-primary/30 sm:flex-row sm:items-center sm:justify-between",
                       selectedProduct?.name === product.name && !isMobile
                         ? "ring-2 ring-primary/50 border-primary/40"
                         : ""
@@ -332,7 +332,7 @@ const ProductsSection = () => {
 
           {/* Detail panel - MD and up, slides in from right */}
           {!isMobile && selectedProduct && (
-            <div className="liquid-glass-nav relative flex min-h-0 w-full flex-col md:w-[360px] lg:w-[400px] shrink-0 rounded-2xl p-6 animate-in slide-in-from-right-2 fade-in duration-300 border border-border/80">
+            <div className="liquid-glass-nav home-card-surface relative flex min-h-0 w-full flex-col md:w-[360px] lg:w-[400px] shrink-0 rounded-2xl p-6 animate-in slide-in-from-right-2 fade-in duration-300 border border-border/80">
               <button
                 onClick={handleCloseDetail}
                 className="icon-btn absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-border/50 bg-background/80 backdrop-blur-sm hover:bg-background/95 shadow-lg"

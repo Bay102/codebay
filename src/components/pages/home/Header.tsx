@@ -64,32 +64,32 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
       {/* Top Header - Logo only on mobile, full header on desktop */}
       <header className="fixed top-0 left-0 right-0 z-50 px-6 py-6 lg:px-12 bg-background/95 backdrop-blur-md md:bg-background/80 md:backdrop-blur-sm">
         <div className="max-w-7xl mx-auto flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-normal">
-          {/* Logo */}
-          <button
-            onClick={() => onSectionChange("home")}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity justify-self-start"
-          >
-            <img
-              src={codebayLogo}
-              alt="CodeBay"
-              className="h-8 w-auto dark:invert md:h-10"
-            />
-          </button>
-
-          <DesktopNav
-            activeSection={activeSection}
-            onSectionChange={onSectionChange}
-            navLinks={navLinks}
-          />
-
-          {/* CTA Buttons */}
-          <div className="flex items-center justify-end gap-2 justify-self-end md:col-start-3">
+            {/* Logo */}
             <button
-              onClick={openConnectForm}
-              className="gradient-btn px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-medium text-primary-foreground"
+              onClick={() => onSectionChange("home")}
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity justify-self-start"
             >
-              Inquire
+              <img
+                src={codebayLogo}
+                alt="CodeBay"
+                className="h-8 w-auto dark:invert md:h-10"
+              />
             </button>
+
+            <DesktopNav
+              activeSection={activeSection}
+              onSectionChange={onSectionChange}
+              navLinks={navLinks}
+            />
+
+            {/* CTA Buttons */}
+            <div className="flex items-center justify-end gap-2 justify-self-end md:col-start-3">
+              <button
+                onClick={openConnectForm}
+                className="gradient-btn px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-medium text-primary-foreground"
+              >
+                Inquire
+              </button>
           </div>
         </div>
       </header>

@@ -13,7 +13,7 @@ const VideoBackground = ({
   className = "",
   overlay = false,
   overlayOpacity,
-  enabled = true
+  enabled = true,
 }: VideoBackgroundProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);

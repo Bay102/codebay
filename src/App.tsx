@@ -6,7 +6,7 @@ import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const App = () => (
-  <ThemeProvider defaultTheme="dark" storageKey="codebay-theme" attribute="class">
+  <ThemeProvider defaultTheme="system" storageKey="codebay-theme" attribute="class">
     <BrowserRouter>
       <ConnectFormProvider>
         <Routes>

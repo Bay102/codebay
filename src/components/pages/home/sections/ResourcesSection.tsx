@@ -71,7 +71,7 @@ const ResourcesSection = () => {
           {resources.map((resource, index) => (
             <div
               key={resource.title}
-              className="liquid-glass-nav rounded-2xl p-6 text-center hover:border-primary/30 hover:scale-105 transition-all duration-300 group cursor-pointer"
+              className="liquid-glass-nav home-card-surface rounded-2xl p-6 text-center hover:border-primary/30 hover:scale-105 transition-all duration-300 group cursor-pointer"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="w-16 h-16 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
