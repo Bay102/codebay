@@ -1,4 +1,5 @@
-import { Zap, Rocket, Code2, Layers } from "lucide-react";
+import { Zap, Rocket, Code2, Layers, Globe, Search } from "lucide-react";
+
 
 const solutions = [
   {
@@ -20,6 +21,16 @@ const solutions = [
     icon: Layers,
     title: "Legacy Modernization",
     description: "Transform outdated systems into modern, maintainable applications at unprecedented speed."
+  },
+  {
+    icon: Search,
+    title: "SEO Optimization",
+    description: "Optimize your website for search engines to improve your visibility and traffic."
+  },
+  {
+    icon: Globe,
+    title: "Google Services",
+    description: "Integrate with Google services to extend your reach and improve your user experience."
   }
 ];
 
