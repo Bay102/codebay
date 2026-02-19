@@ -61,7 +61,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     role: "assistant",
     content:
-      "Hey! I'm Anton. Most people land here with an idea—a mobile app, web app, or custom software. What brings you here?",
+      "Hey! I'm Anton. Most people land here because they need help with tech—a mobile app, web app, or custom software. What brings you here?",
   },
 ];
 
