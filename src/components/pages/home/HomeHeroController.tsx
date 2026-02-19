@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Settings, Sun, Moon, Monitor, Sparkles, Video } from "lucide-react";
-import Hero from "@/components/Hero";
+import Hero from "@/components/pages/home/Hero";
 import { Button } from "@/components/ui/button";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";

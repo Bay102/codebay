@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
-import Header from "@/components/Header";
+import Header from "@/components/pages/home/Header";
 import Footer from "@/components/Footer";
-import HomeHeroController from "@/components/HomeHeroController";
+import HomeHeroController from "@/components/pages/home/HomeHeroController";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 

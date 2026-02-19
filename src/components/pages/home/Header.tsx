@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Sparkles } from "lucide-react";
 import codebayLogo from "@/assets/codebay-logo.svg";
-import DesktopNav from "@/components/DesktopNav";
+import DesktopNav from "@/components/pages/home/DesktopNav";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
