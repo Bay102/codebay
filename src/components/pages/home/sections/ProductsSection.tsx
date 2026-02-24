@@ -37,7 +37,7 @@ const products: Product[] = [
     name: "Custom Software Development",
     category: "Service",
     description:
-      "Custom software development tailored to your needs. We build software that is tailored to your needs and your business.",
+      "Custom software development tailored to your needs. We build customized software that is tailored to your business.",
     status: "Available",
     icon: ClipboardCheck,
     detailText: `We build software that is tailored to your needs and your business. We use the latest technologies and best practices to build software that is efficient, scalable, and maintainable.`,

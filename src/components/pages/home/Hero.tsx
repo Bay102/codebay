@@ -20,7 +20,9 @@ const Hero = ({ activeSection, direction }: HeroProps) => {
       {/* Video background – to restore:
           1. Uncomment effectsEnabled in HeroProps and add to destructuring
           2. In HomeHeroController: <Hero ... effectsEnabled={effectsEnabled} />
-          3. Uncomment below and set src */}
+          3. Uncomment below and set src 
+      */}
+
       {/* <VideoBackground
         src="/path/to/hero-video.mp4"
         overlay
