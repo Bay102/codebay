@@ -180,11 +180,11 @@ const ProductsSection = () => {
 
   const handleCardClick = useCallback(
     (product: Product) => {
-      const isAlreadySelected = selectedProduct?.name === product.name;
       if (isMobile) {
         setSelectedProduct(product);
-        setModalOpen(!isAlreadySelected);
+        setModalOpen(true);
       } else {
+        const isAlreadySelected = selectedProduct?.name === product.name;
         setSelectedProduct(isAlreadySelected ? null : product);
       }
     },
