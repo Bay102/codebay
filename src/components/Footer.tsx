@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 import { PrivacyPolicyModal } from "@/components/PrivacyPolicyModal";
@@ -13,6 +14,12 @@ const Footer = () => {
     <footer className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 px-6 py-2.5 backdrop-blur-md md:bg-background/80 md:backdrop-blur-sm">
       <div className="mx-auto flex max-w-7xl flex-col gap-1.5">
         <nav className="flex items-center justify-center gap-4">
+          <Link
+            href="/blog"
+            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Blog
+          </Link>
           <button
             type="button"
             onClick={() => setIsPrivacyOpen(true)}

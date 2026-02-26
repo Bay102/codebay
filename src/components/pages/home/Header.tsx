@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import DesktopNav from "@/components/pages/home/DesktopNav";
@@ -87,6 +88,12 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
 
           {/* CTA Buttons */}
           <div className="flex items-center justify-end gap-2 justify-self-end md:col-start-3">
+            <Link
+              href="/blog"
+              className="rounded-full border border-border/80 bg-background/60 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+            >
+              Blog
+            </Link>
             <button
               onClick={openConnectForm}
               className="gradient-btn px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-medium text-primary-foreground"
