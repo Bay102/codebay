@@ -37,7 +37,7 @@ const solutions = [
 const SolutionsSection = () => {
 
   return (
-    <div className="w-full min-h-full flex items-start justify-center">
+    <div className="w-full min-h-full flex items-start justify-center overflow-x-hidden">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-6">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">
