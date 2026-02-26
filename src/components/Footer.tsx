@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 import { PrivacyPolicyModal } from "@/components/PrivacyPolicyModal";
@@ -35,9 +36,11 @@ const Footer = () => {
         </nav>
 
         <div className="flex items-center justify-center gap-2">
-          <img
+          <Image
             src={codebayLogo}
             alt="CodeBay"
+            width={96}
+            height={24}
             className="h-4 w-auto dark:invert"
           />
           <span className="text-[10px] text-muted-foreground">

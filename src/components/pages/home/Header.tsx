@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { Sparkles } from "lucide-react";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import DesktopNav from "@/components/pages/home/DesktopNav";
@@ -69,9 +70,11 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
               onClick={() => onSectionChange("home")}
               className="flex items-center gap-3 hover:opacity-80 transition-opacity justify-self-start"
             >
-              <img
+              <Image
                 src={codebayLogo}
                 alt="CodeBay"
+                width={160}
+                height={40}
                 className="h-8 w-auto dark:invert md:h-10"
               />
             </button>
