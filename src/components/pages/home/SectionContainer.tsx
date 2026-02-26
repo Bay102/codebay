@@ -23,17 +23,14 @@ const sectionVariants = {
   enter: (direction: number) => ({
     opacity: 0,
     x: direction > 0 ? SLIDE_DISTANCE : -SLIDE_DISTANCE,
-    filter: "blur(4px)",
   }),
   center: {
     opacity: 1,
     x: 0,
-    filter: "blur(0px)",
   },
   exit: (direction: number) => ({
     opacity: 0,
     x: direction > 0 ? -SLIDE_DISTANCE : SLIDE_DISTANCE,
-    filter: "blur(4px)",
   }),
 };
 
@@ -47,7 +44,9 @@ const SectionContainer = ({ activeSection, direction }: SectionContainerProps) =
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: 0 });
+    // Reset scroll position instantly when switching sections to avoid
+    // fighting against the Framer Motion transition animation.
+    scrollRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }, [activeSection]);
 
   return (
@@ -66,7 +65,7 @@ const SectionContainer = ({ activeSection, direction }: SectionContainerProps) =
             animate="center"
             exit="exit"
             transition={sectionTransition}
-            className="relative flex-1"
+            className="relative flex-1 will-change-transform"
           >
             <Suspense fallback={<div className="relative flex-1" />}>
               <ActiveComponent />
