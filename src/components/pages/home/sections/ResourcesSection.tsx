@@ -1,4 +1,4 @@
-import { FileText, Video, BookOpen, Users, LayoutTemplate, Mail, GitBranch, Github } from "lucide-react";
+import { FileText, Video, BookOpen, Users, LayoutTemplate, Mail, GitBranch, Github, Brain } from "lucide-react";
 
 const resources = [
   {
@@ -26,10 +26,10 @@ const resources = [
     count: "Growing"
   },
   {
-    icon: LayoutTemplate,
-    title: "Templates",
-    description: "Production-ready starter kits for common stacks",
-    count: "10+ templates"
+    icon: Brain,
+    title: "Vibe Assistance",
+    description: "Vibe coding a project? View common roadblocks",
+    count: "View Roadblocks"
   },
   {
     icon: Mail,
