@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import {
   Brain,
   ChevronLeft,
@@ -113,10 +114,12 @@ function ProductDetailContent({
     <div className="flex min-h-0 flex-1 flex-col gap-5">
       {/* Image section */}
       <div className="relative w-full aspect-video sm:aspect-[16/10] overflow-hidden rounded-xl mb-2">
-        <img
+        <Image
           src={product.detailImage}
           alt={product.detailImageAlt}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          fill
+          sizes="(max-width: 768px) 100vw, 420px"
+          className="object-cover transition-transform duration-300 hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
         <div className="absolute bottom-4 left-4 right-4">
