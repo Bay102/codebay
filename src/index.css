@@ -329,43 +329,6 @@
   background-clip: text;
  }
 
- /* Cyan AI shimmer sweep on text - matches chat container scan-line feel */
- .ai-shimmer-text {
-  background: linear-gradient(
-   90deg,
-   hsl(0, 0%, 9%) 0%,
-   hsl(0, 0%, 9%) 35%,
-   hsl(187, 85%, 53%) 50%,
-   hsl(0, 0%, 9%) 65%,
-   hsl(0, 0%, 9%) 100%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: ai-shimmer-text 3s ease-in-out infinite;
- }
-
- .dark .ai-shimmer-text {
-  background: linear-gradient(
-   90deg,
-   hsl(0, 0%, 100%) 0%,
-   hsl(0, 0%, 100%) 35%,
-   hsl(187, 85%, 53%) 50%,
-   hsl(0, 0%, 100%) 65%,
-   hsl(0, 0%, 100%) 100%
-  );
- }
-
- @keyframes ai-shimmer-text {
-  0% {
-   background-position: 0% 0;
-  }
-  100% {
-   background-position: -200% 0;
-  }
- }
-
  .gradient-btn {
   background: var(--gradient-primary);
   transition: all 0.3s ease;
@@ -558,17 +521,6 @@
   z-index: 10;
  }
 
- .chat-particle {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  background: hsla(187, 85%, 53%, 0.9);
-  border-radius: 50%;
-  box-shadow: 0 0 8px hsla(187, 85%, 53%, 1);
-  pointer-events: none;
-  z-index: 5;
- }
-
  /* Connect dialog - same techy grid UI as chat container */
  .connect-dialog {
   position: relative;
@@ -660,31 +612,6 @@
  .chat-input-bar {
   border-color: var(--chat-input-border);
   background: var(--chat-input-bg);
- }
-
- :root[data-dev-effects='lite'] .chat-container,
- :root[data-dev-effects='lite'] .connect-dialog,
- :root[data-dev-effects='lite'] .liquid-glass-nav,
-:root[data-dev-effects='lite'] .liquid-indicator,
-:root[data-dev-effects='lite'] .home-card-surface {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
- }
-
- :root[data-dev-effects='lite'] .chat-container::after,
- :root[data-dev-effects='lite'] .connect-dialog::after,
- :root[data-dev-effects='lite'] .chat-scan-line,
-:root[data-dev-effects='lite'] .liquid-glass-nav::before {
-  display: none !important;
- }
-
- :root[data-dev-effects='lite'] [class*='animate-'] {
-  animation: none !important;
- }
-
- :root[data-dev-effects='lite'] [class*='transition-'] {
-  transition: none !important;
  }
 }
 
