@@ -52,9 +52,7 @@ const products: Product[] = [
       "A virtual CTO for your startup, enhanced by AI. Stressed out about your tech needs? We'll handle the heavy lifting.",
     status: "Available",
     icon: Brain,
-    detailText: `Bring strategic technical leadership to your startup without the full-time cost. Our Virtual CTO service combines deep engineering expertise with AI augmentation to deliver architecture decisions, technology roadmaps, and team guidance tailored to your stage.
-
-We'll help you make informed decisions on stack selection, scaling strategies, and technical debt—so you can focus on product and customers while we ensure your foundation is solid.`,
+    detailText: `Bring strategic technical leadership to your startup without the full-time cost. Our Virtual CTO service combines deep engineering expertise with AI augmentation to deliver architecture decisions, technology roadmaps, and team guidance tailored to your stage.`,
     detailImage:
       "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
     detailImageAlt: "Team collaboration and strategy discussion",
@@ -116,9 +114,9 @@ function ProductDetailContent({
   onInquire,
 }: ProductDetailContentProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col gap-5">
       {/* Image section */}
-      <div className="relative w-full aspect-video sm:aspect-[16/10] overflow-hidden rounded-xl mb-6">
+      <div className="relative w-full aspect-video sm:aspect-[16/10] overflow-hidden rounded-xl mb-2">
         <img
           src={product.detailImage}
           alt={product.detailImageAlt}
