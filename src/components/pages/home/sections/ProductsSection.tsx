@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Brain,
   ChevronLeft,
@@ -52,9 +52,7 @@ const products: Product[] = [
       "A virtual CTO for your startup, enhanced by AI. Stressed out about your tech needs? We'll handle the heavy lifting.",
     status: "Available",
     icon: Brain,
-    detailText: `Bring strategic technical leadership to your startup without the full-time cost. Our Virtual CTO service combines deep engineering expertise with AI augmentation to deliver architecture decisions, technology roadmaps, and team guidance tailored to your stage.
-
-We'll help you make informed decisions on stack selection, scaling strategies, and technical debt—so you can focus on product and customers while we ensure your foundation is solid.`,
+    detailText: `Bring strategic technical leadership to your startup without the full-time cost. Our Virtual CTO service combines deep engineering expertise with AI augmentation to deliver architecture decisions, technology roadmaps, and team guidance tailored to your stage.`,
     detailImage:
       "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
     detailImageAlt: "Team collaboration and strategy discussion",
@@ -67,9 +65,7 @@ We'll help you make informed decisions on stack selection, scaling strategies, a
       "Go from idea to interactive prototype in 48 hours. Test your concept before committing.",
     status: "Available",
     icon: Rocket,
-    detailText: `Validate your ideas in days, not months. Our rapid prototyping service turns concepts into clickable, interactive prototypes that you can put in front of users and stakeholders.
-
-We use modern low-code and AI tools to compress the prototype-to-feedback cycle, so you can iterate on real user reactions before investing in full development.`,
+    detailText: `Validate your ideas in days, not months. Our rapid prototyping service turns concepts into clickable, interactive prototypes that you can put in front of users and stakeholders.`,
     detailImage:
       "https://images.unsplash.com/photo-1551434678-e076c223a692?w=800&q=80",
     detailImageAlt: "Wireframes and design prototyping",
@@ -81,9 +77,7 @@ We use modern low-code and AI tools to compress the prototype-to-feedback cycle,
       "Comprehensive code review and optimization using AI to identify bottlenecks and security issues.",
     status: "Available",
     icon: FileSearch,
-    detailText: `Get a thorough assessment of your codebase with AI-powered analysis. We identify performance bottlenecks, security vulnerabilities, maintainability issues, and optimization opportunities.
-
-Our audit combines automated scanning with human expertise—delivering actionable recommendations prioritized by impact, so you know exactly where to focus your engineering efforts.`,
+    detailText: `Get a thorough assessment of your codebase with AI-powered analysis. We identify performance bottlenecks, security vulnerabilities, maintainability issues, and optimization opportunities.`,
     detailImage:
       "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&q=80",
     detailImageAlt: "Code review and analysis",
@@ -95,9 +89,7 @@ Our audit combines automated scanning with human expertise—delivering actionab
       "Our internal AI-powered development environment that accelerates every project we build.",
     status: "Internal",
     icon: Code2,
-    detailText: `CodeBay Studio is our proprietary development environment that supercharges our engineering workflow. It integrates AI-assisted coding, real-time collaboration, and intelligent project scaffolding into a single cohesive experience.
-
-While currently internal, the platform embodies everything we've learned about building software at speed—context-aware completions, automated testing, and seamless deployment pipelines.`,
+    detailText: `CodeBay Studio is our proprietary development environment that supercharges our engineering workflow. It integrates AI-assisted coding, real-time collaboration, and intelligent project scaffolding into a single cohesive experience.`,
     detailImage:
       "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80",
     detailImageAlt: "Code editor and development workspace",
@@ -109,16 +101,18 @@ const CARDS_PER_PAGE = 3;
 interface ProductDetailContentProps {
   product: Product;
   onInquire?: () => void;
+  showButton?: boolean;
 }
 
 function ProductDetailContent({
   product,
   onInquire,
+  showButton = true,
 }: ProductDetailContentProps) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col gap-5">
       {/* Image section */}
-      <div className="relative w-full aspect-video sm:aspect-[16/10] overflow-hidden rounded-xl mb-6">
+      <div className="relative w-full aspect-video sm:aspect-[16/10] overflow-hidden rounded-xl mb-2">
         <img
           src={product.detailImage}
           alt={product.detailImageAlt}
@@ -147,18 +141,15 @@ function ProductDetailContent({
         <p className="text-muted-foreground text-sm sm:text-base leading-relaxed whitespace-pre-line">
           {product.detailText}
         </p>
-        <span className="text-xs text-muted-foreground/60 mt-4 inline-block">
-          {product.category}
-        </span>
       </div>
 
-      {onInquire && (
+      {onInquire && showButton && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             onInquire();
           }}
-          className="gradient-btn w-full px-6 py-3 rounded-full text-sm font-medium text-primary-foreground mt-4 shrink-0"
+          className="gradient-btn w-full rounded-none px-6 py-3 text-sm font-medium text-primary-foreground mt-1 shrink-0"
         >
           Inquire Now
         </button>
@@ -174,6 +165,12 @@ const ProductsSection = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    if (!isMobile && !selectedProduct) {
+      setSelectedProduct(products[0]);
+    }
+  }, [isMobile, selectedProduct]);
 
   const totalPages = Math.ceil(products.length / CARDS_PER_PAGE);
   const paginatedProducts = products.slice(
@@ -200,7 +197,7 @@ const ProductsSection = () => {
   }, []);
 
   return (
-    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
+    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:pt-0 md:px-8 md:pb-8">
       <div
         className={cn(
           "w-full transition-all duration-300",
@@ -319,7 +316,7 @@ const ProductsSection = () => {
 
           {/* Detail panel - MD and up, slides in from right */}
           {!isMobile && selectedProduct && (
-            <div className="liquid-glass-nav home-card-surface relative flex min-h-0 w-full flex-col md:w-[360px] lg:w-[400px] shrink-0 rounded-2xl p-6 animate-in slide-in-from-right-2 fade-in duration-300 border border-border/80">
+            <div className="liquid-glass-nav home-card-surface relative flex min-h-0 h-[560px] w-full flex-col md:w-[360px] lg:w-[400px] shrink-0 rounded-2xl p-6 animate-in slide-in-from-right-2 fade-in duration-300 border border-border/80">
               <button
                 onClick={handleCloseDetail}
                 className="icon-btn absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-border/50 bg-background/80 backdrop-blur-sm hover:bg-background/95 shadow-lg"
@@ -327,7 +324,7 @@ const ProductsSection = () => {
               >
                 <X className="w-3.5 h-3.5 text-primary" />
               </button>
-              <div className="pt-7">
+              <div className="flex h-full pt-7">
                 <ProductDetailContent
                   product={selectedProduct}
                   onInquire={openConnectForm}
@@ -347,14 +344,28 @@ const ProductsSection = () => {
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           {selectedProduct && (
-            <div className="h-full overflow-y-auto p-6 pt-14">
+            <div className="flex h-full flex-col pt-14">
               <DialogHeader className="sr-only">
                 <DialogTitle>{selectedProduct.name} - Details</DialogTitle>
               </DialogHeader>
-              <ProductDetailContent
-                product={selectedProduct}
-                onInquire={openConnectForm}
-              />
+              <div className="flex-1 overflow-y-auto p-6 pb-4">
+                <ProductDetailContent
+                  product={selectedProduct}
+                  onInquire={openConnectForm}
+                  showButton={false}
+                />
+              </div>
+              <div className="shrink-0 px-6 pb-6">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openConnectForm();
+                  }}
+                  className="gradient-btn w-full rounded-none px-6 py-3 text-sm font-medium text-primary-foreground"
+                >
+                  Inquire Now
+                </button>
+              </div>
             </div>
           )}
         </DialogContent>

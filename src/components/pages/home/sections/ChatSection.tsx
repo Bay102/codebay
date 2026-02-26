@@ -415,7 +415,7 @@ const ChatCard = ({
           <span className="mb-2 font-mono text-base font-semibold text-ai-accent select-none md:mb-1.5 md:text-sm">›</span>
           <textarea
             {...messageField}
-            placeholder="Ask about your product, timeline, or tech stack..."
+            placeholder="What can we help you with?"
             rows={1}
             ref={(element) => {
               messageField.ref(element);
