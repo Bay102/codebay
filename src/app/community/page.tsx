@@ -1,29 +1,28 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CommunityAuthCard } from "@/components/pages/community/CommunityAuthCard";
 
 export const metadata: Metadata = {
   title: "Community",
   description:
-    "Join the CodeBay community to connect with developers, share progress, and collaborate on practical AI-powered engineering patterns."
+    "Explore the CodeBay community – a focused space for AI-powered engineering, discussions, and shared resources."
 };
 
-const communityHighlights = [
+const placeholderSections = [
   {
-    title: "Developer-first discussions",
-    description: "Share implementation details, trade-offs, and lessons from production systems."
+    title: "Latest discussions",
+    body: "A feed of in-progress conversations around architecture decisions, performance tuning, and production incidents."
   },
   {
-    title: "Practical resources",
-    description: "Discover templates, walkthroughs, and reusable patterns for modern web teams."
+    title: "Community resources",
+    body: "Curated guides, reference implementations, and templates shared by the community."
   },
   {
-    title: "Peer feedback",
-    description: "Get fast review loops on architecture, code quality, and performance bottlenecks."
+    title: "Events & office hours",
+    body: "Upcoming live sessions, AMAs, and office hours for teams shipping with AI."
   }
 ];
 
-export default function CommunityPage() {
+export default function CommunityLandingPage() {
   return (
     <main className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur-sm">
@@ -31,8 +30,8 @@ export default function CommunityPage() {
           <Link href="/" className="text-sm font-semibold tracking-tight text-foreground">
             CodeBay
           </Link>
-          <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Back to home
+          <Link href="/community/join" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            Join or sign in
           </Link>
         </div>
       </header>
@@ -41,33 +40,43 @@ export default function CommunityPage() {
         <div className="rounded-3xl border border-border/60 bg-card/40 px-6 py-8 sm:px-8 sm:py-10 md:px-10">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Community</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
-            A focused developer community for builders shipping with AI
+            Community hub for builders shipping with AI
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
-            The CodeBay community is where developers collaborate on architecture decisions, share shipping patterns, and
-            learn faster from real implementation experience.
+            This is the starting point for CodeBay community activity. We will surface discussions, resources, and
+            events here as the community evolves.
           </p>
-          <div className="mt-6">
-            <a
-              href="#community-auth"
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href="/community/join"
               className="inline-flex rounded-full border border-primary/35 bg-primary/10 px-5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
             >
               Join the community
-            </a>
+            </Link>
+            <Link
+              href="/blog"
+              className="inline-flex rounded-full border border-border/70 bg-card px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+            >
+              Browse blog posts
+            </Link>
           </div>
         </div>
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
-          {communityHighlights.map((item) => (
-            <article key={item.title} className="rounded-2xl border border-border/70 bg-card/60 p-5">
-              <h2 className="text-base font-semibold text-foreground">{item.title}</h2>
-              <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.description}</p>
+          {placeholderSections.map((section) => (
+            <article key={section.title} className="rounded-2xl border border-border/70 bg-card/60 p-5">
+              <h2 className="text-base font-semibold text-foreground">{section.title}</h2>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">{section.body}</p>
             </article>
           ))}
         </section>
 
-        <section id="community-auth" className="mt-10">
-          <CommunityAuthCard />
+        <section className="mt-10 rounded-2xl border border-dashed border-border/70 bg-card/40 p-6 sm:p-8">
+          <h2 className="text-base font-semibold text-foreground">Future community surface</h2>
+          <p className="mt-2 text-sm leading-7 text-muted-foreground">
+            This area will evolve into a richer community experience: personalized activity, saved threads, featured
+            posts, and more. For now, it serves as a placeholder so we can wire up navigation and authentication flows.
+          </p>
         </section>
       </section>
     </main>

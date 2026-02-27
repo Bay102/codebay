@@ -145,7 +145,7 @@ export function CommunityAuthCard() {
             Open dashboard
           </Button>
           <Button type="button" variant="outline" onClick={() => void handleSignOut()} disabled={isSubmitting}>
-            {isSubmitting ? "Signing out..." : "Switch account"}
+            {isSubmitting ? "Signing out..." : "Sign out"}
           </Button>
         </div>
       </section>

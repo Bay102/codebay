@@ -1,10 +1,6 @@
 ---
-description: Encourage splitting large pages/components into well-organized, colocated files
-globs: |
-  **/*.tsx
-  app/**/*
-  src/components/**/*
-alwaysApply: false
+description: 
+alwaysApply: true
 ---
 
 # Component & Page Organization
