@@ -92,3 +92,42 @@ export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost | null
   return mapRowToBlogPost(data as BlogPostRow);
 }
 
+export interface BlogEngagementCounts {
+  views: number;
+  reactions: number;
+  comments: number;
+}
+
+/** Fetches view, reaction, and comment counts for the given slugs (for index/cards). */
+export async function fetchBlogEngagementCounts(
+  slugs: string[]
+): Promise<Record<string, BlogEngagementCounts>> {
+  const empty: BlogEngagementCounts = { views: 0, reactions: 0, comments: 0 };
+  const result = Object.fromEntries(slugs.map((s) => [s, { ...empty }]));
+  if (slugs.length === 0) return result;
+
+  const countRequests = slugs.flatMap((slug) => [
+    supabase.from("blog_post_views").select("*", { count: "exact", head: true }).eq("slug", slug),
+    supabase.from("blog_post_reactions").select("*", { count: "exact", head: true }).eq("slug", slug),
+    supabase
+      .from("blog_post_comments")
+      .select("*", { count: "exact", head: true })
+      .eq("slug", slug)
+      .eq("is_approved", true)
+  ]);
+
+  const settled = await Promise.all(countRequests);
+  const perSlug = 3;
+  type CountResult = { count?: number | null };
+  slugs.forEach((slug, i) => {
+    const base = i * perSlug;
+    result[slug] = {
+      views: (settled[base] as CountResult)?.count ?? 0,
+      reactions: (settled[base + 1] as CountResult)?.count ?? 0,
+      comments: (settled[base + 2] as CountResult)?.count ?? 0
+    };
+  });
+
+  return result;
+}
+

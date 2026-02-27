@@ -2,6 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
+import { BlogEngagement } from "@/components/blog/BlogEngagement";
 
 const siteUrl = "https://codebay.dev";
 
@@ -138,25 +139,29 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </div>
       </section>
 
-      <article className="mx-auto w-full max-w-3xl rounded-3xl border border-border/70 bg-card px-6 py-8 shadow-sm sm:px-8 sm:py-10 md:px-10">
-        <div className="space-y-10">
-          {post.sections.map((section) => (
-            <section key={section.heading}>
-              <h2 className="text-2xl font-semibold tracking-tight text-foreground">{section.heading}</h2>
-              <div className="mt-4 space-y-4">
-                {section.paragraphs.map((paragraph, paragraphIndex) => (
-                  <p
-                    key={`${section.heading}-${paragraphIndex}`}
-                    className="text-base leading-8 text-muted-foreground sm:text-lg"
-                  >
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
-      </article>
+      <section className="mx-auto w-full max-w-5xl px-5 sm:px-6 lg:px-8">
+        <article className="rounded-3xl border border-border/70 bg-card px-6 py-8 shadow-sm sm:px-8 sm:py-10 md:px-10">
+          <div className="space-y-10">
+            {post.sections.map((section) => (
+              <section key={section.heading}>
+                <h2 className="text-2xl font-semibold tracking-tight text-foreground">{section.heading}</h2>
+                <div className="mt-4 space-y-4">
+                  {section.paragraphs.map((paragraph, paragraphIndex) => (
+                    <p
+                      key={`${section.heading}-${paragraphIndex}`}
+                      className="text-base leading-8 text-muted-foreground sm:text-lg"
+                    >
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        </article>
+      </section>
+
+      <BlogEngagement slug={post.slug} />
 
       <section className="mx-auto mt-10 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-border/70 bg-card p-6">
