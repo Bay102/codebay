@@ -38,15 +38,6 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [{ url: "/codebay.svg" }],
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "CodeBay | AI-Powered Software Development Agency",
-    description:
-      "CodeBay builds professional-grade software using AI, delivering weeks of work in days. Fast, reliable, and built to scale.",
-    images: ["/codebay.svg"],
-    creator: "@CodeBay",
-    site: "@CodeBay",
-  },
 };
 
 export const viewport: Viewport = {

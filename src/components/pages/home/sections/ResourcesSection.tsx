@@ -1,6 +1,15 @@
-import { FileText, Video, BookOpen, Users, LayoutTemplate, Mail, GitBranch, Github, Brain } from "lucide-react";
+import Link from "next/link";
+import { FileText, Video, BookOpen, Users, Mail, GitBranch, Github, Brain, type LucideIcon } from "lucide-react";
 
-const resources = [
+interface ResourceItem {
+  icon: LucideIcon;
+  title: string;
+  description: string;
+  count: string;
+  href?: string;
+}
+
+const resources: ResourceItem[] = [
   {
     icon: FileText,
     title: "Case Studies",
@@ -11,7 +20,8 @@ const resources = [
     icon: BookOpen,
     title: "Blog",
     description: "Practical guides, patterns, and lessons from production",
-    count: "Weekly posts"
+    count: "Weekly posts",
+    href: "/blog"
   },
   {
     icon: Video,
@@ -52,6 +62,9 @@ const resources = [
 ];
 
 const ResourcesSection = () => {
+  const cardClasses =
+    "liquid-glass-nav home-card-surface rounded-2xl p-6 text-center hover:border-primary/30 hover:scale-105 transition-all duration-300 group";
+
   return (
     <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-8 md:pb-8">
       <div className="max-w-4xl w-full">
@@ -69,24 +82,47 @@ const ResourcesSection = () => {
 
         <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
           {resources.map((resource, index) => (
-            <div
-              key={resource.title}
-              className="liquid-glass-nav home-card-surface rounded-2xl p-6 text-center hover:border-primary/30 hover:scale-105 transition-all duration-300 group cursor-pointer"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="w-16 h-16 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                <resource.icon className="w-8 h-8 text-primary" />
+            resource.href ? (
+              <Link
+                key={resource.title}
+                href={resource.href}
+                className={`${cardClasses} cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50`}
+                style={{ animationDelay: `${index * 100}ms` }}
+                aria-label={`Open ${resource.title}`}
+              >
+                <div className="w-16 h-16 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                  <resource.icon className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-display text-base text-foreground mb-1">
+                  {resource.title}
+                </h3>
+                <p className="text-muted-foreground text-xs mb-3 leading-relaxed">
+                  {resource.description}
+                </p>
+                <span className="text-primary text-xs font-medium">
+                  {resource.count}
+                </span>
+              </Link>
+            ) : (
+              <div
+                key={resource.title}
+                className={`${cardClasses} cursor-default`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="w-16 h-16 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
+                  <resource.icon className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-display text-base text-foreground mb-1">
+                  {resource.title}
+                </h3>
+                <p className="text-muted-foreground text-xs mb-3 leading-relaxed">
+                  {resource.description}
+                </p>
+                <span className="text-primary text-xs font-medium">
+                  {resource.count}
+                </span>
               </div>
-              <h3 className="font-display text-base text-foreground mb-1">
-                {resource.title}
-              </h3>
-              <p className="text-muted-foreground text-xs mb-3 leading-relaxed">
-                {resource.description}
-              </p>
-              <span className="text-primary text-xs font-medium">
-                {resource.count}
-              </span>
-            </div>
+            )
           ))}
         </div>
       </div>

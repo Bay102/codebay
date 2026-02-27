@@ -24,7 +24,7 @@ type AdminHandoffsTableProps = {
   emptyMessage: string;
   updatingArchivedById: Record<string, boolean>;
   onSelectHandoff: (handoff: ChatHandoffRecord) => void;
-  onToggleArchived: (handoffId: string, currentArchived: boolean | null) => Promise<void>;
+  onToggleArchived: (handoffId: string, currentArchived: boolean) => Promise<void>;
 };
 
 export const AdminHandoffsTable = ({
