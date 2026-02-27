@@ -231,6 +231,7 @@ export type Database = {
           id: string
           name: string
           updated_at: string
+          user_type: string
           username: string
         }
         Insert: {
@@ -241,6 +242,7 @@ export type Database = {
           id: string
           name: string
           updated_at?: string
+          user_type?: string
           username: string
         }
         Update: {
@@ -251,6 +253,7 @@ export type Database = {
           id?: string
           name?: string
           updated_at?: string
+          user_type?: string
           username?: string
         }
         Relationships: []
@@ -263,7 +266,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      UserTypes:
+        | "admin"
+        | "client"
+        | "community_member"
+        | "developer"
+        | "sales_team"
+        | "staff"
+        | "blogger"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -390,6 +400,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      UserTypes: [
+        "admin",
+        "client",
+        "community_member",
+        "developer",
+        "sales_team",
+        "staff",
+        "blogger",
+      ],
+    },
   },
 } as const
