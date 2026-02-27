@@ -3,6 +3,7 @@
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import type { TablesInsert } from "@/lib/database";
 import { AdminSignInForm } from "@/components/pages/admin/AdminSignInForm";
 import { AdminSessionLoading } from "@/components/pages/admin/AdminSessionLoading";
 import { Button } from "@/components/ui/button";
@@ -199,7 +200,7 @@ const AdminBlogView = () => {
 
     setIsSubmitting(true);
 
-    const { error } = await supabase.from("blog_posts").insert({
+    const payload: TablesInsert<"blog_posts"> = {
       slug: normalizedSlug,
       title: form.title.trim(),
       description: form.description.trim() || null,
@@ -211,7 +212,9 @@ const AdminBlogView = () => {
       is_featured: form.isFeatured,
       status: form.status,
       published_at: publishedAt
-    });
+    };
+
+    const { error } = await supabase.from("blog_posts").insert(payload);
 
     setIsSubmitting(false);
 

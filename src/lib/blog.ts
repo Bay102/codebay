@@ -1,24 +1,26 @@
 import { supabase } from "@/lib/supabase";
+import type { Json, Tables } from "@/lib/database";
 
 export interface BlogPostSection {
   heading: string;
   paragraphs: string[];
 }
 
-interface BlogPostRow {
-  slug: string;
-  title: string;
-  description: string | null;
-  excerpt: string | null;
-  published_at: string | null;
-  updated_at: string | null;
-  created_at: string | null;
-  read_time_minutes: number | null;
-  author_name: string | null;
-  tags: string[] | null;
-  sections: BlogPostSection[] | null;
-  is_featured: boolean | null;
-}
+type BlogPostRow = Pick<
+  Tables<"blog_posts">,
+  | "slug"
+  | "title"
+  | "description"
+  | "excerpt"
+  | "published_at"
+  | "updated_at"
+  | "created_at"
+  | "read_time_minutes"
+  | "author_name"
+  | "tags"
+  | "sections"
+  | "is_featured"
+>;
 
 export interface BlogPost {
   slug: string;
@@ -32,6 +34,33 @@ export interface BlogPost {
   tags: string[];
   sections: BlogPostSection[];
   isFeatured: boolean;
+}
+
+function parseBlogPostSections(rawSections: Json): BlogPostSection[] {
+  if (!Array.isArray(rawSections)) {
+    return [];
+  }
+
+  return rawSections
+    .map((rawSection) => {
+      if (!rawSection || typeof rawSection !== "object" || Array.isArray(rawSection)) {
+        return null;
+      }
+
+      const section = rawSection as Record<string, unknown>;
+      const heading = typeof section.heading === "string" ? section.heading : "";
+      const rawParagraphs = section.paragraphs;
+      const paragraphs = Array.isArray(rawParagraphs)
+        ? rawParagraphs.filter((paragraph): paragraph is string => typeof paragraph === "string")
+        : [];
+
+      if (!heading || paragraphs.length === 0) {
+        return null;
+      }
+
+      return { heading, paragraphs };
+    })
+    .filter((section): section is BlogPostSection => section !== null);
 }
 
 function mapRowToBlogPost(row: BlogPostRow): BlogPost {
@@ -49,7 +78,7 @@ function mapRowToBlogPost(row: BlogPostRow): BlogPost {
     readTimeMinutes: row.read_time_minutes ?? 5,
     authorName: row.author_name ?? "CodeBay Team",
     tags: row.tags ?? [],
-    sections: row.sections ?? [],
+    sections: parseBlogPostSections(row.sections),
     isFeatured: row.is_featured ?? false
   };
 }
@@ -118,13 +147,16 @@ export async function fetchBlogEngagementCounts(
 
   const settled = await Promise.all(countRequests);
   const perSlug = 3;
-  type CountResult = { count?: number | null };
   slugs.forEach((slug, i) => {
     const base = i * perSlug;
+    const viewsResult = settled[base];
+    const reactionsResult = settled[base + 1];
+    const commentsResult = settled[base + 2];
+
     result[slug] = {
-      views: (settled[base] as CountResult)?.count ?? 0,
-      reactions: (settled[base + 1] as CountResult)?.count ?? 0,
-      comments: (settled[base + 2] as CountResult)?.count ?? 0
+      views: viewsResult.count ?? 0,
+      reactions: reactionsResult.count ?? 0,
+      comments: commentsResult.count ?? 0
     };
   });
 

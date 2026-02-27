@@ -1,20 +1,13 @@
 import { supabase } from "../../src/lib/supabase";
+import type { Tables, TablesUpdate } from "../supa-schema";
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const normalizeRecordId = (rawId: string) => rawId.trim().replace(/^eq\./i, "");
 
-export type ChatHandoffRecord = {
-  id: string;
-  created_at: string;
-  name: string;
-  email: string;
-  phone: string | null;
-  chat_history: unknown;
-  notes: string | null;
-  archived: boolean | null;
-};
+export type ChatHandoffRecord = Tables<"chat_handoffs">;
+type ChatHandoffArchivedUpdate = Pick<Tables<"chat_handoffs">, "id" | "archived">;
 
 export type GetChatHandoffsResult = {
   data: ChatHandoffRecord[];
@@ -24,15 +17,14 @@ export type GetChatHandoffsResult = {
 export type UpdateChatHandoffArchivedResult = {
   success: boolean;
   error: string | null;
-  data: Pick<ChatHandoffRecord, "id" | "archived"> | null;
+  data: ChatHandoffArchivedUpdate | null;
 };
 
 export async function getChatHandoffs(): Promise<GetChatHandoffsResult> {
   const { data, error } = await supabase
     .from("chat_handoffs")
     .select("id, created_at, name, email, phone, chat_history, notes, archived")
-    .order("created_at", { ascending: false })
-    .returns<ChatHandoffRecord[]>();
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Failed to fetch chat handoffs:", error);
@@ -61,12 +53,12 @@ export async function updateChatHandoffArchived(
     };
   }
 
+  const payload: TablesUpdate<"chat_handoffs"> = { archived };
   const { data, error } = await supabase
     .from("chat_handoffs")
-    .update({ archived })
+    .update(payload)
     .eq("id", normalizedId)
-    .select("id, archived")
-    .returns<Array<Pick<ChatHandoffRecord, "id" | "archived">>>();
+    .select("id, archived");
 
   if (error) {
     console.error("Failed to update chat handoff archived status:", error);
@@ -77,7 +69,7 @@ export async function updateChatHandoffArchived(
     };
   }
 
-  const updatedRow = Array.isArray(data) ? data[0] ?? null : null;
+  const updatedRow = (Array.isArray(data) ? data[0] ?? null : null) as ChatHandoffArchivedUpdate | null;
 
   if (!updatedRow) {
     return {

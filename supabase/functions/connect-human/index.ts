@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import type { Database, TablesInsert } from "../../supa-schema.ts";
 
 type ChatMessage = {
   role: "assistant" | "user";
@@ -139,7 +140,7 @@ const checkRateLimit = (clientKey: string) => {
 
 const supabaseAdmin =
   SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY
-    ? createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+    ? createClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
         auth: {
           persistSession: false,
           autoRefreshToken: false,
@@ -266,13 +267,15 @@ serve(async (req) => {
       });
     }
 
-    const { error } = await supabaseAdmin.from("chat_handoffs").insert({
+    const handoffInsert: TablesInsert<"chat_handoffs"> = {
       name: normalizedName,
       email: normalizedEmail,
       phone: normalizedPhone.length > 0 ? normalizedPhone : null,
       notes: normalizedNotes.length > 0 ? normalizedNotes : null,
-      chat_history: messages,
-    });
+      chat_history: messages
+    };
+
+    const { error } = await supabaseAdmin.from("chat_handoffs").insert(handoffInsert);
 
     if (error) {
       console.error("Insert error:", error);

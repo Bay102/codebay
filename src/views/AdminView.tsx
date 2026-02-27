@@ -101,7 +101,7 @@ const AdminView = () => {
   );
 
   const handleToggleArchived = useCallback(
-    async (handoffId: string, currentArchived: boolean | null) => {
+    async (handoffId: string, currentArchived: boolean) => {
       const nextArchived = currentArchived !== true;
       setActionError(null);
       setUpdatingArchivedById((prev) => ({ ...prev, [handoffId]: true }));

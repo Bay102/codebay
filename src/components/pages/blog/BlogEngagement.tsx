@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import type { Tables, TablesInsert } from "@/lib/database";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,17 +16,7 @@ interface BlogEngagementProps {
   slug: string;
 }
 
-interface ReactionRow {
-  reaction_type: string;
-  response: ReactionResponse | null;
-}
-
-interface CommentRow {
-  id: string;
-  author_name: string | null;
-  body: string;
-  created_at: string;
-}
+type CommentRow = Pick<Tables<"blog_post_comments">, "id" | "author_name" | "body" | "created_at">;
 
 const reactionOptions: { type: ReactionType; label: string }[] = [
   { type: "like", label: "Helpful" },
@@ -114,16 +105,16 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
           insightful: { up: 0, down: 0 },
           love: { up: 0, down: 0 }
         };
-        (reactionsResult.data as ReactionRow[] | null | undefined)?.forEach((row) => {
+        (reactionsResult.data ?? []).forEach((row) => {
           const type = row.reaction_type as ReactionType;
-          const response: ReactionResponse = row.response ?? "up";
+          const response: ReactionResponse = row.response === "down" ? "down" : "up";
           if (type in nextReactionCounts) {
             nextReactionCounts[type][response] += 1;
           }
         });
         setReactionCounts(nextReactionCounts);
 
-        setComments((commentsResult.data as CommentRow[] | null | undefined) ?? []);
+        setComments((commentsResult.data ?? []) as CommentRow[]);
         setCurrentPage(1);
       }
 
@@ -131,7 +122,8 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
 
       // Record this view after initial load so the count reflects prior views.
       setIsRecordingView(true);
-      const { error: recordError } = await supabase.from("blog_post_views").insert({ slug });
+      const viewInsert: TablesInsert<"blog_post_views"> = { slug };
+      const { error: recordError } = await supabase.from("blog_post_views").insert(viewInsert);
       setIsRecordingView(false);
 
       if (!recordError && isMounted) {
@@ -152,9 +144,14 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
     setReactionSubmitting(type);
     setError(null);
 
+    const reactionInsert: TablesInsert<"blog_post_reactions"> = {
+      slug,
+      reaction_type: type,
+      response
+    };
     const { error: insertError } = await supabase
       .from("blog_post_reactions")
-      .insert({ slug, reaction_type: type, response });
+      .insert(reactionInsert);
 
     reactionInProgressRef.current = false;
     setReactionSubmitting(null);
@@ -188,7 +185,7 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
     setIsSubmittingComment(true);
     setError(null);
 
-    const payload = {
+    const payload: TablesInsert<"blog_post_comments"> = {
       slug,
       author_name: commentAuthor.trim() || null,
       body: commentBody.trim()
@@ -198,7 +195,7 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
       .from("blog_post_comments")
       .insert(payload)
       .select("id,author_name,body,created_at")
-      .single<CommentRow>();
+      .single();
 
     setIsSubmittingComment(false);
 
