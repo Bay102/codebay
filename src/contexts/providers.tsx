@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ConnectFormProvider } from "@/contexts/ConnectFormContext";
 
 interface ProvidersProps {
@@ -11,7 +12,9 @@ interface ProvidersProps {
 export function Providers({ children }: ProvidersProps) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" storageKey="codebay-theme">
-      <ConnectFormProvider>{children}</ConnectFormProvider>
+      <AuthProvider>
+        <ConnectFormProvider>{children}</ConnectFormProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

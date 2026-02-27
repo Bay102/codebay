@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       blog_post_comments: {
         Row: {
+          author_id: string | null
           author_name: string | null
           body: string
           created_at: string
@@ -24,6 +25,7 @@ export type Database = {
           slug: string
         }
         Insert: {
+          author_id?: string | null
           author_name?: string | null
           body: string
           created_at?: string
@@ -32,6 +34,7 @@ export type Database = {
           slug: string
         }
         Update: {
+          author_id?: string | null
           author_name?: string | null
           body?: string
           created_at?: string
@@ -40,6 +43,13 @@ export type Database = {
           slug?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "blog_post_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "blog_post_comments_slug_fkey"
             columns: ["slug"]
@@ -56,6 +66,7 @@ export type Database = {
           reaction_type: string
           response: string
           slug: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -63,6 +74,7 @@ export type Database = {
           reaction_type: string
           response?: string
           slug: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -70,6 +82,7 @@ export type Database = {
           reaction_type?: string
           response?: string
           slug?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -78,6 +91,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "blog_posts"
             referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "blog_post_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -109,6 +129,7 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          author_id: string | null
           author_name: string
           created_at: string | null
           description: string | null
@@ -125,6 +146,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          author_id?: string | null
           author_name?: string
           created_at?: string | null
           description?: string | null
@@ -141,6 +163,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          author_id?: string | null
           author_name?: string
           created_at?: string | null
           description?: string | null
@@ -156,7 +179,15 @@ export type Database = {
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_handoffs: {
         Row: {
@@ -191,6 +222,42 @@ export type Database = {
         }
         Relationships: []
       }
+      community_users: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          updated_at: string
+          user_type: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          updated_at?: string
+          user_type?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_type?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -199,7 +266,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      UserTypes:
+        | "admin"
+        | "client"
+        | "community_member"
+        | "developer"
+        | "sales_team"
+        | "staff"
+        | "blogger"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -326,6 +400,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      UserTypes: [
+        "admin",
+        "client",
+        "community_member",
+        "developer",
+        "sales_team",
+        "staff",
+        "blogger",
+      ],
+    },
   },
 } as const

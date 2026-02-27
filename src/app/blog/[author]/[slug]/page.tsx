@@ -9,8 +9,13 @@ const siteUrl = "https://codebay.dev";
 
 export const dynamic = "force-dynamic";
 
+type BlogPostPageParams = {
+  author: string;
+  slug: string;
+};
+
 type BlogPostPageProps = {
-  params: Promise<{ slug: string }>;
+  params: Promise<BlogPostPageParams>;
 };
 
 function formatPublishedDate(date: string): string {
@@ -19,6 +24,16 @@ function formatPublishedDate(date: string): string {
     day: "numeric",
     year: "numeric"
   }).format(new Date(date));
+}
+
+function buildAuthorSegment(authorName: string): string {
+  const base = authorName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return base || "author";
 }
 
 export async function generateMetadata(
@@ -34,16 +49,18 @@ export async function generateMetadata(
     };
   }
 
+  const authorSegment = buildAuthorSegment(post.authorName);
+
   return {
     title: post.title,
     description: post.description,
     keywords: post.tags,
     alternates: {
-      canonical: `/blog/${post.slug}`
+      canonical: `/blog/${authorSegment}/${post.slug}`
     },
     openGraph: {
       type: "article",
-      url: `/blog/${post.slug}`,
+      url: `/blog/${authorSegment}/${post.slug}`,
       title: post.title,
       description: post.description,
       publishedTime: post.publishedAt,
@@ -71,6 +88,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   const allPosts = await fetchPublishedBlogPosts();
   const relatedPosts = allPosts.filter((candidate) => candidate.slug !== post.slug).slice(0, 2);
+  const authorSegment = buildAuthorSegment(post.authorName);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -90,7 +108,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${siteUrl}/blog/${post.slug}`
+      "@id": `${siteUrl}/blog/${authorSegment}/${post.slug}`
     },
     keywords: post.tags.join(", ")
   };
@@ -172,10 +190,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               {relatedPosts.map((relatedPost) => (
                 <Link
                   key={relatedPost.slug}
-                  href={`/blog/${relatedPost.slug}`}
+                  href={`/blog/${buildAuthorSegment(relatedPost.authorName)}/${relatedPost.slug}`}
                   className="rounded-xl border border-border/80 bg-background/70 p-4 transition-colors hover:border-primary/40"
                 >
-                  <p className="text-sm text-muted-foreground">{formatPublishedDate(relatedPost.publishedAt)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatPublishedDate(relatedPost.publishedAt)}
+                  </p>
                   <p className="mt-1 font-medium text-foreground">{relatedPost.title}</p>
                 </Link>
               ))}
@@ -187,3 +207,4 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     </>
   );
 }
+

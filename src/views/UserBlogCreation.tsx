@@ -51,7 +51,7 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-const AdminBlogView = () => {
+const UserBlogCreation = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -154,6 +154,11 @@ const AdminBlogView = () => {
     setSubmitError(null);
     setSubmitSuccess(null);
 
+    if (!session) {
+      setSubmitError("You must be signed in to create a blog post.");
+      return;
+    }
+
     if (!form.title.trim()) {
       setSubmitError("Title is required.");
       return;
@@ -184,27 +189,48 @@ const AdminBlogView = () => {
       sectionBody.length === 0
         ? []
         : sectionBody
-            .split(/\n{2,}/)
-            .map((paragraph) => paragraph.trim())
-            .filter((paragraph) => paragraph.length > 0);
+          .split(/\n{2,}/)
+          .map((paragraph) => paragraph.trim())
+          .filter((paragraph) => paragraph.length > 0);
 
     const sections =
       paragraphs.length > 0
         ? [
-            {
-              heading: sectionHeading,
-              paragraphs
-            }
-          ]
+          {
+            heading: sectionHeading,
+            paragraphs
+          }
+        ]
         : [];
 
     setIsSubmitting(true);
+
+    const { data: existingProfile, error: profileError } = await supabase
+      .from("community_users")
+      .select("id")
+      .eq("id", session.user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      setIsSubmitting(false);
+      setSubmitError(profileError.message ?? "Unable to verify your community profile.");
+      return;
+    }
+
+    if (!existingProfile) {
+      setIsSubmitting(false);
+      setSubmitError(
+        "You need a CodeBay community profile before publishing posts. Visit /community/join to create one."
+      );
+      return;
+    }
 
     const payload: TablesInsert<"blog_posts"> = {
       slug: normalizedSlug,
       title: form.title.trim(),
       description: form.description.trim() || null,
       excerpt: form.excerpt.trim() || null,
+      author_id: session.user.id,
       author_name: form.authorName.trim() || "CodeBay Team",
       read_time_minutes: safeReadTime,
       tags,
@@ -255,10 +281,10 @@ const AdminBlogView = () => {
         <header className="glass-nav flex flex-col justify-between gap-4 rounded-2xl border border-border/60 p-5 sm:p-6 md:flex-row md:items-end">
           <div className="space-y-2">
             <p className="text-primary/80 text-xs font-semibold tracking-[0.16em] uppercase">
-              Admin Blog
+              New Blog Post
             </p>
             <h1 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
-              Create article
+              Create Blog Post
             </h1>
             <p className="text-sm text-muted-foreground">
               Draft and publish blog posts that power the public blog at{" "}
@@ -273,12 +299,6 @@ const AdminBlogView = () => {
               Signed in as {session.user.email ?? "authenticated user"}
             </p>
             <div className="flex gap-2">
-              <Link
-                href="/admin/leads"
-                className="inline-flex items-center rounded-full border border-border/70 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70"
-              >
-                Leads dashboard
-              </Link>
               <Button
                 type="button"
                 variant="secondary"
@@ -452,5 +472,5 @@ const AdminBlogView = () => {
   );
 };
 
-export default AdminBlogView;
+export default UserBlogCreation;
 
