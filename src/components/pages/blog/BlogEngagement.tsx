@@ -52,8 +52,9 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
   const [areCommentsVisible, setAreCommentsVisible] = useState(false);
+
+  const pageSize = 5;
 
   useEffect(() => {
     if (typeof window === "undefined") return;
