@@ -19,8 +19,13 @@ export function CommunityDashboardActions() {
   };
 
   return (
-    <Button type="button" variant="outline" onClick={() => void handleSignOut()} disabled={isSigningOut}>
-      {isSigningOut ? "Signing out..." : "Sign out"}
-    </Button>
+    <div className="flex items-center gap-3">
+      <Button type="button" size="sm" onClick={() => router.push("/user/blog")}>
+        Create blog post
+      </Button>
+      <Button type="button" variant="outline" size="sm" onClick={() => void handleSignOut()} disabled={isSigningOut}>
+        {isSigningOut ? "Signing out..." : "Sign out"}
+      </Button>
+    </div>
   );
 }

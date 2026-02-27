@@ -86,18 +86,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "blog_post_reactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "community_users"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "blog_post_reactions_slug_fkey"
             columns: ["slug"]
             isOneToOne: false
             referencedRelation: "blog_posts"
             referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "blog_post_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -189,39 +189,6 @@ export type Database = {
           },
         ]
       }
-      community_users: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string
-          email: string
-          id: string
-          name: string
-          updated_at: string
-          username: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string
-          email: string
-          id: string
-          name: string
-          updated_at?: string
-          username: string
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          name?: string
-          updated_at?: string
-          username?: string
-        }
-        Relationships: []
-      }
       chat_handoffs: {
         Row: {
           archived: boolean
@@ -252,6 +219,39 @@ export type Database = {
           name?: string
           notes?: string | null
           phone?: string | null
+        }
+        Relationships: []
+      }
+      community_users: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          updated_at: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          id: string
+          name: string
+          updated_at?: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          username?: string
         }
         Relationships: []
       }

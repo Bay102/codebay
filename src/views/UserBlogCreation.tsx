@@ -51,7 +51,7 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-const AdminBlogView = () => {
+const UserBlogCreation = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -453,5 +453,5 @@ const AdminBlogView = () => {
   );
 };
 
-export default AdminBlogView;
+export default UserBlogCreation;
 
