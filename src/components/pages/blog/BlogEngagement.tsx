@@ -62,6 +62,7 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
+  const [areCommentsVisible, setAreCommentsVisible] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -320,58 +321,82 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
         </div>
 
         <div className="mt-6 border-t border-border/70 pt-6">
-          <div className="space-y-4">
-            {visibleComments.map((comment) => (
-              <div
-                key={comment.id}
-                className="rounded-xl border border-border/70 bg-background/70 p-4 text-sm"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className="font-medium text-foreground">
-                    {comment.author_name || "Reader"}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatShortDateTime(comment.created_at)}
-                  </p>
-                </div>
-                <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-                  {comment.body}
-                </p>
-              </div>
-            ))}
-            {!isLoading && comments.length === 0 ? (
-              <p className="text-xs text-muted-foreground">
-                No comments yet. Be the first to share your thoughts.
-              </p>
-            ) : null}
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Comments
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-7 px-3 text-xs"
+              onClick={() => setAreCommentsVisible((visible) => !visible)}
+              aria-expanded={areCommentsVisible}
+            >
+              {areCommentsVisible
+                ? "Hide comments"
+                : comments.length > 0
+                  ? `Show comments (${comments.length})`
+                  : "Show comments"}
+            </Button>
           </div>
 
-          {totalPages > 1 ? (
-            <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="h-7 px-2 text-xs"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-              >
-                Previous
-              </Button>
-              <span>
-                Page {currentPage} of {totalPages}
-              </span>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                className="h-7 px-2 text-xs"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-              >
-                Next
-              </Button>
-            </div>
+          {areCommentsVisible ? (
+            <>
+              <div className="mt-4 space-y-4">
+                {visibleComments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="rounded-xl border border-border/70 bg-background/70 p-4 text-sm"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium text-foreground">
+                        {comment.author_name || "Reader"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatShortDateTime(comment.created_at)}
+                      </p>
+                    </div>
+                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                      {comment.body}
+                    </p>
+                  </div>
+                ))}
+                {!isLoading && comments.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">
+                    No comments yet. Be the first to share your thoughts.
+                  </p>
+                ) : null}
+              </div>
+
+              {totalPages > 1 ? (
+                <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <span>
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2 text-xs"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
+              ) : null}
+            </>
           ) : null}
 
           <Collapsible className="mt-6">
