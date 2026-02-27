@@ -48,6 +48,16 @@ function formatPublishedDate(date: string): string {
   }).format(new Date(date));
 }
 
+function buildAuthorSegment(authorName: string): string {
+  const base = authorName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return base || "author";
+}
+
 function EngagementLine({ counts }: { counts: BlogEngagementCounts }) {
   const parts: string[] = [];
   if (counts.views > 0) parts.push(`${counts.views.toLocaleString()} views`);
@@ -79,7 +89,7 @@ function buildBlogSchema(posts: Awaited<ReturnType<typeof fetchPublishedBlogPost
       description: post.description,
       datePublished: post.publishedAt,
       dateModified: post.updatedAt,
-      url: `${blogUrl}/${post.slug}`,
+      url: `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`,
       author: {
         "@type": "Organization",
         name: post.authorName
@@ -193,7 +203,7 @@ export default async function BlogPage({
             <section className="mt-12">
               <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured post</h2>
               <Link
-                href={`/blog/${featuredPost.slug}`}
+                href={`/blog/${buildAuthorSegment(featuredPost.authorName)}/${featuredPost.slug}`}
                 className="mt-4 block rounded-3xl border border-border/70 bg-card px-6 py-7 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:px-8 sm:py-8 md:px-10"
                 aria-label={`Read featured article: ${featuredPost.title}`}
               >
@@ -233,7 +243,7 @@ export default async function BlogPage({
               {latestPosts.map((post) => (
                 <Link
                   key={post.slug}
-                  href={`/blog/${post.slug}`}
+                  href={`/blog/${buildAuthorSegment(post.authorName)}/${post.slug}`}
                   className="rounded-2xl border border-border/70 bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:p-6"
                   aria-label={`Read article: ${post.title}`}
                 >
