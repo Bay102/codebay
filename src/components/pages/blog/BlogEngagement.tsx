@@ -322,7 +322,7 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
 
         <div className="mt-6 border-t border-border/70 pt-6">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground">
               Comments
             </p>
             <Button

@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { blogPostsByDate } from "@/content/blogPosts";
+import { fetchPublishedBlogPosts } from "@/lib/blog";
 
 const siteUrl = "https://codebay.dev";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${siteUrl}/`,
@@ -19,12 +19,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   ];
 
-  const blogRoutes: MetadataRoute.Sitemap = blogPostsByDate.map((post) => ({
-    url: `${siteUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.updatedAt),
-    changeFrequency: "monthly",
-    priority: 0.8
-  }));
+  try {
+    const posts = await fetchPublishedBlogPosts();
 
-  return [...staticRoutes, ...blogRoutes];
+    const blogRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
+      url: `${siteUrl}/blog/${post.slug}`,
+      lastModified: new Date(post.updatedAt),
+      changeFrequency: "monthly",
+      priority: 0.8
+    }));
+
+    return [...staticRoutes, ...blogRoutes];
+  } catch {
+    return staticRoutes;
+  }
 }
