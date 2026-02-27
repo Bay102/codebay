@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Tables, TablesInsert } from "@/lib/database";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -33,6 +33,7 @@ function formatShortDateTime(value: string): string {
 }
 
 export function BlogEngagement({ slug }: BlogEngagementProps) {
+  const { supabase, session, isLoading: isAuthLoading } = useAuth();
   const [viewCount, setViewCount] = useState<number | null>(null);
   const [reactionCounts, setReactionCounts] = useState<
     Record<ReactionType, { up: number; down: number }>
@@ -47,7 +48,6 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
   const [reactionSubmitting, setReactionSubmitting] = useState<ReactionType | null>(null);
   const reactionInProgressRef = useRef(false);
   const [hasReacted, setHasReacted] = useState(false);
-  const [commentAuthor, setCommentAuthor] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,9 +137,13 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
     return () => {
       isMounted = false;
     };
-  }, [slug]);
+  }, [slug, supabase]);
 
   const handleReact = async (type: ReactionType, response: ReactionResponse) => {
+    if (!session) {
+      setError("Sign in to the CodeBay community to react.");
+      return;
+    }
     if (hasReacted || reactionInProgressRef.current) return;
     reactionInProgressRef.current = true;
     setReactionSubmitting(type);
@@ -148,7 +152,8 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
     const reactionInsert: TablesInsert<"blog_post_reactions"> = {
       slug,
       reaction_type: type,
-      response
+      response,
+      user_id: session.user.id
     };
     const { error: insertError } = await supabase
       .from("blog_post_reactions")
@@ -179,6 +184,10 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
 
   const handleSubmitComment = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!session) {
+      setError("Sign in to the CodeBay community to comment.");
+      return;
+    }
     if (!commentBody.trim()) {
       return;
     }
@@ -188,7 +197,11 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
 
     const payload: TablesInsert<"blog_post_comments"> = {
       slug,
-      author_name: commentAuthor.trim() || null,
+      author_id: session.user.id,
+      author_name:
+        typeof session.user.user_metadata.name === "string"
+          ? session.user.user_metadata.name
+          : session.user.email ?? "Community Member",
       body: commentBody.trim()
     };
 
@@ -294,7 +307,7 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
                         variant="outline"
                         className="h-8 flex-1 text-xs"
                         onClick={() => void handleReact(option.type, "up")}
-                        disabled={reactionSubmitting !== null || isLoading}
+                        disabled={reactionSubmitting !== null || isLoading || isAuthLoading || !session}
                         aria-label={`Mark this article as ${option.label.toLowerCase()}`}
                       >
                         👍 Yes
@@ -305,7 +318,7 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
                         variant="ghost"
                         className="h-8 flex-1 text-xs"
                         onClick={() => void handleReact(option.type, "down")}
-                        disabled={reactionSubmitting !== null || isLoading}
+                        disabled={reactionSubmitting !== null || isLoading || isAuthLoading || !session}
                         aria-label={`This article was not ${option.label.toLowerCase().replace(" it", "")}`}
                       >
                         👎 No
@@ -317,6 +330,15 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
             })}
           </div>
         </div>
+        {!session ? (
+          <p className="mt-4 text-xs text-muted-foreground">
+            Reactions and comments are available for community members.{" "}
+            <Link href="/community" className="text-primary underline-offset-4 hover:underline">
+              Join or sign in
+            </Link>
+            .
+          </p>
+        ) : null}
 
         <div className="mt-6 border-t border-border/70 pt-6">
           <div className="flex items-center justify-between gap-2">
@@ -397,20 +419,20 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
             </>
           ) : null}
 
-          <Collapsible className="mt-6">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-medium text-muted-foreground">
-                Leave a comment
-              </p>
-              <CollapsibleTrigger asChild>
-                <Button type="button" size="sm" variant="outline" className="h-7 px-3 text-xs">
-                  Write a comment
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent className="mt-3">
-              <form className="space-y-3" onSubmit={(event) => void handleSubmitComment(event)}>
-                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_160px]">
+          {session ? (
+            <Collapsible className="mt-6">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs font-medium text-muted-foreground">
+                  Leave a comment
+                </p>
+                <CollapsibleTrigger asChild>
+                  <Button type="button" size="sm" variant="outline" className="h-7 px-3 text-xs">
+                    Write a comment
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+              <CollapsibleContent className="mt-3">
+                <form className="space-y-3" onSubmit={(event) => void handleSubmitComment(event)}>
                   <div className="space-y-2">
                     <Label htmlFor="comment-body">Your comment</Label>
                     <Textarea
@@ -421,30 +443,19 @@ export function BlogEngagement({ slug }: BlogEngagementProps) {
                       rows={3}
                     />
                   </div>
-                  <div className="flex flex-col justify-between gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="comment-author">Name (optional)</Label>
-                      <Input
-                        id="comment-author"
-                        value={commentAuthor}
-                        onChange={(event) => setCommentAuthor(event.target.value)}
-                        placeholder="Your name"
-                      />
-                    </div>
-                    <Button type="submit" size="sm" disabled={isSubmittingComment || !commentBody.trim()}>
-                      {isSubmittingComment ? "Posting..." : "Post comment"}
-                    </Button>
-                  </div>
-                </div>
-              </form>
+                  <Button type="submit" size="sm" disabled={isSubmittingComment || !commentBody.trim()}>
+                    {isSubmittingComment ? "Posting..." : "Post comment"}
+                  </Button>
+                </form>
 
-              {error ? (
-                <p className="mt-3 text-xs text-destructive">
-                  {error}
-                </p>
-              ) : null}
-            </CollapsibleContent>
-          </Collapsible>
+                {error ? (
+                  <p className="mt-3 text-xs text-destructive">
+                    {error}
+                  </p>
+                ) : null}
+              </CollapsibleContent>
+            </Collapsible>
+          ) : null}
         </div>
       </div>
     </section>

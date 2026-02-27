@@ -205,6 +205,7 @@ const AdminBlogView = () => {
       title: form.title.trim(),
       description: form.description.trim() || null,
       excerpt: form.excerpt.trim() || null,
+      author_id: session.user.id,
       author_name: form.authorName.trim() || "CodeBay Team",
       read_time_minutes: safeReadTime,
       tags,

@@ -21,7 +21,7 @@ const resources: ResourceItem[] = [
     title: "Blog",
     description: "Practical guides, patterns, and lessons from production",
     count: "Weekly posts",
-    href: "/blog"
+    href: "/community"
   },
   {
     icon: Video,
@@ -33,7 +33,8 @@ const resources: ResourceItem[] = [
     icon: Users,
     title: "Community",
     description: "Discord, office hours, and events for AI builders",
-    count: "Growing"
+    count: "Growing",
+    href: "/community"
   },
   {
     icon: Brain,
