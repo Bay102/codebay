@@ -1,0 +1,22 @@
+---
+description: Encourage splitting large pages/components into well-organized, colocated files
+globs: |
+  **/*.tsx
+  app/**/*
+  src/components/**/*
+alwaysApply: false
+---
+
+# Component & Page Organization
+
+- **Prefer small, focused files**: When creating new pages or large UI features, break the UI down into multiple focused components instead of a single very large file.
+
+- **Extract reusable pieces**: If part of a page is conceptually distinct (e.g. hero section, sidebar, CTA block, table, form), extract it into its own component file.
+
+- **Follow existing folder structure**: When extracting components, place them alongside similar files, following the current project structure and naming conventions (e.g. keep page-specific components under the same `pages`/`sections`/feature folder, and shared components under `components`).
+
+- **Co-locate by feature**: Prefer organizing components by feature or page (e.g. `components/pages/blog/`) rather than only by technical type whenever it matches the existing structure.
+
+- **Avoid “god components”**: If a single file grows beyond ~200–250 lines or requires you to constantly scroll to understand it, consider extracting logical sections into separate component files.
+
+- **Keep file names descriptive**: Name extracted components after their domain role (e.g. `BlogHero.tsx`, `PricingTable.tsx`, `OnboardingSidebar.tsx`) instead of generic names like `Section.tsx` or `Block.tsx`.
