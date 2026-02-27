@@ -21,6 +21,18 @@ const Footer = () => {
           >
             Blog
           </Link>
+          <Link
+            href="/community"
+            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Community
+          </Link>
+          <Link
+            href="/community/dashboard"
+            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Community Dashboard
+          </Link>
           <button
             type="button"
             onClick={() => setIsPrivacyOpen(true)}
@@ -28,12 +40,6 @@ const Footer = () => {
           >
             Privacy
           </button>
-          <a
-            href="#"
-            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Careers
-          </a>
           <button
             type="button"
             onClick={openConnectForm}

@@ -11,30 +11,30 @@ interface ResourceItem {
 
 const resources: ResourceItem[] = [
   {
-    icon: FileText,
-    title: "Case Studies",
-    description: "Real-world examples from MVPs to enterprise systems",
-    count: "15+ projects"
+    icon: Users,
+    title: "Community",
+    description: "Discord, office hours, and events for AI builders",
+    count: "Growing",
+    href: "/community"
   },
   {
     icon: BookOpen,
     title: "Blog",
     description: "Practical guides, patterns, and lessons from production",
     count: "Weekly posts",
-    href: "/community"
+    href: "/blog"
+  },
+  {
+    icon: FileText,
+    title: "Case Studies",
+    description: "Real-world examples from MVPs to enterprise systems",
+    count: "15+ projects"
   },
   {
     icon: Video,
     title: "Tech Talks",
     description: "Live workshops and demos on AI-powered workflows",
     count: "Coming soon"
-  },
-  {
-    icon: Users,
-    title: "Community",
-    description: "Discord, office hours, and events for AI builders",
-    count: "Growing",
-    href: "/community"
   },
   {
     icon: Brain,
