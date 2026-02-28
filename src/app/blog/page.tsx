@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { fetchPublishedBlogPosts, fetchBlogEngagementCounts, type BlogEngagementCounts } from "@/lib/blog";
+import type { BlogPost } from "@/lib/blog";
 import Footer from "@/components/Footer";
+import { BlogFilterBar } from "@/components/pages/blog/BlogFilterBar";
 
 const siteUrl = "https://codebay.dev";
 const blogUrl = `${siteUrl}/blog`;
@@ -100,7 +103,21 @@ function buildBlogSchema(posts: Awaited<ReturnType<typeof fetchPublishedBlogPost
 
 type BlogPageSearchParams = {
   tag?: string | string[];
+  q?: string | string[];
 };
+
+function matchesSearch(post: BlogPost, query: string): boolean {
+  if (!query.trim()) return true;
+  const terms = query
+    .toLowerCase()
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const searchable = [post.title, post.excerpt, post.description, ...post.tags]
+    .join(" ")
+    .toLowerCase();
+  return terms.every((term) => searchable.includes(term));
+}
 
 export default async function BlogPage({
   searchParams
@@ -121,11 +138,15 @@ export default async function BlogPage({
 
   const rawTag = resolvedSearchParams.tag;
   const activeTag = Array.isArray(rawTag) ? rawTag[0] : rawTag ?? "";
+  const rawQuery = resolvedSearchParams.q;
+  const searchQuery = Array.isArray(rawQuery) ? rawQuery[0] : rawQuery ?? "";
 
-  const filteredPosts =
+  const tagFiltered =
     activeTag && allTags.includes(activeTag)
       ? posts.filter((post) => post.tags.includes(activeTag))
       : posts;
+
+  const filteredPosts = tagFiltered.filter((post) => matchesSearch(post, searchQuery));
 
   const featuredPost = filteredPosts.find((post) => post.isFeatured) ?? filteredPosts[0];
   const latestPosts = featuredPost
@@ -154,41 +175,22 @@ export default async function BlogPage({
           </section>
 
           {allTags.length > 0 ? (
-            <section className="mt-8">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Filter by tag</h2>
-                {activeTag ? (
-                  <Link
-                    href="/blog"
-                    className="text-xs text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
-                  >
-                    Clear filter
-                  </Link>
-                ) : null}
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {allTags.map((tag) => {
-                  const isActive = tag === activeTag;
-                  return (
-                    <Link
-                      key={tag}
-                      href={isActive ? "/blog" : `/blog?tag=${encodeURIComponent(tag)}`}
-                      className={`rounded-full border px-3 py-1 text-xs transition-colors ${
-                        isActive
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border/80 bg-secondary/60 text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                      }`}
-                      aria-label={isActive ? `Remove filter for ${tag}` : `Filter posts by ${tag}`}
-                    >
-                      {tag}
-                    </Link>
-                  );
-                })}
-              </div>
-            </section>
+            <Suspense fallback={<div className="mt-6 h-9 animate-pulse rounded-md bg-muted/50" />}>
+              <BlogFilterBar tags={allTags} />
+            </Suspense>
           ) : null}
 
-          {featuredPost ? (
+          {filteredPosts.length === 0 ? (
+            <section className="mt-12">
+              <p className="text-muted-foreground">
+                No articles match your filters. Try a different search or{" "}
+                <Link href="/blog" className="text-primary underline-offset-4 hover:underline">
+                  clear filters
+                </Link>
+                .
+              </p>
+            </section>
+          ) : featuredPost ? (
             <section className="mt-12">
               <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured post</h2>
               <Link
@@ -226,32 +228,34 @@ export default async function BlogPage({
             </section>
           ) : null}
 
-          <section className="mt-12">
-            <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Latest articles</h2>
-            <div className="mt-4 grid gap-5 md:grid-cols-2">
-              {latestPosts.map((post) => (
-                <Link
-                  key={post.slug}
-                  href={`/blog/${buildAuthorSegment(post.authorName)}/${post.slug}`}
-                  className="rounded-2xl border border-border/70 bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:p-6"
-                  aria-label={`Read article: ${post.title}`}
-                >
-                  <article>
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                      <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt)}</time>
-                      <span aria-hidden="true">-</span>
-                      <span>{post.readTimeMinutes} min read</span>
-                    </div>
-                    <div className="mt-2">
-                      <EngagementLine counts={engagementCounts[post.slug]!} />
-                    </div>
-                    <h3 className="mt-3 text-xl font-semibold leading-tight text-foreground">{post.title}</h3>
-                    <p className="mt-3 text-base leading-8 text-muted-foreground">{post.excerpt}</p>
-                  </article>
-                </Link>
-              ))}
-            </div>
-          </section>
+          {filteredPosts.length > 0 ? (
+            <section className="mt-12">
+              <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Latest articles</h2>
+              <div className="mt-4 grid gap-5 md:grid-cols-2">
+                {latestPosts.map((post) => (
+                  <Link
+                    key={post.slug}
+                    href={`/blog/${buildAuthorSegment(post.authorName)}/${post.slug}`}
+                    className="rounded-2xl border border-border/70 bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:p-6"
+                    aria-label={`Read article: ${post.title}`}
+                  >
+                    <article>
+                      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                        <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt)}</time>
+                        <span aria-hidden="true">-</span>
+                        <span>{post.readTimeMinutes} min read</span>
+                      </div>
+                      <div className="mt-2">
+                        <EngagementLine counts={engagementCounts[post.slug]!} />
+                      </div>
+                      <h3 className="mt-3 text-xl font-semibold leading-tight text-foreground">{post.title}</h3>
+                      <p className="mt-3 text-base leading-8 text-muted-foreground">{post.excerpt}</p>
+                    </article>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          ) : null}
         </div>
       </main>
       <Footer />
