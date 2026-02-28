@@ -1,9 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Menu, Sparkles } from "lucide-react";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import DesktopNav from "@/components/pages/home/DesktopNav";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
@@ -63,7 +69,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
 
   return (
     <>
-      {/* Top Header - Logo only on mobile, full header on desktop */}
+      {/* Top Header - Logo, section nav, hamburger in one row */}
       <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 lg:px-12 bg-background/95 backdrop-blur-md md:bg-background/80 md:backdrop-blur-sm">
         <div className="max-w-7xl mx-auto flex md:grid md:grid-cols-[1fr_auto_1fr] items-center justify-between md:justify-normal">
           {/* Logo */}
@@ -86,25 +92,39 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
             navLinks={navLinks}
           />
 
-          {/* CTA Buttons */}
+          {/* Header Actions - Hamburger menu */}
           <div className="flex items-center justify-end gap-2 justify-self-end md:col-start-3">
-            <Link
-              href="/blog"
-              className="rounded-full border border-border/80 bg-background/60 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
-            >
-              Blog
-            </Link>
-            <button
-              onClick={openConnectForm}
-              className="gradient-btn px-4 py-2 md:px-5 md:py-2.5 rounded-full text-sm font-medium text-primary-foreground"
-            >
-              Inquire
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Open header menu"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem asChild>
+                  <Link href="/auth">Sign in / Sign up</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/blog">Blog</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/community">Community</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/community/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={openConnectForm}>Inquire</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
 
-      {/* Mobile Navigation - Fixed at top */}
+      {/* Mobile Navigation - Fixed below header */}
       <nav className="fixed top-16 left-0 right-0 z-50 md:hidden">
         <div className="max-w-7xl mx-auto">
           <div ref={mobileNavRef} className="liquid-glass-nav relative px-2 py-1.5 md:rounded-full">

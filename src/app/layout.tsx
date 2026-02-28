@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Providers } from "../contexts/providers";
+import { ConditionalHeader } from "@/components/ConditionalHeader";
 import "../index.css";
 
 export const metadata: Metadata = {
@@ -59,7 +60,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <ConditionalHeader />
+          {children}
+        </Providers>
       </body>
     </html>
   );
