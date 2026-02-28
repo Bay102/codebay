@@ -50,7 +50,7 @@ const SectionContainer = ({ activeSection, direction }: SectionContainerProps) =
   }, [activeSection]);
 
   return (
-    <div className="[grid-area:1/1] relative z-10 h-[100dvh] overflow-hidden bg-background/66 px-3 pt-32 pb-14 backdrop-blur-none md:px-6 md:pt-28 md:pb-16 lg:px-12 dark:bg-background/72 dark:backdrop-blur-none">
+    <div className="[grid-area:1/1] relative z-10 h-[100dvh] overflow-hidden bg-background/66 px-3 pt-28 pb-14 backdrop-blur-none md:px-6 md:pb-16 lg:px-12 dark:bg-background/72 dark:backdrop-blur-none">
       <div className="tech-section-grid pointer-events-none absolute inset-0" aria-hidden="true" />
       <div
         ref={scrollRef}
