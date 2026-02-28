@@ -200,7 +200,7 @@ const ProductsSection = () => {
   }, []);
 
   return (
-    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:pt-0 md:px-8 md:pb-8">
+    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:pt-0 md:px-8 md:pb-0">
       <div
         className={cn(
           "w-full transition-all duration-300",

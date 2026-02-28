@@ -13,17 +13,15 @@ interface HeroProps {
 
 const Hero = ({ activeSection, direction }: HeroProps) => {
   return (
-    <section className="min-h-[100dvh] grid grid-rows-1 overflow-hidden md:min-h-screen">
-      {/* AI-themed Background */}
-      <TechBackground />
+    <section className="min-h-[100dvh] overflow-hidden">
+
+      {/* <TechBackground /> */}
 
       {/* Video background – to restore:
           1. Uncomment effectsEnabled in HeroProps and add to destructuring
           2. In HomeHeroController: <Hero ... effectsEnabled={effectsEnabled} />
           3. Uncomment below and set src 
-      */}
-
-      {/* <VideoBackground
+      <VideoBackground
         src="/path/to/hero-video.mp4"
         overlay
         overlayOpacity={0.4}

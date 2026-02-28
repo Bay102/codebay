@@ -105,7 +105,7 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
       </header>
 
       {/* Mobile Navigation - Fixed at top */}
-      <nav className="fixed top-20 left-0 right-0 z-50 md:hidden">
+      <nav className="fixed top-16 left-0 right-0 z-50 md:hidden">
         <div className="max-w-7xl mx-auto">
           <div ref={mobileNavRef} className="liquid-glass-nav relative px-2 py-1.5 md:rounded-full">
             {/* Sliding indicator */}

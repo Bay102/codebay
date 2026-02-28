@@ -29,7 +29,7 @@ const values = [
 const AboutSection = () => {
   const { openConnectForm } = useConnectForm();
   return (
-    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-5 md:pb-5">
+    <div className="flex w-full min-h-full items-start justify-center px-4 pt-6 pb-10 md:px-8 md:pt-0 md:pb-5">
       <div className="max-w-4xl w-full">
         <div className="text-center mb-12">
           <span className="text-primary text-sm font-medium tracking-wider uppercase">

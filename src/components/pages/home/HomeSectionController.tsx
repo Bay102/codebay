@@ -43,7 +43,7 @@ const HomeSectionController = ({ activeSection, direction }: HomeSectionControll
     <>
       <Hero activeSection={activeSection} direction={direction} />
 
-      <div className="fixed right-4 bottom-3 z-40 flex flex-col items-end gap-2">
+      <div className="fixed right-4 bottom-3 z-[60] flex flex-col items-end gap-2">
         {isOpen && (
           <div className="flex animate-in slide-in-from-bottom-2 fade-in duration-200 flex-col gap-3 rounded-xl border border-border/60 bg-background/95 p-3 shadow-lg backdrop-blur-sm min-w-[180px]">
             {/* Theme selector */}

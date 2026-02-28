@@ -24,7 +24,7 @@ const IndexView = () => {
   );
 
   return (
-    <div className="relative min-h-[100dvh] bg-background">
+    <div>
       <Header activeSection={activeSection} onSectionChange={handleSectionChange} />
       <HomeSectionController activeSection={activeSection} direction={direction} />
       <Footer />
