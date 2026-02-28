@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { CommunityAuthCard } from "@/components/pages/community/CommunityAuthCard";
 
 export const metadata: Metadata = {
@@ -25,18 +24,7 @@ const communityHighlights = [
 
 export default function CommunityJoinPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="text-sm font-semibold tracking-tight text-foreground">
-            CodeBay
-          </Link>
-          <Link href="/community" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Back to community
-          </Link>
-        </div>
-      </header>
-
+    <main className="min-h-screen bg-background pt-20">
       <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
         <div className="rounded-3xl border border-border/60 bg-card/40 px-6 py-8 sm:px-8 sm:py-10 md:px-10">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">Join CodeBay Community</p>

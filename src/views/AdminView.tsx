@@ -189,7 +189,7 @@ const AdminView = () => {
 
   return (
     <>
-      <div className="min-h-[100dvh] bg-background px-4 py-8 sm:px-6 md:px-8 lg:px-12">
+      <div className="min-h-[100dvh] bg-background px-4 pt-20 pb-8 sm:px-6 md:px-8 lg:px-12">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
           <AdminDashboardHeader
             userEmail={session.user.email}

@@ -276,7 +276,7 @@ const UserBlogCreation = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background px-4 py-8 sm:px-6 md:px-8 lg:px-12">
+    <div className="min-h-[100dvh] bg-background px-4 pt-20 pb-8 sm:px-6 md:px-8 lg:px-12">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
         <header className="glass-nav flex flex-col justify-between gap-4 rounded-2xl border border-border/60 p-5 sm:p-6 md:flex-row md:items-end">
           <div className="space-y-2">

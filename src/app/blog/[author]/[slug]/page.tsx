@@ -115,22 +115,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <>
-      <main className="min-h-screen bg-background pb-20">
+      <main className="min-h-screen bg-background pb-20 pt-20">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
         />
-
-        <header className="sticky top-0 z-40 border-b border-border/70 bg-background/95 backdrop-blur-sm">
-          <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-4 sm:px-6 lg:px-8">
-            <Link href="/blog" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-              Back to blog
-            </Link>
-            <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-              Home
-            </Link>
-          </div>
-        </header>
 
         <section className="mx-auto w-full max-w-5xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
           <div className="rounded-3xl border border-border/60 bg-card/40 px-6 py-8 sm:px-8 md:px-10">

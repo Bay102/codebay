@@ -27,12 +27,6 @@ const Footer = () => {
           >
             Community
           </Link>
-          <Link
-            href="/community/dashboard"
-            className="text-xs text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Community Dashboard
-          </Link>
           <button
             type="button"
             onClick={() => setIsPrivacyOpen(true)}
