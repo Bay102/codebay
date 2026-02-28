@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 
@@ -31,6 +32,8 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
     { label: "Products", section: "products" },
     { label: "Resources", section: "resources" },
   ];
+
+  const { session } = useAuth();
 
   const updateMobileIndicator = useCallback(() => {
     const activeButton = mobileButtonRefs.current.get(activeSection);
@@ -106,17 +109,21 @@ const Header = ({ activeSection, onSectionChange }: HeaderProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
                 <DropdownMenuItem asChild>
-                  <Link href="/auth">Sign in / Sign up</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
                   <Link href="/blog">Blog</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/community">Community</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/community/dashboard">Dashboard</Link>
-                </DropdownMenuItem>
+                {session && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/community/dashboard">Dashboard</Link>
+                  </DropdownMenuItem>
+                )}
+                {(!session) && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/auth">Account</Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onSelect={openConnectForm}>Inquire</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

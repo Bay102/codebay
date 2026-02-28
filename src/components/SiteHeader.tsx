@@ -11,9 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function SiteHeader() {
   const { openConnectForm } = useConnectForm();
+  const { session } = useAuth();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 lg:px-12 bg-background/95 backdrop-blur-md md:bg-background/80 md:backdrop-blur-sm">
@@ -48,13 +50,17 @@ export function SiteHeader() {
             <DropdownMenuItem asChild>
               <Link href="/community">Community</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/community/dashboard">Dashboard</Link>
-            </DropdownMenuItem>
             <DropdownMenuItem onSelect={openConnectForm}>Inquire</DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/auth">Sign in / Sign up</Link>
-            </DropdownMenuItem>
+            {session && (
+              <DropdownMenuItem asChild>
+                <Link href="/community/dashboard">Dashboard</Link>
+              </DropdownMenuItem>
+            )}
+            {(!session) && (
+              <DropdownMenuItem asChild>
+                <Link href="/auth">Account</Link>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
