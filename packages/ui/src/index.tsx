@@ -18,3 +18,7 @@ export function PlatformHero({ platformName, description, actionSlot }: Platform
     </section>
   );
 }
+
+export { AppHeader } from "./AppHeader";
+export type { AppHeaderProps, AppHeaderMenuItem } from "./AppHeader";
+export { CodeBayLogo } from "./CodeBayLogo";
