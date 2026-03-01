@@ -15,14 +15,14 @@ const resources: ResourceItem[] = [
     title: "Community",
     description: "Discord, office hours, and events for AI builders",
     count: "Growing",
-    href: "/community"
+    href: "https://codingbay.community"
   },
   {
     icon: BookOpen,
     title: "Blog",
     description: "Practical guides, patterns, and lessons from production",
     count: "Weekly posts",
-    href: "/blog"
+    href: "https://codingbay.blog"
   },
   {
     icon: FileText,
