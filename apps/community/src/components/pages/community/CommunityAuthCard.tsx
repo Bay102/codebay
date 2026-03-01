@@ -245,18 +245,16 @@ export function CommunityAuthCard() {
         <button
           type="button"
           onClick={() => setMode("signup")}
-          className={`rounded-full px-3 py-1.5 transition-colors ${
-            mode === "signup" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`rounded-full px-3 py-1.5 transition-colors ${mode === "signup" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           Create account
         </button>
         <button
           type="button"
           onClick={() => setMode("signin")}
-          className={`rounded-full px-3 py-1.5 transition-colors ${
-            mode === "signin" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
-          }`}
+          className={`rounded-full px-3 py-1.5 transition-colors ${mode === "signin" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
+            }`}
         >
           Sign in
         </button>
@@ -303,7 +301,7 @@ export function CommunityAuthCard() {
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@codebay.dev"
+              placeholder="you@codebay.solutions"
               autoComplete="email"
               required
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
