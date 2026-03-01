@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { SurfaceCard } from "@codebay/ui";
 import { fetchPublishedBlogPosts, fetchBlogEngagementCounts, type BlogEngagementCounts } from "@/lib/blog";
 import type { BlogPost } from "@/lib/blog";
 import { BlogFilterBar } from "@/components/pages/blog/BlogFilterBar";
@@ -135,7 +136,7 @@ export default async function BlogPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }} />
 
       <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
-        <section className="rounded-3xl border border-border/60 bg-card/40 px-6 py-8 sm:px-8 sm:py-10 md:px-10">
+        <SurfaceCard variant="hero">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Engineering</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             Code, systems, and AI: real-world engineering stories
@@ -145,7 +146,7 @@ export default async function BlogPage({
             tutorials, patterns, and opinions across web development, infrastructure, AI tooling, and everything in
             between.
           </p>
-        </section>
+        </SurfaceCard>
 
         {allTags.length > 0 ? (
           <Suspense fallback={<div className="mt-6 h-9 animate-pulse rounded-md bg-muted/50" />}>

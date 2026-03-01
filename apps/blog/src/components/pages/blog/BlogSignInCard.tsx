@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthEmailPasswordForm } from "@codebay/ui";
+import { AuthEmailPasswordForm, SurfaceCard } from "@codebay/ui";
 import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -83,25 +83,25 @@ export function BlogSignInCard() {
 
   if (isCheckingSession) {
     return (
-      <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+      <SurfaceCard variant="panel">
         <p className="text-sm text-muted-foreground">Checking your session...</p>
-      </section>
+      </SurfaceCard>
     );
   }
 
   if (!supabase) {
     return (
-      <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+      <SurfaceCard variant="panel">
         <p className="text-sm text-muted-foreground">
           Blog authentication is unavailable until Supabase environment variables are configured.
         </p>
-      </section>
+      </SurfaceCard>
     );
   }
 
   if (session) {
     return (
-      <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+      <SurfaceCard variant="panel">
         <p className="text-sm font-medium uppercase tracking-wide text-primary">Signed in</p>
         <h2 className="mt-2 text-2xl font-semibold text-foreground">Your blog session is active</h2>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
@@ -114,12 +114,12 @@ export function BlogSignInCard() {
         >
           Continue
         </button>
-      </section>
+      </SurfaceCard>
     );
   }
 
   return (
-    <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+    <SurfaceCard variant="panel">
       <p className="text-sm font-medium uppercase tracking-wide text-primary">Sign in</p>
       <h2 className="mt-2 text-2xl font-semibold text-foreground">Access comments and reactions</h2>
       <p className="mt-3 text-sm leading-7 text-muted-foreground">
@@ -150,6 +150,6 @@ export function BlogSignInCard() {
           {error}
         </p>
       ) : null}
-    </section>
+    </SurfaceCard>
   );
 }

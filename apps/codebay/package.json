@@ -43,6 +43,7 @@
   "@radix-ui/react-tooltip": "^1.2.7",
   "@supabase/ssr": "^0.8.0",
   "@supabase/supabase-js": "^2.98.0",
+  "@codebay/theme": "file:../../packages/theme",
   "@tanstack/react-query": "^5.83.0",
   "@codebay/ui": "file:../../packages/ui",
   "class-variance-authority": "^0.7.1",

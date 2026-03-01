@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
-import { AuthEmailPasswordForm } from "@codebay/ui";
+import { AuthEmailPasswordForm, SurfaceCard } from "@codebay/ui";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import type { TablesInsert } from "@/lib/database";
 import { blogUrl, mainUrl, siteUrl } from "@/lib/site-urls";
@@ -194,25 +194,25 @@ export function CommunityAuthCard() {
 
   if (isCheckingSession) {
     return (
-      <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+      <SurfaceCard variant="panel">
         <p className="text-sm text-muted-foreground">Checking your community session...</p>
-      </section>
+      </SurfaceCard>
     );
   }
 
   if (!supabase) {
     return (
-      <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+      <SurfaceCard variant="panel">
         <p className="text-sm text-muted-foreground">
           Community authentication is unavailable until Supabase environment variables are configured.
         </p>
-      </section>
+      </SurfaceCard>
     );
   }
 
   if (session) {
     return (
-      <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+      <SurfaceCard variant="panel">
         <p className="text-sm font-medium uppercase tracking-wide text-primary">Community Access</p>
         <h2 className="mt-2 text-2xl font-semibold text-foreground">You are already signed in</h2>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
@@ -235,12 +235,12 @@ export function CommunityAuthCard() {
             {isSubmitting ? "Signing out..." : "Sign out"}
           </button>
         </div>
-      </section>
+      </SurfaceCard>
     );
   }
 
   return (
-    <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+    <SurfaceCard variant="panel">
       <div className="mb-6 flex items-center gap-2 rounded-full border border-border/70 p-1 text-xs">
         <button
           type="button"
@@ -373,6 +373,6 @@ export function CommunityAuthCard() {
           {success}
         </p>
       ) : null}
-    </section>
+    </SurfaceCard>
   );
 }

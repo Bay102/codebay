@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SurfaceCard } from "@codebay/ui";
 import { blogUrl } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
@@ -27,7 +28,7 @@ export default function CommunityLandingPage() {
   return (
     <main className="min-h-screen bg-background pt-10 sm:pt-14">
       <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
-        <div className="rounded-3xl border border-border/60 bg-card/40 px-6 py-8 sm:px-8 sm:py-10 md:px-10">
+        <SurfaceCard as="div" variant="hero">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Community</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             Community hub for builders shipping with AI
@@ -50,24 +51,24 @@ export default function CommunityLandingPage() {
               Browse blog posts
             </Link>
           </div>
-        </div>
+        </SurfaceCard>
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           {placeholderSections.map((section) => (
-            <article key={section.title} className="rounded-2xl border border-border/70 bg-card/60 p-5">
+            <SurfaceCard key={section.title} as="article" variant="card">
               <h2 className="text-base font-semibold text-foreground">{section.title}</h2>
               <p className="mt-2 text-sm leading-7 text-muted-foreground">{section.body}</p>
-            </article>
+            </SurfaceCard>
           ))}
         </section>
 
-        <section className="mt-10 rounded-2xl border border-dashed border-border/70 bg-card/40 p-6 sm:p-8">
+        <SurfaceCard className="mt-10" variant="subtle">
           <h2 className="text-base font-semibold text-foreground">Future community surface</h2>
           <p className="mt-2 text-sm leading-7 text-muted-foreground">
             This area will evolve into a richer community experience: personalized activity, saved threads, featured
             posts, and more. For now, it serves as a placeholder so we can wire up navigation and authentication flows.
           </p>
-        </section>
+        </SurfaceCard>
       </section>
     </main>
   );

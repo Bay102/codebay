@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ThemeProvider } from "next-themes";
+import { CodeBayThemeProvider } from "@codebay/theme/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ConnectFormProvider } from "@/contexts/ConnectFormContext";
 
@@ -11,10 +11,10 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" storageKey="codebay-theme">
+    <CodeBayThemeProvider storageKey="codebay-theme-main">
       <AuthProvider>
         <ConnectFormProvider>{children}</ConnectFormProvider>
       </AuthProvider>
-    </ThemeProvider>
+    </CodeBayThemeProvider>
   );
 }
