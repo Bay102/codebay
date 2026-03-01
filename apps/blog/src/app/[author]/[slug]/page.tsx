@@ -1,6 +1,7 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
 import { fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
 import { mainUrl, siteUrl } from "@/lib/site-urls";
 
@@ -157,6 +158,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </article>
       </section>
+
+      <BlogEngagement slug={post.slug} postPath={`/${authorSegment}/${post.slug}`} />
 
       <section className="mx-auto mt-10 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-border/70 bg-card p-6">

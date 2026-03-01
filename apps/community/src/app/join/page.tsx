@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { CommunityAuthCard } from "@/components/pages/community/CommunityAuthCard";
 
 export const metadata: Metadata = {
@@ -47,7 +48,15 @@ export default function CommunityJoinPage() {
         </section>
 
         <section id="community-auth" className="mt-10">
-          <CommunityAuthCard />
+          <Suspense
+            fallback={
+              <section className="rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8">
+                <p className="text-sm text-muted-foreground">Loading community authentication...</p>
+              </section>
+            }
+          >
+            <CommunityAuthCard />
+          </Suspense>
         </section>
       </section>
     </main>

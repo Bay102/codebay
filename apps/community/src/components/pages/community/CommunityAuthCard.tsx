@@ -1,18 +1,54 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { Session } from "@supabase/supabase-js";
+import { AuthEmailPasswordForm } from "@codebay/ui";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import type { TablesInsert } from "@/lib/database";
+import { blogUrl, mainUrl, siteUrl } from "@/lib/site-urls";
 
 type AuthMode = "signup" | "signin";
 
 const usernamePattern = /^[a-z0-9_]{3,32}$/;
+const fallbackRedirectPath = "/dashboard";
+
+const allowedRedirectOrigins = new Set(
+  [siteUrl, blogUrl, mainUrl].map((url) => {
+    try {
+      return new URL(url).origin;
+    } catch {
+      return "";
+    }
+  })
+);
+
+function resolveRedirectDestination(rawRedirect: string | null): string {
+  if (!rawRedirect) {
+    return fallbackRedirectPath;
+  }
+
+  if (rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")) {
+    return rawRedirect;
+  }
+
+  try {
+    const parsed = new URL(rawRedirect);
+    if (allowedRedirectOrigins.has(parsed.origin)) {
+      return parsed.toString();
+    }
+  } catch {
+    return fallbackRedirectPath;
+  }
+
+  return fallbackRedirectPath;
+}
 
 export function CommunityAuthCard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const redirectDestination = resolveRedirectDestination(searchParams.get("redirect"));
 
   const [session, setSession] = useState<Session | null>(null);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
@@ -120,7 +156,7 @@ export function CommunityAuthCard() {
     }
 
     setIsSubmitting(false);
-    router.push("/dashboard");
+    router.push(redirectDestination);
     router.refresh();
   };
 
@@ -143,7 +179,7 @@ export function CommunityAuthCard() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(redirectDestination);
     router.refresh();
   };
 
@@ -186,9 +222,9 @@ export function CommunityAuthCard() {
           <button
             type="button"
             className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push(redirectDestination)}
           >
-            Open dashboard
+            Continue
           </button>
           <button
             type="button"
@@ -315,45 +351,18 @@ export function CommunityAuthCard() {
           </button>
         </form>
       ) : (
-        <form className="space-y-4" onSubmit={(event) => void handleSignIn(event)}>
-          <div className="space-y-2">
-            <label htmlFor="community-signin-email" className="text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="community-signin-email"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="you@codebay.dev"
-              autoComplete="email"
-              required
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            />
-          </div>
-          <div className="space-y-2">
-            <label htmlFor="community-signin-password" className="text-sm font-medium">
-              Password
-            </label>
-            <input
-              id="community-signin-password"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="Enter your password"
-              autoComplete="current-password"
-              required
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            />
-          </div>
-          <button
-            type="submit"
-            className="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Signing in..." : "Sign in to community"}
-          </button>
-        </form>
+        <AuthEmailPasswordForm
+          email={email}
+          password={password}
+          emailId="community-signin-email"
+          passwordId="community-signin-password"
+          submitLabel="Sign in to community"
+          submittingLabel="Signing in..."
+          isSubmitting={isSubmitting}
+          onEmailChange={setEmail}
+          onPasswordChange={setPassword}
+          onSubmit={handleSignIn}
+        />
       )}
 
       {error ? (

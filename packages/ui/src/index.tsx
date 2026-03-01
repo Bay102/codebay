@@ -22,3 +22,5 @@ export function PlatformHero({ platformName, description, actionSlot }: Platform
 export { AppHeader } from "./AppHeader";
 export type { AppHeaderProps, AppHeaderMenuItem } from "./AppHeader";
 export { CodeBayLogo } from "./CodeBayLogo";
+export { AuthEmailPasswordForm } from "./AuthEmailPasswordForm";
+export type { AuthEmailPasswordFormProps } from "./AuthEmailPasswordForm";
