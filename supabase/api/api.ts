@@ -1,4 +1,4 @@
-import { supabase } from "../../src/lib/supabase";
+import { supabase } from "../../apps/codebay/src/lib/supabase";
 import type { Tables, TablesUpdate } from "../supa-schema";
 
 const UUID_REGEX =
