@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CommunityDashboardActions } from "@/components/pages/community/CommunityDashboardActions";
+import { DismissibleNextStepsCard } from "@/components/pages/community/DismissibleNextStepsCard";
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -38,10 +39,12 @@ export default async function CommunityDashboardPage() {
         <div className="rounded-3xl border border-border/70 bg-card/60 px-6 py-7 sm:px-8">
           <h2 className="text-xl font-semibold text-foreground sm:text-2xl">Welcome back</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            This is the initial dashboard scaffold. We will layer in feeds, discussions, badges, and personalized tools
-            next.
+            This is the initial dashboard scaffold. We will layer in feeds, discussions, badges, and
+            personalized tools next.
           </p>
         </div>
+
+        <DismissibleNextStepsCard />
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <article className="rounded-2xl border border-border/70 bg-card/60 p-5">
@@ -51,15 +54,6 @@ export default async function CommunityDashboardPage() {
               <p>Username: {profile?.username ? `@${profile.username}` : "Not set yet"}</p>
               <p>Email: {profile?.email ?? user.email ?? "Not available"}</p>
             </div>
-          </article>
-
-          <article className="rounded-2xl border border-border/70 bg-card/60 p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Next steps</h3>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li>Set up your profile details and preferences.</li>
-              <li>Start a discussion or publish your first community post.</li>
-              <li>Comment on recent blog posts and react to useful content.</li>
-            </ul>
           </article>
         </div>
 
