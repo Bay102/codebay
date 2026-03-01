@@ -44,8 +44,6 @@ export default async function CommunityDashboardPage() {
           </p>
         </div>
 
-        <DismissibleNextStepsCard />
-
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <article className="rounded-2xl border border-border/70 bg-card/60 p-5">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h3>
@@ -55,6 +53,7 @@ export default async function CommunityDashboardPage() {
               <p>Email: {profile?.email ?? user.email ?? "Not available"}</p>
             </div>
           </article>
+          <DismissibleNextStepsCard />
         </div>
 
         <div className="mt-6">
