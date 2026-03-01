@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { CommunityAppHeader } from "@/components/AppHeader";
 import { siteUrl } from "@/lib/site-urls";
 import "./globals.css";
 
@@ -16,7 +17,10 @@ type RootLayoutProps = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <CommunityAppHeader />
+        {children}
+      </body>
     </html>
   );
 }
