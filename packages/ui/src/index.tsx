@@ -24,3 +24,6 @@ export type { AppHeaderProps, AppHeaderMenuItem } from "./AppHeader";
 export { CodeBayLogo } from "./CodeBayLogo";
 export { AuthEmailPasswordForm } from "./AuthEmailPasswordForm";
 export type { AuthEmailPasswordFormProps } from "./AuthEmailPasswordForm";
+export { SurfaceCard } from "./SurfaceCard";
+export { SiteFooter } from "./SiteFooter";
+export type { SiteFooterProps, SiteFooterLinkItem } from "./SiteFooter";
