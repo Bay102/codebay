@@ -18,7 +18,7 @@ function normalizePublicUrl(value: string | undefined, fallback: string): string
 }
 
 const siteUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_SITE_URL, "https://codingbay.blog");
-const mainUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_MAIN_URL, "https://codebay.dev");
+const mainUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_MAIN_URL, "https://codebay.solutions");
 const communityUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_COMMUNITY_URL, "https://codingbay.community");
 
 export { siteUrl, mainUrl, communityUrl };

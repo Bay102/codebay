@@ -17,7 +17,7 @@ function normalizePublicUrl(value: string | undefined, fallback: string): string
   }
 }
 
-const siteUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_SITE_URL, "https://codebay.dev");
+const siteUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_SITE_URL, "https://codebay.solutions");
 const blogUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_BLOG_URL, "https://codingbay.blog");
 const communityUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_COMMUNITY_URL, "https://codingbay.community");
 

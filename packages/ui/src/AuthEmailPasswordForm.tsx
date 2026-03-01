@@ -42,7 +42,7 @@ export function AuthEmailPasswordForm({
           type="email"
           value={email}
           onChange={(event) => onEmailChange(event.target.value)}
-          placeholder="you@codebay.dev"
+          placeholder="you@codebay.solutions"
           autoComplete="email"
           required
           className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
