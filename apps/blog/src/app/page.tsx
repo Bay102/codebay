@@ -4,8 +4,7 @@ import { Suspense } from "react";
 import { fetchPublishedBlogPosts, fetchBlogEngagementCounts, type BlogEngagementCounts } from "@/lib/blog";
 import type { BlogPost } from "@/lib/blog";
 import { BlogFilterBar } from "@/components/pages/blog/BlogFilterBar";
-
-const siteUrl = "https://codingbay.blog";
+import { mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
 
@@ -74,7 +73,7 @@ function buildBlogSchema(posts: Awaited<ReturnType<typeof fetchPublishedBlogPost
     publisher: {
       "@type": "Organization",
       name: "CodeBay",
-      url: "https://codebay.dev"
+      url: mainUrl
     },
     blogPost: posts.map((post) => ({
       "@type": "BlogPosting",

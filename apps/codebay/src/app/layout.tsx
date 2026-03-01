@@ -2,10 +2,11 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Providers } from "../contexts/providers";
 import { ConditionalHeader } from "@/components/ConditionalHeader";
+import { siteUrl } from "@/lib/site-urls";
 import "../index.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://codebay.dev"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "CodeBay | AI-Powered Software Development Agency",
     template: "%s | CodeBay",

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
+import { communityUrl } from "@/lib/site-urls";
 
 export default function AuthPage() {
-  redirect("https://codingbay.community/join");
+  redirect(`${communityUrl}/join`);
 }

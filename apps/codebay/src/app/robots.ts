@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const siteUrl = "https://codebay.dev";
+import { siteUrl } from "@/lib/site-urls";
 
 export default function robots(): MetadataRoute.Robots {
   return {

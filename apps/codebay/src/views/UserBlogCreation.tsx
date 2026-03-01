@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
+import { blogUrl } from "@/lib/site-urls";
 
 type PostStatus = "draft" | "published";
 
@@ -287,9 +288,9 @@ const UserBlogCreation = () => {
               Create Blog Post
             </h1>
             <p className="text-sm text-muted-foreground">
-              Draft and publish blog posts that power the public blog at{" "}
-              <Link href="https://codingbay.blog" className="underline underline-offset-4 hover:text-primary">
-                codingbay.blog
+Draft and publish blog posts that power the public blog at{" "}
+                <Link href={blogUrl} className="underline underline-offset-4 hover:text-primary">
+                  codingbay.blog
               </Link>
               .
             </p>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 import { PrivacyPolicyModal } from "@/components/PrivacyPolicyModal";
+import { blogUrl, communityUrl } from "@/lib/site-urls";
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -16,13 +17,13 @@ const Footer = () => {
       <div className="mx-auto flex max-w-7xl flex-col gap-1.5">
         <nav className="flex items-center justify-center gap-4">
           <Link
-            href="https://codingbay.blog"
+            href={blogUrl}
             className="text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             Blog
           </Link>
           <Link
-            href="https://codingbay.community"
+            href={communityUrl}
             className="text-xs text-muted-foreground transition-colors hover:text-foreground"
           >
             Community

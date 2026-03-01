@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { blogUrl } from "@/lib/site-urls";
 
 export function CommunityDashboardActions() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export function CommunityDashboardActions() {
   return (
     <div className="flex items-center gap-3">
       <Link
-        href="https://codingbay.blog"
+        href={blogUrl}
         className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
       >
         Open blog

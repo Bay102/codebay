@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { siteUrl } from "@/lib/site-urls";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "CodingBay Community",
   description: "The official CodingBay community platform.",
-  metadataBase: new URL("https://codingbay.community")
+  metadataBase: new URL(siteUrl)
 };
 
 type RootLayoutProps = {

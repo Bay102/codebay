@@ -2,8 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
-
-const siteUrl = "https://codingbay.blog";
+import { mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
 
@@ -100,7 +99,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     publisher: {
       "@type": "Organization",
       name: "CodeBay",
-      url: "https://codebay.dev"
+      url: mainUrl
     },
     mainEntityOfPage: {
       "@type": "WebPage",

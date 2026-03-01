@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
+import { communityUrl } from "@/lib/site-urls";
 
 export default async function CommunityDashboardPage() {
-  redirect("https://codingbay.community/dashboard");
+  redirect(`${communityUrl}/dashboard`);
 }

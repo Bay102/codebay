@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FileText, Video, BookOpen, Users, Mail, GitBranch, Github, Brain, type LucideIcon } from "lucide-react";
+import { blogUrl, communityUrl } from "@/lib/site-urls";
 
 interface ResourceItem {
   icon: LucideIcon;
@@ -15,14 +16,14 @@ const resources: ResourceItem[] = [
     title: "Community",
     description: "Discord, office hours, and events for AI builders",
     count: "Growing",
-    href: "https://codingbay.community"
+    href: communityUrl
   },
   {
     icon: BookOpen,
     title: "Blog",
     description: "Practical guides, patterns, and lessons from production",
     count: "Weekly posts",
-    href: "https://codingbay.blog"
+    href: blogUrl
   },
   {
     icon: FileText,

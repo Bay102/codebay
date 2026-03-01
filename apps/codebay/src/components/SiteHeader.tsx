@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { blogUrl, communityUrl } from "@/lib/site-urls";
 
 export function SiteHeader() {
   const { openConnectForm } = useConnectForm();
@@ -45,20 +46,20 @@ export function SiteHeader() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             <DropdownMenuItem asChild>
-              <Link href="https://codingbay.blog">Blog</Link>
+              <Link href={blogUrl}>Blog</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="https://codingbay.community">Community</Link>
+              <Link href={communityUrl}>Community</Link>
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={openConnectForm}>Inquire</DropdownMenuItem>
             {session && (
               <DropdownMenuItem asChild>
-                <Link href="https://codingbay.community/dashboard">Dashboard</Link>
+                <Link href={`${communityUrl}/dashboard`}>Dashboard</Link>
               </DropdownMenuItem>
             )}
             {(!session) && (
               <DropdownMenuItem asChild>
-                <Link href="https://codingbay.community/join">Account</Link>
+                <Link href={`${communityUrl}/join`}>Account</Link>
               </DropdownMenuItem>
             )}
           </DropdownMenuContent>

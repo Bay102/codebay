@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-
-const siteUrl = "https://codebay.dev";
+import { siteUrl } from "@/lib/site-urls";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
