@@ -10,7 +10,7 @@ export function DismissibleNextStepsCard() {
   if (!isVisible) return null;
 
   return (
-    <article className="relative mt-6 rounded-2xl border border-border/70 bg-card/60 p-5">
+    <article className="relative rounded-2xl border border-border/70 bg-card/60 p-5">
       <Button
         type="button"
         variant="ghost"
