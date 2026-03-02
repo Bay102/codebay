@@ -13,6 +13,7 @@
     "@codebay/theme": "file:../../packages/theme",
     "@codebay/ui": "file:../../packages/ui",
     "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-popover": "^1.1.15",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.98.0",
     "next": "^15.5.0",

@@ -20,7 +20,7 @@ type BlogPostRow = Pick<
 
 type CommunityUserRow = Pick<
   Tables<"community_users">,
-  "id" | "name" | "username" | "avatar_url" | "bio" | "featured_on_community_landing"
+  "id" | "name" | "username" | "avatar_url" | "bio" | "featured_on_community_landing" | "tech_stack" | "featured_blog_post_slugs"
 >;
 
 export type LandingFeaturedPost = {
@@ -43,6 +43,13 @@ export type LandingProfile = {
   username: string;
   avatarUrl: string | null;
   bio: string | null;
+  techStack: string[];
+  featuredArticles: LandingProfileArticle[];
+};
+
+export type LandingProfileArticle = {
+  title: string;
+  href: string;
 };
 
 export type LandingTopic = {
@@ -105,7 +112,7 @@ export async function fetchTrendingProfiles(limit = 6): Promise<LandingProfile[]
 
   const { data, error } = await supabase
     .from("community_users")
-    .select("id,name,username,avatar_url,bio,featured_on_community_landing")
+    .select("id,name,username,avatar_url,bio,featured_on_community_landing,tech_stack,featured_blog_post_slugs")
     .order("created_at", { ascending: false })
     .limit(128);
 
@@ -119,7 +126,7 @@ export async function fetchTrendingProfiles(limit = 6): Promise<LandingProfile[]
 
   const { data: posts, error: postsError } = await supabase
     .from("blog_posts")
-    .select("author_id,slug")
+    .select("author_id,slug,title")
     .eq("status", "published");
 
   if (postsError || !posts) {
@@ -128,11 +135,16 @@ export async function fetchTrendingProfiles(limit = 6): Promise<LandingProfile[]
   }
 
   const slugsByAuthor = new Map<string, string[]>();
-  (posts as Pick<Tables<"blog_posts">, "author_id" | "slug">[]).forEach((post) => {
+  const postsBySlug = new Map<string, { slug: string; title: string }>();
+
+  (posts as Pick<Tables<"blog_posts">, "author_id" | "slug" | "title">[]).forEach((post) => {
     if (!post.author_id) return;
     const current = slugsByAuthor.get(post.author_id) ?? [];
     current.push(post.slug);
     slugsByAuthor.set(post.author_id, current);
+    if (!postsBySlug.has(post.slug)) {
+      postsBySlug.set(post.slug, { slug: post.slug, title: post.title });
+    }
   });
 
   const allSlugs = Array.from(new Set(posts.map((p) => p.slug)));
@@ -156,8 +168,24 @@ export async function fetchTrendingProfiles(limit = 6): Promise<LandingProfile[]
     })
     .sort((a, b) => b.score - a.score);
 
+  function buildFeaturedArticlesForProfile(profile: CommunityUserRow): LandingProfileArticle[] {
+    const slugs = profile.featured_blog_post_slugs ?? [];
+    const articles: LandingProfileArticle[] = [];
+
+    slugs.forEach((slug) => {
+      const post = postsBySlug.get(slug);
+      if (!post) return;
+      articles.push({
+        title: post.title,
+        href: buildPostUrl(profile.name, slug)
+      });
+    });
+
+    return articles.slice(0, 4);
+  }
+
   const combinedProfiles = [...adminFeatured, ...scoredRemaining.map((item) => item.profile)].slice(0, limit);
-  return combinedProfiles.map(mapProfileRowToLandingProfile);
+  return combinedProfiles.map((profile) => mapProfileRowToLandingProfile(profile, buildFeaturedArticlesForProfile(profile)));
 }
 
 export async function fetchTrendingTopics(limit = 10): Promise<LandingTopic[]> {
@@ -292,13 +320,16 @@ function mapPostRowToLandingPost(
   };
 }
 
-function mapProfileRowToLandingProfile(row: CommunityUserRow): LandingProfile {
+function mapProfileRowToLandingProfile(row: CommunityUserRow, featuredArticles: LandingProfileArticle[] = []): LandingProfile {
+  const techStack = (row.tech_stack ?? []).map((item) => item.trim()).filter((item) => item.length > 0);
   return {
     id: row.id,
     name: row.name,
     username: row.username,
     avatarUrl: row.avatar_url,
-    bio: row.bio
+    bio: row.bio,
+    techStack,
+    featuredArticles
   };
 }
 

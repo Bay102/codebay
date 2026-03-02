@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function CommunityLandingPage() {
   return (
-    <main className="min-h-screen bg-background pt-10 sm:pt-14">
+    <main className="min-h-screen bg-background pt-4 sm:pt-6">
       <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
         <SurfaceCard as="div" variant="hero">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Community</p>

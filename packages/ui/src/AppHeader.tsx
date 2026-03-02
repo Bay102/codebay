@@ -45,7 +45,7 @@ function MenuIcon() {
 
 export function AppHeader({ homeHref, logo, menuItems }: AppHeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 px-4 py-4 backdrop-blur-md md:bg-background/80 md:backdrop-blur-sm lg:px-12">
+    <header className="sticky top-0 z-50 w-full bg-background/95 px-4 py-4 backdrop-blur-md md:bg-background/80 md:backdrop-blur-sm lg:px-12">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
         <Link
           href={homeHref}
