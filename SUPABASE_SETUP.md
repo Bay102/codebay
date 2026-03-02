@@ -83,7 +83,7 @@ The anon key is required for Edge Functions authentication. The publishable key 
 
 1. Start your dev server:
    ```bash
-   yarn dev
+   npm run dev
    ```
 
 2. Try sending a message in the chat interface!
