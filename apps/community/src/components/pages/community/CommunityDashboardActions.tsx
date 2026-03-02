@@ -26,12 +26,6 @@ export function CommunityDashboardActions() {
 
   return (
     <div className="flex items-center gap-3">
-      <Link
-        href={blogUrl}
-        className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
-      >
-        Open blog
-      </Link>
       <button
         type="button"
         className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm text-foreground transition-colors hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-70"

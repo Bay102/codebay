@@ -12,6 +12,7 @@ type BlogPostRow = Pick<
   | "title"
   | "description"
   | "excerpt"
+  | "author_id"
   | "published_at"
   | "updated_at"
   | "created_at"
@@ -27,6 +28,7 @@ export interface BlogPost {
   title: string;
   description: string;
   excerpt: string;
+  authorId: string | null;
   publishedAt: string;
   updatedAt: string;
   readTimeMinutes: number;
@@ -34,6 +36,28 @@ export interface BlogPost {
   tags: string[];
   sections: BlogPostSection[];
   isFeatured: boolean;
+}
+
+export interface BlogFeaturedProject {
+  title: string;
+  description: string;
+  url: string | null;
+}
+
+export interface ProfileLink {
+  label: string;
+  url: string;
+}
+
+export interface BlogAuthorProfile {
+  id: string;
+  name: string;
+  username: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  techStack: string[];
+  featuredProjects: BlogFeaturedProject[];
+  profileLinks: ProfileLink[];
 }
 
 function parseBlogPostSections(rawSections: Json): BlogPostSection[] {
@@ -73,6 +97,7 @@ function mapRowToBlogPost(row: BlogPostRow): BlogPost {
     title: row.title,
     description: row.description ?? "",
     excerpt: row.excerpt ?? "",
+    authorId: row.author_id,
     publishedAt,
     updatedAt,
     readTimeMinutes: row.read_time_minutes ?? 5,
@@ -90,7 +115,7 @@ export async function fetchPublishedBlogPosts(): Promise<BlogPost[]> {
   const { data, error } = await supabase
     .from("blog_posts")
     .select(
-      "slug,title,description,excerpt,published_at,updated_at,created_at,read_time_minutes,author_name,tags,sections,is_featured"
+      "slug,title,description,excerpt,author_id,published_at,updated_at,created_at,read_time_minutes,author_name,tags,sections,is_featured"
     )
     .eq("status", "published")
     .order("published_at", { ascending: false });
@@ -110,7 +135,7 @@ export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost | null
   const { data, error } = await supabase
     .from("blog_posts")
     .select(
-      "slug,title,description,excerpt,published_at,updated_at,created_at,read_time_minutes,author_name,tags,sections,is_featured"
+      "slug,title,description,excerpt,author_id,published_at,updated_at,created_at,read_time_minutes,author_name,tags,sections,is_featured"
     )
     .eq("status", "published")
     .eq("slug", slug)
@@ -125,6 +150,154 @@ export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost | null
   }
 
   return mapRowToBlogPost(data as BlogPostRow);
+}
+
+function normalizeUrl(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
+
+function parseTechStack(rawTechStack: string[] | Json | null): string[] {
+  if (!Array.isArray(rawTechStack)) return [];
+  const parsed: string[] = [];
+  rawTechStack.forEach((item) => {
+    if (typeof item === "string") {
+      const normalized = item.trim();
+      if (normalized) {
+        parsed.push(normalized);
+      }
+    }
+  });
+  return parsed;
+}
+
+function parseFeaturedProjects(rawFeaturedProjects: Json | null): BlogFeaturedProject[] {
+  if (!Array.isArray(rawFeaturedProjects)) return [];
+
+  return rawFeaturedProjects
+    .map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) {
+        return null;
+      }
+
+      const value = item as Record<string, unknown>;
+      const title = typeof value.title === "string" ? value.title.trim() : "";
+      const description = typeof value.description === "string" ? value.description.trim() : "";
+      const rawUrl = typeof value.url === "string" ? value.url : "";
+      if (!title) {
+        return null;
+      }
+
+      return {
+        title,
+        description,
+        url: normalizeUrl(rawUrl)
+      } satisfies BlogFeaturedProject;
+    })
+    .filter((item): item is BlogFeaturedProject => item !== null);
+}
+
+function parseProfileLinks(rawProfileLinks: Json | null): ProfileLink[] {
+  if (!Array.isArray(rawProfileLinks)) return [];
+  return rawProfileLinks
+    .map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+      const value = item as Record<string, unknown>;
+      const rawLabel = typeof value.label === "string" ? value.label : "";
+      const rawUrl = typeof value.url === "string" ? value.url : "";
+      const label = rawLabel.trim();
+      const url = normalizeUrl(rawUrl);
+      if (!label || !url) return null;
+      return { label, url } satisfies ProfileLink;
+    })
+    .filter((item): item is ProfileLink => item !== null);
+}
+
+function isMissingProfileColumnError(error: { message?: string } | null): boolean {
+  if (!error?.message) return false;
+  return (
+    error.message.includes("column") &&
+    (error.message.includes("tech_stack") ||
+      error.message.includes("featured_projects") ||
+      error.message.includes("profile_links"))
+  );
+}
+
+function mapAuthorProfileRow(
+  row: Pick<Tables<"community_users">, "id" | "name" | "username" | "bio" | "avatar_url"> & {
+    tech_stack?: string[] | Json | null;
+    featured_projects?: Json | null;
+    profile_links?: Json | null;
+  }
+): BlogAuthorProfile {
+  return {
+    id: row.id,
+    name: row.name,
+    username: row.username,
+    bio: row.bio,
+    avatarUrl: row.avatar_url,
+    techStack: parseTechStack(row.tech_stack ?? []),
+    featuredProjects: parseFeaturedProjects(row.featured_projects ?? []),
+    profileLinks: parseProfileLinks(row.profile_links ?? [])
+  };
+}
+
+async function fetchAuthorProfileBy(
+  key: "id" | "username",
+  value: string
+): Promise<BlogAuthorProfile | null> {
+  const supabase = getBlogSupabaseClient();
+  if (!supabase) return null;
+
+  const enhancedSelection = "id,name,username,bio,avatar_url,tech_stack,featured_projects,profile_links";
+  const fallbackSelection = "id,name,username,bio,avatar_url";
+
+  const enhancedResult = await supabase.from("community_users").select(enhancedSelection).eq(key, value).maybeSingle();
+  if (!enhancedResult.error && enhancedResult.data) {
+    return mapAuthorProfileRow(enhancedResult.data);
+  }
+
+  if (!isMissingProfileColumnError(enhancedResult.error)) {
+    return null;
+  }
+
+  const fallbackResult = await supabase.from("community_users").select(fallbackSelection).eq(key, value).maybeSingle();
+  if (fallbackResult.error || !fallbackResult.data) {
+    return null;
+  }
+
+  return mapAuthorProfileRow(fallbackResult.data);
+}
+
+export async function fetchBlogAuthorProfileByUsername(username: string): Promise<BlogAuthorProfile | null> {
+  return fetchAuthorProfileBy("username", username.toLowerCase().trim());
+}
+
+export async function fetchBlogAuthorProfileById(authorId: string): Promise<BlogAuthorProfile | null> {
+  return fetchAuthorProfileBy("id", authorId);
+}
+
+export async function fetchPublishedBlogPostsByAuthorId(authorId: string): Promise<BlogPost[]> {
+  const supabase = getBlogSupabaseClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select(
+      "slug,title,description,excerpt,author_id,published_at,updated_at,created_at,read_time_minutes,author_name,tags,sections,is_featured"
+    )
+    .eq("status", "published")
+    .eq("author_id", authorId)
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  const rows = (data ?? []) as BlogPostRow[];
+  return rows.map(mapRowToBlogPost);
 }
 
 export interface BlogEngagementCounts {

@@ -1,18 +1,18 @@
 "use client";
 
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
-import type { TablesInsert } from "@/lib/database";
-import { AdminSignInForm } from "@/components/pages/admin/AdminSignInForm";
-import { AdminSessionLoading } from "@/components/pages/admin/AdminSessionLoading";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import Link from "next/link";
-import { blogUrl } from "@/lib/site-urls";
+import { Textarea } from "@/components/ui/textarea";
+import type { TablesInsert } from "@/lib/database";
+import { getBlogSupabaseClient } from "@/lib/supabase";
+import { siteUrl } from "@/lib/site-urls";
 
 type PostStatus = "draft" | "published";
 
@@ -53,6 +53,8 @@ function slugify(value: string): string {
 }
 
 const UserBlogCreation = () => {
+  const supabase = useMemo(() => getBlogSupabaseClient(), []);
+
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -67,6 +69,14 @@ const UserBlogCreation = () => {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!supabase) {
+      setAuthError(
+        "Blog authentication is unavailable until Supabase environment variables are configured."
+      );
+      setIsAuthLoading(false);
+      return;
+    }
+
     let isMounted = true;
 
     const initializeAuth = async () => {
@@ -98,12 +108,17 @@ const UserBlogCreation = () => {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   const handleSignIn = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       setAuthError(null);
+
+      if (!supabase) {
+        setAuthError("Blog authentication is unavailable because Supabase is not configured.");
+        return;
+      }
 
       const normalizedEmail = loginEmail.trim();
       if (!normalizedEmail || !loginPassword) {
@@ -125,18 +140,24 @@ const UserBlogCreation = () => {
 
       setIsSigningIn(false);
     },
-    [loginEmail, loginPassword]
+    [loginEmail, loginPassword, supabase]
   );
 
   const handleSignOut = useCallback(async () => {
     setAuthError(null);
+
+    if (!supabase) {
+      setAuthError("Blog authentication is unavailable because Supabase is not configured.");
+      return;
+    }
+
     setIsSigningOut(true);
     const { error: signOutError } = await supabase.auth.signOut();
     if (signOutError) {
       setAuthError(signOutError.message);
     }
     setIsSigningOut(false);
-  }, []);
+  }, [supabase]);
 
   const handleFieldChange = <Key extends keyof BlogFormState>(key: Key, value: BlogFormState[Key]) => {
     setForm((previous) => {
@@ -157,6 +178,11 @@ const UserBlogCreation = () => {
 
     if (!session) {
       setSubmitError("You must be signed in to create a blog post.");
+      return;
+    }
+
+    if (!supabase) {
+      setSubmitError("Blog post creation is unavailable because Supabase is not configured.");
       return;
     }
 
@@ -190,18 +216,18 @@ const UserBlogCreation = () => {
       sectionBody.length === 0
         ? []
         : sectionBody
-          .split(/\n{2,}/)
-          .map((paragraph) => paragraph.trim())
-          .filter((paragraph) => paragraph.length > 0);
+            .split(/\n{2,}/)
+            .map((paragraph) => paragraph.trim())
+            .filter((paragraph) => paragraph.length > 0);
 
     const sections =
       paragraphs.length > 0
         ? [
-          {
-            heading: sectionHeading,
-            paragraphs
-          }
-        ]
+            {
+              heading: sectionHeading,
+              paragraphs
+            }
+          ]
         : [];
 
     setIsSubmitting(true);
@@ -259,20 +285,68 @@ const UserBlogCreation = () => {
   };
 
   if (isAuthLoading) {
-    return <AdminSessionLoading />;
+    return (
+      <div className="min-h-[100dvh] bg-background px-4 py-8 sm:px-6 md:px-8 lg:px-12">
+        <div className="mx-auto flex w-full max-w-md items-center justify-center rounded-2xl border border-border/60 bg-card/70 p-8">
+          <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Checking your session...
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!session) {
     return (
-      <AdminSignInForm
-        loginEmail={loginEmail}
-        loginPassword={loginPassword}
-        authError={authError}
-        isSigningIn={isSigningIn}
-        onLoginEmailChange={setLoginEmail}
-        onLoginPasswordChange={setLoginPassword}
-        onSubmit={handleSignIn}
-      />
+      <div className="min-h-[100dvh] bg-background px-4 py-8 sm:px-6 md:px-8 lg:px-12">
+        <div className="mx-auto w-full max-w-md rounded-2xl border border-border/60 bg-card/70 p-6 sm:p-7">
+          <div className="space-y-2">
+            <p className="text-primary/80 text-xs font-semibold tracking-[0.16em] uppercase">
+              Author Access
+            </p>
+            <h1 className="font-display text-2xl font-semibold text-foreground">Sign in</h1>
+            <p className="text-sm text-muted-foreground">
+              You must log in with your community credentials to create blog posts.
+            </p>
+          </div>
+
+          <form className="mt-6 space-y-4" onSubmit={(event) => void handleSignIn(event)}>
+            <div className="space-y-2">
+              <Label htmlFor="blog-author-email">Email</Label>
+              <Input
+                id="blog-author-email"
+                type="email"
+                autoComplete="email"
+                value={loginEmail}
+                onChange={(event) => setLoginEmail(event.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="blog-author-password">Password</Label>
+              <Input
+                id="blog-author-password"
+                type="password"
+                autoComplete="current-password"
+                value={loginPassword}
+                onChange={(event) => setLoginPassword(event.target.value)}
+                placeholder="Enter your password"
+                required
+              />
+            </div>
+            {authError ? (
+              <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                {authError}
+              </div>
+            ) : null}
+            <Button type="submit" className="w-full" disabled={isSigningIn}>
+              {isSigningIn ? "Signing in..." : "Sign in to continue"}
+            </Button>
+          </form>
+        </div>
+      </div>
     );
   }
 
@@ -288,9 +362,9 @@ const UserBlogCreation = () => {
               Create Blog Post
             </h1>
             <p className="text-sm text-muted-foreground">
-Draft and publish blog posts that power the public blog at{" "}
-                <Link href={blogUrl} className="underline underline-offset-4 hover:text-primary">
-                  codingbay.blog
+              Draft and publish blog posts that power the public blog at{" "}
+              <Link href={siteUrl} className="underline underline-offset-4 hover:text-primary">
+                codingbay.blog
               </Link>
               .
             </p>

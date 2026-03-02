@@ -2,7 +2,9 @@ import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
-import { fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
+import { AuthorHero } from "@/components/pages/blog/AuthorHero";
+import { ProfilePreviewPopover } from "@/components/profile/ProfilePreviewPopover";
+import { fetchBlogAuthorProfileById, fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
 import { mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
@@ -85,6 +87,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const allPosts = await fetchPublishedBlogPosts();
   const relatedPosts = allPosts.filter((candidate) => candidate.slug !== post.slug).slice(0, 2);
   const authorSegment = buildAuthorSegment(post.authorName);
+  const authorProfile = post.authorId ? await fetchBlogAuthorProfileById(post.authorId) : null;
+  const authorHomeHref = authorProfile ? `/author/${authorProfile.username}` : "/";
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -120,12 +124,37 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {post.title}
           </h1>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt)}</time>
-            <span aria-hidden="true">-</span>
-            <span>{post.readTimeMinutes} min read</span>
-            <span aria-hidden="true">-</span>
-            <span>{post.authorName}</span>
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-3">
+              <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt)}</time>
+              <span aria-hidden="true">-</span>
+              <span>{post.readTimeMinutes} min read</span>
+              <span aria-hidden="true">-</span>
+              <Link href={authorHomeHref} className="text-primary underline-offset-4 hover:underline">
+                {post.authorName}
+              </Link>
+            </div>
+            {authorProfile ? (
+              <ProfilePreviewPopover
+                profile={{
+                  name: authorProfile.name,
+                  username: authorProfile.username,
+                  avatarUrl: authorProfile.avatarUrl
+                }}
+                sections={{
+                  bio: authorProfile.bio,
+                  techStack: authorProfile.techStack,
+                  articles: [
+                    {
+                      title: post.title,
+                      href: `/${authorSegment}/${post.slug}`
+                    }
+                  ],
+                  profileLinks: authorProfile.profileLinks
+                }}
+                authorPageHref={`/author/${authorProfile.username}`}
+              />
+            ) : null}
           </div>
 
           <p className="mt-6 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">{post.excerpt}</p>

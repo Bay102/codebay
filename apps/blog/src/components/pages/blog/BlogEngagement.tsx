@@ -16,12 +16,17 @@ type BlogEngagementProps = {
   postPath: string;
 };
 
-type CommentRow = Pick<Tables<"blog_post_comments">, "id" | "author_name" | "body" | "created_at">;
+type CommentRow = Pick<
+  Tables<"blog_post_comments">,
+  "id" | "author_id" | "author_name" | "body" | "created_at" | "parent_id"
+>;
 
-const reactionOptions: { type: ReactionType; label: string; badge: string }[] = [
-  { type: "like", label: "Helpful", badge: "H" },
-  { type: "insightful", label: "Insightful", badge: "I" },
-  { type: "love", label: "Loved", badge: "L" }
+type CommentWithReplies = CommentRow & { replies: CommentWithReplies[] };
+
+const reactionOptions: { type: ReactionType; label: string; icon: string }[] = [
+  { type: "like", label: "Helpful", icon: "👍" },
+  { type: "insightful", label: "Insightful", icon: "💡" },
+  { type: "love", label: "Loved", icon: "❤️" }
 ];
 
 function formatShortDateTime(value: string): string {
@@ -41,6 +46,151 @@ function getSessionDisplayName(session: Session): string {
   return session.user.email ?? "Community Member";
 }
 
+type CommentThreadProps = {
+  comment: CommentWithReplies;
+  replyingToId: string | null;
+  replyBody: string;
+  isSubmittingReply: boolean;
+  hasEngagementAccess: boolean;
+  onReplyClick: (commentId: string) => void;
+  onReplyBodyChange: (value: string) => void;
+  onSubmitReply: (parentId: string) => (event: FormEvent<HTMLFormElement>) => void;
+  formatDateTime: (value: string) => string;
+  isNested?: boolean;
+};
+
+function CommentThread({
+  comment,
+  replyingToId,
+  replyBody,
+  isSubmittingReply,
+  hasEngagementAccess,
+  onReplyClick,
+  onReplyBodyChange,
+  onSubmitReply,
+  formatDateTime,
+  isNested = false
+}: CommentThreadProps) {
+  const isReplying = replyingToId === comment.id;
+
+  return (
+    <div
+      className={
+        isNested
+          ? "rounded-lg border border-border/50 bg-background/50 p-3 text-sm"
+          : "rounded-xl border border-border/70 bg-background/70 p-4 text-sm"
+      }
+    >
+      <div className="flex items-center justify-between gap-2">
+        <p className={`font-medium text-foreground ${isNested ? "text-xs" : ""}`}>
+          {comment.author_name || "Reader"}
+        </p>
+        <p className={`text-muted-foreground ${isNested ? "text-[11px]" : "text-xs"}`}>
+          {formatDateTime(comment.created_at)}
+        </p>
+      </div>
+      <p
+        className={`mt-2 whitespace-pre-line leading-relaxed text-muted-foreground ${
+          isNested ? "text-xs" : "text-sm"
+        }`}
+      >
+        {comment.body}
+      </p>
+      {hasEngagementAccess ? (
+        <button
+          type="button"
+          className="mt-2 text-xs font-medium text-primary hover:underline"
+          onClick={() => onReplyClick(comment.id)}
+        >
+          Reply
+        </button>
+      ) : null}
+      {isReplying ? (
+        <form
+          className="mt-3 space-y-2"
+          onSubmit={onSubmitReply(comment.id)}
+        >
+          <textarea
+            value={replyBody}
+            onChange={(e) => onReplyBodyChange(e.target.value)}
+            placeholder="Write a reply..."
+            rows={2}
+            className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={isSubmittingReply || !replyBody.trim()}
+              className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSubmittingReply ? "Posting..." : "Post reply"}
+            </button>
+            <button
+              type="button"
+              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
+              onClick={() => {
+                onReplyClick(comment.id);
+                onReplyBodyChange("");
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : null}
+      {comment.replies.length > 0 ? (
+        <div className="mt-4 ml-4 space-y-3 border-l-2 border-border/60 pl-4">
+          {comment.replies.map((reply) => (
+            <CommentThread
+              key={reply.id}
+              comment={reply}
+              replyingToId={replyingToId}
+              replyBody={replyBody}
+              isSubmittingReply={isSubmittingReply}
+              hasEngagementAccess={hasEngagementAccess}
+              onReplyClick={onReplyClick}
+              onReplyBodyChange={onReplyBodyChange}
+              onSubmitReply={onSubmitReply}
+              formatDateTime={formatDateTime}
+              isNested
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function buildCommentThreads(rows: CommentRow[]): CommentWithReplies[] {
+  const byId = new Map<string, CommentWithReplies>();
+  const roots: CommentWithReplies[] = [];
+
+  rows.forEach((row) => {
+    const withReplies: CommentWithReplies = { ...row, replies: [] };
+    byId.set(row.id, withReplies);
+  });
+
+  rows.forEach((row) => {
+    const node = byId.get(row.id)!;
+    if (row.parent_id) {
+      const parent = byId.get(row.parent_id);
+      if (parent) {
+        parent.replies.push(node);
+      } else {
+        roots.push(node);
+      }
+    } else {
+      roots.push(node);
+    }
+  });
+
+  roots.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  roots.forEach((root) => {
+    root.replies.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  });
+  return roots;
+}
+
 export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
   const supabase = useMemo(() => getBlogSupabaseClient(), []);
 
@@ -53,14 +203,17 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
     insightful: { up: 0, down: 0 },
     love: { up: 0, down: 0 }
   });
-  const [comments, setComments] = useState<CommentRow[]>([]);
+  const [userReactions, setUserReactions] = useState<Partial<Record<ReactionType, ReactionResponse>>>({});
+  const [comments, setComments] = useState<CommentWithReplies[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [reactionSubmitting, setReactionSubmitting] = useState<ReactionType | null>(null);
   const reactionInProgressRef = useRef(false);
   const hasRecordedViewRef = useRef(false);
-  const [hasReacted, setHasReacted] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [replyingToId, setReplyingToId] = useState<string | null>(null);
+  const [replyBody, setReplyBody] = useState("");
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [areCommentsVisible, setAreCommentsVisible] = useState(false);
@@ -95,12 +248,6 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
   }, [supabase]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const key = `blog_reacted:${slug}`;
-    setHasReacted(window.localStorage.getItem(key) === "1");
-  }, [slug]);
-
-  useEffect(() => {
     if (!supabase) {
       setIsLoading(false);
       setViewCount(0);
@@ -118,13 +265,13 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
 
       const [viewsResult, reactionsResult, commentsResult] = await Promise.all([
         supabase.from("blog_post_views").select("*", { count: "exact", head: true }).eq("slug", slug),
-        supabase.from("blog_post_reactions").select("reaction_type,response").eq("slug", slug),
+        supabase.from("blog_post_reactions").select("reaction_type,response,user_id").eq("slug", slug),
         supabase
           .from("blog_post_comments")
-          .select("id,author_name,body,created_at")
+          .select("id,author_id,author_name,body,created_at,parent_id")
           .eq("slug", slug)
           .eq("is_approved", true)
-          .order("created_at", { ascending: false })
+          .order("created_at", { ascending: true })
       ]);
 
       if (!isMounted) return;
@@ -139,6 +286,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
           insightful: { up: 0, down: 0 },
           love: { up: 0, down: 0 }
         };
+        const nextUserReactions: Partial<Record<ReactionType, ReactionResponse>> = {};
 
         (reactionsResult.data ?? []).forEach((row) => {
           const type = row.reaction_type as ReactionType;
@@ -146,10 +294,15 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
 
           const response: ReactionResponse = row.response === "down" ? "down" : "up";
           nextReactionCounts[type][response] += 1;
+
+          if (session && row.user_id && row.user_id === session.user.id) {
+            nextUserReactions[type] = response;
+          }
         });
 
         setReactionCounts(nextReactionCounts);
-        setComments((commentsResult.data ?? []) as CommentRow[]);
+        setUserReactions(nextUserReactions);
+        setComments(buildCommentThreads((commentsResult.data ?? []) as CommentRow[]));
         setCurrentPage(1);
       }
 
@@ -171,7 +324,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
     return () => {
       isMounted = false;
     };
-  }, [slug, supabase]);
+  }, [slug, supabase, session]);
 
   const handleReact = async (type: ReactionType, response: ReactionResponse) => {
     if (!supabase) {
@@ -184,7 +337,12 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
       return;
     }
 
-    if (hasReacted || reactionInProgressRef.current) return;
+    if (reactionInProgressRef.current) return;
+
+    if (userReactions[type]) {
+      return;
+    }
+
     reactionInProgressRef.current = true;
     setReactionSubmitting(type);
     setError(null);
@@ -214,11 +372,10 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
       }
     }));
 
-    setHasReacted(true);
-    if (typeof window !== "undefined") {
-      const key = `blog_reacted:${slug}`;
-      window.localStorage.setItem(key, "1");
-    }
+    setUserReactions((previous) => ({
+      ...previous,
+      [type]: response
+    }));
   };
 
   const handleSubmitComment = async (event: FormEvent<HTMLFormElement>) => {
@@ -261,14 +418,85 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
     }
 
     if (data) {
-      setComments((previous) => [data, ...previous]);
+      const newComment: CommentWithReplies = {
+        id: data.id,
+        author_id: session.user.id,
+        author_name: data.author_name ?? getSessionDisplayName(session),
+        body: data.body,
+        created_at: data.created_at,
+        parent_id: null,
+        replies: []
+      };
+      setComments((previous) => [newComment, ...previous]);
       setCommentBody("");
       setCurrentPage(1);
       setAreCommentsVisible(true);
     }
   };
 
+  const handleSubmitReply = async (event: FormEvent<HTMLFormElement>, parentId: string) => {
+    event.preventDefault();
+    if (!supabase || !session) return;
+    const body = replyBody.trim();
+    if (!body) return;
+
+    setIsSubmittingReply(true);
+    setError(null);
+
+    const payload: TablesInsert<"blog_post_comments"> = {
+      slug,
+      author_id: session.user.id,
+      author_name: getSessionDisplayName(session),
+      body,
+      parent_id: parentId
+    };
+
+    const { data, error: insertError } = await supabase
+      .from("blog_post_comments")
+      .insert(payload)
+      .select("id,author_id,author_name,body,created_at,parent_id")
+      .single();
+
+    setIsSubmittingReply(false);
+    setReplyingToId(null);
+    setReplyBody("");
+
+    if (insertError) {
+      setError("Unable to post your reply right now.");
+      return;
+    }
+
+    if (data) {
+      const newReply: CommentWithReplies = {
+        id: data.id,
+        author_id: data.author_id ?? session.user.id,
+        author_name: data.author_name ?? getSessionDisplayName(session),
+        body: data.body,
+        created_at: data.created_at,
+        parent_id: data.parent_id ?? parentId,
+        replies: []
+      };
+
+      function addReplyToThread(
+        threads: CommentWithReplies[],
+        targetId: string,
+        reply: CommentWithReplies
+      ): CommentWithReplies[] {
+        return threads.map((c) => {
+          if (c.id === targetId) {
+            return { ...c, replies: [...c.replies, reply] };
+          }
+          return { ...c, replies: addReplyToThread(c.replies, targetId, reply) };
+        });
+      }
+
+      setComments((previous) => addReplyToThread(previous, parentId, newReply));
+      setAreCommentsVisible(true);
+    }
+  };
+
   const totalReactions = Object.values(reactionCounts).reduce((sum, value) => sum + value.up + value.down, 0);
+  const totalCommentCount = comments.reduce((sum, c) => sum + 1 + c.replies.length, 0);
   const totalPages = Math.max(1, Math.ceil(comments.length / pageSize));
   const startIndex = (currentPage - 1) * pageSize;
   const visibleComments = comments.slice(startIndex, startIndex + pageSize);
@@ -285,24 +513,25 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
             <p className="mt-1 text-sm text-muted-foreground">
               {viewCount === null
                 ? "Loading views..."
-                : `${viewCount.toLocaleString()} views - ${totalReactions} reactions - ${comments.length} comment${comments.length === 1 ? "" : "s"}`}
+                : `${viewCount.toLocaleString()} views - ${totalReactions} reactions - ${totalCommentCount} comment${totalCommentCount === 1 ? "" : "s"}`}
             </p>
           </div>
-          <div className="flex flex-wrap gap-3 md:justify-end">
+          <div className="flex flex-wrap gap-2 md:justify-end">
             {reactionOptions.map((option) => {
               const counts = reactionCounts[option.type];
               const totalForType = counts.up + counts.down;
               const upPct = totalForType > 0 ? Math.round((counts.up / totalForType) * 100) : 0;
+              const hasReactedToType = !!userReactions[option.type];
 
               return (
                 <div
                   key={option.type}
-                  className="flex min-w-[180px] flex-1 flex-col gap-2 rounded-xl border border-border/70 bg-background/60 p-3 sm:min-w-[200px] sm:p-4"
+                  className="flex min-w-[150px] flex-1 flex-col gap-1.5 rounded-lg border border-border/70 bg-background/60 p-2.5 sm:min-w-[160px] sm:p-3"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary/70 text-sm">
-                        {option.badge}
+                  <div className="flex items-center justify-between gap-1.5 md:flex-col md:items-start md:justify-start md:gap-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/70 text-xs" aria-hidden>
+                        {option.icon}
                       </span>
                       <span className="text-xs font-medium text-foreground">{option.label}</span>
                     </div>
@@ -316,18 +545,18 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                   </div>
 
                   {totalForType > 0 ? (
-                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-border/80">
+                    <div className="mt-0.5 h-1 w-full overflow-hidden rounded-full bg-border/80">
                       <div className="h-full bg-primary transition-[width]" style={{ width: `${upPct}%` }} aria-hidden />
                     </div>
                   ) : (
-                    <div className="mt-1 h-1.5 w-full rounded-full bg-border/40" aria-hidden />
+                    <div className="mt-0.5 h-1 w-full rounded-full bg-border/40" aria-hidden />
                   )}
 
-                  {!hasReacted ? (
-                    <div className="mt-2 flex gap-2">
+                  {!hasReactedToType ? (
+                    <div className="mt-1.5 flex gap-1.5">
                       <button
                         type="button"
-                        className="h-8 flex-1 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                        className="h-7 flex-1 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => void handleReact(option.type, "up")}
                         disabled={reactionSubmitting !== null || isLoading || isAuthLoading || !hasEngagementAccess}
                         aria-label={`Mark this article as ${option.label.toLowerCase()}`}
@@ -336,7 +565,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                       </button>
                       <button
                         type="button"
-                        className="h-8 flex-1 rounded-md border border-transparent bg-muted px-2 text-xs font-medium transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                        className="h-7 flex-1 rounded-md border border-transparent bg-muted px-2 text-xs font-medium transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => void handleReact(option.type, "down")}
                         disabled={reactionSubmitting !== null || isLoading || isAuthLoading || !hasEngagementAccess}
                         aria-label={`This article was not ${option.label.toLowerCase()}`}
@@ -377,7 +606,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
               {areCommentsVisible
                 ? "Hide comments"
                 : comments.length > 0
-                  ? `Show comments (${comments.length})`
+                  ? `Show comments (${totalCommentCount})`
                   : "Show comments"}
             </button>
           </div>
@@ -386,15 +615,22 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
             <>
               <div className="mt-4 space-y-4">
                 {visibleComments.map((comment) => (
-                  <div key={comment.id} className="rounded-xl border border-border/70 bg-background/70 p-4 text-sm">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-medium text-foreground">{comment.author_name || "Reader"}</p>
-                      <p className="text-xs text-muted-foreground">{formatShortDateTime(comment.created_at)}</p>
-                    </div>
-                    <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{comment.body}</p>
-                  </div>
+                  <CommentThread
+                    key={comment.id}
+                    comment={comment}
+                    replyingToId={replyingToId}
+                    replyBody={replyBody}
+                    isSubmittingReply={isSubmittingReply}
+                    hasEngagementAccess={hasEngagementAccess}
+                    onReplyClick={(commentId) =>
+                      setReplyingToId((id) => (id === commentId ? null : commentId))
+                    }
+                    onReplyBodyChange={setReplyBody}
+                    onSubmitReply={(parentId) => (e) => void handleSubmitReply(e, parentId)}
+                    formatDateTime={formatShortDateTime}
+                  />
                 ))}
-                {!isLoading && comments.length === 0 ? (
+                {!isLoading && totalCommentCount === 0 ? (
                   <p className="text-xs text-muted-foreground">No comments yet. Be the first to share your thoughts.</p>
                 ) : null}
               </div>

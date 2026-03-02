@@ -22,6 +22,7 @@ export type Database = {
           created_at: string
           id: string
           is_approved: boolean
+          parent_id: string | null
           slug: string
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_approved?: boolean
+          parent_id?: string | null
           slug: string
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_approved?: boolean
+          parent_id?: string | null
           slug?: string
         }
         Relationships: [
@@ -48,6 +51,13 @@ export type Database = {
             columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_post_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_post_comments"
             referencedColumns: ["id"]
           },
           {
@@ -134,6 +144,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           excerpt: string | null
+          featured_on_community_landing: boolean
           id: string
           is_featured: boolean
           published_at: string | null
@@ -151,6 +162,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           excerpt?: string | null
+          featured_on_community_landing?: boolean
           id?: string
           is_featured?: boolean
           published_at?: string | null
@@ -168,6 +180,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           excerpt?: string | null
+          featured_on_community_landing?: boolean
           id?: string
           is_featured?: boolean
           published_at?: string | null
@@ -228,8 +241,13 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string
+          featured_blog_post_slugs: string[]
+          featured_on_community_landing: boolean
+          featured_projects: Json
           id: string
           name: string
+          profile_links: Json
+          tech_stack: string[]
           updated_at: string
           user_type: string
           username: string
@@ -239,8 +257,13 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email: string
+          featured_blog_post_slugs?: string[]
+          featured_on_community_landing?: boolean
+          featured_projects?: Json
           id: string
           name: string
+          profile_links?: Json
+          tech_stack?: string[]
           updated_at?: string
           user_type?: string
           username: string
@@ -250,13 +273,44 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string
+          featured_blog_post_slugs?: string[]
+          featured_on_community_landing?: boolean
+          featured_projects?: Json
           id?: string
           name?: string
+          profile_links?: Json
+          tech_stack?: string[]
           updated_at?: string
           user_type?: string
           username?: string
         }
         Relationships: []
+      }
+      dashboard_activity_reads: {
+        Row: {
+          activity_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          user_id?: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_activity_reads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

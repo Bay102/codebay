@@ -39,10 +39,6 @@
   "exclude": [
     "node_modules",
     "supabase",
-    "vite.config.ts",
-    "vitest.config.ts",
-    "tailwind.config.ts",
-    "tsconfig.node.json",
-    "tsconfig.app.json"
+    "tailwind.config.ts"
   ]
 }

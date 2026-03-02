@@ -4,6 +4,16 @@ import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CommunityDashboardActions } from "@/components/pages/community/CommunityDashboardActions";
 import { DismissibleNextStepsCard } from "@/components/pages/community/DismissibleNextStepsCard";
+import { ActivityOverviewCard } from "@/components/pages/dashboard/ActivityOverviewCard";
+import { BlogManagementSummaryCard } from "@/components/pages/dashboard/BlogManagementSummaryCard";
+import { DashboardHero } from "@/components/pages/dashboard/DashboardHero";
+import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOverviewCard";
+import {
+  buildBlogSummary,
+  fetchDashboardActivity,
+  fetchDashboardProfile,
+  fetchUserBlogPostsWithStats
+} from "@/lib/dashboard";
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -26,11 +36,23 @@ export default async function CommunityDashboardPage() {
     redirect("/");
   }
 
-  const { data: profile } = await supabase
-    .from("community_users")
-    .select("name,username,email,bio,created_at")
-    .eq("id", user.id)
-    .maybeSingle();
+  const profile = await fetchDashboardProfile(supabase, user.id);
+  if (!profile) {
+    redirect("/join?redirect=/dashboard");
+  }
+
+  const posts = await fetchUserBlogPostsWithStats(supabase, user.id);
+  const blogSummary = buildBlogSummary(posts);
+  const postMapBySlug = Object.fromEntries(
+    posts.map((post) => [post.slug, { id: post.id, title: post.title, authorName: post.authorName }])
+  );
+  const activityItems = await fetchDashboardActivity(supabase, {
+    userId: user.id,
+    userEmail: profile.email ?? user.email ?? null,
+    postMapBySlug,
+    limit: 32
+  });
+  const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
 
   return (
     <main className="min-h-screen bg-background pt-10 sm:pt-14">
@@ -42,24 +64,16 @@ export default async function CommunityDashboardPage() {
           </div>
           <CommunityDashboardActions />
         </div>
-        <div className="rounded-3xl border border-border/70 bg-card/60 px-6 py-7 sm:px-8">
-          <h2 className="text-xl font-semibold text-foreground sm:text-2xl">Welcome back</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This is the initial dashboard scaffold. We will layer in feeds, discussions, badges, and personalized tools
-            next.
-          </p>
+        <DashboardHero name={profile.name} username={profile.username} />
+
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <ActivityOverviewCard items={overviewActivityItems} allItems={activityItems} />
+          <DismissibleNextStepsCard />
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <article className="rounded-2xl border border-border/70 bg-card/60 p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h3>
-            <div className="mt-3 space-y-2 text-sm text-foreground">
-              <p>Name: {profile?.name ?? "Not set yet"}</p>
-              <p>Username: {profile?.username ? `@${profile.username}` : "Not set yet"}</p>
-              <p>Email: {profile?.email ?? user.email ?? "Not available"}</p>
-            </div>
-          </article>
-          <DismissibleNextStepsCard />
+          <ProfileOverviewCard profile={profile} posts={posts} />
+          <BlogManagementSummaryCard summary={blogSummary} />
         </div>
 
         <div className="mt-6">
