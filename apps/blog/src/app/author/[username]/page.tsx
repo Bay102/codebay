@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SurfaceCard } from "@codebay/ui";
 import {
   fetchBlogAuthorProfileByUsername,
   fetchBlogEngagementCounts,
   fetchPublishedBlogPostsByAuthorId
 } from "@/lib/blog";
+import { AuthorHero } from "@/components/pages/blog/AuthorHero";
 
 export const dynamic = "force-dynamic";
 
@@ -61,50 +61,42 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
 
   const posts = await fetchPublishedBlogPostsByAuthorId(author.id);
   const engagement = await fetchBlogEngagementCounts(posts.map((post) => post.slug));
+  const featuredPosts = posts.filter((post) => post.isFeatured).slice(0, 4);
   const authorSegment = buildAuthorSegment(author.name);
 
   return (
     <main className="min-h-screen bg-background pb-20 pt-10 sm:pt-14">
       <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
-        <SurfaceCard variant="hero">
-          <p className="text-sm font-medium uppercase tracking-wide text-primary">Author page</p>
-          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
-            {author.name}&apos;s blog
-          </h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
-            {author.bio?.trim() || "Engineering notes, practical guides, and implementation stories from the field."}
-          </p>
-          {author.techStack.length > 0 ? (
-            <div className="mt-5 flex flex-wrap gap-2">
-              {author.techStack.map((item) => (
-                <span key={item} className="rounded-full border border-border/80 bg-secondary/60 px-3 py-1 text-xs">
-                  {item}
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </SurfaceCard>
+        <AuthorHero author={author} posts={posts} />
 
-        {author.featuredProjects.length > 0 ? (
-          <section className="mt-8">
-            <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured projects</h2>
+        {featuredPosts.length > 0 ? (
+          <section className="mt-10">
+            <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured articles</h2>
             <div className="mt-4 grid gap-4 md:grid-cols-2">
-              {author.featuredProjects.slice(0, 4).map((project) => (
-                <article key={project.title} className="rounded-2xl border border-border/70 bg-card p-5">
-                  <p className="text-base font-semibold text-foreground">{project.title}</p>
-                  {project.description ? <p className="mt-2 text-sm leading-7 text-muted-foreground">{project.description}</p> : null}
-                  {project.url ? (
-                    <Link href={project.url} className="mt-3 inline-flex text-sm font-medium text-primary underline-offset-4 hover:underline">
-                      Visit project
-                    </Link>
-                  ) : null}
-                </article>
+              {featuredPosts.map((post) => (
+                <Link
+                  key={post.slug}
+                  href={`/${authorSegment}/${post.slug}`}
+                  className="rounded-2xl border border-border/70 bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:p-6"
+                >
+                  <article>
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                      <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt)}</time>
+                      <span aria-hidden="true">-</span>
+                      <span>{post.readTimeMinutes} min read</span>
+                    </div>
+                    <h3 className="mt-2 text-base font-semibold leading-tight text-foreground sm:text-lg">
+                      {post.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>
+                  </article>
+                </Link>
               ))}
             </div>
           </section>
         ) : null}
 
-        <section className="mt-10">
+        <section className="mt-8">
           <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Published articles</h2>
           {posts.length > 0 ? (
             <div className="mt-4 grid gap-5 md:grid-cols-2">

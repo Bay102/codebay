@@ -64,13 +64,13 @@ export default async function CommunityDashboardPage() {
         <DashboardHero name={profile.name} username={profile.username} />
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <ProfileOverviewCard profile={profile} posts={posts} />
-          <BlogManagementSummaryCard summary={blogSummary} />
+          <ActivityOverviewCard items={activityItems} />
+          <DismissibleNextStepsCard />
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <ActivityOverviewCard items={activityItems} />
-          <DismissibleNextStepsCard />
+          <ProfileOverviewCard profile={profile} posts={posts} />
+          <BlogManagementSummaryCard summary={blogSummary} />
         </div>
 
         <div className="mt-6">

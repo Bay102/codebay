@@ -44,6 +44,11 @@ export interface BlogFeaturedProject {
   url: string | null;
 }
 
+export interface ProfileLink {
+  label: string;
+  url: string;
+}
+
 export interface BlogAuthorProfile {
   id: string;
   name: string;
@@ -52,6 +57,7 @@ export interface BlogAuthorProfile {
   avatarUrl: string | null;
   techStack: string[];
   featuredProjects: BlogFeaturedProject[];
+  profileLinks: ProfileLink[];
 }
 
 function parseBlogPostSections(rawSections: Json): BlogPostSection[] {
@@ -193,15 +199,37 @@ function parseFeaturedProjects(rawFeaturedProjects: Json | null): BlogFeaturedPr
     .filter((item): item is BlogFeaturedProject => item !== null);
 }
 
+function parseProfileLinks(rawProfileLinks: Json | null): ProfileLink[] {
+  if (!Array.isArray(rawProfileLinks)) return [];
+  return rawProfileLinks
+    .map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return null;
+      const value = item as Record<string, unknown>;
+      const rawLabel = typeof value.label === "string" ? value.label : "";
+      const rawUrl = typeof value.url === "string" ? value.url : "";
+      const label = rawLabel.trim();
+      const url = normalizeUrl(rawUrl);
+      if (!label || !url) return null;
+      return { label, url } satisfies ProfileLink;
+    })
+    .filter((item): item is ProfileLink => item !== null);
+}
+
 function isMissingProfileColumnError(error: { message?: string } | null): boolean {
   if (!error?.message) return false;
-  return error.message.includes("column") && (error.message.includes("tech_stack") || error.message.includes("featured_projects"));
+  return (
+    error.message.includes("column") &&
+    (error.message.includes("tech_stack") ||
+      error.message.includes("featured_projects") ||
+      error.message.includes("profile_links"))
+  );
 }
 
 function mapAuthorProfileRow(
   row: Pick<Tables<"community_users">, "id" | "name" | "username" | "bio" | "avatar_url"> & {
     tech_stack?: string[] | Json | null;
     featured_projects?: Json | null;
+    profile_links?: Json | null;
   }
 ): BlogAuthorProfile {
   return {
@@ -211,7 +239,8 @@ function mapAuthorProfileRow(
     bio: row.bio,
     avatarUrl: row.avatar_url,
     techStack: parseTechStack(row.tech_stack ?? []),
-    featuredProjects: parseFeaturedProjects(row.featured_projects ?? [])
+    featuredProjects: parseFeaturedProjects(row.featured_projects ?? []),
+    profileLinks: parseProfileLinks(row.profile_links ?? [])
   };
 }
 
@@ -222,7 +251,7 @@ async function fetchAuthorProfileBy(
   const supabase = getBlogSupabaseClient();
   if (!supabase) return null;
 
-  const enhancedSelection = "id,name,username,bio,avatar_url,tech_stack,featured_projects";
+  const enhancedSelection = "id,name,username,bio,avatar_url,tech_stack,featured_projects,profile_links";
   const fallbackSelection = "id,name,username,bio,avatar_url";
 
   const enhancedResult = await supabase.from("community_users").select(enhancedSelection).eq(key, value).maybeSingle();
