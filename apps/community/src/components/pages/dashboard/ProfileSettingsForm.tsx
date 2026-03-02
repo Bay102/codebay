@@ -48,6 +48,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? "");
   const [techStackInput, setTechStackInput] = useState(profile.techStack.join(", "));
   const [featuredProjectsInput, setFeaturedProjectsInput] = useState(featuredProjectsToInput(profile.featuredProjects));
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -77,11 +78,36 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
     const featuredProjects = parseFeaturedProjects(featuredProjectsInput);
 
     setIsSaving(true);
+    let nextAvatarUrl: string | null = avatarUrl.trim() || null;
+
+    if (avatarFile) {
+      const userId = session.user.id;
+      const fileExtension = avatarFile.name.split(".").pop()?.toLowerCase() || "png";
+      const objectPath = `${userId}/avatar-${Date.now()}.${fileExtension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("community-profile-avatars")
+        .upload(objectPath, avatarFile, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: avatarFile.type || undefined
+        });
+
+      if (uploadError) {
+        setIsSaving(false);
+        setError(uploadError.message ?? "Unable to upload profile image.");
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from("community-profile-avatars").getPublicUrl(objectPath);
+      nextAvatarUrl = publicUrlData.publicUrl;
+    }
+
     const payload: TablesUpdate<"community_users"> = {
       name: name.trim() || profile.name,
       username: username.trim().toLowerCase() || profile.username,
       bio: bio.trim() || null,
-      avatar_url: avatarUrl.trim() || null,
+      avatar_url: nextAvatarUrl,
       tech_stack: techStack,
       featured_projects: featuredProjects as unknown as TablesUpdate<"community_users">["featured_projects"]
     };
@@ -129,16 +155,31 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="profile-avatar" className="text-sm font-medium">
-            Profile photo URL
+          <label htmlFor="profile-avatar-url" className="text-sm font-medium">
+            Profile photo
           </label>
           <input
-            id="profile-avatar"
+            id="profile-avatar-url"
             value={avatarUrl}
             onChange={(event) => setAvatarUrl(event.target.value)}
             className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
             placeholder="https://example.com/avatar.png"
           />
+          <div className="space-y-1">
+            <input
+              id="profile-avatar-file"
+              type="file"
+              accept="image/*"
+              onChange={(event) => {
+                const file = event.target.files?.[0] ?? null;
+                setAvatarFile(file);
+              }}
+              className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-foreground hover:file:bg-secondary/80"
+            />
+            <p className="text-xs text-muted-foreground">
+              You can paste a URL above or upload an image. Uploaded images are stored securely and used on your public profile.
+            </p>
+          </div>
         </div>
 
         <div className="space-y-2">
