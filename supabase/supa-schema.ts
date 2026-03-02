@@ -69,32 +69,6 @@ export type Database = {
           },
         ]
       }
-      dashboard_activity_reads: {
-        Row: {
-          user_id: string
-          activity_id: string
-          created_at: string
-        }
-        Insert: {
-          user_id?: string
-          activity_id: string
-          created_at?: string
-        }
-        Update: {
-          user_id?: string
-          activity_id?: string
-          created_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dashboard_activity_reads_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "community_users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       blog_post_reactions: {
         Row: {
           created_at: string
@@ -170,6 +144,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           excerpt: string | null
+          featured_on_community_landing: boolean
           id: string
           is_featured: boolean
           published_at: string | null
@@ -187,6 +162,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           excerpt?: string | null
+          featured_on_community_landing?: boolean
           id?: string
           is_featured?: boolean
           published_at?: string | null
@@ -204,6 +180,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           excerpt?: string | null
+          featured_on_community_landing?: boolean
           id?: string
           is_featured?: boolean
           published_at?: string | null
@@ -265,6 +242,7 @@ export type Database = {
           created_at: string
           email: string
           featured_blog_post_slugs: string[]
+          featured_on_community_landing: boolean
           featured_projects: Json
           id: string
           name: string
@@ -280,6 +258,7 @@ export type Database = {
           created_at?: string
           email: string
           featured_blog_post_slugs?: string[]
+          featured_on_community_landing?: boolean
           featured_projects?: Json
           id: string
           name: string
@@ -295,6 +274,7 @@ export type Database = {
           created_at?: string
           email?: string
           featured_blog_post_slugs?: string[]
+          featured_on_community_landing?: boolean
           featured_projects?: Json
           id?: string
           name?: string
@@ -305,6 +285,32 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      dashboard_activity_reads: {
+        Row: {
+          activity_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          activity_id: string
+          created_at?: string
+          user_id?: string
+        }
+        Update: {
+          activity_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_activity_reads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

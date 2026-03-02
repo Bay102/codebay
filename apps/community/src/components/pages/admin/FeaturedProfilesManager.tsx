@@ -5,10 +5,9 @@ import type { Tables } from "@/lib/database";
 import { getCommunitySupabaseClient } from "@/lib/supabase/client";
 import { SurfaceCard } from "@codebay/ui";
 
-type CommunityUserRow = Pick<
-  Tables<"community_users">,
-  "id" | "name" | "username" | "featured_on_community_landing" | "user_type"
->;
+type CommunityUserRow = Pick<Tables<"community_users">, "id" | "name" | "username" | "user_type"> & {
+  featured_on_community_landing: boolean;
+};
 
 export function FeaturedProfilesManager() {
   const supabase = getCommunitySupabaseClient();
@@ -29,14 +28,14 @@ export function FeaturedProfilesManager() {
 
       const { data, error: fetchError } = await supabase
         .from("community_users")
-        .select("id,name,username,featured_on_community_landing,user_type")
+        .select("id,name,username,user_type,featured_on_community_landing")
         .order("created_at", { ascending: false })
         .limit(50);
 
       if (fetchError) {
         setError("Unable to load profiles.");
       } else {
-        setProfiles((data ?? []) as CommunityUserRow[]);
+        setProfiles(((data ?? []) as unknown) as CommunityUserRow[]);
       }
 
       setIsLoading(false);
@@ -56,7 +55,7 @@ export function FeaturedProfilesManager() {
 
     const { error: updateError } = await supabase
       .from("community_users")
-      .update({ featured_on_community_landing: nextValue })
+      .update({ featured_on_community_landing: nextValue } as any)
       .eq("id", profile.id);
 
     setUpdatingId(null);

@@ -5,7 +5,9 @@ import type { Tables } from "@/lib/database";
 import { getBlogSupabaseClient } from "@/lib/supabase/client";
 import { SurfaceCard } from "@codebay/ui";
 
-type BlogPostRow = Pick<Tables<"blog_posts">, "id" | "title" | "slug" | "featured_on_community_landing" | "published_at" | "status">;
+type BlogPostRow = Pick<Tables<"blog_posts">, "id" | "title" | "slug" | "published_at" | "status"> & {
+  featured_on_community_landing: boolean;
+};
 
 export function FeaturedPostsManager() {
   const supabase = getBlogSupabaseClient();
@@ -33,7 +35,7 @@ export function FeaturedPostsManager() {
       if (fetchError) {
         setError("Unable to load posts.");
       } else {
-        setPosts((data ?? []) as BlogPostRow[]);
+        setPosts(((data ?? []) as unknown) as BlogPostRow[]);
       }
 
       setIsLoading(false);
@@ -53,7 +55,7 @@ export function FeaturedPostsManager() {
 
     const { error: updateError } = await supabase
       .from("blog_posts")
-      .update({ featured_on_community_landing: nextValue })
+      .update({ featured_on_community_landing: nextValue } as any)
       .eq("id", post.id);
 
     setUpdatingId(null);

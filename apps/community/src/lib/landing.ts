@@ -13,9 +13,10 @@ type BlogPostRow = Pick<
   | "author_name"
   | "published_at"
   | "is_featured"
-  | "featured_on_community_landing"
   | "tags"
->;
+> & {
+  featured_on_community_landing: boolean;
+};
 
 type CommunityUserRow = Pick<
   Tables<"community_users">,
