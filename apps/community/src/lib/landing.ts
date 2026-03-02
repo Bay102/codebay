@@ -320,8 +320,12 @@ function mapPostRowToLandingPost(
   };
 }
 
-function mapProfileRowToLandingProfile(row: CommunityUserRow, featuredArticles: LandingProfileArticle[] = []): LandingProfile {
+function mapProfileRowToLandingProfile(
+  row: CommunityUserRow,
+  featuredArticlesOrIndex?: LandingProfileArticle[] | number
+): LandingProfile {
   const techStack = (row.tech_stack ?? []).map((item) => item.trim()).filter((item) => item.length > 0);
+  const featuredArticles = Array.isArray(featuredArticlesOrIndex) ? featuredArticlesOrIndex : [];
   return {
     id: row.id,
     name: row.name,
