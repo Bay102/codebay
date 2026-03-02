@@ -33,6 +33,12 @@ export interface DashboardProfile {
   techStack: string[];
   featuredProjects: FeaturedProject[];
   profileLinks: ProfileLink[];
+  /**
+   * When true, the user has explicitly chosen which posts to feature
+   * (including the case where they chose none). When false, we fall
+   * back to showing the latest published posts.
+   */
+  hasFeaturedPostSelection: boolean;
   featuredPostSlugs: string[];
 }
 
@@ -183,6 +189,13 @@ export async function fetchDashboardProfile(
       featured_blog_post_slugs?: string[] | null;
     };
 
+    const hasFeaturedPostSelection = Array.isArray(profile.featured_blog_post_slugs);
+    const featuredPostSlugs = hasFeaturedPostSelection
+      ? profile.featured_blog_post_slugs.filter(
+          (value): value is string => typeof value === "string" && value.trim().length > 0
+        )
+      : [];
+
     return {
       id: profile.id,
       name: profile.name,
@@ -193,11 +206,8 @@ export async function fetchDashboardProfile(
       techStack: parseTechStack(profile.tech_stack ?? []),
       featuredProjects: parseFeaturedProjects(profile.featured_projects ?? []),
       profileLinks: parseProfileLinks(profile.profile_links ?? []),
-      featuredPostSlugs: Array.isArray(profile.featured_blog_post_slugs)
-        ? profile.featured_blog_post_slugs.filter(
-            (value): value is string => typeof value === "string" && value.trim().length > 0
-          )
-        : []
+      hasFeaturedPostSelection,
+      featuredPostSlugs
     };
   }
 
@@ -221,6 +231,7 @@ export async function fetchDashboardProfile(
     techStack: [],
     featuredProjects: [],
     profileLinks: [],
+    hasFeaturedPostSelection: false,
     featuredPostSlugs: []
   };
 }

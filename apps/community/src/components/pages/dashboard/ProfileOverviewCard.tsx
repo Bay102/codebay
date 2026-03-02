@@ -24,9 +24,11 @@ function buildAuthorSegment(authorName: string): string {
 }
 
 export function ProfileOverviewCard({ profile, posts }: ProfileOverviewCardProps) {
-  const featuredPosts = profile.featuredPostSlugs.length
-    ? posts.filter((post) => profile.featuredPostSlugs.includes(post.slug) && post.status === "published")
-    : posts.filter((post) => post.status === "published").slice(0, 3);
+  const publishedPosts = posts.filter((post) => post.status === "published");
+
+  const featuredPosts = profile.hasFeaturedPostSelection
+    ? publishedPosts.filter((post) => profile.featuredPostSlugs.includes(post.slug))
+    : publishedPosts.slice(0, 3);
 
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">

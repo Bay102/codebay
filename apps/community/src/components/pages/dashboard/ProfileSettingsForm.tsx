@@ -265,6 +265,9 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             placeholder={"One per line:\nProject title | https://project-url.com | short description"}
           />
+          <p className="text-xs text-muted-foreground">
+            List up to three projects. Only the first three lines will be shown on your public profile.
+          </p>
         </div>
 
         <div className="space-y-2">
