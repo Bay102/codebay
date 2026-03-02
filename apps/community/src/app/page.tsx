@@ -45,6 +45,12 @@ export default function CommunityLandingPage() {
               Join the community
             </Link>
             <Link
+              href="/join?mode=signin"
+              className="inline-flex rounded-full border border-border/70 bg-card px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+            >
+              Sign in
+            </Link>
+            <Link
               href={blogUrl}
               className="inline-flex rounded-full border border-border/70 bg-card px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
             >
