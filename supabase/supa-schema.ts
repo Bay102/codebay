@@ -228,9 +228,11 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string
+          featured_blog_post_slugs: string[]
           featured_projects: Json
           id: string
           name: string
+          profile_links: Json
           tech_stack: string[]
           updated_at: string
           user_type: string
@@ -241,9 +243,11 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email: string
+          featured_blog_post_slugs?: string[]
           featured_projects?: Json
           id: string
           name: string
+          profile_links?: Json
           tech_stack?: string[]
           updated_at?: string
           user_type?: string
@@ -254,9 +258,11 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string
+          featured_blog_post_slugs?: string[]
           featured_projects?: Json
           id?: string
           name?: string
+          profile_links?: Json
           tech_stack?: string[]
           updated_at?: string
           user_type?: string

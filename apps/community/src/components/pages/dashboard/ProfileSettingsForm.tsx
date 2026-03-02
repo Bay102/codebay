@@ -3,11 +3,12 @@
 import { type FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { TablesUpdate } from "@/lib/database";
-import type { DashboardProfile, FeaturedProject } from "@/lib/dashboard";
+import type { DashboardBlogPostStats, DashboardProfile, FeaturedProject, ProfileLink } from "@/lib/dashboard";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 type ProfileSettingsFormProps = {
   profile: DashboardProfile;
+  blogPosts: DashboardBlogPostStats[];
 };
 
 function featuredProjectsToInput(projects: FeaturedProject[]): string {
@@ -38,7 +39,38 @@ function parseFeaturedProjects(input: string): FeaturedProject[] {
     .filter((item): item is FeaturedProject => item !== null);
 }
 
-export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
+function profileLinksToInput(links: ProfileLink[]): string {
+  return links
+    .map((link) => [link.label, link.url].join(" | "))
+    .join("\n");
+}
+
+function parseProfileLinksInput(input: string): ProfileLink[] {
+  return input
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [labelPart = "", urlPart = ""] = line.split("|").map((part) => part.trim());
+      const label = labelPart;
+      if (!label) {
+        return null;
+      }
+
+      const normalizedUrl = !urlPart ? null : /^https?:\/\//i.test(urlPart) ? urlPart : `https://${urlPart}`;
+      if (!normalizedUrl) {
+        return null;
+      }
+
+      return {
+        label,
+        url: normalizedUrl
+      } satisfies ProfileLink;
+    })
+    .filter((item): item is ProfileLink => item !== null);
+}
+
+export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormProps) {
   const router = useRouter();
   const supabase = useMemo(() => createBrowserSupabaseClient(), []);
 
@@ -48,6 +80,8 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
   const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? "");
   const [techStackInput, setTechStackInput] = useState(profile.techStack.join(", "));
   const [featuredProjectsInput, setFeaturedProjectsInput] = useState(featuredProjectsToInput(profile.featuredProjects));
+  const [profileLinksInput, setProfileLinksInput] = useState(profileLinksToInput(profile.profileLinks));
+  const [featuredPostSlugs, setFeaturedPostSlugs] = useState<string[]>(profile.featuredPostSlugs);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,6 +110,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
       .map((entry) => entry.trim())
       .filter(Boolean);
     const featuredProjects = parseFeaturedProjects(featuredProjectsInput);
+    const profileLinks = parseProfileLinksInput(profileLinksInput);
 
     setIsSaving(true);
     let nextAvatarUrl: string | null = avatarUrl.trim() || null;
@@ -103,7 +138,7 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
       nextAvatarUrl = publicUrlData.publicUrl;
     }
 
-    const payload: TablesUpdate<"community_users"> = {
+    const basePayload: TablesUpdate<"community_users"> = {
       name: name.trim() || profile.name,
       username: username.trim().toLowerCase() || profile.username,
       bio: bio.trim() || null,
@@ -112,7 +147,16 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
       featured_projects: featuredProjects as unknown as TablesUpdate<"community_users">["featured_projects"]
     };
 
-    const { error: updateError } = await supabase.from("community_users").update(payload).eq("id", session.user.id);
+    const payload = {
+      ...(basePayload as unknown as Record<string, unknown>),
+      profile_links: profileLinks as unknown,
+      featured_blog_post_slugs: featuredPostSlugs
+    };
+
+    const { error: updateError } = await supabase
+      .from("community_users")
+      .update(payload as TablesUpdate<"community_users">)
+      .eq("id", session.user.id);
     setIsSaving(false);
 
     if (updateError) {
@@ -221,6 +265,64 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             placeholder={"One per line:\nProject title | https://project-url.com | short description"}
           />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="profile-links" className="text-sm font-medium">
+            Links
+          </label>
+          <textarea
+            id="profile-links"
+            value={profileLinksInput}
+            onChange={(event) => setProfileLinksInput(event.target.value)}
+            rows={4}
+            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            placeholder={"One per line:\nLabel | https://your-link.com"}
+          />
+          <p className="text-xs text-muted-foreground">
+            Add links to your website, GitHub, Twitter, or anywhere else you want people to find you.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-sm font-medium">Featured blog posts</p>
+          <p className="text-xs text-muted-foreground">
+            Choose posts to highlight in your dashboard profile card. Up to three will be shown.
+          </p>
+          {blogPosts.length > 0 ? (
+            <div className="mt-2 space-y-2">
+              {blogPosts.map((post) => {
+                const isSelected = featuredPostSlugs.includes(post.slug);
+                return (
+                  <label
+                    key={post.id}
+                    className="flex cursor-pointer items-start gap-2 rounded-xl border border-border/70 bg-card/70 p-3"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() =>
+                        setFeaturedPostSlugs((previous) =>
+                          previous.includes(post.slug)
+                            ? previous.filter((slug) => slug !== post.slug)
+                            : [...previous, post.slug]
+                        )
+                      }
+                      className="mt-1 h-4 w-4 rounded border border-input text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{post.title}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {post.status === "published" ? "Published" : "Draft"} · {post.views.toLocaleString()} views
+                      </p>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">You haven&apos;t created any blog posts yet.</p>
+          )}
         </div>
 
         {error ? <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p> : null}

@@ -1,8 +1,10 @@
 import Link from "next/link";
-import type { DashboardProfile } from "@/lib/dashboard";
+import type { DashboardBlogPostStats, DashboardProfile } from "@/lib/dashboard";
+import { blogUrl } from "@/lib/site-urls";
 
 type ProfileOverviewCardProps = {
   profile: DashboardProfile;
+  posts: DashboardBlogPostStats[];
 };
 
 function buildInitials(name: string): string {
@@ -12,7 +14,20 @@ function buildInitials(name: string): string {
   return `${words[0]![0]}${words[1]![0]}`.toUpperCase();
 }
 
-export function ProfileOverviewCard({ profile }: ProfileOverviewCardProps) {
+function buildAuthorSegment(authorName: string): string {
+  const base = authorName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base || "author";
+}
+
+export function ProfileOverviewCard({ profile, posts }: ProfileOverviewCardProps) {
+  const featuredPosts = profile.featuredPostSlugs.length
+    ? posts.filter((post) => profile.featuredPostSlugs.includes(post.slug) && post.status === "published")
+    : posts.filter((post) => post.status === "published").slice(0, 3);
+
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
@@ -36,18 +51,20 @@ export function ProfileOverviewCard({ profile }: ProfileOverviewCardProps) {
         <div>
           <p className="text-base font-semibold text-foreground">{profile.name}</p>
           <p className="text-sm text-muted-foreground">@{profile.username}</p>
-          <p className="mt-2 text-sm text-muted-foreground">{profile.email}</p>
         </div>
       </div>
 
-      <p className="mt-4 text-sm leading-7 text-muted-foreground">{profile.bio?.trim() ? profile.bio : "Add a short bio to personalize your author presence."}</p>
+      <p className="mt-4 text-sm leading-7 text-muted-foreground">
+        {profile.bio?.trim() ? profile.bio : "Add a short bio to personalize your author presence."}
+      </p>
+
 
       <div className="mt-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tech stack</p>
         {profile.techStack.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-2">
             {profile.techStack.map((item) => (
-              <span key={item} className="rounded-full border border-border/80 bg-background px-2.5 py-1 text-xs">
+              <span key={item} className="rounded-sm border border-border/80 bg-background px-2.5 py-1 text-xs">
                 {item}
               </span>
             ))}
@@ -79,6 +96,51 @@ export function ProfileOverviewCard({ profile }: ProfileOverviewCardProps) {
         ) : (
           <p className="mt-2 text-sm text-muted-foreground">No featured projects yet.</p>
         )}
+      </div>
+
+      <div className="mt-5">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured posts</p>
+        {featuredPosts.length > 0 ? (
+          <div className="mt-2 space-y-2">
+            {featuredPosts.slice(0, 3).map((post) => {
+              const href = `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`;
+              return (
+                <Link
+                  key={post.id}
+                  href={href}
+                  className="block rounded-xl border border-border/70 bg-background/70 p-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-secondary/60"
+                >
+                  <p className="font-medium text-foreground">{post.title}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {post.views.toLocaleString()} views · {post.reactions} reactions · {post.comments} comments
+                  </p>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">No featured posts yet.</p>
+        )}
+        <div className="mt-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Links</p>
+          {profile.profileLinks.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {profile.profileLinks.map((link) => (
+                <Link
+                  key={link.url}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary hover:underline"
+                >
+                  <span>{link.label}</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-muted-foreground">No links added yet.</p>
+          )}
+        </div>
       </div>
     </article>
   );

@@ -18,6 +18,11 @@ export interface FeaturedProject {
   url: string | null;
 }
 
+export interface ProfileLink {
+  label: string;
+  url: string;
+}
+
 export interface DashboardProfile {
   id: string;
   name: string;
@@ -27,6 +32,8 @@ export interface DashboardProfile {
   avatarUrl: string | null;
   techStack: string[];
   featuredProjects: FeaturedProject[];
+  profileLinks: ProfileLink[];
+  featuredPostSlugs: string[];
 }
 
 export interface DashboardBlogPostStats {
@@ -119,23 +126,61 @@ function parseFeaturedProjects(rawFeaturedProjects: Json | null): FeaturedProjec
     .filter((item): item is FeaturedProject => item !== null);
 }
 
+function parseProfileLinks(rawProfileLinks: Json | null): ProfileLink[] {
+  if (!Array.isArray(rawProfileLinks)) {
+    return [];
+  }
+
+  return rawProfileLinks
+    .map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) {
+        return null;
+      }
+
+      const value = item as Record<string, unknown>;
+      const rawLabel = typeof value.label === "string" ? value.label : "";
+      const rawUrl = typeof value.url === "string" ? value.url : "";
+
+      const label = rawLabel.trim();
+      const url = normalizeUrl(rawUrl);
+
+      if (!label || !url) {
+        return null;
+      }
+
+      return {
+        label,
+        url
+      } satisfies ProfileLink;
+    })
+    .filter((item): item is ProfileLink => item !== null);
+}
+
 function isMissingColumnError(error: { message?: string } | null): boolean {
   if (!error?.message) return false;
-  return error.message.includes("column") && (error.message.includes("tech_stack") || error.message.includes("featured_projects"));
+  return (
+    error.message.includes("column") &&
+    (error.message.includes("tech_stack") ||
+      error.message.includes("featured_projects") ||
+      error.message.includes("profile_links") ||
+      error.message.includes("featured_blog_post_slugs"))
+  );
 }
 
 export async function fetchDashboardProfile(
   supabase: SupabaseClient<Database>,
   userId: string
 ): Promise<DashboardProfile | null> {
-  const enhancedSelection = "id,name,username,email,bio,avatar_url,tech_stack,featured_projects";
+  const enhancedSelection = "id,name,username,email,bio,avatar_url,tech_stack,featured_projects,profile_links,featured_blog_post_slugs";
   const fallbackSelection = "id,name,username,email,bio,avatar_url";
 
   const enhancedResult = await supabase.from("community_users").select(enhancedSelection).eq("id", userId).maybeSingle();
   if (!enhancedResult.error && enhancedResult.data) {
-    const profile = enhancedResult.data as CommunityUserRow & {
+    const profile = enhancedResult.data as unknown as CommunityUserRow & {
       tech_stack?: string[] | Json | null;
       featured_projects?: Json | null;
+      profile_links?: Json | null;
+      featured_blog_post_slugs?: string[] | null;
     };
 
     return {
@@ -146,7 +191,13 @@ export async function fetchDashboardProfile(
       bio: profile.bio,
       avatarUrl: profile.avatar_url,
       techStack: parseTechStack(profile.tech_stack ?? []),
-      featuredProjects: parseFeaturedProjects(profile.featured_projects ?? [])
+      featuredProjects: parseFeaturedProjects(profile.featured_projects ?? []),
+      profileLinks: parseProfileLinks(profile.profile_links ?? []),
+      featuredPostSlugs: Array.isArray(profile.featured_blog_post_slugs)
+        ? profile.featured_blog_post_slugs.filter(
+            (value): value is string => typeof value === "string" && value.trim().length > 0
+          )
+        : []
     };
   }
 
@@ -168,7 +219,9 @@ export async function fetchDashboardProfile(
     bio: profile.bio,
     avatarUrl: profile.avatar_url,
     techStack: [],
-    featuredProjects: []
+    featuredProjects: [],
+    profileLinks: [],
+    featuredPostSlugs: []
   };
 }
 

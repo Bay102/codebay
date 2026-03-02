@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ProfileSettingsForm } from "@/components/pages/dashboard/ProfileSettingsForm";
-import { fetchDashboardProfile } from "@/lib/dashboard";
+import { fetchDashboardProfile, fetchUserBlogPostsWithStats } from "@/lib/dashboard";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -30,6 +30,8 @@ export default async function DashboardProfilePage() {
     redirect("/join?redirect=/dashboard/profile");
   }
 
+  const posts = await fetchUserBlogPostsWithStats(supabase, user.id);
+
   return (
     <main className="min-h-screen bg-background pt-10 sm:pt-14">
       <section className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-6 lg:px-8">
@@ -49,7 +51,7 @@ export default async function DashboardProfilePage() {
           </Link>
         </div>
 
-        <ProfileSettingsForm profile={profile} />
+        <ProfileSettingsForm profile={profile} blogPosts={posts} />
       </section>
     </main>
   );
