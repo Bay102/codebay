@@ -137,14 +137,13 @@ export default async function BlogPage({
 
       <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
         <SurfaceCard variant="hero">
-          <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Engineering</p>
+          <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Blog</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
-            Code, systems, and AI: real-world engineering stories
+            The tech blog for engineers who ship: AI, systems, and product
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
-            From low-level implementation details to high-level architecture and product trade-offs, we share hands-on
-            tutorials, patterns, and opinions across web development, infrastructure, AI tooling, and everything in
-            between.
+            Tutorials, deep-dives, and how-tos on the stack we use in production—web, systems, and AI. Real code, real
+            trade-offs, no filler.
           </p>
         </SurfaceCard>
 

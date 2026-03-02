@@ -18,10 +18,10 @@ type BlogEngagementProps = {
 
 type CommentRow = Pick<Tables<"blog_post_comments">, "id" | "author_name" | "body" | "created_at">;
 
-const reactionOptions: { type: ReactionType; label: string; badge: string }[] = [
-  { type: "like", label: "Helpful", badge: "H" },
-  { type: "insightful", label: "Insightful", badge: "I" },
-  { type: "love", label: "Loved", badge: "L" }
+const reactionOptions: { type: ReactionType; label: string; icon: string }[] = [
+  { type: "like", label: "Helpful", icon: "👍" },
+  { type: "insightful", label: "Insightful", icon: "💡" },
+  { type: "love", label: "Loved", icon: "❤️" }
 ];
 
 function formatShortDateTime(value: string): string {
@@ -288,7 +288,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                 : `${viewCount.toLocaleString()} views - ${totalReactions} reactions - ${comments.length} comment${comments.length === 1 ? "" : "s"}`}
             </p>
           </div>
-          <div className="flex flex-wrap gap-3 md:justify-end">
+          <div className="flex flex-wrap gap-2 md:justify-end">
             {reactionOptions.map((option) => {
               const counts = reactionCounts[option.type];
               const totalForType = counts.up + counts.down;
@@ -297,12 +297,12 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
               return (
                 <div
                   key={option.type}
-                  className="flex min-w-[180px] flex-1 flex-col gap-2 rounded-xl border border-border/70 bg-background/60 p-3 sm:min-w-[200px] sm:p-4"
+                  className="flex min-w-[150px] flex-1 flex-col gap-1.5 rounded-lg border border-border/70 bg-background/60 p-2.5 sm:min-w-[160px] sm:p-3"
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary/70 text-sm">
-                        {option.badge}
+                  <div className="flex items-center justify-between gap-1.5 md:flex-col md:items-start md:justify-start md:gap-0.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/70 text-xs" aria-hidden>
+                        {option.icon}
                       </span>
                       <span className="text-xs font-medium text-foreground">{option.label}</span>
                     </div>
@@ -316,18 +316,18 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                   </div>
 
                   {totalForType > 0 ? (
-                    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-border/80">
+                    <div className="mt-0.5 h-1 w-full overflow-hidden rounded-full bg-border/80">
                       <div className="h-full bg-primary transition-[width]" style={{ width: `${upPct}%` }} aria-hidden />
                     </div>
                   ) : (
-                    <div className="mt-1 h-1.5 w-full rounded-full bg-border/40" aria-hidden />
+                    <div className="mt-0.5 h-1 w-full rounded-full bg-border/40" aria-hidden />
                   )}
 
                   {!hasReacted ? (
-                    <div className="mt-2 flex gap-2">
+                    <div className="mt-1.5 flex gap-1.5">
                       <button
                         type="button"
-                        className="h-8 flex-1 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                        className="h-7 flex-1 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => void handleReact(option.type, "up")}
                         disabled={reactionSubmitting !== null || isLoading || isAuthLoading || !hasEngagementAccess}
                         aria-label={`Mark this article as ${option.label.toLowerCase()}`}
@@ -336,7 +336,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                       </button>
                       <button
                         type="button"
-                        className="h-8 flex-1 rounded-md border border-transparent bg-muted px-2 text-xs font-medium transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
+                        className="h-7 flex-1 rounded-md border border-transparent bg-muted px-2 text-xs font-medium transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => void handleReact(option.type, "down")}
                         disabled={reactionSubmitting !== null || isLoading || isAuthLoading || !hasEngagementAccess}
                         aria-label={`This article was not ${option.label.toLowerCase()}`}
