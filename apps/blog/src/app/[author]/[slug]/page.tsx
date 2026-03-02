@@ -2,7 +2,7 @@ import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
-import { fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
+import { fetchBlogAuthorProfileById, fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
 import { mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
@@ -85,6 +85,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const allPosts = await fetchPublishedBlogPosts();
   const relatedPosts = allPosts.filter((candidate) => candidate.slug !== post.slug).slice(0, 2);
   const authorSegment = buildAuthorSegment(post.authorName);
+  const authorProfile = post.authorId ? await fetchBlogAuthorProfileById(post.authorId) : null;
+  const authorHomeHref = authorProfile ? `/author/${authorProfile.username}` : "/";
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -125,7 +127,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <span aria-hidden="true">-</span>
             <span>{post.readTimeMinutes} min read</span>
             <span aria-hidden="true">-</span>
-            <span>{post.authorName}</span>
+            <Link href={authorHomeHref} className="text-primary underline-offset-4 hover:underline">
+              {post.authorName}
+            </Link>
           </div>
 
           <p className="mt-6 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">{post.excerpt}</p>

@@ -228,8 +228,10 @@ export type Database = {
           bio: string | null
           created_at: string
           email: string
+          featured_projects: Json
           id: string
           name: string
+          tech_stack: string[]
           updated_at: string
           user_type: string
           username: string
@@ -239,8 +241,10 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email: string
+          featured_projects?: Json
           id: string
           name: string
+          tech_stack?: string[]
           updated_at?: string
           user_type?: string
           username: string
@@ -250,8 +254,10 @@ export type Database = {
           bio?: string | null
           created_at?: string
           email?: string
+          featured_projects?: Json
           id?: string
           name?: string
+          tech_stack?: string[]
           updated_at?: string
           user_type?: string
           username?: string

@@ -5,7 +5,6 @@ import type { AppHeaderMenuItem } from "@codebay/ui";
 import { blogUrl, mainUrl } from "@/lib/site-urls";
 
 const menuItems: AppHeaderMenuItem[] = [
-  { type: "link", href: mainUrl, label: "CodeBay" },
   { type: "link", href: blogUrl, label: "Blog" },
   { type: "link", href: "/dashboard", label: "Dashboard" },
 ];

@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import UserBlogCreation from "@/components/pages/blog/UserBlogCreation";
+import { communityUrl } from "@/lib/site-urls";
 
 export const metadata: Metadata = {
   title: "New blog post",
-  description: "Draft and publish new posts for the CodingBay blog."
+  description: "Blog authoring now happens in the community dashboard."
 };
 
 export default function NewBlogPostPage() {
-  return <UserBlogCreation />;
+  redirect(`${communityUrl}/dashboard/blog/new`);
 }
 

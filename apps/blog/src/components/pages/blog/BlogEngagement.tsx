@@ -53,12 +53,12 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
     insightful: { up: 0, down: 0 },
     love: { up: 0, down: 0 }
   });
+  const [userReactions, setUserReactions] = useState<Partial<Record<ReactionType, ReactionResponse>>>({});
   const [comments, setComments] = useState<CommentRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [reactionSubmitting, setReactionSubmitting] = useState<ReactionType | null>(null);
   const reactionInProgressRef = useRef(false);
   const hasRecordedViewRef = useRef(false);
-  const [hasReacted, setHasReacted] = useState(false);
   const [commentBody, setCommentBody] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,12 +95,6 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
   }, [supabase]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const key = `blog_reacted:${slug}`;
-    setHasReacted(window.localStorage.getItem(key) === "1");
-  }, [slug]);
-
-  useEffect(() => {
     if (!supabase) {
       setIsLoading(false);
       setViewCount(0);
@@ -118,7 +112,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
 
       const [viewsResult, reactionsResult, commentsResult] = await Promise.all([
         supabase.from("blog_post_views").select("*", { count: "exact", head: true }).eq("slug", slug),
-        supabase.from("blog_post_reactions").select("reaction_type,response").eq("slug", slug),
+        supabase.from("blog_post_reactions").select("reaction_type,response,user_id").eq("slug", slug),
         supabase
           .from("blog_post_comments")
           .select("id,author_name,body,created_at")
@@ -139,6 +133,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
           insightful: { up: 0, down: 0 },
           love: { up: 0, down: 0 }
         };
+        const nextUserReactions: Partial<Record<ReactionType, ReactionResponse>> = {};
 
         (reactionsResult.data ?? []).forEach((row) => {
           const type = row.reaction_type as ReactionType;
@@ -146,9 +141,14 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
 
           const response: ReactionResponse = row.response === "down" ? "down" : "up";
           nextReactionCounts[type][response] += 1;
+
+          if (session && row.user_id && row.user_id === session.user.id) {
+            nextUserReactions[type] = response;
+          }
         });
 
         setReactionCounts(nextReactionCounts);
+        setUserReactions(nextUserReactions);
         setComments((commentsResult.data ?? []) as CommentRow[]);
         setCurrentPage(1);
       }
@@ -171,7 +171,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
     return () => {
       isMounted = false;
     };
-  }, [slug, supabase]);
+  }, [slug, supabase, session]);
 
   const handleReact = async (type: ReactionType, response: ReactionResponse) => {
     if (!supabase) {
@@ -184,7 +184,12 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
       return;
     }
 
-    if (hasReacted || reactionInProgressRef.current) return;
+    if (reactionInProgressRef.current) return;
+
+    if (userReactions[type]) {
+      return;
+    }
+
     reactionInProgressRef.current = true;
     setReactionSubmitting(type);
     setError(null);
@@ -214,11 +219,10 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
       }
     }));
 
-    setHasReacted(true);
-    if (typeof window !== "undefined") {
-      const key = `blog_reacted:${slug}`;
-      window.localStorage.setItem(key, "1");
-    }
+    setUserReactions((previous) => ({
+      ...previous,
+      [type]: response
+    }));
   };
 
   const handleSubmitComment = async (event: FormEvent<HTMLFormElement>) => {
@@ -293,6 +297,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
               const counts = reactionCounts[option.type];
               const totalForType = counts.up + counts.down;
               const upPct = totalForType > 0 ? Math.round((counts.up / totalForType) * 100) : 0;
+              const hasReactedToType = !!userReactions[option.type];
 
               return (
                 <div
@@ -323,7 +328,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                     <div className="mt-0.5 h-1 w-full rounded-full bg-border/40" aria-hidden />
                   )}
 
-                  {!hasReacted ? (
+                  {!hasReactedToType ? (
                     <div className="mt-1.5 flex gap-1.5">
                       <button
                         type="button"
