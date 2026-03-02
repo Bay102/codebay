@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json, Tables } from "@/lib/database";
+import { blogUrl } from "@/lib/site-urls";
 
 type CommunityUserRow = Tables<"community_users">;
 
@@ -8,7 +9,10 @@ type BlogPostListRow = Pick<
   "id" | "slug" | "title" | "author_name" | "status" | "created_at" | "updated_at" | "published_at"
 >;
 
-type ActivityCommentRow = Pick<Tables<"blog_post_comments">, "id" | "slug" | "author_id" | "author_name" | "body" | "created_at">;
+type ActivityCommentRow = Pick<
+  Tables<"blog_post_comments">,
+  "id" | "slug" | "author_id" | "author_name" | "body" | "created_at" | "parent_id"
+>;
 
 type ActivityMessageRow = Pick<Tables<"chat_handoffs">, "id" | "name" | "created_at" | "notes">;
 
@@ -75,7 +79,9 @@ export interface DashboardActivityItem {
   title: string;
   description: string;
   createdAt: string;
-  href: string;
+  isRead: boolean;
+  /** Public URL to navigate to. Omit for direct_message (messaging not built yet). */
+  href?: string;
 }
 
 function normalizeUrl(value: string): string | null {
@@ -336,6 +342,15 @@ export function buildBlogSummary(posts: DashboardBlogPostStats[]): DashboardBlog
   };
 }
 
+function buildAuthorSegment(value: string): string {
+  const base = value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return base || "author";
+}
+
 export async function fetchDashboardActivity(
   supabase: SupabaseClient<Database>,
   {
@@ -346,40 +361,44 @@ export async function fetchDashboardActivity(
   }: {
     userId: string;
     userEmail: string | null;
-    postMapBySlug: Record<string, { id: string; title: string }>;
+    postMapBySlug: Record<string, { id: string; title: string; authorName: string }>;
     limit?: number;
   }
 ): Promise<DashboardActivityItem[]> {
   const resolvedLimit = limit ?? 8;
   const postSlugs = Object.keys(postMapBySlug);
-  const items: DashboardActivityItem[] = [];
+  const items: Array<Omit<DashboardActivityItem, "isRead">> = [];
 
   if (postSlugs.length > 0) {
-    const incomingCommentsPromise = supabase
+    const incomingCommentsResult = await supabase
       .from("blog_post_comments")
-      .select("id,slug,author_id,author_name,body,created_at")
+      .select("id,slug,author_id,author_name,body,created_at,parent_id")
       .in("slug", postSlugs)
       .order("created_at", { ascending: false })
       .limit(resolvedLimit * 2);
 
-    const userRepliesPromise = supabase
-      .from("blog_post_comments")
-      .select("id,slug,author_id,author_name,body,created_at")
-      .eq("author_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(resolvedLimit);
-
-    const [incomingCommentsResult, userRepliesResult] = await Promise.all([incomingCommentsPromise, userRepliesPromise]);
-
     const incomingComments = (incomingCommentsResult.data ?? []) as ActivityCommentRow[];
-    const userReplies = (userRepliesResult.data ?? []) as ActivityCommentRow[];
 
     incomingComments
-      .filter((comment) => comment.author_id !== userId)
+      .filter((comment) => comment.parent_id === null)
       .slice(0, resolvedLimit)
       .forEach((comment) => {
         const post = postMapBySlug[comment.slug];
         if (!post) return;
+
+        // Do not create an activity item when the post author comments on their own post.
+        // Primary guard: compare Supabase user IDs.
+        if (comment.author_id === userId) {
+          return;
+        }
+
+        // Secondary guard: fall back to name matching in case older rows have null author_id.
+        if (comment.author_name && comment.author_name === post.authorName) {
+          return;
+        }
+
+        const authorSegment = buildAuthorSegment(post.authorName);
+        const articleHref = `${blogUrl}/${authorSegment}/${comment.slug}`;
 
         items.push({
           id: `incoming-comment-${comment.id}`,
@@ -387,21 +406,60 @@ export async function fetchDashboardActivity(
           title: "New comment on your post",
           description: `${comment.author_name ?? "A reader"} commented on "${post.title}"`,
           createdAt: comment.created_at,
-          href: `/dashboard/blog/edit/${post.id}`
+          href: articleHref
         });
       });
+  }
 
-    userReplies.slice(0, resolvedLimit).forEach((comment) => {
-      const post = postMapBySlug[comment.slug];
+  const userCommentsResult = await supabase
+    .from("blog_post_comments")
+    .select("id")
+    .eq("author_id", userId);
+  const userCommentIds = ((userCommentsResult.data ?? []) as { id: string }[]).map((c) => c.id);
+
+  if (userCommentIds.length > 0) {
+    const repliesResult = await supabase
+      .from("blog_post_comments")
+      .select("id,slug,author_id,author_name,body,created_at,parent_id")
+      .in("parent_id", userCommentIds)
+      .neq("author_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(resolvedLimit);
+
+    const replies = (repliesResult.data ?? []) as ActivityCommentRow[];
+    const replySlugs = [...new Set(replies.map((r) => r.slug))];
+    const missingSlugs = replySlugs.filter((s) => !(s in postMapBySlug));
+    let extendedPostMap = { ...postMapBySlug };
+
+    if (missingSlugs.length > 0) {
+      const { data: postsData } = await supabase
+        .from("blog_posts")
+        .select("slug,title,author_name")
+        .in("slug", missingSlugs);
+      const rows = (postsData ?? []) as { slug: string; title: string; author_name: string | null }[];
+      rows.forEach((row) => {
+        extendedPostMap[row.slug] = {
+          id: "",
+          title: row.title,
+          authorName: row.author_name ?? "Author"
+        };
+      });
+    }
+
+    replies.slice(0, resolvedLimit).forEach((reply) => {
+      const post = extendedPostMap[reply.slug];
       if (!post) return;
 
+      const authorSegment = buildAuthorSegment(post.authorName);
+      const articleHref = `${blogUrl}/${authorSegment}/${reply.slug}`;
+
       items.push({
-        id: `reply-${comment.id}`,
+        id: `reply-${reply.id}`,
         kind: "reply",
-        title: "You replied in a blog thread",
-        description: `Your recent reply on "${post.title}" is live`,
-        createdAt: comment.created_at,
-        href: `/dashboard/blog/edit/${post.id}`
+        title: "Reply to your comment",
+        description: `${reply.author_name ?? "A reader"} replied to your comment on "${post.title}"`,
+        createdAt: reply.created_at,
+        href: articleHref
       });
     });
   }
@@ -421,11 +479,26 @@ export async function fetchDashboardActivity(
         kind: "direct_message",
         title: "Direct message update",
         description: `New message from ${message.name}${message.notes ? `: ${message.notes}` : ""}`,
-        createdAt: message.created_at,
-        href: "/dashboard"
+        createdAt: message.created_at
+        // href omitted: messaging feature not built yet, do nothing on click
       });
     });
   }
 
-  return items.sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, resolvedLimit);
+  const readsResult = await supabase
+    .from("dashboard_activity_reads")
+    .select("activity_id")
+    .eq("user_id", userId);
+
+  const readIds = new Set<string>(
+    (readsResult.data ?? []).map((row: { activity_id: string }) => row.activity_id),
+  );
+
+  return items
+    .map((item) => ({
+      ...item,
+      isRead: readIds.has(item.id),
+    }))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, resolvedLimit);
 }

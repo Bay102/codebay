@@ -43,13 +43,16 @@ export default async function CommunityDashboardPage() {
 
   const posts = await fetchUserBlogPostsWithStats(supabase, user.id);
   const blogSummary = buildBlogSummary(posts);
-  const postMapBySlug = Object.fromEntries(posts.map((post) => [post.slug, { id: post.id, title: post.title }]));
+  const postMapBySlug = Object.fromEntries(
+    posts.map((post) => [post.slug, { id: post.id, title: post.title, authorName: post.authorName }])
+  );
   const activityItems = await fetchDashboardActivity(supabase, {
     userId: user.id,
     userEmail: profile.email ?? user.email ?? null,
     postMapBySlug,
-    limit: 8
+    limit: 32
   });
+  const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
 
   return (
     <main className="min-h-screen bg-background pt-10 sm:pt-14">
@@ -64,7 +67,7 @@ export default async function CommunityDashboardPage() {
         <DashboardHero name={profile.name} username={profile.username} />
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <ActivityOverviewCard items={activityItems} />
+          <ActivityOverviewCard items={overviewActivityItems} allItems={activityItems} />
           <DismissibleNextStepsCard />
         </div>
 

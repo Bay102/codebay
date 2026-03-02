@@ -200,7 +200,9 @@ export function ProfilePreviewPopover({ profile, sections = {}, authorPageHref, 
 
         {articles.length > 0 ? (
           <div className="mt-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Articles</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Featured articles
+            </p>
             <div className="mt-1.5 space-y-1">
               {articles.map((article) => (
                 <Link

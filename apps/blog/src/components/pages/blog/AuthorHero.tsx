@@ -20,7 +20,9 @@ type AuthorHeroProps = {
 
 export function AuthorHero({ author, posts }: AuthorHeroProps) {
   const authorSegment = buildAuthorSegment(author.name);
-  const articles = posts.map((post) => ({
+  const featuredPosts = posts.filter((post) => post.isFeatured);
+  const sourcePosts = featuredPosts.length > 0 ? featuredPosts : posts;
+  const articles = sourcePosts.slice(0, 4).map((post) => ({
     title: post.title,
     href: `/${authorSegment}/${post.slug}`
   }));
@@ -41,7 +43,6 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
             avatarUrl: author.avatarUrl
           }}
           sections={{
-            featuredProjects: author.featuredProjects,
             articles,
             profileLinks: author.profileLinks
           }}
