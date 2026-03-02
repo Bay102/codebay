@@ -8,9 +8,7 @@
   "dev": "next dev",
   "build": "next build",
   "start": "next start",
-  "lint": "eslint .",
-  "test": "vitest run",
-  "test:watch": "vitest"
+  "lint": "eslint ."
  },
  "dependencies": {
   "@codebay/theme": "file:../../packages/theme",

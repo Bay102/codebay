@@ -9,10 +9,10 @@
   "packages/*"
  ],
  "scripts": {
-  "dev": "NEXT_IGNORE_INCORRECT_LOCKFILE=true turbo run dev --parallel",
-  "dev:codebay": "NEXT_IGNORE_INCORRECT_LOCKFILE=true turbo run dev --filter=@codebay/codebay",
-  "dev:blog": "NEXT_IGNORE_INCORRECT_LOCKFILE=true turbo run dev --filter=@codebay/blog",
-  "dev:community": "NEXT_IGNORE_INCORRECT_LOCKFILE=true turbo run dev --filter=@codebay/community",
+  "dev": "turbo run dev --parallel",
+  "dev:codebay": "turbo run dev --filter=@codebay/codebay",
+  "dev:blog": "turbo run dev --filter=@codebay/blog",
+  "dev:community": "turbo run dev --filter=@codebay/community",
   "build": "turbo run build",
   "lint": "turbo run lint",
   "test": "turbo run test"
