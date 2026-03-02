@@ -1,28 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { SurfaceCard } from "@codebay/ui";
 import { blogUrl } from "@/lib/site-urls";
+import { WhyJoinCarousel } from "@/components/pages/community/WhyJoinCarousel";
+import { TrendingProfilesSection } from "@/components/pages/community/TrendingProfilesSection";
+import { TrendingTopicsSection } from "@/components/pages/community/TrendingTopicsSection";
+import { FeaturedBlogPostsSection } from "@/components/pages/community/FeaturedBlogPostsSection";
 
 export const metadata: Metadata = {
   title: "Community",
   description:
     "Explore the CodeBay community – a focused space for AI-powered engineering, discussions, and shared resources."
 };
-
-const placeholderSections = [
-  {
-    title: "Latest discussions",
-    body: "A feed of in-progress conversations around architecture decisions, performance tuning, and production incidents."
-  },
-  {
-    title: "Community resources",
-    body: "Curated guides, reference implementations, and templates shared by the community."
-  },
-  {
-    title: "Events & office hours",
-    body: "Upcoming live sessions, AMAs, and office hours for teams shipping with AI."
-  }
-];
 
 export default function CommunityLandingPage() {
   return (
@@ -34,8 +24,8 @@ export default function CommunityLandingPage() {
             Community hub for builders shipping with AI
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
-            This is the starting point for CodeBay community activity. We will surface discussions, resources, and
-            events here as the community evolves.
+            Join other engineers shipping AI-powered products: share patterns, get feedback, and stay close to what the
+            CodeBay team is building.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
@@ -59,22 +49,19 @@ export default function CommunityLandingPage() {
           </div>
         </SurfaceCard>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
-          {placeholderSections.map((section) => (
-            <SurfaceCard key={section.title} as="article" variant="card">
-              <h2 className="text-base font-semibold text-foreground">{section.title}</h2>
-              <p className="mt-2 text-sm leading-7 text-muted-foreground">{section.body}</p>
-            </SurfaceCard>
-          ))}
-        </section>
+        <WhyJoinCarousel />
 
-        <SurfaceCard className="mt-10" variant="subtle">
-          <h2 className="text-base font-semibold text-foreground">Future community surface</h2>
-          <p className="mt-2 text-sm leading-7 text-muted-foreground">
-            This area will evolve into a richer community experience: personalized activity, saved threads, featured
-            posts, and more. For now, it serves as a placeholder so we can wire up navigation and authentication flows.
-          </p>
-        </SurfaceCard>
+        <Suspense fallback={null}>
+          <TrendingTopicsSection />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <FeaturedBlogPostsSection />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <TrendingProfilesSection />
+        </Suspense>
       </section>
     </main>
   );
