@@ -7,6 +7,7 @@ import { mainUrl, communityUrl } from "@/lib/site-urls";
 const menuItems: AppHeaderMenuItem[] = [
   { type: "link", href: communityUrl, label: "Community" },
   { type: "link", href: `${communityUrl}/dashboard`, label: "Dashboard" },
+  { type: "link", href: '/new-blog-post', label: "New Blog Post" },
 ];
 
 export function BlogAppHeader() {

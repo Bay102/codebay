@@ -14,7 +14,7 @@ export function CommunityAppHeader() {
   return (
     <SharedAppHeader
       homeHref="/"
-      logo={<CodeBayLogo className="h-6 w-auto md:h-10" />}
+      logo={<CodeBayLogo className="h-6 w-auto md:h-8" />}
       menuItems={menuItems}
     />
   );
