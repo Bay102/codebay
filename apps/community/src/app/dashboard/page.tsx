@@ -73,9 +73,12 @@ export default async function CommunityDashboardPage() {
           <DismissibleNextStepsCard />
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <ProfileOverviewCard profile={profile} posts={posts} />
+        <div className="mt-6 grid gap-4 md:grid-cols-1">
           <BlogManagementSummaryCard summary={blogSummary} />
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-1">
+          <ProfileOverviewCard profile={profile} posts={posts} />
         </div>
 
         <div className="mt-6">

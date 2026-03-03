@@ -60,88 +60,96 @@ export function ProfileOverviewCard({ profile, posts }: ProfileOverviewCardProps
         {profile.bio?.trim() ? profile.bio : "Add a short bio to personalize your author presence."}
       </p>
 
-
-      <div className="mt-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tech stack</p>
-        {profile.techStack.length > 0 ? (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {profile.techStack.map((item) => (
-              <span key={item} className="rounded-sm border border-border/80 bg-background px-2.5 py-1 text-xs">
-                {item}
-              </span>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-2 text-sm text-muted-foreground">No technologies added yet.</p>
-        )}
-      </div>
-
-      <div className="mt-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured projects</p>
-        {profile.featuredProjects.length > 0 ? (
-          <div className="mt-2 space-y-2">
-            {profile.featuredProjects.slice(0, 3).map((project) => (
-              <div key={project.title} className="rounded-xl border border-border/70 bg-background/70 p-3">
-                <p className="text-sm font-medium text-foreground">{project.title}</p>
-                {project.description ? <p className="mt-1 text-xs text-muted-foreground">{project.description}</p> : null}
-                {project.url ? (
-                  <Link
-                    href={project.url}
-                    className="mt-2 inline-flex text-xs font-medium text-primary underline-offset-4 hover:underline"
-                  >
-                    View project
-                  </Link>
-                ) : null}
+      <div className="mt-5 space-y-5">
+        <div className="grid gap-5 md:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Tech stack</p>
+            {profile.techStack.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {profile.techStack.map((item) => (
+                  <span key={item} className="rounded-sm border border-border/80 bg-background px-2.5 py-1 text-xs">
+                    {item}
+                  </span>
+                ))}
               </div>
-            ))}
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">No technologies added yet.</p>
+            )}
           </div>
-        ) : (
-          <p className="mt-2 text-sm text-muted-foreground">No featured projects yet.</p>
-        )}
-      </div>
 
-      <div className="mt-5">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured posts</p>
-        {featuredPosts.length > 0 ? (
-          <div className="mt-2 space-y-2">
-            {featuredPosts.slice(0, 3).map((post) => {
-              const href = `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`;
-              return (
-                <Link
-                  key={post.id}
-                  href={href}
-                  className="block rounded-xl border border-border/70 bg-background/70 p-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-secondary/60"
-                >
-                  <p className="font-medium text-foreground">{post.title}</p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {post.views.toLocaleString()} views · {post.reactions} reactions · {post.comments} comments
-                  </p>
-                </Link>
-              );
-            })}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Links</p>
+            {profile.profileLinks.length > 0 ? (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {profile.profileLinks.map((link) => (
+                  <Link
+                    key={link.url}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary hover:underline"
+                  >
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">No links added yet.</p>
+            )}
           </div>
-        ) : (
-          <p className="mt-2 text-sm text-muted-foreground">No featured posts yet.</p>
-        )}
-        <div className="mt-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Links</p>
-          {profile.profileLinks.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {profile.profileLinks.map((link) => (
-                <Link
-                  key={link.url}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary hover:underline"
-                >
-                  <span>{link.label}</span>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-muted-foreground">No links added yet.</p>
-          )}
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured projects</p>
+            {profile.featuredProjects.length > 0 ? (
+              <div className="mt-2 space-y-2">
+                {profile.featuredProjects.slice(0, 3).map((project) => (
+                  <div key={project.title} className="rounded-xl border border-border/70 bg-background/70 p-3">
+                    <p className="text-sm font-medium text-foreground">{project.title}</p>
+                    {project.description ? (
+                      <p className="mt-1 text-xs text-muted-foreground">{project.description}</p>
+                    ) : null}
+                    {project.url ? (
+                      <Link
+                        href={project.url}
+                        className="mt-2 inline-flex text-xs font-medium text-primary underline-offset-4 hover:underline"
+                      >
+                        View project
+                      </Link>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">No featured projects yet.</p>
+            )}
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured posts</p>
+            {featuredPosts.length > 0 ? (
+              <div className="mt-2 space-y-2">
+                {featuredPosts.slice(0, 3).map((post) => {
+                  const href = `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`;
+                  return (
+                    <Link
+                      key={post.id}
+                      href={href}
+                      className="block rounded-xl border border-border/70 bg-background/70 p-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-secondary/60"
+                    >
+                      <p className="font-medium text-foreground">{post.title}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {post.views.toLocaleString()} views · {post.reactions} reactions · {post.comments} comments
+                      </p>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="mt-2 text-sm text-muted-foreground">No featured posts yet.</p>
+            )}
+          </div>
         </div>
       </div>
     </article>
