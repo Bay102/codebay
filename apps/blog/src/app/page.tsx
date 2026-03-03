@@ -132,10 +132,10 @@ export default async function BlogPage({
   const latestPosts = featuredPost ? filteredPosts.filter((post) => post.slug !== featuredPost.slug) : filteredPosts;
 
   return (
-    <main className="min-h-screen bg-background pb-20 pt-10 sm:pt-14">
+    <main className="min-h-screen bg-background pb-20">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }} />
 
-      <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
         <SurfaceCard variant="hero">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Blog</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">

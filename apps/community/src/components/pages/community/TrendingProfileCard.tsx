@@ -81,9 +81,9 @@ export function TrendingProfileCard({ profile }: TrendingProfileCardProps) {
 
         <PopoverContent
           align="start"
-          side="right"
-          sideOffset={12}
-          className="w-80 rounded-2xl bg-card/95 p-4"
+          side="bottom"
+          sideOffset={8}
+          className="w-[min(90vw,20rem)] sm:w-80 max-h-[min(80dvh,480px)] overflow-y-auto rounded-2xl bg-card/95 p-4"
           onMouseEnter={clearCloseTimeout}
           onMouseLeave={scheduleClose}
         >

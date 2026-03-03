@@ -6,7 +6,7 @@ import { CommunityAuthCard } from "@/components/pages/community/CommunityAuthCar
 export const metadata: Metadata = {
   title: "Join the Community",
   description:
-    "Create your CodeBay community account to connect with developers, share progress, and collaborate on practical AI-powered engineering patterns."
+    "Create your CodingBay Community account to connect with developers, share progress, and collaborate on practical AI-powered engineering patterns."
 };
 
 const communityHighlights = [
@@ -26,10 +26,10 @@ const communityHighlights = [
 
 export default function CommunityJoinPage() {
   return (
-    <main className="min-h-screen bg-background pt-10 sm:pt-14">
-      <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
+    <main className="min-h-screen bg-background">
+      <section className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
         <SurfaceCard as="div" variant="hero">
-          <p className="text-sm font-medium uppercase tracking-wide text-primary">Join CodeBay Community</p>
+          <p className="text-sm font-medium uppercase tracking-wide text-primary">Join CodingBay Community</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             Create your community account
           </h1>

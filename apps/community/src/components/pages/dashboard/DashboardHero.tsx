@@ -12,7 +12,7 @@ export function DashboardHero({ name, username }: DashboardHeroProps) {
 
   return (
     <SurfaceCard as="section" variant="hero" className="px-5 py-6 sm:px-6 sm:py-8 md:px-8">
-      <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Community</p>
+      <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Community</p>
       <h1 className="mt-2 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
         Welcome back, {name}
       </h1>

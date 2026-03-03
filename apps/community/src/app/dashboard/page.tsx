@@ -17,7 +17,7 @@ import {
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
-  description: "Your personal hub for CodeBay community activity, content, and collaboration."
+  description: "Your personal hub for CodingBay Community activity, content, and collaboration."
 };
 
 export const dynamic = "force-dynamic";
@@ -55,11 +55,11 @@ export default async function CommunityDashboardPage() {
   const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
 
   return (
-    <main className="min-h-screen bg-background pt-10 sm:pt-14">
+    <main className="min-h-screen bg-background">
       <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodeBay Community</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
             <h1 className="text-lg font-semibold text-foreground sm:text-xl">Dashboard</h1>
           </div>
           <CommunityDashboardActions />

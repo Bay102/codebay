@@ -11,21 +11,20 @@ import { FeaturedBlogPostsSection } from "@/components/pages/community/FeaturedB
 export const metadata: Metadata = {
   title: "Community",
   description:
-    "Explore the CodeBay community – a focused space for AI-powered engineering, discussions, and shared resources."
+    "Explore the CodingBay Community – publish on your own blog, join discussions, and connect with fellow developers."
 };
 
 export default function CommunityLandingPage() {
   return (
-    <main className="min-h-screen bg-background pt-4 sm:pt-6">
-      <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
+    <main className="min-h-screen bg-background">
+      <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
         <SurfaceCard as="div" variant="hero">
-          <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Community</p>
+          <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Community</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
-            Community hub for builders shipping with AI
+            Unleash your presence. Grow your audience, and get noticed by the right people.
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
-            Join other engineers shipping AI-powered products: share patterns, get feedback, and stay close to what the
-            CodeBay team is building.
+            Publish on your own blog page, join discussions, and connect with developers building in the open.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link

@@ -216,18 +216,18 @@ const UserBlogCreation = () => {
       sectionBody.length === 0
         ? []
         : sectionBody
-            .split(/\n{2,}/)
-            .map((paragraph) => paragraph.trim())
-            .filter((paragraph) => paragraph.length > 0);
+          .split(/\n{2,}/)
+          .map((paragraph) => paragraph.trim())
+          .filter((paragraph) => paragraph.length > 0);
 
     const sections =
       paragraphs.length > 0
         ? [
-            {
-              heading: sectionHeading,
-              paragraphs
-            }
-          ]
+          {
+            heading: sectionHeading,
+            paragraphs
+          }
+        ]
         : [];
 
     setIsSubmitting(true);
@@ -247,7 +247,7 @@ const UserBlogCreation = () => {
     if (!existingProfile) {
       setIsSubmitting(false);
       setSubmitError(
-        "You need a CodeBay community profile before publishing posts. Visit /community/join to create one."
+        "You need a CodingBay Community profile before publishing posts. Visit /community/join to create one."
       );
       return;
     }
