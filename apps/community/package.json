@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@codebay/auth": "file:../../packages/auth",
     "@codebay/theme": "file:../../packages/theme",
     "@codebay/ui": "file:../../packages/ui",
     "@radix-ui/react-dialog": "^1.1.14",

@@ -12,6 +12,7 @@
   "typecheck": "tsc --noEmit"
  },
  "dependencies": {
+  "@codebay/auth": "file:../../packages/auth",
   "@codebay/theme": "file:../../packages/theme",
   "@codebay/ui": "file:../../packages/ui",
   "@hookform/resolvers": "^3.10.0",

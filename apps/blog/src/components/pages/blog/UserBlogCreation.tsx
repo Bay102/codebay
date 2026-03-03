@@ -1,7 +1,6 @@
 "use client";
 
-import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import type { Session } from "@supabase/supabase-js";
+import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -54,7 +53,6 @@ function slugify(value: string): string {
 
 const UserBlogCreation = () => {
   const supabase = useMemo(() => getBlogSupabaseClient(), []);
-
   const [session, setSession] = useState<Session | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);

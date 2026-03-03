@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import type { Database } from "@/lib/database";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { getBlogSupabaseClient } from "@/lib/supabase";
 import {
   AuthProvider as SharedAuthProvider,
   useAuth as useSharedAuth,
@@ -17,7 +17,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   return (
-    <SharedAuthProvider<Database> createClient={createBrowserSupabaseClient}>
+    <SharedAuthProvider<Database> createClient={getBlogSupabaseClient}>
       {children}
     </SharedAuthProvider>
   );

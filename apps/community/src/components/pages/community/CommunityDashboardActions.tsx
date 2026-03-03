@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
-import { blogUrl } from "@/lib/site-urls";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function CommunityDashboardActions() {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const supabase = createBrowserSupabaseClient();
+  const { supabase } = useAuth();
 
   const handleSignOut = async () => {
     if (!supabase) {
