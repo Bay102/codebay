@@ -46,12 +46,14 @@ export default async function CommunityDashboardPage() {
   const postMapBySlug = Object.fromEntries(
     posts.map((post) => [post.slug, { id: post.id, title: post.title, authorName: post.authorName }])
   );
+
   const activityItems = await fetchDashboardActivity(supabase, {
     userId: user.id,
     userEmail: profile.email ?? user.email ?? null,
     postMapBySlug,
     limit: 32
   });
+
   const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
 
   return (

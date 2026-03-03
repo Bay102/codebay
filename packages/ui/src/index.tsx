@@ -4,5 +4,7 @@ export { CodeBayLogo } from "./CodeBayLogo";
 export { AuthEmailPasswordForm } from "./AuthEmailPasswordForm";
 export type { AuthEmailPasswordFormProps } from "./AuthEmailPasswordForm";
 export { SurfaceCard } from "./SurfaceCard";
+export { CtaCarousel } from "./CtaCarousel";
+export type { CtaCarouselProps, CtaCarouselSlide } from "./CtaCarousel";
 export { SiteFooter } from "./SiteFooter";
 export type { SiteFooterProps, SiteFooterLinkItem } from "./SiteFooter";

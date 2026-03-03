@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { SurfaceCard } from "@codebay/ui";
+import { SurfaceCard, CtaCarousel, type CtaCarouselSlide } from "@codebay/ui";
 import { blogUrl } from "@/lib/site-urls";
-import { WhyJoinCarousel } from "@/components/pages/community/WhyJoinCarousel";
 import { TrendingProfilesSection } from "@/components/pages/community/TrendingProfilesSection";
 import { TrendingTopicsSection } from "@/components/pages/community/TrendingTopicsSection";
 import { FeaturedBlogPostsSection } from "@/components/pages/community/FeaturedBlogPostsSection";
@@ -13,6 +12,25 @@ export const metadata: Metadata = {
   description:
     "Explore the CodingBay Community – publish on your own blog, join discussions, and connect with fellow developers."
 };
+
+const whyJoinSlides: CtaCarouselSlide[] = [
+  {
+    title: "Real-world engineering discussions",
+    body: "See how other teams ship AI features, debug production issues, and reason about architecture trade-offs."
+  },
+  {
+    title: "Tight feedback loop with the CodeBay team",
+    body: "Ask questions, share context, and influence what we build next in the platform and open-source tools."
+  },
+  {
+    title: "Patterns, templates, and reference implementations",
+    body: "Reuse production-tested flows for auth, billing, AI workflows, and more—without starting from scratch."
+  },
+  {
+    title: "Ship faster with other builders",
+    body: "Surround yourself with engineers shipping similar stacks so you can unblock each other quickly."
+  }
+];
 
 export default function CommunityLandingPage() {
   return (
@@ -48,7 +66,11 @@ export default function CommunityLandingPage() {
           </div>
         </SurfaceCard>
 
-        <WhyJoinCarousel />
+        <CtaCarousel
+          eyebrow="Why join the community"
+          heading="A focused space for engineers who actually ship"
+          slides={whyJoinSlides}
+        />
 
         <Suspense fallback={null}>
           <TrendingTopicsSection />

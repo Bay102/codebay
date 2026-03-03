@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./dropdown-menu";
+} from "./DropdownMenu";
 
 export type AppHeaderMenuItem =
   | { type: "link"; href: string; label: string }
