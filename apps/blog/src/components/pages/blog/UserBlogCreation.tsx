@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useCallback, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { TablesInsert } from "@/lib/database";
 import { getBlogSupabaseClient } from "@/lib/supabase";
 import { siteUrl } from "@/lib/site-urls";
+import { Session } from "@supabase/supabase-js";
 
 type PostStatus = "draft" | "published";
 
