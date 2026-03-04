@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { FollowStats } from "@/lib/follows";
 import type { LandingProfile } from "@/lib/landing";
 import { blogUrl } from "@/lib/site-urls";
@@ -15,15 +15,18 @@ function getInitials(name: string): string {
   return (parts[0]![0] + parts[1]![0]).toUpperCase();
 }
 
+type TrendingProfileWithFollowers = LandingProfile & { followerCount: number };
+
 type TrendingProfileCardProps = {
-  profile: LandingProfile;
+  profile: TrendingProfileWithFollowers;
   getFollowStatsAction: (profileUserId: string) => Promise<FollowStats>;
 };
 
 export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingProfileCardProps) {
   const [open, setOpen] = useState(false);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [followStats, setFollowStats] = useState<FollowStats | null>(null);
+  const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [followerCount, setFollowerCount] = useState<number>(profile.followerCount);
   const { user } = useAuth();
   const href = `${blogUrl}/author/${profile.username}`;
   const showFollowButton = user != null && user.id !== profile.id;
@@ -35,27 +38,20 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
     }
   };
 
+  const clearOpenTimeout = () => {
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current);
+      openTimeoutRef.current = null;
+    }
+  };
+
   const scheduleClose = () => {
     clearCloseTimeout();
+    clearOpenTimeout();
     closeTimeoutRef.current = setTimeout(() => {
       setOpen(false);
     }, 120);
   };
-
-  useEffect(() => {
-    if (!open) return;
-    let isCancelled = false;
-
-    getFollowStatsAction(profile.id).then((stats) => {
-      if (!isCancelled) {
-        setFollowStats(stats);
-      }
-    });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [open, getFollowStatsAction, profile.id]);
 
   const followButton =
     showFollowButton ? (
@@ -63,10 +59,14 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
         profileUserId={profile.id}
         initialIsFollowing={false}
         getFollowStatsAction={getFollowStatsAction}
-        onSuccess={setFollowStats}
+        onSuccess={(stats) => {
+          setFollowerCount(stats.followerCount);
+        }}
         variant="icon"
       />
     ) : null;
+
+  const hasFollowers = followerCount > 0;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -77,10 +77,17 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
             className="inline-flex w-full items-center gap-2 text-left"
             onMouseEnter={() => {
               clearCloseTimeout();
-              setOpen(true);
+              clearOpenTimeout();
+              openTimeoutRef.current = setTimeout(() => {
+                setOpen(true);
+              }, 180);
             }}
             onMouseLeave={scheduleClose}
-            onClick={() => setOpen((previous) => !previous)}
+            onClick={() => {
+              clearOpenTimeout();
+              clearCloseTimeout();
+              setOpen((previous) => !previous);
+            }}
           >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary/70 text-xs font-medium text-foreground">
               {profile.avatarUrl ? (
@@ -96,7 +103,15 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
-              <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
+              <p className="truncate text-xs text-muted-foreground">
+                @{profile.username}
+                {hasFollowers ? (
+                  <span className="ml-1">
+                    · {followerCount.toLocaleString()} follower
+                    {followerCount === 1 ? "" : "s"}
+                  </span>
+                ) : null}
+              </p>
             </div>
           </button>
         </PopoverTrigger>
@@ -132,14 +147,6 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
             authorPageHref={href}
             authorPageLabel="Open full profile"
             followButton={followButton}
-            followStats={
-              followStats
-                ? {
-                    followerCount: followStats.followerCount,
-                    followingCount: followStats.followingCount
-                  }
-                : undefined
-            }
           />
         </PopoverContent>
       </SurfaceCard>

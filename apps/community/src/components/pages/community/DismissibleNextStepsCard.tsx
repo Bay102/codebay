@@ -67,7 +67,7 @@ export function DismissibleNextStepsCard({ steps }: DismissibleNextStepsCardProp
         </li>
         <li className="flex items-start gap-2">
           {renderStatusIcon(preferredTopicsComplete)}
-          <span>Set your preferred topics to follow.</span>
+          <span>Choose your preferred topics to follow.</span>
         </li>
         <li className="flex items-start gap-2">
           {renderStatusIcon(discussionOrPublishedComplete)}

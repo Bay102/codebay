@@ -28,6 +28,7 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
   const { supabase } = useAuth();
 
   const hasActivity = overviewItems.length > 0;
+  const visibleOverviewItems = overviewItems.slice(0, 3);
 
   const handleMarkRead = async (activityId: string) => {
     if (!supabase) {
@@ -137,7 +138,7 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
 
       {hasActivity ? (
         <div className="mt-4 space-y-3">
-          {overviewItems.map((item) => renderActivityItem(item, "compact"))}
+          {visibleOverviewItems.map((item) => renderActivityItem(item, "compact"))}
         </div>
       ) : (
         <p className="mt-4 text-sm text-muted-foreground">

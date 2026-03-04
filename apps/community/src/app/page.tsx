@@ -22,16 +22,16 @@ const whyJoinSlides: CtaCarouselSlide[] = [
     body: "See how other teams ship AI features, debug production issues, and reason about architecture trade-offs."
   },
   {
-    title: "Tight feedback loop with the CodeBay team",
-    body: "Ask questions, share context, and influence what we build next in the platform and open-source tools."
+    title: "Connect with like-minded tech professionals",
+    body: "Join discussions, share your knowledge, and learn from others in the community."
   },
   {
-    title: "Patterns, templates, and reference implementations",
-    body: "Reuse production-tested flows for auth, billing, AI workflows, and more—without starting from scratch."
+    title: "Follow updates from your favorite topics",
+    body: "Get notified when new blog posts and discussions are published on your preferred topics."
   },
   {
-    title: "Ship faster with other builders",
-    body: "Surround yourself with engineers shipping similar stacks so you can unblock each other quickly."
+    title: "Engage with the community",
+    body: "Comment on blog posts, react to discussions, and get feedback from other members."
   }
 ];
 
@@ -95,7 +95,7 @@ export default async function CommunityLandingPage() {
 
         <CtaCarousel
           eyebrow="Indulge in the community"
-          heading="Share your thoughts - grow your audience"
+          heading="Stay updated with the latest news and insights"
           slides={whyJoinSlides}
         />
 

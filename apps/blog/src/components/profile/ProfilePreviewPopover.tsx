@@ -15,6 +15,8 @@ import { getFollowStatsForProfile } from "@/lib/follows";
 import { FollowButton } from "@/components/profile/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
 
+const followStatsCache = new Map<string, FollowStats>();
+
 /** Re-export shared types for consumers that import from this file */
 export type {
   ProfilePreviewHeader,
@@ -54,6 +56,7 @@ export function ProfilePreviewPopover({
 }: ProfilePreviewPopoverProps) {
   const [open, setOpen] = React.useState(false);
   const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const openTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [followStats, setFollowStats] = React.useState<FollowStats | null>(null);
   const { supabase, user } = useAuth();
 
@@ -61,13 +64,27 @@ export function ProfilePreviewPopover({
 
   React.useEffect(() => {
     if (!open || !profileId || !user || !supabase) {
-      setFollowStats(null);
       return;
     }
-    setFollowStats(null);
+
+    const cached = followStatsCache.get(profileId);
+    if (cached) {
+      setFollowStats(cached);
+      return;
+    }
+
+    let isCancelled = false;
+
     getFollowStatsForProfile(supabase, profileId, user.id).then((stats) => {
-      setFollowStats(stats);
+      if (!isCancelled) {
+        followStatsCache.set(profileId, stats);
+        setFollowStats(stats);
+      }
     });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [open, profileId, user?.id, supabase]);
 
   const clearCloseTimeout = () => {
@@ -77,8 +94,16 @@ export function ProfilePreviewPopover({
     }
   };
 
+  const clearOpenTimeout = () => {
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current);
+      openTimeoutRef.current = null;
+    }
+  };
+
   const scheduleClose = () => {
     clearCloseTimeout();
+    clearOpenTimeout();
     closeTimeoutRef.current = setTimeout(() => {
       setOpen(false);
     }, 120);
@@ -86,7 +111,10 @@ export function ProfilePreviewPopover({
 
   const handleTriggerMouseEnter = () => {
     clearCloseTimeout();
-    setOpen(true);
+    clearOpenTimeout();
+    openTimeoutRef.current = setTimeout(() => {
+      setOpen(true);
+    }, 180);
   };
 
   const handleTriggerMouseLeave = () => {
@@ -95,6 +123,7 @@ export function ProfilePreviewPopover({
 
   const handleContentMouseEnter = () => {
     clearCloseTimeout();
+    clearOpenTimeout();
   };
 
   const handleContentMouseLeave = () => {
