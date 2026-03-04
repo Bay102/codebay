@@ -17,3 +17,5 @@ export type {
   ProfilePreviewArticle,
   ProfilePreviewLink
 } from "./ProfilePreviewContent";
+export { TopicPillsPicker } from "./TopicPillsPicker";
+export type { TopicPillsPickerProps, TopicPillOption } from "./TopicPillsPicker";

@@ -72,6 +72,18 @@ export default async function DiscussionsListPage() {
                     {d.body ? (
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{d.body}</p>
                     ) : null}
+                    {d.tags.length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {d.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded-lg border border-border/70 bg-secondary/60 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </SurfaceCard>
                 </Link>
               </li>

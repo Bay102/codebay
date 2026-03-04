@@ -17,6 +17,7 @@ import {
 } from "@/lib/dashboard";
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
+import { fetchAllTags } from "@/lib/tags";
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -39,11 +40,12 @@ export default async function CommunityDashboardPage() {
     redirect("/");
   }
 
-  const [profile, posts, followStats, discussions] = await Promise.all([
+  const [profile, posts, followStats, discussions, allowedTags] = await Promise.all([
     fetchDashboardProfile(supabase, user.id),
     fetchUserBlogPostsWithStats(supabase, user.id),
     getFollowStatsForProfile(supabase, user.id, user.id),
-    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 3, orderByTrend: false })
+    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 3, orderByTrend: false }),
+    fetchAllTags(supabase)
   ]);
 
   if (!profile) {
@@ -95,7 +97,7 @@ export default async function CommunityDashboardPage() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-1">
-          <DiscussionManagementCard discussions={discussions} authorName={profile.name} />
+          <DiscussionManagementCard discussions={discussions} authorName={profile.name} allowedTags={allowedTags} />
         </div>
 
 

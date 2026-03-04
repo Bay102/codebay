@@ -30,6 +30,7 @@ export interface DiscussionListItem {
   authorUsername: string;
   createdAt: string;
   updatedAt: string;
+  tags: string[];
   commentCount: number;
   reactionCount: number;
 }
@@ -61,6 +62,7 @@ export async function getDiscussionBySlug(
       slug,
       created_at,
       updated_at,
+      tags,
       community_users!discussions_author_id_fkey (
         id,
         name,
@@ -86,6 +88,7 @@ export async function getDiscussionBySlug(
     slug: row.slug,
     created_at: row.created_at,
     updated_at: row.updated_at,
+    tags: (row as DiscussionRow).tags ?? [],
     author: {
       id: row.community_users.id,
       name: row.community_users.name,
@@ -191,6 +194,7 @@ export async function getDiscussionsWithCounts(
       author_id,
       created_at,
       updated_at,
+      tags,
       community_users!discussions_author_id_fkey (
         name,
         username
@@ -239,6 +243,7 @@ export async function getDiscussionsWithCounts(
       authorUsername: author?.username ?? "unknown",
       createdAt: r.created_at,
       updatedAt: r.updated_at,
+      tags: (r as { tags?: string[] }).tags ?? [],
       commentCount: commentByDiscussion.get(r.id) ?? 0,
       reactionCount: reactionByDiscussion.get(r.id) ?? 0
     };
@@ -269,8 +274,9 @@ export function slugifyTitle(title: string): string {
 /** Create a discussion; slug must be unique (e.g. slugifyTitle + "-" + shortId or retry). */
 export async function createDiscussion(
   supabase: SupabaseClient<Database>,
-  input: { authorId: string; title: string; body: string; slug: string }
+  input: { authorId: string; title: string; body: string; slug: string; tags?: string[] }
 ): Promise<{ id: string; slug: string } | null> {
+  const tags = (input.tags ?? []).filter(Boolean);
   const { data, error } = await supabase
     .from("discussions")
     .insert({
@@ -278,6 +284,7 @@ export async function createDiscussion(
       title: input.title,
       body: input.body,
       slug: input.slug,
+      tags,
       updated_at: new Date().toISOString()
     })
     .select("id, slug")

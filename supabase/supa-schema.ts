@@ -410,6 +410,7 @@ export type Database = {
           created_at: string
           id: string
           slug: string
+          tags: string[]
           title: string
           updated_at: string
         }
@@ -419,6 +420,7 @@ export type Database = {
           created_at?: string
           id?: string
           slug: string
+          tags?: string[]
           title: string
           updated_at?: string
         }
@@ -428,6 +430,7 @@ export type Database = {
           created_at?: string
           id?: string
           slug?: string
+          tags?: string[]
           title?: string
           updated_at?: string
         }
@@ -435,6 +438,38 @@ export type Database = {
           {
             foreignKeyName: "discussions_author_id_fkey"
             columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tags_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "community_users"
             referencedColumns: ["id"]
@@ -468,6 +503,36 @@ export type Database = {
           {
             foreignKeyName: "user_follows_following_id_fkey"
             columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_preferred_tags: {
+        Row: {
+          tag_id: string
+          user_id: string
+        }
+        Insert: {
+          tag_id: string
+          user_id: string
+        }
+        Update: {
+          tag_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_preferred_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_preferred_tags_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "community_users"
             referencedColumns: ["id"]
