@@ -4,17 +4,17 @@ import type { Database, Tables } from "@/lib/database";
 type DiscussionRow = Tables<"discussions">;
 type DiscussionCommentRow = Tables<"discussion_comments">;
 
-export interface DiscussionAuthor {
+interface DiscussionAuthor {
   id: string;
   name: string;
   username: string;
 }
 
-export interface DiscussionWithAuthor extends DiscussionRow {
+interface DiscussionWithAuthor extends DiscussionRow {
   author: DiscussionAuthor;
 }
 
-export interface DiscussionCounts {
+interface DiscussionCounts {
   commentCount: number;
   reactionCount: number;
   viewerReactionType?: string | null;
@@ -257,12 +257,13 @@ export async function getDiscussionsWithCounts(
 
 /** Generate URL-safe slug from title; caller must ensure uniqueness (e.g. append id). */
 export function slugifyTitle(title: string): string {
-  return title
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    || "discussion";
+  return (
+    title
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "discussion"
+  );
 }
 
 /** Create a discussion; slug must be unique (e.g. slugifyTitle + "-" + shortId or retry). */
@@ -284,23 +285,6 @@ export async function createDiscussion(
 
   if (error || !data) return null;
   return { id: data.id, slug: data.slug };
-}
-
-/** Update discussion (title, body, updated_at). */
-export async function updateDiscussion(
-  supabase: SupabaseClient<Database>,
-  id: string,
-  input: { title?: string; body?: string }
-): Promise<boolean> {
-  const { error } = await supabase
-    .from("discussions")
-    .update({
-      ...input,
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", id);
-
-  return !error;
 }
 
 /** Add a comment. */

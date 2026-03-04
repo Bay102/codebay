@@ -11,8 +11,6 @@ export const metadata: Metadata = {
   description: "Manage your drafts, publish posts, and track engagement."
 };
 
-export const dynamic = "force-dynamic";
-
 type StatusFilter = "all" | "draft" | "published";
 
 function resolveStatusFilter(rawFilter: string | string[] | undefined): StatusFilter {

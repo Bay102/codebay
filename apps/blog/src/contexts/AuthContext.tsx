@@ -9,7 +9,7 @@ import {
   type AuthContextValue as SharedAuthContextValue,
 } from "@codebay/auth";
 
-export type AuthContextValue = SharedAuthContextValue<Database>;
+type AuthContextValue = SharedAuthContextValue<Database>;
 
 interface AuthProviderProps {
   children: ReactNode;
