@@ -250,9 +250,29 @@ export async function getDiscussionsWithCounts(
   });
 
   if (orderByTrend && !authorId) {
+    const now = Date.now();
+
+    function computeTrendingScore(item: DiscussionListItem): number {
+      const createdAtTime = new Date(item.createdAt).getTime();
+      if (Number.isNaN(createdAtTime)) return 0;
+
+      const ageMs = Math.max(0, now - createdAtTime);
+      const ageDays = ageMs / (24 * 3600 * 1000);
+
+      const commentWeight = 3;
+      const reactionWeight = 1.5;
+      const base = 1;
+
+      const rawEngagement = commentWeight * item.commentCount + reactionWeight * item.reactionCount + base;
+      const decayExponent = 1.5;
+      const denominator = Math.pow(1 + ageDays, decayExponent);
+
+      return denominator > 0 ? rawEngagement / denominator : rawEngagement;
+    }
+
     items.sort((a, b) => {
-      const scoreA = a.commentCount * 2 + a.reactionCount + (Date.now() - new Date(a.createdAt).getTime()) / (24 * 3600 * 1000);
-      const scoreB = b.commentCount * 2 + b.reactionCount + (Date.now() - new Date(b.createdAt).getTime()) / (24 * 3600 * 1000);
+      const scoreA = computeTrendingScore(a);
+      const scoreB = computeTrendingScore(b);
       return scoreB - scoreA;
     });
   }

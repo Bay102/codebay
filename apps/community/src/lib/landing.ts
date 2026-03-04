@@ -95,10 +95,23 @@ export async function fetchFeaturedBlogPosts(limit = 4): Promise<LandingFeatured
 
   const remaining = rows.filter((row) => !row.featured_on_community_landing);
 
+  const now = Date.now();
+
   const scored = remaining
     .map((row) => {
-      const counts = engagementMap[row.slug];
-      return { row, score: scoreEngagement(counts.views, counts.reactions, counts.comments) };
+      const counts = engagementMap[row.slug] ?? { views: 0, reactions: 0, comments: 0 };
+      const rawScore = scoreEngagement(counts.views, counts.reactions, counts.comments);
+
+      const publishedAtTime = row.published_at ? new Date(row.published_at).getTime() : null;
+      const ageMs =
+        publishedAtTime !== null && !Number.isNaN(publishedAtTime) ? Math.max(0, now - publishedAtTime) : 0;
+      const ageDays = ageMs / (24 * 3600 * 1000);
+
+      const decayExponent = 1.5;
+      const denominator = Math.pow(1 + ageDays, decayExponent);
+      const score = denominator > 0 ? rawScore / denominator : rawScore;
+
+      return { row, score };
     })
     .sort((a, b) => b.score - a.score);
 

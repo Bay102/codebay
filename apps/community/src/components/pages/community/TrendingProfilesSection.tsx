@@ -26,7 +26,7 @@ export async function TrendingProfilesSection() {
 
   return (
     <section className="mt-8">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Trending profiles</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profiles Getting Noticed</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         {profilesWithFollowers.map((profile) => (
           <TrendingProfileCard key={profile.id} profile={profile} getFollowStatsAction={getFollowStatsAction} />
