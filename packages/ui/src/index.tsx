@@ -88,6 +88,7 @@ export type {
   ProfilePreviewContentProps,
   ProfilePreviewHeader,
   ProfilePreviewSections,
+  ProfilePreviewFollowStats,
   ProfilePreviewProject,
   ProfilePreviewArticle,
   ProfilePreviewLink

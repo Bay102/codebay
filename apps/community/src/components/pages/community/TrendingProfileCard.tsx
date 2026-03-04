@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FollowStats } from "@/lib/follows";
 import type { LandingProfile } from "@/lib/landing";
 import { blogUrl } from "@/lib/site-urls";
@@ -23,6 +23,7 @@ type TrendingProfileCardProps = {
 export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingProfileCardProps) {
   const [open, setOpen] = useState(false);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [followStats, setFollowStats] = useState<FollowStats | null>(null);
   const { user } = useAuth();
   const href = `${blogUrl}/author/${profile.username}`;
   const showFollowButton = user != null && user.id !== profile.id;
@@ -41,12 +42,28 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
     }, 120);
   };
 
+  useEffect(() => {
+    if (!open) return;
+    let isCancelled = false;
+
+    getFollowStatsAction(profile.id).then((stats) => {
+      if (!isCancelled) {
+        setFollowStats(stats);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [open, getFollowStatsAction, profile.id]);
+
   const followButton =
     showFollowButton ? (
       <FollowButton
         profileUserId={profile.id}
         initialIsFollowing={false}
         getFollowStatsAction={getFollowStatsAction}
+        onSuccess={setFollowStats}
         variant="icon"
       />
     ) : null;
@@ -115,6 +132,14 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
             authorPageHref={href}
             authorPageLabel="Open full profile"
             followButton={followButton}
+            followStats={
+              followStats
+                ? {
+                    followerCount: followStats.followerCount,
+                    followingCount: followStats.followingCount
+                  }
+                : undefined
+            }
           />
         </PopoverContent>
       </SurfaceCard>

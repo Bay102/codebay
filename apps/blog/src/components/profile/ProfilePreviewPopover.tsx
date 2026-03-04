@@ -10,6 +10,7 @@ import type {
   ProfilePreviewLink
 } from "@codebay/ui";
 import { Popover, PopoverContent, PopoverTrigger, ProfilePreviewContent } from "@codebay/ui";
+import type { FollowStats } from "@/lib/follows";
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { FollowButton } from "@/components/profile/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
@@ -53,19 +54,19 @@ export function ProfilePreviewPopover({
 }: ProfilePreviewPopoverProps) {
   const [open, setOpen] = React.useState(false);
   const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [followState, setFollowState] = React.useState<boolean | null>(null);
+  const [followStats, setFollowStats] = React.useState<FollowStats | null>(null);
   const { supabase, user } = useAuth();
 
   const showFollowButton = Boolean(profileId && user && supabase && user.id !== profileId);
 
   React.useEffect(() => {
     if (!open || !profileId || !user || !supabase) {
-      setFollowState(null);
+      setFollowStats(null);
       return;
     }
-    setFollowState(null);
+    setFollowStats(null);
     getFollowStatsForProfile(supabase, profileId, user.id).then((stats) => {
-      setFollowState(stats.isFollowing ?? false);
+      setFollowStats(stats);
     });
   }, [open, profileId, user?.id, supabase]);
 
@@ -101,11 +102,11 @@ export function ProfilePreviewPopover({
   };
 
   const followButton =
-    showFollowButton && profileId && followState !== null ? (
+    showFollowButton && profileId && followStats && typeof followStats.isFollowing !== "undefined" ? (
       <FollowButton
         key={profileId}
         profileUserId={profileId}
-        initialIsFollowing={followState}
+        initialIsFollowing={followStats.isFollowing ?? false}
         variant="icon"
       />
     ) : null;
@@ -147,6 +148,14 @@ export function ProfilePreviewPopover({
           authorPageHref={authorPageHref}
           authorPageLabel="View full author profile"
           followButton={followButton}
+          followStats={
+            followStats
+              ? {
+                  followerCount: followStats.followerCount,
+                  followingCount: followStats.followingCount
+                }
+              : undefined
+          }
         />
       </PopoverContent>
     </Popover>
