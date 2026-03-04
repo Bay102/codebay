@@ -19,7 +19,7 @@ function formatDate(value: string): string {
 }
 
 export function DiscussionManagementCard({ discussions, authorName }: DiscussionManagementCardProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">

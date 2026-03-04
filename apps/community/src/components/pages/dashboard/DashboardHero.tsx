@@ -40,20 +40,6 @@ export function DashboardHero({ name, username }: DashboardHeroProps) {
             Public blog page
           </Link>
         ) : null}
-        <Link
-          href="#"
-          aria-disabled="true"
-          className="inline-flex items-center rounded-full border border-dashed border-border/60 bg-card/20 px-3 py-1.5 text-xs font-medium text-muted-foreground/80 sm:text-sm"
-        >
-          Placeholder link 1
-        </Link>
-        <Link
-          href="#"
-          aria-disabled="true"
-          className="inline-flex items-center rounded-full border border-dashed border-border/60 bg-card/20 px-3 py-1.5 text-xs font-medium text-muted-foreground/80 sm:text-sm"
-        >
-          Placeholder link 2
-        </Link>
       </nav>
     </SurfaceCard>
   );

@@ -43,12 +43,20 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
         {showEditLink ? (
-          <Link
-            href="/dashboard/profile"
-            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-          >
-            Edit profile
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/${profile.username}`}
+              className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+            >
+              View public profile
+            </Link>
+            <Link
+              href="/dashboard/profile"
+              className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+            >
+              Edit profile
+            </Link>
+          </div>
         ) : null}
       </div>
 

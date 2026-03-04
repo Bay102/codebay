@@ -71,8 +71,8 @@ export default async function CommunityDashboardPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <section className="mx-auto w-full max-w-6xl p-3 sm:px-6 md:py-10 lg:px-8">
+        <div className="hidden gap-4 sm:mb-8 sm:flex sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
             <h1 className="text-lg font-semibold text-foreground sm:text-xl">Dashboard</h1>
