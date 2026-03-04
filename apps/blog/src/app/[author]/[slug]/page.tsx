@@ -5,7 +5,7 @@ import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
 import { AuthorHero } from "@/components/pages/blog/AuthorHero";
 import { ProfilePreviewPopover } from "@/components/profile/ProfilePreviewPopover";
 import { fetchBlogAuthorProfileById, fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
-import { mainUrl, siteUrl } from "@/lib/site-urls";
+import { communityUrl, mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
 
@@ -152,7 +152,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   ],
                   profileLinks: authorProfile.profileLinks
                 }}
-                authorPageHref={`/author/${authorProfile.username}`}
+                authorPageHref={`${communityUrl}/${authorProfile.username}`}
                 profileId={authorProfile.id}
               />
             ) : null}

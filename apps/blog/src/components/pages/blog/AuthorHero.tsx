@@ -3,6 +3,7 @@
 import type { BlogAuthorProfile, BlogPost } from "@/lib/blog";
 import { SurfaceCard } from "@codebay/ui";
 import { ProfilePreviewPopover } from "@/components/profile/ProfilePreviewPopover";
+import { communityUrl } from "@/lib/site-urls";
 
 function buildAuthorSegment(authorName: string): string {
   const base = authorName
@@ -46,7 +47,7 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
             articles,
             profileLinks: author.profileLinks
           }}
-          authorPageHref={`/author/${author.username}`}
+          authorPageHref={`${communityUrl}/${author.username}`}
           profileId={author.id}
         />
       </div>

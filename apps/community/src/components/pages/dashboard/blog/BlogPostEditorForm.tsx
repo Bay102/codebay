@@ -3,7 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
-import { TopicPillsPicker } from "@codebay/ui";
+import {
+  Button,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  TopicPillsPicker
+} from "@codebay/ui";
 import type { TablesInsert, TablesUpdate } from "@/lib/database";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -52,6 +61,37 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isTagsDialogOpen, setIsTagsDialogOpen] = useState(false);
+
+  const getAuthorIdentifier = () => {
+    const metadataUsername =
+      typeof session?.user.user_metadata?.username === "string"
+        ? session.user.user_metadata.username.trim()
+        : "";
+    const metadataName =
+      typeof session?.user.user_metadata?.name === "string"
+        ? session.user.user_metadata.name.trim()
+        : "";
+
+    if (metadataUsername) return metadataUsername;
+    if (metadataName) return metadataName;
+    return form.authorName.trim() || session?.user.email || "CodeBay Team";
+  };
+
+  const getDisplayAuthorName = () => {
+    const identifier = getAuthorIdentifier();
+    if (!identifier) return "";
+
+    return identifier
+      .split(/\s+/)
+      .map((part) => (part ? part.charAt(0).toUpperCase() + part.slice(1) : ""))
+      .join(" ");
+  };
+
+  const selectedTagNames = form.tagsInput
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 
   const handleFieldChange = <Key extends keyof BlogPostEditorValues>(key: Key, value: BlogPostEditorValues[Key]) => {
     setForm((previous) => {
@@ -108,6 +148,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
 
     setIsSubmitting(true);
     const publishedAt = form.status === "published" ? new Date().toISOString() : null;
+    const authorIdentifier = getAuthorIdentifier();
 
     if (mode === "create") {
       const payload: TablesInsert<"blog_posts"> = {
@@ -116,7 +157,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
         description: form.description.trim() || null,
         excerpt: form.excerpt.trim() || null,
         author_id: session.user.id,
-        author_name: form.authorName.trim() || "CodeBay Team",
+        author_name: authorIdentifier,
         read_time_minutes: safeReadTime,
         tags,
         sections,
@@ -152,7 +193,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
       title: normalizedTitle,
       description: form.description.trim() || null,
       excerpt: form.excerpt.trim() || null,
-      author_name: form.authorName.trim() || "CodeBay Team",
+      author_name: authorIdentifier,
       read_time_minutes: safeReadTime,
       tags,
       sections,
@@ -238,13 +279,13 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-2">
             <label htmlFor="post-author" className="text-sm font-medium">
-              Author name
+              Author
             </label>
             <input
               id="post-author"
-              value={form.authorName}
-              onChange={(event) => handleFieldChange("authorName", event.target.value)}
               className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+              placeholder={getDisplayAuthorName()}
+              disabled
             />
           </div>
           <div className="space-y-2">
@@ -265,16 +306,49 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
               Tags
             </span>
             {allowedTags.length > 0 ? (
-              <TopicPillsPicker
-                options={allowedTags.map((tag) => ({ key: tag.name, label: tag.name }))}
-                selectedKeys={form.tagsInput
-                  .split(",")
-                  .map((tag) => tag.trim())
-                  .filter(Boolean)}
-                onChange={(next) => handleFieldChange("tagsInput", next.join(", "))}
-                ariaLabel="Post tags"
-                disabled={isSubmitting}
-              />
+              <>
+                <Dialog open={isTagsDialogOpen} onOpenChange={setIsTagsDialogOpen}>
+                  <button
+                    type="button"
+                    className="inline-flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-xs text-muted-foreground sm:text-sm"
+                    onClick={() => setIsTagsDialogOpen(true)}
+                    aria-haspopup="dialog"
+                    aria-expanded={isTagsDialogOpen}
+                    aria-labelledby="post-tags-label"
+                  >
+                    <span className="truncate text-left text-foreground">
+                      {selectedTagNames.length === 0
+                        ? "No tags selected"
+                        : selectedTagNames.join(", ")}
+                    </span>
+                    <span className="ml-2 text-[11px] text-muted-foreground sm:text-xs">Edit</span>
+                  </button>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Select tags for this post</DialogTitle>
+                    </DialogHeader>
+                    <div className="mt-2 space-y-3">
+                      <p className="text-xs text-muted-foreground">
+                        Choose one or more tags that describe this post. You can change them at any time.
+                      </p>
+                      <TopicPillsPicker
+                        options={allowedTags.map((tag) => ({ key: tag.name, label: tag.name }))}
+                        selectedKeys={selectedTagNames}
+                        onChange={(next) => handleFieldChange("tagsInput", next.join(", "))}
+                        ariaLabel="Post tags"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <DialogFooter className="mt-4">
+                      <DialogClose asChild>
+                        <Button type="button" variant="outline">
+                          Done
+                        </Button>
+                      </DialogClose>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </>
             ) : (
               <input
                 id="post-tags"
@@ -321,7 +395,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
               checked={form.isFeatured}
               onChange={(event) => handleFieldChange("isFeatured", event.target.checked)}
             />
-            Feature this post
+            Feature on your blog home page
           </label>
 
           <label htmlFor="post-status" className="inline-flex items-center gap-2 text-sm">
