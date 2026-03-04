@@ -4,8 +4,7 @@ import { useRef, useState } from "react";
 import type { FollowStats } from "@/lib/follows";
 import type { LandingProfile } from "@/lib/landing";
 import { blogUrl } from "@/lib/site-urls";
-import { ProfilePreviewContent, SurfaceCard } from "@codebay/ui";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger, ProfilePreviewContent, SurfaceCard } from "@codebay/ui";
 import { FollowButton } from "@/components/pages/dashboard/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
 

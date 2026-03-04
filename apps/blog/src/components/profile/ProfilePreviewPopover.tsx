@@ -9,9 +9,8 @@ import type {
   ProfilePreviewArticle,
   ProfilePreviewLink
 } from "@codebay/ui";
-import { ProfilePreviewContent } from "@codebay/ui";
+import { Popover, PopoverContent, PopoverTrigger, ProfilePreviewContent } from "@codebay/ui";
 import { getFollowStatsForProfile } from "@/lib/follows";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FollowButton } from "@/components/profile/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
 

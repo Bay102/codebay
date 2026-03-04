@@ -1,11 +1,5 @@
 import { useMemo } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@codebay/ui";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ChatHandoffRecord } from "../../../../../../supabase/api/api";
 import { parseChatHistoryMessages, serializeChatHistory } from "./admin-utils";

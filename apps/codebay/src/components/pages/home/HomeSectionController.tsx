@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Settings, Sun, Moon, Monitor, Sparkles } from "lucide-react";
 import Hero from "@/components/pages/home/Hero";
-import { Button } from "@/components/ui/button";
+import { Button } from "@codebay/ui";
 
 type SectionType = "home" | "solutions" | "products" | "resources" | "about-us";
 

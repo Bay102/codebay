@@ -11,9 +11,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { requestHumanConnect } from "@/lib/chat";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
+  Button,
   Dialog,
   DialogClose,
   DialogContent,
@@ -21,9 +20,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+  Input,
+  Label,
+  Textarea,
+} from "@codebay/ui";
 
 const humanConnectFormSchema = z.object({
   name: z.string().min(2, "Name is required"),

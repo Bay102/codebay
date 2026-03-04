@@ -1,5 +1,5 @@
 import { Loader2, RefreshCw, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@codebay/ui";
 
 export type AdminDashboardStats = {
   total: number;

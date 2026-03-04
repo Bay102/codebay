@@ -4,12 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { DashboardActivityItem } from "@/lib/dashboard";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
 
 type ActivityOverviewCardProps = {
   items: DashboardActivityItem[];

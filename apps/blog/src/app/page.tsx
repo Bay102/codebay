@@ -136,7 +136,7 @@ export default async function BlogPage({
     <main className="min-h-screen bg-background pb-20">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }} />
 
-      <div className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-6xl px-5 py-4 sm:px-6 lg:px-8">
         <SurfaceCard variant="hero">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Blog</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
@@ -167,7 +167,7 @@ export default async function BlogPage({
             </p>
           </section>
         ) : featuredPost ? (
-          <section className="mt-12">
+          <section className="mt-6">
             <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured post</h2>
             <Link
               href={`/${buildAuthorSegment(featuredPost.authorName)}/${featuredPost.slug}`}
