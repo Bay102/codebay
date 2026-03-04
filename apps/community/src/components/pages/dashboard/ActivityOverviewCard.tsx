@@ -19,7 +19,10 @@ type ActivityOverviewCardProps = {
 const kindLabel: Record<DashboardActivityItem["kind"], string> = {
   reply: "Reply",
   comment: "Comment",
-  direct_message: "Direct message"
+  direct_message: "Direct message",
+  blog_reaction: "Post reaction",
+  discussion_comment: "Discussion comment",
+  discussion_reaction: "Discussion reaction"
 };
 
 export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardProps) {

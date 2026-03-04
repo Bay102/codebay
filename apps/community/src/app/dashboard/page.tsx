@@ -84,8 +84,8 @@ export default async function CommunityDashboardPage() {
         <DashboardHero name={profile.name} username={profile.username} />
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <ActivityOverviewCard items={overviewActivityItems} allItems={activityItems} />
           <DismissibleNextStepsCard />
+          <ActivityOverviewCard items={overviewActivityItems} allItems={activityItems} />
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-1">
