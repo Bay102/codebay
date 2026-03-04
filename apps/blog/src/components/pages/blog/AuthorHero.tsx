@@ -47,6 +47,7 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
             profileLinks: author.profileLinks
           }}
           authorPageHref={`/author/${author.username}`}
+          profileId={author.id}
         />
       </div>
       <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">

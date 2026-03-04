@@ -4,7 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 
 import type { BlogFeaturedProject } from "@/lib/blog";
+import { getFollowStatsForProfile } from "@/lib/follows";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FollowButton } from "@/components/profile/FollowButton";
+import { useAuth } from "@/contexts/AuthContext";
 
 /** Minimal profile data required for the popover header */
 export interface ProfilePreviewHeader {
@@ -48,6 +51,8 @@ export interface ProfilePreviewPopoverProps {
   sections?: ProfilePreviewSections;
   /** Link to full profile/author page */
   authorPageHref?: string;
+  /** When set and viewer is logged in and not self, show follow icon button. */
+  profileId?: string;
   children?: React.ReactNode;
 }
 
@@ -61,11 +66,32 @@ function buildInitials(name: string): string {
   return `${words[0]![0]}${words[1]![0]}`.toUpperCase();
 }
 
-export function ProfilePreviewPopover({ profile, sections = {}, authorPageHref, children }: ProfilePreviewPopoverProps) {
+export function ProfilePreviewPopover({
+  profile,
+  sections = {},
+  authorPageHref,
+  profileId,
+  children
+}: ProfilePreviewPopoverProps) {
   const [open, setOpen] = React.useState(false);
   const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [followState, setFollowState] = React.useState<boolean | null>(null);
+  const { supabase, user } = useAuth();
 
   const { bio, techStack = [], featuredProjects = [], articles = [], profileLinks = [] } = sections;
+
+  const showFollowButton = Boolean(profileId && user && supabase && user.id !== profileId);
+
+  React.useEffect(() => {
+    if (!open || !profileId || !user || !supabase) {
+      setFollowState(null);
+      return;
+    }
+    setFollowState(null);
+    getFollowStatsForProfile(supabase, profileId, user.id).then((stats) => {
+      setFollowState(stats.isFollowing ?? false);
+    });
+  }, [open, profileId, user?.id, supabase]);
 
   const clearCloseTimeout = () => {
     if (closeTimeoutRef.current) {
@@ -129,23 +155,33 @@ export function ProfilePreviewPopover({ profile, sections = {}, authorPageHref, 
         onMouseEnter={handleContentMouseEnter}
         onMouseLeave={handleContentMouseLeave}
       >
-        <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
-            {profile.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={profile.avatarUrl}
-                alt={`${profile.name} avatar`}
-                className="h-full w-full rounded-full object-cover"
-              />
-            ) : (
-              buildInitials(profile.name)
-            )}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-1 items-start gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
+              {profile.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={profile.avatarUrl}
+                  alt={`${profile.name} avatar`}
+                  className="h-full w-full rounded-full object-cover"
+                />
+              ) : (
+                buildInitials(profile.name)
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
+              <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
-            <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
-          </div>
+          {showFollowButton && profileId && followState !== null ? (
+            <FollowButton
+              key={profileId}
+              profileUserId={profileId}
+              initialIsFollowing={followState}
+              variant="icon"
+            />
+          ) : null}
         </div>
 
         {bio?.trim() ? (

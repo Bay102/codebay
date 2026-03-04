@@ -116,7 +116,7 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
                   profileUserId={profile.id}
                   initialIsFollowing={false}
                   getFollowStatsAction={getFollowStatsAction}
-                  className="shrink-0 h-8 rounded-md border border-primary/40 bg-primary/10 px-3 text-xs font-medium text-primary hover:bg-primary/20"
+                  variant="icon"
                 />
               ) : null}
             </div>

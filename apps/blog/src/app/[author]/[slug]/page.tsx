@@ -153,6 +153,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   profileLinks: authorProfile.profileLinks
                 }}
                 authorPageHref={`/author/${authorProfile.username}`}
+                profileId={authorProfile.id}
               />
             ) : null}
           </div>

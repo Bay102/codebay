@@ -87,6 +87,10 @@ export default async function CommunityDashboardPage() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-1">
+          <ProfileOverviewCard profile={profileWithFollowStats} posts={posts} viewerId={user.id} />
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-1">
           <BlogManagementSummaryCard summary={blogSummary} />
         </div>
 
@@ -94,9 +98,6 @@ export default async function CommunityDashboardPage() {
           <DiscussionManagementCard discussions={discussions} authorName={profile.name} />
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-1">
-          <ProfileOverviewCard profile={profileWithFollowStats} posts={posts} viewerId={user.id} />
-        </div>
 
         <div className="mt-6">
           <Link
