@@ -1,11 +1,14 @@
 import Link from "next/link";
 import type { DashboardBlogPostStats, DashboardProfile } from "@/lib/dashboard";
 import { blogUrl } from "@/lib/site-urls";
+import { ProfileHeaderWithFollow } from "@/components/pages/dashboard/ProfileHeaderWithFollow";
 
 type ProfileOverviewCardProps = {
   profile: DashboardProfile;
   posts: DashboardBlogPostStats[];
   showEditLink?: boolean;
+  /** Current viewer user id (for Follow button and follow stats). When omitted, follow section is hidden. */
+  viewerId?: string | null;
 };
 
 function buildInitials(name: string): string {
@@ -24,12 +27,16 @@ function buildAuthorSegment(authorName: string): string {
   return base || "author";
 }
 
-export function ProfileOverviewCard({ profile, posts, showEditLink = true }: ProfileOverviewCardProps) {
+export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewerId = null }: ProfileOverviewCardProps) {
   const publishedPosts = posts.filter((post) => post.status === "published");
 
   const featuredPosts = profile.hasFeaturedPostSelection
     ? publishedPosts.filter((post) => profile.featuredPostSlugs.includes(post.slug))
     : publishedPosts.slice(0, 3);
+
+  const hasFollowStats =
+    profile.followerCount !== undefined && profile.followingCount !== undefined;
+  const showFollowSection = hasFollowStats && viewerId != null;
 
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
@@ -45,18 +52,35 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true }: Pro
         ) : null}
       </div>
 
-      <div className="mt-4 flex items-start gap-4">
-        {profile.avatarUrl ? (
-          <img src={profile.avatarUrl} alt={`${profile.name} avatar`} className="h-14 w-14 rounded-full border border-border/70 object-cover" />
+      <div className="mt-4">
+        {showFollowSection ? (
+          <ProfileHeaderWithFollow
+            profileId={profile.id}
+            username={profile.username}
+            name={profile.name}
+            avatarUrl={profile.avatarUrl}
+            initialFollowerCount={profile.followerCount ?? 0}
+            initialFollowingCount={profile.followingCount ?? 0}
+            initialIsFollowing={profile.isFollowing}
+            showEditLink={showEditLink}
+            viewerId={viewerId}
+            showFollowSection={true}
+          />
         ) : (
-          <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
-            {buildInitials(profile.name)}
+          <div className="flex items-start gap-4">
+            {profile.avatarUrl ? (
+              <img src={profile.avatarUrl} alt={`${profile.name} avatar`} className="h-14 w-14 rounded-full border border-border/70 object-cover shrink-0" />
+            ) : (
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
+                {buildInitials(profile.name)}
+              </div>
+            )}
+            <div>
+              <p className="text-base font-semibold text-foreground">{profile.name}</p>
+              <p className="text-sm text-muted-foreground">@{profile.username}</p>
+            </div>
           </div>
         )}
-        <div>
-          <p className="text-base font-semibold text-foreground">{profile.name}</p>
-          <p className="text-sm text-muted-foreground">@{profile.username}</p>
-        </div>
       </div>
 
       <p className="mt-4 text-sm leading-7 text-muted-foreground">

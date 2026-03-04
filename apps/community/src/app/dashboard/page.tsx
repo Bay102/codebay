@@ -6,6 +6,7 @@ import { CommunityDashboardActions } from "@/components/pages/community/Communit
 import { DismissibleNextStepsCard } from "@/components/pages/community/DismissibleNextStepsCard";
 import { ActivityOverviewCard } from "@/components/pages/dashboard/ActivityOverviewCard";
 import { BlogManagementSummaryCard } from "@/components/pages/dashboard/BlogManagementSummaryCard";
+import { DiscussionManagementCard } from "@/components/pages/dashboard/DiscussionManagementCard";
 import { DashboardHero } from "@/components/pages/dashboard/DashboardHero";
 import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOverviewCard";
 import {
@@ -14,6 +15,8 @@ import {
   fetchDashboardProfile,
   fetchUserBlogPostsWithStats
 } from "@/lib/dashboard";
+import { getFollowStatsForProfile } from "@/lib/follows";
+import { getDiscussionsWithCounts } from "@/lib/discussions";
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -36,12 +39,22 @@ export default async function CommunityDashboardPage() {
     redirect("/");
   }
 
-  const profile = await fetchDashboardProfile(supabase, user.id);
+  const [profile, posts, followStats, discussions] = await Promise.all([
+    fetchDashboardProfile(supabase, user.id),
+    fetchUserBlogPostsWithStats(supabase, user.id),
+    getFollowStatsForProfile(supabase, user.id, user.id),
+    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 3, orderByTrend: false })
+  ]);
+
   if (!profile) {
     redirect("/join?redirect=/dashboard");
   }
 
-  const posts = await fetchUserBlogPostsWithStats(supabase, user.id);
+  const profileWithFollowStats = {
+    ...profile,
+    followerCount: followStats.followerCount,
+    followingCount: followStats.followingCount
+  };
   const blogSummary = buildBlogSummary(posts);
   const postMapBySlug = Object.fromEntries(
     posts.map((post) => [post.slug, { id: post.id, title: post.title, authorName: post.authorName }])
@@ -78,7 +91,11 @@ export default async function CommunityDashboardPage() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-1">
-          <ProfileOverviewCard profile={profile} posts={posts} />
+          <DiscussionManagementCard discussions={discussions} authorName={profile.name} />
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-1">
+          <ProfileOverviewCard profile={profileWithFollowStats} posts={posts} viewerId={user.id} />
         </div>
 
         <div className="mt-6">

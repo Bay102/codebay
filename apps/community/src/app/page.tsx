@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { SurfaceCard, CtaCarousel, type CtaCarouselSlide } from "@codebay/ui";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { blogUrl } from "@/lib/site-urls";
 import { TrendingProfilesSection } from "@/components/pages/community/TrendingProfilesSection";
 import { TrendingTopicsSection } from "@/components/pages/community/TrendingTopicsSection";
 import { FeaturedBlogPostsSection } from "@/components/pages/community/FeaturedBlogPostsSection";
+import { TrendingDiscussionsSection } from "@/components/pages/community/TrendingDiscussionsSection";
 
 export const metadata: Metadata = {
   title: "Community",
@@ -32,7 +34,13 @@ const whyJoinSlides: CtaCarouselSlide[] = [
   }
 ];
 
-export default function CommunityLandingPage() {
+export default async function CommunityLandingPage() {
+  const supabase = await createServerSupabaseClient();
+  const {
+    data: { user }
+  } = await supabase?.auth.getUser() ?? { data: { user: null } };
+  const hasSession = !!user;
+
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
@@ -45,17 +53,35 @@ export default function CommunityLandingPage() {
             Publish on your own blog page, join discussions, and connect with developers building in the open.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
+            {!hasSession && (
+              <Link
+                href="/join"
+                className="inline-flex rounded-full border border-primary/35 bg-primary/10 px-5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+              >
+                Join the community
+              </Link>
+            )}
+            {!hasSession && (
+              <Link
+                href="/join?mode=signin"
+                className="inline-flex rounded-full border border-border/70 bg-card px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+              >
+                Sign in
+              </Link>
+            )}
+            {hasSession && (
+              <Link
+                href="/dashboard"
+                className="inline-flex rounded-full border border-primary/35 bg-primary/10 px-5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+              >
+                Dashboard
+              </Link>
+            )}
             <Link
-              href="/join"
-              className="inline-flex rounded-full border border-primary/35 bg-primary/10 px-5 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
-            >
-              Join the community
-            </Link>
-            <Link
-              href="/join?mode=signin"
+              href={hasSession ? "/dashboard/discussions/new" : "/join?redirect=/dashboard/discussions/new"}
               className="inline-flex rounded-full border border-border/70 bg-card px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
             >
-              Sign in
+              Start a discussion
             </Link>
             <Link
               href={blogUrl}
@@ -74,6 +100,10 @@ export default function CommunityLandingPage() {
 
         <Suspense fallback={null}>
           <TrendingTopicsSection />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <TrendingDiscussionsSection />
         </Suspense>
 
         <Suspense fallback={null}>
