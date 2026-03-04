@@ -94,8 +94,8 @@ export default async function CommunityLandingPage() {
         </SurfaceCard>
 
         <CtaCarousel
-          eyebrow="Why join the community"
-          heading="A focused space for engineers who actually ship"
+          eyebrow="Indulge in the community"
+          heading="Share your thoughts - grow your audience"
           slides={whyJoinSlides}
         />
 
