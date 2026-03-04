@@ -43,12 +43,20 @@ export default async function DashboardProfilePage() {
               Keep your profile updated for the dashboard and your public author page.
             </p>
           </div>
-          <Link
-            href="/dashboard"
-            className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-          >
-            Back to dashboard
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/dashboard"
+              className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
+            >
+              Back to dashboard
+            </Link>
+            <Link
+              href={`/${profile.username}`}
+              className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
+            >
+              View profile
+            </Link>
+          </div>
         </div>
 
         <ProfileSettingsForm profile={profile} blogPosts={posts} />

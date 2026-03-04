@@ -5,6 +5,7 @@ import { blogUrl } from "@/lib/site-urls";
 type ProfileOverviewCardProps = {
   profile: DashboardProfile;
   posts: DashboardBlogPostStats[];
+  showEditLink?: boolean;
 };
 
 function buildInitials(name: string): string {
@@ -23,7 +24,7 @@ function buildAuthorSegment(authorName: string): string {
   return base || "author";
 }
 
-export function ProfileOverviewCard({ profile, posts }: ProfileOverviewCardProps) {
+export function ProfileOverviewCard({ profile, posts, showEditLink = true }: ProfileOverviewCardProps) {
   const publishedPosts = posts.filter((post) => post.status === "published");
 
   const featuredPosts = profile.hasFeaturedPostSelection
@@ -34,12 +35,14 @@ export function ProfileOverviewCard({ profile, posts }: ProfileOverviewCardProps
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
-        <Link
-          href="/dashboard/profile"
-          className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-        >
-          Edit profile
-        </Link>
+        {showEditLink ? (
+          <Link
+            href="/dashboard/profile"
+            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+          >
+            Edit profile
+          </Link>
+        ) : null}
       </div>
 
       <div className="mt-4 flex items-start gap-4">

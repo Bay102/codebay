@@ -19,22 +19,42 @@ export function DashboardHero({ name, username }: DashboardHeroProps) {
       <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
         Manage your profile, run your blog workflow, and keep up with community activity from one place.
       </p>
-      <div className="mt-4 flex flex-wrap gap-2.5">
+      <nav className="mt-4 flex flex-wrap gap-2.5 text-sm">
+        <Link
+          href="/"
+          className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
+        >
+          Community home
+        </Link>
         <Link
           href="/dashboard/blog"
-          className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
         >
-          Open blog dashboard
+          Blog dashboard
         </Link>
         {publicBlogUrl ? (
           <Link
             href={publicBlogUrl}
-            className="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+            className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
           >
-            View your public blog
+            Public blog page
           </Link>
         ) : null}
-      </div>
+        <Link
+          href="#"
+          aria-disabled="true"
+          className="inline-flex items-center rounded-full border border-dashed border-border/60 bg-card/20 px-3 py-1.5 text-xs font-medium text-muted-foreground/80 sm:text-sm"
+        >
+          Placeholder link 1
+        </Link>
+        <Link
+          href="#"
+          aria-disabled="true"
+          className="inline-flex items-center rounded-full border border-dashed border-border/60 bg-card/20 px-3 py-1.5 text-xs font-medium text-muted-foreground/80 sm:text-sm"
+        >
+          Placeholder link 2
+        </Link>
+      </nav>
     </SurfaceCard>
   );
 }
