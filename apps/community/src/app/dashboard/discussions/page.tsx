@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { DiscussionManagementCard } from "@/components/pages/dashboard/DiscussionManagementCard";
+import { fetchDashboardProfile } from "@/lib/dashboard";
 
 export const metadata: Metadata = {
   title: "Discussion management",
@@ -20,6 +21,11 @@ export default async function DashboardDiscussionsPage() {
     data: { user }
   } = await supabase.auth.getUser();
   if (!user) redirect("/");
+
+  const profile = await fetchDashboardProfile(supabase, user.id);
+  if (!profile) {
+    redirect("/join?redirect=/dashboard/discussions");
+  }
 
   const discussions = await getDiscussionsWithCounts(supabase, {
     authorId: user.id,
@@ -49,7 +55,7 @@ export default async function DashboardDiscussionsPage() {
           </Link>
         </div>
 
-        <DiscussionManagementCard discussions={discussions} />
+        <DiscussionManagementCard discussions={discussions} authorName={profile.name} />
       </section>
     </main>
   );
