@@ -1,46 +1,28 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 
-import type { BlogFeaturedProject } from "@/lib/blog";
+import type {
+  ProfilePreviewHeader,
+  ProfilePreviewSections,
+  ProfilePreviewProject,
+  ProfilePreviewArticle,
+  ProfilePreviewLink
+} from "@codebay/ui";
+import { ProfilePreviewContent } from "@codebay/ui";
+import { getFollowStatsForProfile } from "@/lib/follows";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FollowButton } from "@/components/profile/FollowButton";
+import { useAuth } from "@/contexts/AuthContext";
 
-/** Minimal profile data required for the popover header */
-export interface ProfilePreviewHeader {
-  name: string;
-  username: string;
-  avatarUrl?: string | null;
-}
-
-export interface ProfilePreviewProject extends Pick<BlogFeaturedProject, "title" | "description" | "url"> {}
-
-export interface ProfilePreviewArticle {
-  title: string;
-  href: string;
-}
-
-export interface ProfilePreviewLink {
-  label: string;
-  url: string;
-}
-
-/**
- * Optional content sections. Pass only the sections you want to show.
- * Different pages can show different combinations (e.g. author page vs comment author).
- */
-export interface ProfilePreviewSections {
-  /** Bio text - omit to hide */
-  bio?: string | null;
-  /** Tech stack chips - omit to hide */
-  techStack?: string[];
-  /** Full list of featured projects */
-  featuredProjects?: ProfilePreviewProject[];
-  /** Articles/posts with links */
-  articles?: ProfilePreviewArticle[];
-  /** Profile links (e.g. GitHub, Twitter) */
-  profileLinks?: ProfilePreviewLink[];
-}
+/** Re-export shared types for consumers that import from this file */
+export type {
+  ProfilePreviewHeader,
+  ProfilePreviewSections,
+  ProfilePreviewProject,
+  ProfilePreviewArticle,
+  ProfilePreviewLink
+};
 
 export interface ProfilePreviewPopoverProps {
   profile: ProfilePreviewHeader;
@@ -48,6 +30,8 @@ export interface ProfilePreviewPopoverProps {
   sections?: ProfilePreviewSections;
   /** Link to full profile/author page */
   authorPageHref?: string;
+  /** When set and viewer is logged in and not self, show follow icon button. */
+  profileId?: string;
   children?: React.ReactNode;
 }
 
@@ -61,11 +45,30 @@ function buildInitials(name: string): string {
   return `${words[0]![0]}${words[1]![0]}`.toUpperCase();
 }
 
-export function ProfilePreviewPopover({ profile, sections = {}, authorPageHref, children }: ProfilePreviewPopoverProps) {
+export function ProfilePreviewPopover({
+  profile,
+  sections = {},
+  authorPageHref,
+  profileId,
+  children
+}: ProfilePreviewPopoverProps) {
   const [open, setOpen] = React.useState(false);
   const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [followState, setFollowState] = React.useState<boolean | null>(null);
+  const { supabase, user } = useAuth();
 
-  const { bio, techStack = [], featuredProjects = [], articles = [], profileLinks = [] } = sections;
+  const showFollowButton = Boolean(profileId && user && supabase && user.id !== profileId);
+
+  React.useEffect(() => {
+    if (!open || !profileId || !user || !supabase) {
+      setFollowState(null);
+      return;
+    }
+    setFollowState(null);
+    getFollowStatsForProfile(supabase, profileId, user.id).then((stats) => {
+      setFollowState(stats.isFollowing ?? false);
+    });
+  }, [open, profileId, user?.id, supabase]);
 
   const clearCloseTimeout = () => {
     if (closeTimeoutRef.current) {
@@ -98,6 +101,16 @@ export function ProfilePreviewPopover({ profile, sections = {}, authorPageHref, 
     scheduleClose();
   };
 
+  const followButton =
+    showFollowButton && profileId && followState !== null ? (
+      <FollowButton
+        key={profileId}
+        profileUserId={profileId}
+        initialIsFollowing={followState}
+        variant="icon"
+      />
+    ) : null;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -129,123 +142,13 @@ export function ProfilePreviewPopover({ profile, sections = {}, authorPageHref, 
         onMouseEnter={handleContentMouseEnter}
         onMouseLeave={handleContentMouseLeave}
       >
-        <div className="flex items-start gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
-            {profile.avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={profile.avatarUrl}
-                alt={`${profile.name} avatar`}
-                className="h-full w-full rounded-full object-cover"
-              />
-            ) : (
-              buildInitials(profile.name)
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
-            <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
-          </div>
-        </div>
-
-        {bio?.trim() ? (
-          <p className="mt-3 line-clamp-3 text-xs leading-6 text-muted-foreground">{bio.trim()}</p>
-        ) : null}
-
-        {techStack.length > 0 ? (
-          <div className="mt-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Tech stack</p>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {techStack.slice(0, 6).map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-border/70 bg-background/80 px-2 py-1 text-[10px] text-foreground"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {featuredProjects.length > 0 ? (
-          <div className="mt-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Featured projects
-            </p>
-            <div className="mt-1.5 space-y-1.5">
-              {featuredProjects.map((project) => (
-                <div key={project.title} className="rounded-lg border border-border/60 bg-background/60 p-2">
-                  <p className="truncate text-xs font-medium text-foreground">{project.title}</p>
-                  {project.description ? (
-                    <p className="mt-0.5 line-clamp-2 text-[11px] leading-5 text-muted-foreground">
-                      {project.description}
-                    </p>
-                  ) : null}
-                  {project.url ? (
-                    <Link
-                      href={project.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 inline-flex text-[11px] font-medium text-primary underline-offset-4 hover:underline"
-                    >
-                      Visit project
-                    </Link>
-                  ) : null}
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {articles.length > 0 ? (
-          <div className="mt-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-              Featured articles
-            </p>
-            <div className="mt-1.5 space-y-1">
-              {articles.map((article) => (
-                <Link
-                  key={article.href}
-                  href={article.href}
-                  className="block truncate rounded-md px-2 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary/60 hover:text-primary"
-                >
-                  {article.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {profileLinks.length > 0 ? (
-          <div className="mt-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Links</p>
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {profileLinks.map((link) => (
-                <Link
-                  key={link.url}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex rounded-md border border-border/70 bg-background/80 px-2.5 py-1 text-[11px] font-medium text-foreground underline-offset-4 transition-colors hover:border-primary/50 hover:text-primary hover:underline"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ) : null}
-
-        {authorPageHref ? (
-          <div className="mt-3 border-t border-border/70 pt-2.5">
-            <Link
-              href={authorPageHref}
-              className="inline-flex text-xs font-medium text-primary underline-offset-4 hover:underline"
-            >
-              View full author profile
-            </Link>
-          </div>
-        ) : null}
+        <ProfilePreviewContent
+          profile={profile}
+          sections={sections}
+          authorPageHref={authorPageHref}
+          authorPageLabel="View full author profile"
+          followButton={followButton}
+        />
       </PopoverContent>
     </Popover>
   );

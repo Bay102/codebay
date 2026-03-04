@@ -242,6 +242,116 @@ export async function fetchTrendingTopics(limit = 10): Promise<LandingTopic[]> {
     .map(({ tag, postCount }) => ({ tag, postCount }));
 }
 
+/**
+ * Returns published blog posts that match any of the user's preferred tags.
+ * Use for "For you" section when user is logged in.
+ */
+export async function fetchForYouBlogPosts(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  limit = 6
+): Promise<LandingFeaturedPost[]> {
+  const { data: preferredRows } = await supabase
+    .from("user_preferred_tags")
+    .select("tag_id")
+    .eq("user_id", userId);
+  const tagIds = (preferredRows ?? []).map((r) => r.tag_id);
+  if (tagIds.length === 0) return [];
+
+  const { data: tagRows } = await supabase.from("tags").select("name").in("id", tagIds);
+  const tagNames = (tagRows ?? []).map((r) => r.name);
+  if (tagNames.length === 0) return [];
+
+  const { data: rows, error } = await supabase
+    .from("blog_posts")
+    .select(
+      "id,slug,title,excerpt,author_id,author_name,published_at,is_featured,featured_on_community_landing,tags"
+    )
+    .eq("status", "published")
+    .overlaps("tags", tagNames)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !rows) return [];
+  const blogRows = rows as BlogPostRow[];
+  const slugs = blogRows.map((r) => r.slug);
+  const engagementMap = await fetchEngagementCountsForSlugs(supabase, slugs);
+  return blogRows.map((row) => mapPostRowToLandingPost(row, engagementMap[row.slug]));
+}
+
+export type ForYouDiscussion = {
+  id: string;
+  slug: string;
+  title: string;
+  body: string;
+  authorName: string;
+  authorUsername: string;
+  createdAt: string;
+  tags: string[];
+  commentCount: number;
+  reactionCount: number;
+};
+
+/**
+ * Returns discussions that match any of the user's preferred tags.
+ */
+export async function fetchForYouDiscussions(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  limit = 4
+): Promise<ForYouDiscussion[]> {
+  const { data: preferredRows } = await supabase
+    .from("user_preferred_tags")
+    .select("tag_id")
+    .eq("user_id", userId);
+  const tagIds = (preferredRows ?? []).map((r) => r.tag_id);
+  if (tagIds.length === 0) return [];
+
+  const { data: tagRows } = await supabase.from("tags").select("name").in("id", tagIds);
+  const tagNames = (tagRows ?? []).map((r) => r.name);
+  if (tagNames.length === 0) return [];
+
+  const { data: rows, error } = await supabase
+    .from("discussions")
+    .select(
+      "id,slug,title,body,author_id,created_at,updated_at,tags,community_users!discussions_author_id_fkey(name,username)"
+    )
+    .overlaps("tags", tagNames)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error || !rows || rows.length === 0) return [];
+
+  const ids = (rows as { id: string }[]).map((r) => r.id);
+  const [commentRes, reactionRes] = await Promise.all([
+    supabase.from("discussion_comments").select("discussion_id").in("discussion_id", ids),
+    supabase.from("discussion_reactions").select("discussion_id").in("discussion_id", ids)
+  ]);
+  const commentByDiscussion = new Map<string, number>();
+  (commentRes.data ?? []).forEach((r: { discussion_id: string }) => {
+    commentByDiscussion.set(r.discussion_id, (commentByDiscussion.get(r.discussion_id) ?? 0) + 1);
+  });
+  const reactionByDiscussion = new Map<string, number>();
+  (reactionRes.data ?? []).forEach((r: { discussion_id: string }) => {
+    reactionByDiscussion.set(r.discussion_id, (reactionByDiscussion.get(r.discussion_id) ?? 0) + 1);
+  });
+
+  return (rows as { id: string; slug: string; title: string; body: string; created_at: string; tags: string[]; community_users: { name: string; username: string } | null }[]).map(
+    (r) => ({
+      id: r.id,
+      slug: r.slug,
+      title: r.title,
+      body: r.body ?? "",
+      authorName: r.community_users?.name ?? "Unknown",
+      authorUsername: r.community_users?.username ?? "unknown",
+      createdAt: r.created_at,
+      tags: r.tags ?? [],
+      commentCount: commentByDiscussion.get(r.id) ?? 0,
+      reactionCount: reactionByDiscussion.get(r.id) ?? 0
+    })
+  );
+}
+
 async function fetchEngagementCountsForSlugs(
   supabase: SupabaseClient<Database>,
   slugs: string[]

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { fetchDashboardProfile } from "@/lib/dashboard";
+import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { NewDiscussionForm } from "@/components/pages/dashboard/NewDiscussionForm";
 
@@ -21,7 +22,10 @@ export default async function NewDiscussionPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/");
 
-  const profile = await fetchDashboardProfile(supabase, user.id);
+  const [profile, allowedTags] = await Promise.all([
+    fetchDashboardProfile(supabase, user.id),
+    fetchAllTags(supabase)
+  ]);
   if (!profile) redirect("/join?redirect=/dashboard/discussions/new");
 
   return (
@@ -44,7 +48,7 @@ export default async function NewDiscussionPage() {
         </div>
 
         <div className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
-          <NewDiscussionForm authorName={profile.name} />
+          <NewDiscussionForm authorName={profile.name} allowedTags={allowedTags} />
         </div>
       </section>
     </main>

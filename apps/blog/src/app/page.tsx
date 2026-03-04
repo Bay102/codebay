@@ -5,6 +5,7 @@ import { SurfaceCard } from "@codebay/ui";
 import { fetchPublishedBlogPosts, fetchBlogEngagementCounts, type BlogEngagementCounts } from "@/lib/blog";
 import type { BlogPost } from "@/lib/blog";
 import { BlogFilterBar } from "@/components/pages/blog/BlogFilterBar";
+import { ForYouSection } from "@/components/pages/blog/ForYouSection";
 import { mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
@@ -152,6 +153,8 @@ export default async function BlogPage({
             <BlogFilterBar tags={allTags} />
           </Suspense>
         ) : null}
+
+        <ForYouSection />
 
         {filteredPosts.length === 0 ? (
           <section className="mt-12">

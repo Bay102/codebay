@@ -1,13 +1,15 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import type { DiscussionListItem } from "@/lib/discussions";
+import type { TagOption } from "@/lib/tags";
 import { NewDiscussionForm } from "@/components/pages/dashboard/NewDiscussionForm";
 
 type DiscussionManagementCardProps = {
   discussions: DiscussionListItem[];
   authorName: string;
+  allowedTags?: TagOption[];
 };
 
 function formatDate(value: string): string {
@@ -18,7 +20,7 @@ function formatDate(value: string): string {
   }).format(new Date(value));
 }
 
-export function DiscussionManagementCard({ discussions, authorName }: DiscussionManagementCardProps) {
+export function DiscussionManagementCard({ discussions, authorName, allowedTags = [] }: DiscussionManagementCardProps) {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   return (
@@ -53,7 +55,7 @@ export function DiscussionManagementCard({ discussions, authorName }: Discussion
               Share a question, pattern, or update for the community to react to.
             </p>
             <div className="mt-3 rounded-xl border border-border/70 bg-background/70 p-3 sm:p-4">
-              <NewDiscussionForm authorName={authorName} showCancelButton={false} />
+              <NewDiscussionForm authorName={authorName} allowedTags={allowedTags} showCancelButton={false} />
             </div>
           </div>
 
@@ -89,6 +91,18 @@ export function DiscussionManagementCard({ discussions, authorName }: Discussion
                       <span>{d.commentCount} comments</span>
                       <span>{d.reactionCount} reactions</span>
                     </div>
+                    {d.tags.length > 0 ? (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {d.tags.slice(0, 3).map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded border border-border/70 bg-secondary/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </Link>
                 ))}
               </div>

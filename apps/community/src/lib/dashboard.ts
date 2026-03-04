@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json, Tables } from "@/lib/database";
-import { blogUrl } from "@/lib/site-urls";
+import { blogUrl, communityUrl } from "@/lib/site-urls";
 
 type CommunityUserRow = Tables<"community_users">;
 
@@ -77,7 +77,13 @@ export interface DashboardBlogSummary {
   topPostByViews: DashboardBlogPostStats | null;
 }
 
-export type ActivityKind = "reply" | "comment" | "direct_message";
+export type ActivityKind =
+  | "reply"
+  | "comment"
+  | "direct_message"
+  | "blog_reaction"
+  | "discussion_comment"
+  | "discussion_reaction";
 
 export interface DashboardActivityItem {
   id: string;
@@ -468,6 +474,120 @@ export async function fetchDashboardActivity(
         href: articleHref
       });
     });
+  }
+
+  // Blog reactions on the user's posts (positive/“up” feedback only).
+  if (postSlugs.length > 0) {
+    const { data: reactionRows } = await supabase
+      .from("blog_post_reactions")
+      .select("id, slug, reaction_type, response, user_id, created_at")
+      .in("slug", postSlugs)
+      .neq("user_id", userId)
+      .eq("response", "up")
+      .order("created_at", { ascending: false })
+      .limit(resolvedLimit * 2);
+
+    (reactionRows ?? [])
+      .slice(0, resolvedLimit)
+      .forEach((reaction: { id: string; slug: string; reaction_type: string; created_at: string }) => {
+        const post = postMapBySlug[reaction.slug];
+        if (!post) return;
+
+        const authorSegment = buildAuthorSegment(post.authorName);
+        const articleHref = `${blogUrl}/${authorSegment}/${reaction.slug}`;
+        const reactionLabel = reaction.reaction_type === "insightful" ? "found insightful" : "reacted to";
+
+        items.push({
+          id: `blog-reaction-${reaction.id}`,
+          kind: "blog_reaction",
+          title: "New reaction on your post",
+          description: `Someone ${reactionLabel} "${post.title}"`,
+          createdAt: reaction.created_at,
+          href: articleHref
+        });
+      });
+  }
+
+  // Discussion activity: comments and reactions on discussions authored by this user.
+  const { data: authoredDiscussions } = await supabase
+    .from("discussions")
+    .select("id, slug, title, author_id")
+    .eq("author_id", userId);
+
+  const discussionRows =
+    (authoredDiscussions as { id: string; slug: string; title: string; author_id: string }[] | null) ?? [];
+  const discussionById = new Map<string, { id: string; slug: string; title: string }>();
+  discussionRows.forEach((row) => {
+    discussionById.set(row.id, { id: row.id, slug: row.slug, title: row.title });
+  });
+
+  const discussionIds = discussionRows.map((row) => row.id);
+
+  if (discussionIds.length > 0) {
+    const [{ data: discussionComments }, { data: discussionReactions }] = await Promise.all([
+      supabase
+        .from("discussion_comments")
+        .select("id, discussion_id, author_id, author_name, created_at")
+        .in("discussion_id", discussionIds)
+        .neq("author_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(resolvedLimit * 2),
+      supabase
+        .from("discussion_reactions")
+        .select("id, discussion_id, user_id, reaction_type, created_at")
+        .in("discussion_id", discussionIds)
+        .neq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(resolvedLimit * 2)
+    ]);
+
+    (discussionComments ?? [])
+      .slice(0, resolvedLimit)
+      .forEach(
+        (comment: {
+          id: string;
+          discussion_id: string;
+          author_id: string | null;
+          author_name: string | null;
+          created_at: string;
+        }) => {
+          const discussion = discussionById.get(comment.discussion_id);
+          if (!discussion) return;
+
+          items.push({
+            id: `discussion-comment-${comment.id}`,
+            kind: "discussion_comment",
+            title: "New comment on your discussion",
+            description: `${comment.author_name ?? "A member"} commented on "${discussion.title}"`,
+            createdAt: comment.created_at,
+            href: `${communityUrl}/discussions/${discussion.slug}`
+          });
+        }
+      );
+
+    (discussionReactions ?? [])
+      .slice(0, resolvedLimit)
+      .forEach(
+        (reaction: {
+          id: string;
+          discussion_id: string;
+          user_id: string;
+          reaction_type: string;
+          created_at: string;
+        }) => {
+          const discussion = discussionById.get(reaction.discussion_id);
+          if (!discussion) return;
+
+          items.push({
+            id: `discussion-reaction-${reaction.id}`,
+            kind: "discussion_reaction",
+            title: "New reaction on your discussion",
+            description: `Someone reacted to "${discussion.title}"`,
+            createdAt: reaction.created_at,
+            href: `${communityUrl}/discussions/${discussion.slug}`
+          });
+        }
+      );
   }
 
   if (userEmail) {

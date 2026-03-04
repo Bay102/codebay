@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { BlogPostEditorForm, type BlogPostEditorValues } from "@/components/pages/dashboard/blog/BlogPostEditorForm";
 import { fetchDashboardProfile } from "@/lib/dashboard";
+import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -29,6 +30,8 @@ export default async function NewCommunityBlogPostPage() {
     redirect("/join?redirect=/dashboard/blog/new");
   }
 
+  const allowedTags = await fetchAllTags(supabase);
+
   const initialValues: BlogPostEditorValues = {
     title: "",
     slug: "",
@@ -53,7 +56,7 @@ export default async function NewCommunityBlogPostPage() {
             Draft in community, publish to the public blog when you are ready.
           </p>
         </div>
-        <BlogPostEditorForm mode="create" initialValues={initialValues} />
+        <BlogPostEditorForm mode="create" initialValues={initialValues} allowedTags={allowedTags} />
       </section>
     </main>
   );

@@ -8,6 +8,7 @@ import { TrendingProfilesSection } from "@/components/pages/community/TrendingPr
 import { TrendingTopicsSection } from "@/components/pages/community/TrendingTopicsSection";
 import { FeaturedBlogPostsSection } from "@/components/pages/community/FeaturedBlogPostsSection";
 import { TrendingDiscussionsSection } from "@/components/pages/community/TrendingDiscussionsSection";
+import { ForYouSection } from "@/components/pages/community/ForYouSection";
 
 export const metadata: Metadata = {
   title: "Community",
@@ -97,6 +98,10 @@ export default async function CommunityLandingPage() {
           heading="A focused space for engineers who actually ship"
           slides={whyJoinSlides}
         />
+
+        <Suspense fallback={null}>
+          <ForYouSection userId={user?.id ?? null} />
+        </Suspense>
 
         <Suspense fallback={null}>
           <TrendingTopicsSection />

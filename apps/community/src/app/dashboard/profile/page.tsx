@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getPreferredTagIdsAction } from "@/app/actions";
+import { PreferredTopicsSection } from "@/components/pages/dashboard/PreferredTopicsSection";
 import { ProfileSettingsForm } from "@/components/pages/dashboard/ProfileSettingsForm";
 import { fetchDashboardProfile, fetchUserBlogPostsWithStats } from "@/lib/dashboard";
+import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -30,7 +33,11 @@ export default async function DashboardProfilePage() {
     redirect("/join?redirect=/dashboard/profile");
   }
 
-  const posts = await fetchUserBlogPostsWithStats(supabase, user.id);
+  const [posts, allowedTags, preferredTagIds] = await Promise.all([
+    fetchUserBlogPostsWithStats(supabase, user.id),
+    fetchAllTags(supabase),
+    getPreferredTagIdsAction()
+  ]);
 
   return (
     <main className="min-h-screen bg-background">
@@ -58,6 +65,10 @@ export default async function DashboardProfilePage() {
             </Link>
           </div>
         </div>
+
+        <section className="mb-8 rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+          <PreferredTopicsSection allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
+        </section>
 
         <ProfileSettingsForm profile={profile} blogPosts={posts} />
       </section>

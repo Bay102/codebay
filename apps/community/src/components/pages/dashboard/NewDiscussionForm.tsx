@@ -1,21 +1,30 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { TopicPillsPicker } from "@codebay/ui";
 import { createDiscussion, slugifyTitle } from "@/lib/discussions";
+import type { TagOption } from "@/lib/tags";
 import { useAuth } from "@/contexts/AuthContext";
 
 type NewDiscussionFormProps = {
   authorName: string;
+  /** Preset tags to choose from. When provided, a tag multi-select is shown. */
+  allowedTags?: TagOption[];
   /** When false, hides the Cancel button (for inline usage). Defaults to true. */
   showCancelButton?: boolean;
 };
 
-export function NewDiscussionForm({ authorName, showCancelButton = true }: NewDiscussionFormProps) {
+export function NewDiscussionForm({
+  authorName,
+  allowedTags = [],
+  showCancelButton = true
+}: NewDiscussionFormProps) {
   const router = useRouter();
   const { supabase, user } = useAuth();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [selectedTagNames, setSelectedTagNames] = useState<Set<string>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,11 +36,13 @@ export function NewDiscussionForm({ authorName, showCancelButton = true }: NewDi
     try {
       const baseSlug = slugifyTitle(title);
       const slug = `${baseSlug}-${Date.now().toString(36)}`;
+      const tags = allowedTags.length > 0 ? [...selectedTagNames].filter((n) => n) : [];
       const result = await createDiscussion(supabase, {
         authorId: user.id,
         title: title.trim(),
         body: body.trim(),
-        slug
+        slug,
+        tags
       });
       if (!result) {
         setError("Failed to create discussion. Try again.");
@@ -68,6 +79,20 @@ export function NewDiscussionForm({ authorName, showCancelButton = true }: NewDi
           disabled={isSubmitting}
         />
       </div>
+      {allowedTags.length > 0 ? (
+        <div>
+          <span className="block text-sm font-medium text-foreground" id="discussion-tags-label">
+            Topics
+          </span>
+          <TopicPillsPicker
+            options={allowedTags.map((tag) => ({ key: tag.name, label: tag.name }))}
+            selectedKeys={[...selectedTagNames]}
+            onChange={(next) => setSelectedTagNames(new Set(next))}
+            ariaLabel="Discussion topics"
+            disabled={isSubmitting}
+          />
+        </div>
+      ) : null}
       <div>
         <label htmlFor="discussion-body" className="block text-sm font-medium text-foreground">
           Body

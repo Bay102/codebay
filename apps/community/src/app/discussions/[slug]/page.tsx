@@ -70,6 +70,18 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
             <time dateTime={discussion.created_at}>{formatDate(discussion.created_at)}</time>
           </div>
           <h1 className="mt-2 text-xl font-semibold text-foreground sm:text-2xl">{discussion.title}</h1>
+          {discussion.tags.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {discussion.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-lg border border-border/70 bg-secondary/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          ) : null}
           <div className="mt-4 whitespace-pre-line text-sm leading-7 text-muted-foreground">
             {discussion.body}
           </div>

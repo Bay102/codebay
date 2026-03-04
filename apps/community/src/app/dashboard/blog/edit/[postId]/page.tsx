@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { BlogPostEditorForm, type BlogPostEditorValues } from "@/components/pages/dashboard/blog/BlogPostEditorForm";
 import type { Json } from "@/lib/database";
+import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -69,6 +70,8 @@ export default async function EditCommunityBlogPostPage({ params }: EditBlogPost
   }
 
   const parsedSection = parseSectionBody(post.sections);
+  const allowedTags = await fetchAllTags(supabase);
+
   const initialValues: BlogPostEditorValues = {
     id: post.id,
     title: post.title,
@@ -94,7 +97,7 @@ export default async function EditCommunityBlogPostPage({ params }: EditBlogPost
             Update your post metadata, content, and publish state.
           </p>
         </div>
-        <BlogPostEditorForm mode="edit" initialValues={initialValues} />
+        <BlogPostEditorForm mode="edit" initialValues={initialValues} allowedTags={allowedTags} />
       </section>
     </main>
   );

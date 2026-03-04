@@ -3,26 +3,23 @@
 import { Loader2, UserCheck, UserPlus } from "lucide-react";
 import { useState } from "react";
 import type { FollowStats } from "@/lib/follows";
+import { getFollowStatsForProfile } from "@/lib/follows";
 import { useAuth } from "@/contexts/AuthContext";
 
 type FollowButtonProps = {
   profileUserId: string;
   initialIsFollowing: boolean;
   onSuccess?: (stats: FollowStats) => void;
-  getFollowStatsAction: (profileUserId: string) => Promise<FollowStats>;
+  /** Optional; when omitted, uses client getFollowStatsForProfile with auth supabase. */
+  getFollowStatsAction?: (profileUserId: string) => Promise<FollowStats>;
   className?: string;
-  /** When "icon", renders only an icon (UserPlus when not following, UserCheck when following). */
   variant?: "default" | "icon";
 };
 
-const defaultButtonClass =
-  "inline-flex h-9 items-center rounded-md border border-primary/40 bg-primary/10 px-4 text-sm font-medium text-primary transition-colors hover:bg-primary/20 disabled:opacity-70";
 const defaultIconClass =
   "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-primary/40 bg-primary/10 text-primary transition-colors hover:bg-primary/20 disabled:opacity-70";
 const followingIndicatorIconClass =
   "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-primary/30 bg-primary/5 text-primary cursor-default";
-const followingIndicatorButtonClass =
-  "inline-flex h-9 items-center rounded-md border border-primary/30 bg-primary/5 px-4 text-sm font-medium text-primary cursor-default";
 
 export function FollowButton({
   profileUserId,
@@ -30,13 +27,18 @@ export function FollowButton({
   onSuccess,
   getFollowStatsAction,
   className,
-  variant = "default"
+  variant = "icon"
 }: FollowButtonProps) {
   const { supabase, user } = useAuth();
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isLoading, setIsLoading] = useState(false);
 
   if (!user || !supabase) return null;
+
+  const fetchStats = () =>
+    getFollowStatsAction
+      ? getFollowStatsAction(profileUserId)
+      : getFollowStatsForProfile(supabase, profileUserId, user.id);
 
   const handleClick = async () => {
     if (isLoading || isFollowing) return;
@@ -48,18 +50,15 @@ export function FollowButton({
       });
       if (error) throw error;
       setIsFollowing(true);
-      const stats = await getFollowStatsAction(profileUserId);
+      const stats = await fetchStats();
       onSuccess?.(stats);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isIcon = variant === "icon";
-
   if (isFollowing) {
-    const indicatorClass =
-      className ?? (isIcon ? followingIndicatorIconClass : followingIndicatorButtonClass);
+    const indicatorClass = className ?? followingIndicatorIconClass;
     return (
       <span
         className={indicatorClass}
@@ -67,19 +66,12 @@ export function FollowButton({
         aria-label="Following"
         title="Following"
       >
-        {isIcon ? (
-          <UserCheck className="h-4 w-4" aria-hidden />
-        ) : (
-          <>
-            <UserCheck className="mr-1.5 h-4 w-4" aria-hidden />
-            Following
-          </>
-        )}
+        <UserCheck className="h-4 w-4" aria-hidden />
       </span>
     );
   }
 
-  const buttonClass = className ?? (isIcon ? defaultIconClass : defaultButtonClass);
+  const buttonClass = className ?? defaultIconClass;
   const label = isLoading ? "Updating…" : "Follow";
 
   return (
@@ -91,7 +83,7 @@ export function FollowButton({
       title={label}
       className={buttonClass}
     >
-      {isIcon ? (
+      {variant === "icon" ? (
         isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
         ) : (

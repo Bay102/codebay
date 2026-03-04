@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { TopicPillsPicker } from "@codebay/ui";
 import type { TablesInsert, TablesUpdate } from "@/lib/database";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -23,9 +24,17 @@ export interface BlogPostEditorValues {
   status: PostStatus;
 }
 
+export type TagOption = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 type BlogPostEditorFormProps = {
   mode: "create" | "edit";
   initialValues: BlogPostEditorValues;
+  /** Preset tags to choose from; when provided, UI is multi-select instead of free text. */
+  allowedTags?: TagOption[];
 };
 
 function slugify(value: string): string {
@@ -36,7 +45,7 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function BlogPostEditorForm({ mode, initialValues }: BlogPostEditorFormProps) {
+export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: BlogPostEditorFormProps) {
   const router = useRouter();
   const { supabase, session } = useAuth();
   const [form, setForm] = useState<BlogPostEditorValues>(initialValues);
@@ -84,10 +93,12 @@ export function BlogPostEditorForm({ mode, initialValues }: BlogPostEditorFormPr
 
     const readTime = Number.parseInt(form.readTimeMinutes, 10);
     const safeReadTime = Number.isFinite(readTime) && readTime > 0 ? readTime : 6;
+    const allowedNames = new Set(allowedTags.map((t) => t.name));
     const tags = form.tagsInput
       .split(",")
       .map((tag) => tag.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .filter((name) => (allowedTags.length > 0 ? allowedNames.has(name) : true));
     const sectionHeading = form.sectionHeading.trim() || normalizedTitle;
     const paragraphs = form.sectionBody
       .split(/\n{2,}/)
@@ -250,16 +261,30 @@ export function BlogPostEditorForm({ mode, initialValues }: BlogPostEditorFormPr
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="post-tags" className="text-sm font-medium">
+            <span className="text-sm font-medium" id="post-tags-label">
               Tags
-            </label>
-            <input
-              id="post-tags"
-              value={form.tagsInput}
-              onChange={(event) => handleFieldChange("tagsInput", event.target.value)}
-              placeholder="React, TypeScript, Supabase"
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            />
+            </span>
+            {allowedTags.length > 0 ? (
+              <TopicPillsPicker
+                options={allowedTags.map((tag) => ({ key: tag.name, label: tag.name }))}
+                selectedKeys={form.tagsInput
+                  .split(",")
+                  .map((tag) => tag.trim())
+                  .filter(Boolean)}
+                onChange={(next) => handleFieldChange("tagsInput", next.join(", "))}
+                ariaLabel="Post tags"
+                disabled={isSubmitting}
+              />
+            ) : (
+              <input
+                id="post-tags"
+                value={form.tagsInput}
+                onChange={(event) => handleFieldChange("tagsInput", event.target.value)}
+                placeholder="React, TypeScript, Supabase"
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                aria-labelledby="post-tags-label"
+              />
+            )}
           </div>
         </div>
 
