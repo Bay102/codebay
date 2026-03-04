@@ -11,8 +11,6 @@ export const metadata: Metadata = {
   description: "Manage your drafts, publish posts, and track engagement."
 };
 
-export const dynamic = "force-dynamic";
-
 type StatusFilter = "all" | "draft" | "published";
 
 function resolveStatusFilter(rawFilter: string | string[] | undefined): StatusFilter {
@@ -96,11 +94,11 @@ export default async function CommunityBlogDashboardPage({
   const publicBlogUrl = profile.username ? `${blogUrl}/author/${profile.username}` : blogUrl;
 
   return (
-    <main className="min-h-screen bg-background pt-10 sm:pt-14">
-      <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-background">
+      <section className="mx-auto w-full max-w-6xl p-3 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodeBay Community</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
             <h1 className="mt-2 text-2xl font-semibold text-foreground sm:text-3xl">Blog dashboard</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               Manage your drafts and published posts from the community app.

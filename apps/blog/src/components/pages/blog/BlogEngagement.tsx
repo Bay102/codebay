@@ -1,12 +1,12 @@
 "use client";
 
-import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import type { FormEvent } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
+import { useEffect, useRef, useState } from "react";
 import type { Tables, TablesInsert } from "@/lib/database";
 import { communityUrl, siteUrl } from "@/lib/site-urls";
-import { getBlogSupabaseClient } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ReactionType = "like" | "insightful" | "love";
 type ReactionResponse = "up" | "down";
@@ -192,10 +192,7 @@ function buildCommentThreads(rows: CommentRow[]): CommentWithReplies[] {
 }
 
 export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
-  const supabase = useMemo(() => getBlogSupabaseClient(), []);
-
-  const [session, setSession] = useState<Session | null>(null);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const { supabase, session, isLoading: isAuthLoading } = useAuth();
 
   const [viewCount, setViewCount] = useState<number | null>(null);
   const [reactionCounts, setReactionCounts] = useState<Record<ReactionType, { up: number; down: number }>>({
@@ -219,33 +216,6 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
   const [areCommentsVisible, setAreCommentsVisible] = useState(false);
 
   const pageSize = 5;
-
-  useEffect(() => {
-    if (!supabase) {
-      setIsAuthLoading(false);
-      return;
-    }
-
-    let isMounted = true;
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!isMounted) return;
-      setSession(data.session ?? null);
-      setIsAuthLoading(false);
-    });
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setIsAuthLoading(false);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   useEffect(() => {
     if (!supabase) {

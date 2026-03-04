@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { CodeBayThemeProvider } from "@codebay/theme/theme-provider";
 import { BlogAppHeader } from "@/components/AppHeader";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { siteUrl } from "@/lib/site-urls";
 import "./globals.css";
 
@@ -20,8 +21,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
       <body>
         <CodeBayThemeProvider storageKey="codebay-theme-blog">
-          <BlogAppHeader />
-          {children}
+          <AuthProvider>
+            <BlogAppHeader />
+            {children}
+          </AuthProvider>
         </CodeBayThemeProvider>
       </body>
     </html>

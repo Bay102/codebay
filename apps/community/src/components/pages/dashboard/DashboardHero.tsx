@@ -12,29 +12,35 @@ export function DashboardHero({ name, username }: DashboardHeroProps) {
 
   return (
     <SurfaceCard as="section" variant="hero" className="px-5 py-6 sm:px-6 sm:py-8 md:px-8">
-      <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Community</p>
+      <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Community</p>
       <h1 className="mt-2 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
         Welcome back, {name}
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
         Manage your profile, run your blog workflow, and keep up with community activity from one place.
       </p>
-      <div className="mt-4 flex flex-wrap gap-2.5">
+      <nav className="mt-4 flex flex-wrap gap-2.5 text-sm">
+        <Link
+          href="/"
+          className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
+        >
+          Community home
+        </Link>
         <Link
           href="/dashboard/blog"
-          className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
         >
-          Open blog dashboard
+          Blog dashboard
         </Link>
         {publicBlogUrl ? (
           <Link
             href={publicBlogUrl}
-            className="inline-flex h-10 items-center rounded-md border border-border bg-card px-4 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+            className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
           >
-            View your public blog
+            Public blog page
           </Link>
         ) : null}
-      </div>
+      </nav>
     </SurfaceCard>
   );
 }

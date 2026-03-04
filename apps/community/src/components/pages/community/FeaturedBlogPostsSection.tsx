@@ -35,7 +35,7 @@ export async function FeaturedBlogPostsSection() {
                   {post.tags.slice(0, 3).map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full border border-border/70 bg-secondary/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+                      className="rounded-lg border border-border/70 bg-secondary/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
                     >
                       {tag}
                     </span>

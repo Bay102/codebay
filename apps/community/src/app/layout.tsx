@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { CodeBayThemeProvider } from "@codebay/theme/theme-provider";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { CommunityAppHeader } from "@/components/AppHeader";
 import { siteUrl } from "@/lib/site-urls";
 import "./globals.css";
@@ -20,8 +21,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en" suppressHydrationWarning>
       <body>
         <CodeBayThemeProvider storageKey="codebay-theme-community">
-          <CommunityAppHeader />
-          {children}
+          <AuthProvider>
+            <CommunityAppHeader />
+            {children}
+          </AuthProvider>
         </CodeBayThemeProvider>
       </body>
     </html>

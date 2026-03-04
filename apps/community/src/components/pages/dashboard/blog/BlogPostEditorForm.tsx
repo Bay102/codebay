@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useState } from "react";
 import type { TablesInsert, TablesUpdate } from "@/lib/database";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { useAuth } from "@/contexts/AuthContext";
 
 type PostStatus = "draft" | "published";
 
@@ -38,7 +38,7 @@ function slugify(value: string): string {
 
 export function BlogPostEditorForm({ mode, initialValues }: BlogPostEditorFormProps) {
   const router = useRouter();
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const { supabase, session } = useAuth();
   const [form, setForm] = useState<BlogPostEditorValues>(initialValues);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +64,6 @@ export function BlogPostEditorForm({ mode, initialValues }: BlogPostEditorFormPr
       setError("Supabase is not configured in this environment.");
       return;
     }
-
-    const {
-      data: { session }
-    } = await supabase.auth.getSession();
 
     if (!session) {
       setError("Your session has expired. Please sign in again.");

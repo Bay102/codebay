@@ -2,10 +2,13 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import type { FollowStats } from "@/lib/follows";
 import type { LandingProfile } from "@/lib/landing";
 import { blogUrl } from "@/lib/site-urls";
 import { SurfaceCard } from "@codebay/ui";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { FollowButton } from "@/components/pages/dashboard/FollowButton";
+import { useAuth } from "@/contexts/AuthContext";
 
 function getInitials(name: string): string {
   const parts = name
@@ -19,12 +22,15 @@ function getInitials(name: string): string {
 
 type TrendingProfileCardProps = {
   profile: LandingProfile;
+  getFollowStatsAction: (profileUserId: string) => Promise<FollowStats>;
 };
 
-export function TrendingProfileCard({ profile }: TrendingProfileCardProps) {
+export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingProfileCardProps) {
   const [open, setOpen] = useState(false);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { user } = useAuth();
   const href = `${blogUrl}/author/${profile.username}`;
+  const showFollowButton = user != null && user.id !== profile.id;
 
   const clearCloseTimeout = () => {
     if (closeTimeoutRef.current) {
@@ -81,9 +87,9 @@ export function TrendingProfileCard({ profile }: TrendingProfileCardProps) {
 
         <PopoverContent
           align="start"
-          side="right"
-          sideOffset={12}
-          className="w-80 rounded-2xl bg-card/95 p-4"
+          side="bottom"
+          sideOffset={8}
+          className="w-[min(90vw,20rem)] sm:w-80 max-h-[min(80dvh,480px)] overflow-y-auto rounded-2xl bg-card/95 p-4"
           onMouseEnter={clearCloseTimeout}
           onMouseLeave={scheduleClose}
         >
@@ -100,9 +106,19 @@ export function TrendingProfileCard({ profile }: TrendingProfileCardProps) {
                 getInitials(profile.name)
               )}
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
-              <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
+            <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
+                <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
+              </div>
+              {showFollowButton ? (
+                <FollowButton
+                  profileUserId={profile.id}
+                  initialIsFollowing={false}
+                  getFollowStatsAction={getFollowStatsAction}
+                  className="shrink-0 h-8 rounded-md border border-primary/40 bg-primary/10 px-3 text-xs font-medium text-primary hover:bg-primary/20"
+                />
+              ) : null}
             </div>
           </div>
 

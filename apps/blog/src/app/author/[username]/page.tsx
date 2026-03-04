@@ -65,8 +65,8 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
   const authorSegment = buildAuthorSegment(author.name);
 
   return (
-    <main className="min-h-screen bg-background pb-20 pt-10 sm:pt-14">
-      <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
+    <main className="min-h-screen bg-background pb-20">
+      <section className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
         <AuthorHero author={author} posts={posts} />
 
         {featuredPosts.length > 0 ? (

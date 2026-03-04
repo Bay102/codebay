@@ -1,10 +1,10 @@
 "use client";
 
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { TablesUpdate } from "@/lib/database";
 import type { DashboardBlogPostStats, DashboardProfile, FeaturedProject, ProfileLink } from "@/lib/dashboard";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { useAuth } from "@/contexts/AuthContext";
 
 type ProfileSettingsFormProps = {
   profile: DashboardProfile;
@@ -72,7 +72,7 @@ function parseProfileLinksInput(input: string): ProfileLink[] {
 
 export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormProps) {
   const router = useRouter();
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const { supabase, session } = useAuth();
 
   const [name, setName] = useState(profile.name);
   const [username, setUsername] = useState(profile.username);
@@ -92,15 +92,7 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
     setError(null);
     setSuccess(null);
 
-    if (!supabase) {
-      setError("Supabase is unavailable in this environment.");
-      return;
-    }
-
-    const {
-      data: { session }
-    } = await supabase.auth.getSession();
-    if (!session) {
+    if (!supabase || !session) {
       setError("Your session has expired. Please sign in again.");
       return;
     }

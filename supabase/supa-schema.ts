@@ -312,12 +312,177 @@ export type Database = {
           },
         ]
       }
+      discussion_comments: {
+        Row: {
+          author_id: string | null
+          author_name: string
+          body: string
+          created_at: string
+          discussion_id: string
+          id: string
+          parent_id: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          author_name: string
+          body: string
+          created_at?: string
+          discussion_id: string
+          id?: string
+          parent_id?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string
+          body?: string
+          created_at?: string
+          discussion_id?: string
+          id?: string
+          parent_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discussion_comments_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discussion_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "discussion_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discussion_reactions: {
+        Row: {
+          created_at: string
+          discussion_id: string
+          id: string
+          reaction_type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          discussion_id: string
+          id?: string
+          reaction_type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          discussion_id?: string
+          id?: string
+          reaction_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_reactions_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discussion_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discussions: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string
+          id: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string
+          id?: string
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string
+          id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussions_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_follow_stats: {
+        Args: { p_profile_user_id: string; p_viewer_user_id?: string }
+        Returns: Json
+      }
     }
     Enums: {
       UserTypes:

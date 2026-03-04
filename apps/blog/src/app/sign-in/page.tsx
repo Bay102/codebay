@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function BlogSignInPage() {
   return (
-    <main className="min-h-screen bg-background pb-20 pt-10 sm:pt-14">
-      <section className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
+    <main className="min-h-screen bg-background pb-20">
+      <section className="mx-auto w-full max-w-4xl px-5 py-8 sm:px-6 lg:px-8">
         <SurfaceCard as="div" variant="hero">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Access</p>
           <h1 className="mt-3 max-w-3xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl">

@@ -1,0 +1,235 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import Link from "next/link";
+import type { DiscussionComment } from "@/lib/discussions";
+import { createDiscussionComment, getDiscussionComments } from "@/lib/discussions";
+import { useAuth } from "@/contexts/AuthContext";
+
+type DiscussionCommentTreeProps = {
+  discussionId: string;
+  slug: string;
+  initialComments: DiscussionComment[];
+  viewerId: string | null;
+};
+
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
+function CommentNode({
+  comment,
+  discussionId,
+  slug,
+  viewerId,
+  onReplySubmitted,
+  depth = 0
+}: {
+  comment: DiscussionComment;
+  discussionId: string;
+  slug: string;
+  viewerId: string | null;
+  onReplySubmitted: () => void | Promise<void>;
+  depth?: number;
+}) {
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [replyBody, setReplyBody] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { supabase, user } = useAuth();
+
+  const handleSubmitReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supabase || !user || !replyBody.trim()) return;
+    setIsSubmitting(true);
+    try {
+      const profileRes = await supabase
+        .from("community_users")
+        .select("name")
+        .eq("id", user.id)
+        .single();
+      const authorName = (profileRes.data?.name as string) ?? "Community Member";
+      await createDiscussionComment(supabase, {
+        discussionId,
+        authorId: user.id,
+        authorName,
+        body: replyBody.trim(),
+        parentId: comment.id
+      });
+      setReplyBody("");
+      setReplyOpen(false);
+      await onReplySubmitted();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isNested = depth > 0;
+
+  return (
+    <div
+      className={isNested ? "ml-4 mt-2 rounded-lg border border-border/50 bg-background/50 p-3" : "mt-4 rounded-xl border border-border/70 bg-background/70 p-4"}
+    >
+      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+        <span className="font-medium text-foreground">{comment.authorName}</span>
+        <time dateTime={comment.createdAt}>{formatDate(comment.createdAt)}</time>
+      </div>
+      <p className={`mt-2 whitespace-pre-line ${isNested ? "text-xs" : "text-sm"} leading-relaxed text-muted-foreground`}>
+        {comment.body}
+      </p>
+      {viewerId && (
+        <div className="mt-2">
+          {!replyOpen ? (
+            <button
+              type="button"
+              onClick={() => setReplyOpen(true)}
+              className="text-xs font-medium text-primary hover:underline"
+            >
+              Reply
+            </button>
+          ) : (
+            <form onSubmit={handleSubmitReply} className="mt-2">
+              <textarea
+                value={replyBody}
+                onChange={(e) => setReplyBody(e.target.value)}
+                placeholder="Write a reply…"
+                rows={3}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                disabled={isSubmitting}
+              />
+              <div className="mt-2 flex gap-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !replyBody.trim()}
+                  className="rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 disabled:opacity-70"
+                >
+                  {isSubmitting ? "Sending…" : "Reply"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setReplyOpen(false); setReplyBody(""); }}
+                  className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-secondary/70"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
+      {comment.replies.length > 0 && (
+        <div className="mt-2 space-y-0">
+          {comment.replies.map((reply) => (
+            <CommentNode
+              key={reply.id}
+              comment={reply}
+              discussionId={discussionId}
+              slug={slug}
+              viewerId={viewerId}
+              onReplySubmitted={async () => onReplySubmitted()}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function DiscussionCommentTree({
+  discussionId,
+  slug,
+  initialComments,
+  viewerId
+}: DiscussionCommentTreeProps) {
+  const [comments, setComments] = useState(initialComments);
+  const [newCommentBody, setNewCommentBody] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { supabase, user } = useAuth();
+
+  const refreshComments = useCallback(async () => {
+    if (!supabase) return;
+    const next = await getDiscussionComments(supabase, discussionId);
+    setComments(next);
+  }, [supabase, discussionId]);
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supabase || !user || !newCommentBody.trim()) return;
+    setIsSubmitting(true);
+    try {
+      const profileRes = await supabase
+        .from("community_users")
+        .select("name")
+        .eq("id", user.id)
+        .single();
+      const authorName = (profileRes.data?.name as string) ?? "Community Member";
+      await createDiscussionComment(supabase, {
+        discussionId,
+        authorId: user.id,
+        authorName,
+        body: newCommentBody.trim(),
+        parentId: null
+      });
+      setNewCommentBody("");
+      await refreshComments();
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mt-4">
+      {viewerId && supabase && user ? (
+        <form onSubmit={handleSubmitComment} className="mb-6">
+          <textarea
+            value={newCommentBody}
+            onChange={(e) => setNewCommentBody(e.target.value)}
+            placeholder="Add a comment…"
+            rows={4}
+            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            disabled={isSubmitting}
+          />
+          <button
+            type="submit"
+            disabled={isSubmitting || !newCommentBody.trim()}
+            className="mt-2 rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-70"
+          >
+            {isSubmitting ? "Sending…" : "Comment"}
+          </button>
+        </form>
+      ) : (
+        <p className="mb-4 text-sm text-muted-foreground">
+          <Link href="/join" className="font-medium text-primary hover:underline">
+            Sign in
+          </Link>{" "}
+          to comment.
+        </p>
+      )}
+
+      {comments.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No comments yet.</p>
+      ) : (
+        <ul className="space-y-0">
+          {comments.map((comment) => (
+            <li key={comment.id}>
+              <CommentNode
+                comment={comment}
+                discussionId={discussionId}
+                slug={slug}
+                viewerId={viewerId}
+                onReplySubmitted={refreshComments}
+                depth={0}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}

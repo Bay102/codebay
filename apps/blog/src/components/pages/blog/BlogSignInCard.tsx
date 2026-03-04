@@ -1,13 +1,12 @@
 "use client";
 
 import { AuthEmailPasswordForm, SurfaceCard } from "@codebay/ui";
-import type { Session } from "@supabase/supabase-js";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { FormEvent } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { communityUrl, siteUrl } from "@/lib/site-urls";
-import { getBlogSupabaseClient } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 function getSafeRedirectPath(value: string | null): string {
   if (!value) return "/";
@@ -19,10 +18,7 @@ function getSafeRedirectPath(value: string | null): string {
 export function BlogSignInCard() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = useMemo(() => getBlogSupabaseClient(), []);
-
-  const [session, setSession] = useState<Session | null>(null);
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const { supabase, session, isLoading: isCheckingSession } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
@@ -30,33 +26,6 @@ export function BlogSignInCard() {
 
   const redirectPath = getSafeRedirectPath(searchParams.get("redirect"));
   const joinHref = `${communityUrl}/join?redirect=${encodeURIComponent(`${siteUrl}${redirectPath}`)}`;
-
-  useEffect(() => {
-    if (!supabase) {
-      setIsCheckingSession(false);
-      return;
-    }
-
-    let isMounted = true;
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!isMounted) return;
-      setSession(data.session ?? null);
-      setIsCheckingSession(false);
-    });
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setIsCheckingSession(false);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
 
   const handleSignIn = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

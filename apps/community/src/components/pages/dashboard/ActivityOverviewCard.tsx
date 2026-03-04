@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type { DashboardActivityItem } from "@/lib/dashboard";
-import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Dialog,
   DialogContent,
@@ -27,8 +27,7 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
   const [modalOpen, setModalOpen] = useState(false);
   const [modalItems, setModalItems] = useState(allItems);
   const [markingIds, setMarkingIds] = useState<Set<string>>(new Set());
-
-  const supabase = useMemo(() => createBrowserSupabaseClient(), []);
+  const { supabase } = useAuth();
 
   const hasActivity = overviewItems.length > 0;
 

@@ -44,6 +44,12 @@ export interface DashboardProfile {
    */
   hasFeaturedPostSelection: boolean;
   featuredPostSlugs: string[];
+  /** Follower count (when from getFollowStatsForProfile or dashboard). */
+  followerCount?: number;
+  /** Following count (when from getFollowStatsForProfile or dashboard). */
+  followingCount?: number;
+  /** Whether the current viewer follows this profile (only when viewer is set). */
+  isFollowing?: boolean;
 }
 
 export interface DashboardBlogPostStats {

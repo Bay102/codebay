@@ -21,7 +21,7 @@ export async function TrendingTopicsSection() {
               <Link
                 key={topic.tag}
                 href={href}
-                className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-secondary/50 px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary/80"
+                className="inline-flex items-center gap-1 rounded-md border border-border/70 bg-secondary/50 px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary/80"
               >
                 <span>{topic.tag}</span>
                 <span className="text-[10px] text-muted-foreground">

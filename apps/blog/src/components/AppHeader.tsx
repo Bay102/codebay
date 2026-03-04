@@ -5,42 +5,25 @@ import { usePathname, useRouter } from "next/navigation";
 import { AppHeader as SharedAppHeader, CodeBayLogo } from "@codebay/ui";
 import type { AppHeaderMenuItem } from "@codebay/ui";
 import { communityUrl } from "@/lib/site-urls";
-import { getBlogSupabaseClient } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function BlogAppHeader() {
   const router = useRouter();
   const pathname = usePathname();
-  const supabase = useMemo(() => getBlogSupabaseClient(), []);
+  const { supabase, session, isLoading } = useAuth();
   const [hasSession, setHasSession] = useState(false);
   const [isCheckingSession, setIsCheckingSession] = useState(true);
 
   useEffect(() => {
     if (!supabase) {
+      setHasSession(false);
       setIsCheckingSession(false);
       return;
     }
 
-    let isMounted = true;
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (!isMounted) return;
-      setHasSession(!!data.session);
-      setIsCheckingSession(false);
-    });
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!isMounted) return;
-      setHasSession(!!session);
-      setIsCheckingSession(false);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
+    setHasSession(!!session);
+    setIsCheckingSession(isLoading);
+  }, [supabase, session, isLoading]);
 
   const menuItems = useMemo<AppHeaderMenuItem[]>(() => {
     const items: AppHeaderMenuItem[] = [

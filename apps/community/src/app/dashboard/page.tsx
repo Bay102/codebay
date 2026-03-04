@@ -6,6 +6,7 @@ import { CommunityDashboardActions } from "@/components/pages/community/Communit
 import { DismissibleNextStepsCard } from "@/components/pages/community/DismissibleNextStepsCard";
 import { ActivityOverviewCard } from "@/components/pages/dashboard/ActivityOverviewCard";
 import { BlogManagementSummaryCard } from "@/components/pages/dashboard/BlogManagementSummaryCard";
+import { DiscussionManagementCard } from "@/components/pages/dashboard/DiscussionManagementCard";
 import { DashboardHero } from "@/components/pages/dashboard/DashboardHero";
 import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOverviewCard";
 import {
@@ -14,10 +15,12 @@ import {
   fetchDashboardProfile,
   fetchUserBlogPostsWithStats
 } from "@/lib/dashboard";
+import { getFollowStatsForProfile } from "@/lib/follows";
+import { getDiscussionsWithCounts } from "@/lib/discussions";
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
-  description: "Your personal hub for CodeBay community activity, content, and collaboration."
+  description: "Your personal hub for CodingBay Community activity, content, and collaboration."
 };
 
 export const dynamic = "force-dynamic";
@@ -36,30 +39,42 @@ export default async function CommunityDashboardPage() {
     redirect("/");
   }
 
-  const profile = await fetchDashboardProfile(supabase, user.id);
+  const [profile, posts, followStats, discussions] = await Promise.all([
+    fetchDashboardProfile(supabase, user.id),
+    fetchUserBlogPostsWithStats(supabase, user.id),
+    getFollowStatsForProfile(supabase, user.id, user.id),
+    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 3, orderByTrend: false })
+  ]);
+
   if (!profile) {
     redirect("/join?redirect=/dashboard");
   }
 
-  const posts = await fetchUserBlogPostsWithStats(supabase, user.id);
+  const profileWithFollowStats = {
+    ...profile,
+    followerCount: followStats.followerCount,
+    followingCount: followStats.followingCount
+  };
   const blogSummary = buildBlogSummary(posts);
   const postMapBySlug = Object.fromEntries(
     posts.map((post) => [post.slug, { id: post.id, title: post.title, authorName: post.authorName }])
   );
+
   const activityItems = await fetchDashboardActivity(supabase, {
     userId: user.id,
     userEmail: profile.email ?? user.email ?? null,
     postMapBySlug,
     limit: 32
   });
+
   const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
 
   return (
-    <main className="min-h-screen bg-background pt-10 sm:pt-14">
-      <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 lg:px-8">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <main className="min-h-screen bg-background">
+      <section className="mx-auto w-full max-w-6xl p-3 sm:px-6 lg:px-8">
+        <div className="hidden gap-4 sm:mb-8 sm:flex sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodeBay Community</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
             <h1 className="text-lg font-semibold text-foreground sm:text-xl">Dashboard</h1>
           </div>
           <CommunityDashboardActions />
@@ -71,9 +86,16 @@ export default async function CommunityDashboardPage() {
           <DismissibleNextStepsCard />
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <ProfileOverviewCard profile={profile} posts={posts} />
+        <div className="mt-6 grid gap-4 md:grid-cols-1">
           <BlogManagementSummaryCard summary={blogSummary} />
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-1">
+          <DiscussionManagementCard discussions={discussions} authorName={profile.name} />
+        </div>
+
+        <div className="mt-6 grid gap-4 md:grid-cols-1">
+          <ProfileOverviewCard profile={profileWithFollowStats} posts={posts} viewerId={user.id} />
         </div>
 
         <div className="mt-6">
