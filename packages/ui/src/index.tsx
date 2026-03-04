@@ -8,3 +8,12 @@ export { CtaCarousel } from "./CtaCarousel";
 export type { CtaCarouselProps, CtaCarouselSlide } from "./CtaCarousel";
 export { SiteFooter } from "./SiteFooter";
 export type { SiteFooterProps, SiteFooterLinkItem } from "./SiteFooter";
+export { ProfilePreviewContent } from "./ProfilePreviewContent";
+export type {
+  ProfilePreviewContentProps,
+  ProfilePreviewHeader,
+  ProfilePreviewSections,
+  ProfilePreviewProject,
+  ProfilePreviewArticle,
+  ProfilePreviewLink
+} from "./ProfilePreviewContent";

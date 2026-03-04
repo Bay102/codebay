@@ -1,20 +1,16 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Link from "next/link";
 import type { FollowStats } from "@/lib/follows";
 import type { LandingProfile } from "@/lib/landing";
 import { blogUrl } from "@/lib/site-urls";
-import { SurfaceCard } from "@codebay/ui";
+import { ProfilePreviewContent, SurfaceCard } from "@codebay/ui";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FollowButton } from "@/components/pages/dashboard/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
 
 function getInitials(name: string): string {
-  const parts = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+  const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "CB";
   if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
   return (parts[0]![0] + parts[1]![0]).toUpperCase();
@@ -45,6 +41,16 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
       setOpen(false);
     }, 120);
   };
+
+  const followButton =
+    showFollowButton ? (
+      <FollowButton
+        profileUserId={profile.id}
+        initialIsFollowing={false}
+        getFollowStatsAction={getFollowStatsAction}
+        variant="icon"
+      />
+    ) : null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -93,81 +99,26 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
           onMouseEnter={clearCloseTimeout}
           onMouseLeave={scheduleClose}
         >
-          <div className="flex items-start gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
-              {profile.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.avatarUrl}
-                  alt={`${profile.name} avatar`}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                getInitials(profile.name)
-              )}
-            </div>
-            <div className="min-w-0 flex-1 flex flex-wrap items-center gap-2">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
-                <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
-              </div>
-              {showFollowButton ? (
-                <FollowButton
-                  profileUserId={profile.id}
-                  initialIsFollowing={false}
-                  getFollowStatsAction={getFollowStatsAction}
-                  variant="icon"
-                />
-              ) : null}
-            </div>
-          </div>
-
-          {profile.techStack.length > 0 ? (
-            <div className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Tech stack</p>
-              <div className="mt-1.5 flex flex-wrap gap-1.5">
-                {profile.techStack.slice(0, 6).map((item) => (
-                  <span
-                    key={item}
-                    className="rounded-full border border-border/70 bg-background/80 px-2 py-1 text-[10px] text-foreground"
-                  >
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          {profile.featuredArticles.length > 0 ? (
-            <div className="mt-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                Featured articles
-              </p>
-              <div className="mt-1.5 space-y-1">
-                {profile.featuredArticles.slice(0, 4).map((article) => (
-                  <Link
-                    key={article.href}
-                    href={article.href}
-                    className="block truncate rounded-md px-2 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-secondary/60 hover:text-primary"
-                  >
-                    {article.title}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : null}
-
-          <div className="mt-3 border-t border-border/70 pt-2.5">
-            <Link
-              href={href}
-              className="inline-flex text-xs font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Open full profile
-            </Link>
-          </div>
+          <ProfilePreviewContent
+            profile={{
+              name: profile.name,
+              username: profile.username,
+              avatarUrl: profile.avatarUrl
+            }}
+            sections={{
+              bio: profile.bio ?? undefined,
+              techStack: profile.techStack.length > 0 ? profile.techStack : undefined,
+              articles:
+                profile.featuredArticles.length > 0
+                  ? profile.featuredArticles.map((a) => ({ title: a.title, href: a.href }))
+                  : undefined
+            }}
+            authorPageHref={href}
+            authorPageLabel="Open full profile"
+            followButton={followButton}
+          />
         </PopoverContent>
       </SurfaceCard>
     </Popover>
   );
 }
-
