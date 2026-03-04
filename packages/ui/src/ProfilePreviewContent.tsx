@@ -38,6 +38,11 @@ export interface ProfilePreviewSections {
   profileLinks?: ProfilePreviewLink[];
 }
 
+export interface ProfilePreviewFollowStats {
+  followerCount: number;
+  followingCount: number;
+}
+
 export interface ProfilePreviewContentProps {
   profile: ProfilePreviewHeader;
   /** Optional sections; only rendered when present and non-empty. */
@@ -48,6 +53,8 @@ export interface ProfilePreviewContentProps {
   authorPageLabel?: string;
   /** Optional follow button slot (e.g. app-provided FollowButton). Rendered in header when provided. */
   followButton?: ReactNode;
+  /** Optional follower/following counts to display under the name. */
+  followStats?: ProfilePreviewFollowStats;
 }
 
 function buildInitials(name: string): string {
@@ -69,7 +76,8 @@ export function ProfilePreviewContent({
   sections = {},
   authorPageHref,
   authorPageLabel = "View full profile",
-  followButton
+  followButton,
+  followStats
 }: ProfilePreviewContentProps) {
   const {
     bio,
@@ -78,6 +86,19 @@ export function ProfilePreviewContent({
     articles = [],
     profileLinks = []
   } = sections;
+
+  const hasFollowStats =
+    typeof followStats?.followerCount === "number" || typeof followStats?.followingCount === "number";
+
+  const formatCount = (count: number): string => {
+    if (count >= 1_000_000) {
+      return `${(count / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+    }
+    if (count >= 1_000) {
+      return `${(count / 1_000).toFixed(1).replace(/\.0$/, "")}k`;
+    }
+    return count.toString();
+  };
 
   return (
     <>
@@ -98,6 +119,30 @@ export function ProfilePreviewContent({
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
             <p className="truncate text-xs text-muted-foreground">@{profile.username}</p>
+            {hasFollowStats ? (
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {typeof followStats?.followerCount === "number" ? (
+                  <span>
+                    <span className="font-semibold text-foreground">
+                      {formatCount(followStats.followerCount)}
+                    </span>{" "}
+                    follower{followStats.followerCount === 1 ? "" : "s"}
+                  </span>
+                ) : null}
+                {typeof followStats?.followerCount === "number" &&
+                typeof followStats?.followingCount === "number" ? (
+                  <span className="mx-1.5 text-border">•</span>
+                ) : null}
+                {typeof followStats?.followingCount === "number" ? (
+                  <span>
+                    <span className="font-semibold text-foreground">
+                      {formatCount(followStats.followingCount)}
+                    </span>{" "}
+                    following
+                  </span>
+                ) : null}
+              </p>
+            ) : null}
           </div>
         </div>
         {followButton ? <div className="justify-self-end">{followButton}</div> : null}

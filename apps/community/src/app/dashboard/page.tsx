@@ -71,6 +71,45 @@ export default async function CommunityDashboardPage() {
 
   const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
 
+  const { count: preferredTagsCount } = await supabase
+    .from("user_preferred_tags")
+    .select("tag_id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  const { count: blogCommentCount } = await supabase
+    .from("blog_post_comments")
+    .select("id", { count: "exact", head: true })
+    .eq("author_id", user.id);
+
+  const { count: blogReactionCount } = await supabase
+    .from("blog_post_reactions")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id);
+
+  const profileComplete =
+    Boolean(profile.bio && profile.bio.trim().length > 0) ||
+    Boolean(profile.avatarUrl && profile.avatarUrl.trim().length > 0) ||
+    profile.techStack.length > 0 ||
+    profile.profileLinks.length > 0;
+
+  const createdBlogPostComplete = posts.length > 0;
+  const discussionOrPublishedComplete =
+    discussions.length > 0 || posts.some((post) => post.status === "published");
+  const preferredTopicsComplete = (preferredTagsCount ?? 0) > 0;
+  const blogEngagementComplete = (blogCommentCount ?? 0) > 0 || (blogReactionCount ?? 0) > 0;
+  const followingComplete = followStats.followingCount > 0;
+
+  const nextSteps = {
+    profileComplete,
+    preferredTopicsComplete,
+    discussionOrPublishedComplete,
+    createdBlogPostComplete,
+    blogEngagementComplete,
+    followingComplete
+  };
+
+  const hasAnyIncompleteStep = Object.values(nextSteps).some((value) => !value);
+
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto w-full max-w-6xl p-3 sm:px-6 lg:px-8">
@@ -84,7 +123,7 @@ export default async function CommunityDashboardPage() {
         <DashboardHero name={profile.name} username={profile.username} />
 
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          <DismissibleNextStepsCard />
+          {hasAnyIncompleteStep ? <DismissibleNextStepsCard steps={nextSteps} /> : null}
           <ActivityOverviewCard items={overviewActivityItems} allItems={activityItems} />
         </div>
 

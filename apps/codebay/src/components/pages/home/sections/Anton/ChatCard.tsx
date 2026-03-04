@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, type CSSProperties, type RefObject } from "react";
 import { Loader2, Send, Sparkles } from "lucide-react";
 import type { ChatMessage } from "@/lib/chat";
-import { Button } from "@/components/ui/button";
+import { Button } from "@codebay/ui";
 import { ConnectDialog } from "@/components/pages/home/sections/Anton/ConnectDialog";
 import { CHAT_INPUT_MAX_HEIGHT_PX, type ChatFormValues, type ConnectStatus, type HumanConnectFormValues } from "@/components/pages/home/sections/Anton/chatForms";
 import type { UseFormReturn } from "react-hook-form";

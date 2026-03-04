@@ -4,12 +4,7 @@ import Link from "next/link";
 import { Menu, Sparkles } from "lucide-react";
 import codebayLogo from "@/assets/codebay-logo.svg";
 import DesktopNav from "@/components/pages/home/DesktopNav";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@codebay/ui";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { blogUrl, communityUrl } from "@/lib/site-urls";

@@ -14,12 +14,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { useConnectForm } from "@/contexts/ConnectFormContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
 import { cn } from "@/lib/utils";
 
 type Product = {

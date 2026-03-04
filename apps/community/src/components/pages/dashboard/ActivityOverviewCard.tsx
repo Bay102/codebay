@@ -4,12 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import type { DashboardActivityItem } from "@/lib/dashboard";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
 
 type ActivityOverviewCardProps = {
   items: DashboardActivityItem[];
@@ -33,6 +28,7 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
   const { supabase } = useAuth();
 
   const hasActivity = overviewItems.length > 0;
+  const visibleOverviewItems = overviewItems.slice(0, 3);
 
   const handleMarkRead = async (activityId: string) => {
     if (!supabase) {
@@ -142,7 +138,7 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
 
       {hasActivity ? (
         <div className="mt-4 space-y-3">
-          {overviewItems.map((item) => renderActivityItem(item, "compact"))}
+          {visibleOverviewItems.map((item) => renderActivityItem(item, "compact"))}
         </div>
       ) : (
         <p className="mt-4 text-sm text-muted-foreground">

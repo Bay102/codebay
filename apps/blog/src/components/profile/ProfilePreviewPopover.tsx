@@ -9,11 +9,13 @@ import type {
   ProfilePreviewArticle,
   ProfilePreviewLink
 } from "@codebay/ui";
-import { ProfilePreviewContent } from "@codebay/ui";
+import { Popover, PopoverContent, PopoverTrigger, ProfilePreviewContent } from "@codebay/ui";
+import type { FollowStats } from "@/lib/follows";
 import { getFollowStatsForProfile } from "@/lib/follows";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { FollowButton } from "@/components/profile/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
+
+const followStatsCache = new Map<string, FollowStats>();
 
 /** Re-export shared types for consumers that import from this file */
 export type {
@@ -54,20 +56,35 @@ export function ProfilePreviewPopover({
 }: ProfilePreviewPopoverProps) {
   const [open, setOpen] = React.useState(false);
   const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [followState, setFollowState] = React.useState<boolean | null>(null);
+  const openTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [followStats, setFollowStats] = React.useState<FollowStats | null>(null);
   const { supabase, user } = useAuth();
 
   const showFollowButton = Boolean(profileId && user && supabase && user.id !== profileId);
 
   React.useEffect(() => {
     if (!open || !profileId || !user || !supabase) {
-      setFollowState(null);
       return;
     }
-    setFollowState(null);
+
+    const cached = followStatsCache.get(profileId);
+    if (cached) {
+      setFollowStats(cached);
+      return;
+    }
+
+    let isCancelled = false;
+
     getFollowStatsForProfile(supabase, profileId, user.id).then((stats) => {
-      setFollowState(stats.isFollowing ?? false);
+      if (!isCancelled) {
+        followStatsCache.set(profileId, stats);
+        setFollowStats(stats);
+      }
     });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [open, profileId, user?.id, supabase]);
 
   const clearCloseTimeout = () => {
@@ -77,8 +94,16 @@ export function ProfilePreviewPopover({
     }
   };
 
+  const clearOpenTimeout = () => {
+    if (openTimeoutRef.current) {
+      clearTimeout(openTimeoutRef.current);
+      openTimeoutRef.current = null;
+    }
+  };
+
   const scheduleClose = () => {
     clearCloseTimeout();
+    clearOpenTimeout();
     closeTimeoutRef.current = setTimeout(() => {
       setOpen(false);
     }, 120);
@@ -86,7 +111,10 @@ export function ProfilePreviewPopover({
 
   const handleTriggerMouseEnter = () => {
     clearCloseTimeout();
-    setOpen(true);
+    clearOpenTimeout();
+    openTimeoutRef.current = setTimeout(() => {
+      setOpen(true);
+    }, 180);
   };
 
   const handleTriggerMouseLeave = () => {
@@ -95,6 +123,7 @@ export function ProfilePreviewPopover({
 
   const handleContentMouseEnter = () => {
     clearCloseTimeout();
+    clearOpenTimeout();
   };
 
   const handleContentMouseLeave = () => {
@@ -102,11 +131,11 @@ export function ProfilePreviewPopover({
   };
 
   const followButton =
-    showFollowButton && profileId && followState !== null ? (
+    showFollowButton && profileId && followStats && typeof followStats.isFollowing !== "undefined" ? (
       <FollowButton
         key={profileId}
         profileUserId={profileId}
-        initialIsFollowing={followState}
+        initialIsFollowing={followStats.isFollowing ?? false}
         variant="icon"
       />
     ) : null;
@@ -148,6 +177,14 @@ export function ProfilePreviewPopover({
           authorPageHref={authorPageHref}
           authorPageLabel="View full author profile"
           followButton={followButton}
+          followStats={
+            followStats
+              ? {
+                  followerCount: followStats.followerCount,
+                  followingCount: followStats.followingCount
+                }
+              : undefined
+          }
         />
       </PopoverContent>
     </Popover>

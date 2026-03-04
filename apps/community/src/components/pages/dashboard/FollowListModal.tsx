@@ -5,12 +5,7 @@ import Link from "next/link";
 import type { FollowProfileRow } from "@/lib/follows";
 import { getFollowers, getFollowing } from "@/lib/follows";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
 
 type FollowListModalProps = {
   open: boolean;

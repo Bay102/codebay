@@ -24,7 +24,7 @@ export function DashboardHero({ name, username }: DashboardHeroProps) {
           href="/"
           className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
         >
-          Community home
+          Explore
         </Link>
         <Link
           href="/dashboard/blog"

@@ -22,16 +22,16 @@ const whyJoinSlides: CtaCarouselSlide[] = [
     body: "See how other teams ship AI features, debug production issues, and reason about architecture trade-offs."
   },
   {
-    title: "Tight feedback loop with the CodeBay team",
-    body: "Ask questions, share context, and influence what we build next in the platform and open-source tools."
+    title: "Connect with like-minded tech professionals",
+    body: "Join discussions, share your knowledge, and learn from others in the community."
   },
   {
-    title: "Patterns, templates, and reference implementations",
-    body: "Reuse production-tested flows for auth, billing, AI workflows, and more—without starting from scratch."
+    title: "Follow updates from your favorite topics",
+    body: "Get notified when new blog posts and discussions are published on your preferred topics."
   },
   {
-    title: "Ship faster with other builders",
-    body: "Surround yourself with engineers shipping similar stacks so you can unblock each other quickly."
+    title: "Engage with the community",
+    body: "Comment on blog posts, react to discussions, and get feedback from other members."
   }
 ];
 
@@ -47,7 +47,7 @@ export default async function CommunityLandingPage() {
       <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-6 md:py-12 lg:px-8">
         <SurfaceCard as="div" variant="hero">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Community</p>
-          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
+          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground lg:text-4xl">
             Unleash your presence. Grow your audience, and get noticed by the right people.
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
@@ -94,8 +94,8 @@ export default async function CommunityLandingPage() {
         </SurfaceCard>
 
         <CtaCarousel
-          eyebrow="Why join the community"
-          heading="A focused space for engineers who actually ship"
+          eyebrow="Indulge in the community"
+          heading="Stay updated with the latest news and insights"
           slides={whyJoinSlides}
         />
 

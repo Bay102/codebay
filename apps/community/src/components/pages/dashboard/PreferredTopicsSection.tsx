@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { TopicPillsPicker } from "@codebay/ui";
 import { setPreferredTagsAction } from "@/app/actions";
 import type { TagOption } from "@/lib/tags";
@@ -14,6 +15,7 @@ export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(initialPreferredTagIds));
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = async (nextIds: string[]) => {
     setSelectedIds(new Set(nextIds));
@@ -34,26 +36,42 @@ export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: 
 
   return (
     <div className="space-y-3">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">Topics to follow</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Choose topics you care about. We use these to show relevant blog posts and discussions on your home feed.
-        </p>
-      </div>
-      <TopicPillsPicker
-        options={allowedTags.map((tag) => ({ key: tag.id, label: tag.name }))}
-        selectedKeys={[...selectedIds]}
-        onChange={(next) => void handleChange(next)}
-        ariaLabel="Preferred topics"
-        disabled={isSaving}
-      />
-      {message ? (
-        <p
-          className={`text-xs ${message.type === "success" ? "text-emerald-600" : "text-destructive"}`}
-          role="status"
-        >
-          {message.text}
-        </p>
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-3 text-left"
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-expanded={isOpen}
+        aria-controls="preferred-topics-content"
+      >
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">Topics to follow</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Choose topics you care about. We use these to show relevant blog posts and discussions on your home feed.
+          </p>
+        </div>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+      {isOpen ? (
+        <div id="preferred-topics-content" className="space-y-2">
+          <TopicPillsPicker
+            options={allowedTags.map((tag) => ({ key: tag.id, label: tag.name }))}
+            selectedKeys={[...selectedIds]}
+            onChange={(next) => void handleChange(next)}
+            ariaLabel="Preferred topics"
+            disabled={isSaving}
+          />
+          {message ? (
+            <p
+              className={`text-xs ${message.type === "success" ? "text-emerald-600" : "text-destructive"}`}
+              role="status"
+            >
+              {message.text}
+            </p>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

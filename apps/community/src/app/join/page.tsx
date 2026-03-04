@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { SurfaceCard } from "@codebay/ui";
+import { CtaCarousel, SurfaceCard, type CtaCarouselSlide } from "@codebay/ui";
 import { CommunityAuthCard } from "@/components/pages/community/CommunityAuthCard";
 
 export const metadata: Metadata = {
@@ -24,6 +24,25 @@ const communityHighlights = [
   }
 ];
 
+const whyJoinSlides: CtaCarouselSlide[] = [
+  {
+    title: "Real-world engineering discussions",
+    body: "See how other teams ship AI features, debug production issues, and reason about architecture trade-offs."
+  },
+  {
+    title: "Connect with like-minded tech professionals",
+    body: "Join discussions, share your knowledge, and learn from others in the community."
+  },
+  {
+    title: "Follow updates from your favorite topics",
+    body: "Get notified when new blog posts and discussions are published on your preferred topics."
+  },
+  {
+    title: "Engage with the community",
+    body: "Comment on blog posts, react to discussions, and get feedback from other members."
+  }
+];
+
 export default function CommunityJoinPage() {
   return (
     <main className="min-h-screen bg-background">
@@ -38,6 +57,12 @@ export default function CommunityJoinPage() {
             builders.
           </p>
         </SurfaceCard>
+
+        <CtaCarousel
+          eyebrow="Indulge in the community"
+          heading="Share your thoughts - grow your audience"
+          slides={whyJoinSlides}
+        />
 
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           {communityHighlights.map((item) => (

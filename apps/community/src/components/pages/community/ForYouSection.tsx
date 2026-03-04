@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { SurfaceCard } from "@codebay/ui";
 import { buildPostUrl, fetchForYouBlogPosts, fetchForYouDiscussions } from "@/lib/landing";
+import { fetchAllTags } from "@/lib/tags";
+import { getPreferredTagIdsAction } from "@/app/actions";
+import { PreferredTopicsDialog } from "@/components/pages/community/PreferredTopicsDialog";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type ForYouSectionProps = {
@@ -47,9 +50,11 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
   const supabase = await createServerSupabaseClient();
   if (!supabase) return null;
 
-  const [posts, discussions] = await Promise.all([
+  const [posts, discussions, allowedTags, preferredTagIds] = await Promise.all([
     fetchForYouBlogPosts(supabase, userId, 4),
-    fetchForYouDiscussions(supabase, userId, 4)
+    fetchForYouDiscussions(supabase, userId, 4),
+    fetchAllTags(supabase),
+    getPreferredTagIdsAction()
   ]);
 
   const hasContent = posts.length > 0 || discussions.length > 0;
@@ -72,7 +77,10 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
 
   return (
     <section className="mt-8">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
+        <PreferredTopicsDialog allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
+      </div>
       <p className="mt-1 text-xs text-muted-foreground">Based on your preferred topics</p>
       {posts.length > 0 ? (
         <>
@@ -148,11 +156,6 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
           </div>
         </>
       ) : null}
-      <div className="mt-3">
-        <Link href="/dashboard/profile" className="text-sm font-medium text-primary hover:underline">
-          Edit preferred topics →
-        </Link>
-      </div>
     </section>
   );
 }
