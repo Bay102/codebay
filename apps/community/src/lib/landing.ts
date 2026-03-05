@@ -30,6 +30,7 @@ export type LandingFeaturedPost = {
   excerpt: string;
   authorName: string;
   authorId: string | null;
+  authorAvatarUrl: string | null;
   publishedAt: string | null;
   tags: string[];
   views: number;
@@ -83,6 +84,32 @@ export async function fetchFeaturedBlogPosts(limit = 4): Promise<LandingFeatured
   }
 
   const rows = data as BlogPostRow[];
+  const authorIds = Array.from(
+    new Set(
+      rows
+        .map((row) => row.author_id)
+        .filter((value): value is string => typeof value === "string" && value.trim().length > 0)
+    )
+  );
+
+  let avatarByAuthorId: Record<string, string | null> = {};
+
+  if (authorIds.length > 0) {
+    const { data: authorRows, error: authorError } = await supabase
+      .from("community_users")
+      .select("id,avatar_url")
+      .in("id", authorIds);
+
+    if (!authorError && authorRows) {
+      avatarByAuthorId = Object.fromEntries(
+        (authorRows as Pick<Tables<"community_users">, "id" | "avatar_url">[]).map((author) => [
+          author.id,
+          author.avatar_url,
+        ])
+      );
+    }
+  }
+
   const engagementMap = await fetchEngagementCountsForSlugs(
     supabase,
     rows.map((row) => row.slug)
@@ -90,7 +117,9 @@ export async function fetchFeaturedBlogPosts(limit = 4): Promise<LandingFeatured
   const adminFeatured = rows.filter((row) => row.featured_on_community_landing);
 
   if (adminFeatured.length >= limit) {
-    return adminFeatured.slice(0, limit).map((row) => mapPostRowToLandingPost(row, engagementMap[row.slug]));
+    return adminFeatured.slice(0, limit).map((row) =>
+      mapPostRowToLandingPost(row, engagementMap[row.slug], row.author_id ? avatarByAuthorId[row.author_id] ?? null : null)
+    );
   }
 
   const remaining = rows.filter((row) => !row.featured_on_community_landing);
@@ -116,7 +145,9 @@ export async function fetchFeaturedBlogPosts(limit = 4): Promise<LandingFeatured
     .sort((a, b) => b.score - a.score);
 
   const combined = [...adminFeatured, ...scored.map((item) => item.row)].slice(0, limit);
-  return combined.map((row) => mapPostRowToLandingPost(row, engagementMap[row.slug]));
+  return combined.map((row) =>
+    mapPostRowToLandingPost(row, engagementMap[row.slug], row.author_id ? avatarByAuthorId[row.author_id] ?? null : null)
+  );
 }
 
 export async function fetchTrendingProfiles(limit = 6): Promise<LandingProfile[]> {
@@ -425,7 +456,8 @@ async function fetchEngagementCountsForSlugs(
 
 function mapPostRowToLandingPost(
   row: BlogPostRow,
-  counts: { views: number; reactions: number; comments: number } | undefined
+  counts: { views: number; reactions: number; comments: number } | undefined,
+  authorAvatarUrl?: string | null
 ): LandingFeaturedPost {
   const safeCounts = counts ?? { views: 0, reactions: 0, comments: 0 };
   return {
@@ -435,6 +467,7 @@ function mapPostRowToLandingPost(
     excerpt: row.excerpt ?? "",
     authorName: row.author_name ?? "CodeBay",
     authorId: row.author_id,
+    authorAvatarUrl: authorAvatarUrl ?? null,
     publishedAt: row.published_at,
     tags: row.tags ?? [],
     views: safeCounts.views,

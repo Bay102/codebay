@@ -617,13 +617,14 @@ export async function fetchDashboardActivity(
     .eq("user_id", userId);
 
   const readIds = new Set<string>(
-    (readsResult.data ?? []).map((row: { activity_id: string }) => row.activity_id),
+    (readsResult.data ?? []).map((row: { activity_id: string }) => row.activity_id)
   );
 
   return items
+    .filter((item) => !readIds.has(item.id))
     .map((item) => ({
       ...item,
-      isRead: readIds.has(item.id),
+      isRead: false
     }))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, resolvedLimit);

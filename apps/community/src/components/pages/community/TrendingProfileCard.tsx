@@ -70,7 +70,11 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <SurfaceCard as="article" variant="card" className="flex flex-col gap-2">
+      <SurfaceCard
+        as="article"
+        variant="card"
+        className="flex flex-col gap-2 hover:shadow-lg hover:border-border/40 hover:bg-card/80"
+      >
         <PopoverTrigger asChild>
           <button
             type="button"

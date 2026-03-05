@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Check, CheckCheck, CheckCircle2 } from "lucide-react";
 import type { DashboardActivityItem } from "@/lib/dashboard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
@@ -23,8 +24,11 @@ const kindLabel: Record<DashboardActivityItem["kind"], string> = {
 export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardProps) {
   const [overviewItems, setOverviewItems] = useState(items);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalItems, setModalItems] = useState(allItems);
+  const [modalItems, setModalItems] = useState(
+    () => allItems.filter((item) => !item.isRead)
+  );
   const [markingIds, setMarkingIds] = useState<Set<string>>(new Set());
+  const [markingAll, setMarkingAll] = useState(false);
   const { supabase } = useAuth();
 
   const hasActivity = overviewItems.length > 0;
@@ -52,13 +56,40 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
     }
 
     setOverviewItems((previous) => previous.filter((item) => item.id !== activityId));
-    setModalItems((previous) =>
-      previous.map((item) => (item.id === activityId ? { ...item, isRead: true } : item))
-    );
+    setModalItems((previous) => previous.filter((item) => item.id !== activityId));
+  };
+
+  const handleMarkAllRead = async () => {
+    if (!supabase) {
+      return;
+    }
+
+    if (markingAll) {
+      return;
+    }
+
+    const unreadItems = modalItems.filter((item) => !item.isRead);
+    if (unreadItems.length === 0) {
+      return;
+    }
+
+    const ids = unreadItems.map((item) => item.id);
+    setMarkingAll(true);
+
+    try {
+      await supabase
+        .from("dashboard_activity_reads")
+        .insert(ids.map((activityId) => ({ activity_id: activityId })));
+    } finally {
+      setMarkingAll(false);
+    }
+
+    setOverviewItems((previous) => previous.filter((item) => !ids.includes(item.id)));
+    setModalItems((previous) => previous.filter((item) => !ids.includes(item.id)));
   };
 
   const renderActivityItem = (item: DashboardActivityItem, variant: "compact" | "full") => {
-    const isMarking = markingIds.has(item.id);
+    const isMarking = markingIds.has(item.id) || markingAll;
     const leftContent = (
       <>
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">
@@ -88,13 +119,14 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
         </div>
         <div className="mt-2 flex shrink-0 flex-row items-center gap-2 pt-1 sm:mt-0 sm:flex-col sm:items-end">
           {item.isRead ? (
-            <span className="rounded-full border border-border/70 bg-background px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-              Read
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-background text-muted-foreground">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span className="sr-only">Activity marked as read</span>
             </span>
           ) : (
             <button
               type="button"
-              className="rounded-full border border-border/70 bg-background px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -102,7 +134,8 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
               }}
               disabled={isMarking}
             >
-              Mark read
+              <Check className="h-3 w-3" />
+              <span className="sr-only">Mark activity as read</span>
             </button>
           )}
         </div>
@@ -124,7 +157,7 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Recent activity</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Notifications</h2>
         {modalItems.length > 0 ? (
           <button
             type="button"
@@ -148,8 +181,19 @@ export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardPr
 
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>All recent activity</DialogTitle>
+          <DialogHeader className="flex flex-row items-center justify-between gap-3">
+            <DialogTitle>Notifications</DialogTitle>
+            {modalItems.length > 0 ? (
+              <button
+                type="button"
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={() => void handleMarkAllRead()}
+                disabled={markingAll}
+              >
+                <CheckCheck className="h-4 w-4" />
+                <span className="sr-only">Mark all activity as read</span>
+              </button>
+            ) : null}
           </DialogHeader>
           {modalItems.length > 0 ? (
             <div className="mt-2 max-h-[60vh] space-y-2 overflow-y-auto pr-1">

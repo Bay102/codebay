@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { SurfaceCard } from "@codebay/ui";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
-import { SurfaceCard } from "@codebay/ui";
+import { InViewSection } from "@/components/InViewSection";
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -24,13 +25,18 @@ export async function TrendingDiscussionsSection() {
   if (discussions.length === 0) return null;
 
   return (
-    <section className="mt-8">
+    <InViewSection as="section" className="mt-8">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         Trending discussions
       </h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         {discussions.map((d) => (
-          <SurfaceCard as="article" key={d.id} variant="card">
+          <SurfaceCard
+            as="article"
+            key={d.id}
+            variant="card"
+            className="hover:shadow-lg hover:border-border/40 hover:bg-card/80"
+          >
             <Link href={`/discussions/${d.slug}`} className="block">
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <span>@{d.authorUsername}</span>
@@ -70,6 +76,6 @@ export async function TrendingDiscussionsSection() {
           View all discussions →
         </Link>
       </div>
-    </section>
+    </InViewSection>
   );
 }

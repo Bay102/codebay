@@ -1,12 +1,30 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { AppHeader as SharedAppHeader, CodeBayLogo } from "@codebay/ui";
-import type { AppHeaderMenuItem } from "@codebay/ui";
+import type {
+  AppHeaderMenuItem,
+  SidebarNavItemButton,
+  SidebarNavItemLink,
+} from "@codebay/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { blogUrl, communityUrl, siteUrl } from "@/lib/site-urls";
 
-function getMenuItems(myBlogHref: string): AppHeaderMenuItem[] {
+function getMenuItems(
+  myBlogHref: string,
+  myProfileHref: string,
+  isAuthenticated: boolean,
+  onSignOut: () => void
+): AppHeaderMenuItem[] {
+  const accountChildren: Array<SidebarNavItemLink | SidebarNavItemButton> = isAuthenticated
+    ? [
+        { type: "link", href: myProfileHref, label: "My Profile" },
+        { type: "link", href: "/account/settings", label: "Settings" },
+        { type: "button", label: "Sign out", onSelect: onSignOut },
+      ]
+    : [{ type: "link", href: "/join?mode=signin", label: "Sign in" }];
+
   return [
     { type: "link", href: "/", label: "Home" },
     {
@@ -32,17 +50,42 @@ function getMenuItems(myBlogHref: string): AppHeaderMenuItem[] {
         { type: "link", href: blogUrl, label: "CodingBay Blog" },
       ],
     },
+    {
+      type: "group",
+      label: "Account",
+      children: accountChildren,
+    },
   ];
 }
 
 export function CommunityAppHeader() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, supabase } = useAuth();
+
+  const handleSignOut = useCallback(async () => {
+    if (!supabase) {
+      router.push("/");
+      return;
+    }
+
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }, [router, supabase]);
+
   const username =
     typeof user?.user_metadata?.username === "string"
       ? user.user_metadata.username.trim()
       : null;
+
   const myBlogHref = username ? `${blogUrl}/${username}` : blogUrl;
-  const menuItems = useMemo(() => getMenuItems(myBlogHref), [myBlogHref]);
+  const myProfileHref = username ? `/${username}` : siteUrl;
+  const isAuthenticated = Boolean(user);
+
+  const menuItems = useMemo(
+    () => getMenuItems(myBlogHref, myProfileHref, isAuthenticated, handleSignOut),
+    [myBlogHref, myProfileHref, isAuthenticated, handleSignOut]
+  );
 
   return (
     <SharedAppHeader

@@ -45,12 +45,12 @@ const whyJoinSlides: CtaCarouselSlide[] = [
 
 export default function CommunityJoinPage() {
   return (
-    <main className="min-h-screen bg-background">
-      <section className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
+    <main className="bg-background">
+      <section className="mx-auto w-full max-w-6xl px-5 sm:px-6 md:pt-5 lg:px-8">
         <SurfaceCard as="div" variant="hero">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">Join CodingBay Community</p>
           <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
-            Create your community account
+            Establish your presence
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
             Set up your profile to participate in discussions, comment on blog posts, and collaborate with other
@@ -62,18 +62,10 @@ export default function CommunityJoinPage() {
           eyebrow="Indulge in the community"
           heading="Share your thoughts - grow your audience"
           slides={whyJoinSlides}
+          intervalMs={5000}
         />
 
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
-          {communityHighlights.map((item) => (
-            <SurfaceCard key={item.title} as="article" variant="card">
-              <h2 className="text-base font-semibold text-foreground">{item.title}</h2>
-              <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.description}</p>
-            </SurfaceCard>
-          ))}
-        </section>
-
-        <section id="community-auth" className="mt-10">
+        <section id="community-auth" className="mt-4">
           <Suspense
             fallback={
               <SurfaceCard variant="panel">
@@ -84,6 +76,16 @@ export default function CommunityJoinPage() {
             <CommunityAuthCard />
           </Suspense>
         </section>
+
+        {/* <section className="mt-8 grid gap-4 md:grid-cols-3">
+          {communityHighlights.map((item) => (
+            <SurfaceCard key={item.title} as="article" variant="card">
+              <h2 className="text-base font-semibold text-foreground">{item.title}</h2>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">{item.description}</p>
+            </SurfaceCard>
+          ))}
+        </section> */}
+
       </section>
     </main>
   );

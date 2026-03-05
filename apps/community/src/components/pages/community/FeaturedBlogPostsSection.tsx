@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { SurfaceCard } from "@codebay/ui";
 import { buildPostUrl, fetchFeaturedBlogPosts } from "@/lib/landing";
+import { InViewSection } from "@/components/InViewSection";
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .filter((part) => part.length > 0)
+    .slice(0, 2)
+    .map((part) => part[0]!.toUpperCase())
+    .join("");
+}
 
 export async function FeaturedBlogPostsSection() {
   const posts = await fetchFeaturedBlogPosts(4);
@@ -10,16 +20,38 @@ export async function FeaturedBlogPostsSection() {
   }
 
   return (
-    <section className="mt-8">
+    <InViewSection as="section" className="mt-8">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Featured blog posts</h2>
       <div className="mt-3 grid gap-4 md:grid-cols-2">
         {posts.map((post) => (
-          <SurfaceCard as="article" key={post.id} variant="card">
+          <SurfaceCard
+            as="article"
+            key={post.id}
+            variant="card"
+            className="hover:shadow-lg hover:border-border/40 hover:bg-card/80"
+          >
             <Link href={buildPostUrl(post.authorName, post.slug)} className="block">
-              <p className="text-xs text-muted-foreground">
-                {post.publishedAt ? formatDate(post.publishedAt) : "Unpublished"}
-              </p>
-              <p className="mt-1 text-[11px] text-muted-foreground" aria-label="Engagement">
+              <div className="flex items-center gap-2">
+                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary/70 text-[10px] font-medium text-foreground">
+                  {post.authorAvatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={post.authorAvatarUrl}
+                      alt={`${post.authorName} avatar`}
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    getInitials(post.authorName)
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-xs font-semibold text-foreground">{post.authorName}</p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {post.publishedAt ? formatDate(post.publishedAt) : "Unpublished"}
+                  </p>
+                </div>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground" aria-label="Engagement">
                 {formatEngagement(post.views, post.reactions, post.comments)}
               </p>
               <h3 className="mt-1 text-sm font-semibold text-foreground sm:text-base">
@@ -46,7 +78,7 @@ export async function FeaturedBlogPostsSection() {
           </SurfaceCard>
         ))}
       </div>
-    </section>
+    </InViewSection>
   );
 }
 

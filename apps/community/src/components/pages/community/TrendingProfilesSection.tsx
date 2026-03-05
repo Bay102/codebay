@@ -3,6 +3,7 @@ import type { LandingProfile } from "@/lib/landing";
 import { fetchTrendingProfiles } from "@/lib/landing";
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { InViewSection } from "@/components/InViewSection";
 import { TrendingProfileCard } from "./TrendingProfileCard";
 
 type LandingProfileWithFollowers = LandingProfile & { followerCount: number };
@@ -25,13 +26,17 @@ export async function TrendingProfilesSection() {
   );
 
   return (
-    <section className="mt-8">
+    <InViewSection as="section" className="mt-8">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profiles Getting Noticed</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
         {profilesWithFollowers.map((profile) => (
-          <TrendingProfileCard key={profile.id} profile={profile} getFollowStatsAction={getFollowStatsAction} />
+          <TrendingProfileCard
+            key={profile.id}
+            profile={profile}
+            getFollowStatsAction={getFollowStatsAction}
+          />
         ))}
       </div>
-    </section>
+    </InViewSection>
   );
 }

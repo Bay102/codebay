@@ -44,7 +44,7 @@ export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: 
         aria-controls="preferred-topics-content"
       >
         <div>
-          <h3 className="text-sm font-semibold text-foreground">Topics to follow</h3>
+          <h3 className="text-sm font-semibold text-foreground">Topics you follow</h3>
           <p className="mt-1 text-xs text-muted-foreground">
             Choose topics you care about. We use these to show relevant blog posts and discussions on your home feed.
           </p>
