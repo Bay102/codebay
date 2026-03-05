@@ -214,7 +214,7 @@ export function CommunityAuthCard() {
     return (
       <SurfaceCard variant="panel">
         <p className="text-sm font-medium uppercase tracking-wide text-primary">Community Access</p>
-        <h2 className="mt-2 text-2xl font-semibold text-foreground">You are already signed in</h2>
+        <h2 className="mt-2 text-2xl font-semibold text-foreground">Welcome back!</h2>
         <p className="mt-3 text-sm leading-7 text-muted-foreground">
           Your session is active and persisted. Continue to your dashboard to access community features.
         </p>

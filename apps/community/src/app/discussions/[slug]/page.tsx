@@ -92,7 +92,9 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
               slug={slug}
               initialCommentCount={counts.commentCount}
               initialReactionCount={counts.reactionCount}
-              initialViewerReactionType={counts.viewerReactionType ?? null}
+              initialViewerReactionType={
+                (counts.viewerReactionType as "like" | "insightful" | "love" | null) ?? null
+              }
             />
           </div>
         </article>

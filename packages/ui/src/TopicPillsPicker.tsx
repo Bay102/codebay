@@ -54,13 +54,7 @@ export function TopicPillsPicker({
 
   return (
     <div
-      className={cn(
-        // Horizontal scroller on small screens, wraps on larger screens.
-        "flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:flex-wrap",
-        // Hide scrollbars while still allowing scroll.
-        "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-        className
-      )}
+      className={cn("flex flex-wrap gap-2 pb-1", className)}
       role="group"
       aria-label={ariaLabel}
     >

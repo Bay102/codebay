@@ -1,7 +1,8 @@
- "use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import { ChevronDown, ChevronUp, FileText } from "lucide-react";
 import type { DashboardBlogSummary } from "@/lib/dashboard";
 
 type BlogManagementSummaryCardProps = {
@@ -14,13 +15,14 @@ export function BlogManagementSummaryCard({ summary }: BlogManagementSummaryCard
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Blog management</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Blog</h2>
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/blog"
-            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+            aria-label="Manage blog"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-xs font-medium transition-colors hover:bg-secondary/70"
           >
-            Manage Blog
+            <FileText className="h-4 w-4" />
           </Link>
           <button
             type="button"
@@ -28,7 +30,7 @@ export function BlogManagementSummaryCard({ summary }: BlogManagementSummaryCard
             className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background/60 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-secondary/80"
             onClick={() => setIsCollapsed((value) => !value)}
           >
-            {isCollapsed ? "+" : "−"}
+            {isCollapsed ? <ChevronDown className="h-3 w-3" /> : <ChevronUp className="h-3 w-3" />}
           </button>
         </div>
       </div>

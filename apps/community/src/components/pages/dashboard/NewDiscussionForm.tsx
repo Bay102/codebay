@@ -103,12 +103,12 @@ export function NewDiscussionForm({
           onChange={(e) => setBody(e.target.value)}
           placeholder="Share your thoughts…"
           required
-          rows={8}
+          rows={5}
           className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
           disabled={isSubmitting}
         />
       </div>
-      <div className="flex gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <button
           type="submit"
           disabled={isSubmitting || !title.trim() || !body.trim()}

@@ -1,25 +1,22 @@
 "use client";
 
+import { useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./DropdownMenu";
+import { SidebarNavMenu } from "./SidebarNavMenu";
+import type { SidebarNavMenuItem } from "./SidebarNavMenu";
 
-export type AppHeaderMenuItem =
-  | { type: "link"; href: string; label: string }
-  | { type: "button"; label: string; onSelect: () => void };
+export type AppHeaderMenuItem = SidebarNavMenuItem;
 
 export type AppHeaderProps = {
   /** Where the logo links to (e.g. "/" or main site in sub-apps). */
   homeHref: string;
   /** Logo content (e.g. <Image src={logo} alt="CodeBay" />). */
   logo: ReactNode;
-  /** Menu items shown in the hamburger dropdown. Links open in same tab; buttons call onSelect. */
+  /** Menu items shown in the sidebar. Use type "link", "button", or "group" with children for subsections. */
   menuItems: AppHeaderMenuItem[];
+  /** Side the menu sheet slides in from. Default "right". */
+  menuSide?: "left" | "right";
 };
 
 function MenuIcon() {
@@ -43,7 +40,9 @@ function MenuIcon() {
   );
 }
 
-export function AppHeader({ homeHref, logo, menuItems }: AppHeaderProps) {
+export function AppHeader({ homeHref, logo, menuItems, menuSide = "right" }: AppHeaderProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 px-4 py-4 backdrop-blur-md md:bg-background/80 md:backdrop-blur-sm lg:px-12">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
@@ -54,37 +53,22 @@ export function AppHeader({ homeHref, logo, menuItems }: AppHeaderProps) {
           {logo}
         </Link>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              aria-label="Open header menu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
-            >
-              <MenuIcon />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            {menuItems.map((item, index) =>
-              item.type === "link" ? (
-                <DropdownMenuItem key={`${item.href}-${index}`} asChild>
-                  <Link href={item.href}>{item.label}</Link>
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem
-                  key={`${item.label}-${index}`}
-                  onSelect={(e) => {
-                    e.preventDefault();
-                    item.onSelect();
-                  }}
-                >
-                  {item.label}
-                </DropdownMenuItem>
-              )
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <button
+          type="button"
+          aria-label="Open header menu"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
+          onClick={() => setMenuOpen(true)}
+        >
+          <MenuIcon />
+        </button>
       </div>
+
+      <SidebarNavMenu
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        items={menuItems}
+        side={menuSide}
+      />
     </header>
   );
 }

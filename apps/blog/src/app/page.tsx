@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { SurfaceCard } from "@codebay/ui";
+import { AnimatedCardSection, BlogPostCard, SurfaceCard } from "@codebay/ui";
 import { fetchPublishedBlogPosts, fetchBlogEngagementCounts, type BlogEngagementCounts } from "@/lib/blog";
 import type { BlogPost } from "@/lib/blog";
 import { BlogFilterBar } from "@/components/pages/blog/BlogFilterBar";
 import { ForYouSection } from "@/components/pages/blog/ForYouSection";
+import { mapBlogPostToBlogPostCardData } from "@/lib/ui-mappers";
 import { mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
@@ -203,28 +204,23 @@ export default async function BlogPage({
         {filteredPosts.length > 0 ? (
           <section className="mt-12">
             <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Latest articles</h2>
-            <div className="mt-4 grid gap-5 md:grid-cols-2">
-              {latestPosts.map((post) => (
-                <Link
-                  key={post.slug}
-                  href={`/${buildAuthorSegment(post.authorName)}/${post.slug}`}
-                  className="rounded-2xl border border-border/70 bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:p-6"
-                  aria-label={`Read article: ${post.title}`}
-                >
-                  <article>
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                      <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt)}</time>
-                      <span aria-hidden="true">-</span>
-                      <span>{post.readTimeMinutes} min read</span>
-                    </div>
-                    <div className="mt-2">
-                      <EngagementLine counts={engagementCounts[post.slug]!} />
-                    </div>
-                    <h3 className="mt-3 text-xl font-semibold leading-tight text-foreground">{post.title}</h3>
-                    <p className="mt-3 text-base leading-8 text-muted-foreground">{post.excerpt}</p>
-                  </article>
-                </Link>
-              ))}
+            <div className="mt-4">
+              <AnimatedCardSection as="div" columns={{ base: 1, md: 2 }}>
+                {latestPosts.map((post) => {
+                  const cardData = mapBlogPostToBlogPostCardData(post, engagementCounts[post.slug]!);
+                  return (
+                    <BlogPostCard
+                      key={cardData.slug}
+                      post={cardData}
+                      href={`/${buildAuthorSegment(post.authorName)}/${post.slug}`}
+                      showAuthor={false}
+                      showDate
+                      showEngagement
+                      showTags={false}
+                    />
+                  );
+                })}
+              </AnimatedCardSection>
             </div>
           </section>
         ) : null}

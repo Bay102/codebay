@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { BlogPostCard } from "@codebay/ui";
 import type { DashboardBlogPostStats, DashboardProfile } from "@/lib/dashboard";
 import { blogUrl } from "@/lib/site-urls";
 import { ProfileHeaderWithFollow } from "@/components/pages/dashboard/ProfileHeaderWithFollow";
+import { mapDashboardBlogPostToBlogPostCardData } from "@/lib/ui-mappers";
 
 type ProfileOverviewCardProps = {
   profile: DashboardProfile;
@@ -167,17 +169,19 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
               <div className="mt-2 space-y-2">
                 {featuredPosts.slice(0, 3).map((post) => {
                   const href = `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`;
+                  const cardData = mapDashboardBlogPostToBlogPostCardData(post);
                   return (
-                    <Link
+                    <BlogPostCard
                       key={post.id}
+                      post={cardData}
                       href={href}
-                      className="block rounded-xl border border-border/70 bg-background/70 p-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-secondary/60"
-                    >
-                      <p className="font-medium text-foreground">{post.title}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {post.views.toLocaleString()} views · {post.reactions} reactions · {post.comments} comments
-                      </p>
-                    </Link>
+                      variant="compact"
+                      showAuthor={false}
+                      showDate
+                      showEngagement
+                      showTags={false}
+                      className="bg-background/70"
+                    />
                   );
                 })}
               </div>

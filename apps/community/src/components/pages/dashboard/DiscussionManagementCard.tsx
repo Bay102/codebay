@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ChevronDown, ChevronUp, MessagesSquare } from "lucide-react";
+import { AnimatedCardSection, DiscussionCard } from "@codebay/ui";
 import type { DiscussionListItem } from "@/lib/discussions";
 import type { TagOption } from "@/lib/tags";
 import { NewDiscussionForm } from "@/components/pages/dashboard/NewDiscussionForm";
+import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
 
 type DiscussionManagementCardProps = {
   discussions: DiscussionListItem[];
@@ -25,16 +28,17 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
 
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Discussion management
+      <div className="flex flex-row flex-nowrap items-center justify-between gap-3">
+        <h2 className="min-w-0 shrink text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Discussions
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <Link
             href="/dashboard/discussions"
-            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+            aria-label="Manage discussions"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-xs font-medium transition-colors hover:bg-secondary/70"
           >
-            Manage discussions
+            <MessagesSquare className="h-4 w-4" />
           </Link>
           <button
             type="button"
@@ -42,7 +46,7 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
             className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border/60 bg-background/60 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-secondary/80"
             onClick={() => setIsCollapsed((value) => !value)}
           >
-            {isCollapsed ? "+" : "−"}
+            {isCollapsed ? <ChevronDown className="h-3 w-3" /> : <ChevronUp className="h-3 w-3" />}
           </button>
         </div>
       </div>
@@ -60,7 +64,7 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
           </div>
 
           <div className="mt-5">
-            <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="mb-2 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Recent discussions
               </p>
@@ -77,35 +81,23 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
                 You haven’t started any discussions yet. Create one to get the conversation going.
               </p>
             ) : (
-              <div className="space-y-2">
-                {discussions.map((d) => (
-                  <Link
-                    key={d.id}
-                    href={`/discussions/${d.slug}`}
-                    className="block rounded-xl border border-border/70 bg-background/70 p-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-secondary/60"
-                  >
-                    <p className="font-medium text-foreground line-clamp-2">{d.title}</p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <time dateTime={d.createdAt}>{formatDate(d.createdAt)}</time>
-                      <span aria-hidden>·</span>
-                      <span>{d.commentCount} comments</span>
-                      <span>{d.reactionCount} reactions</span>
-                    </div>
-                    {d.tags.length > 0 ? (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {d.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded border border-border/70 bg-secondary/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-                  </Link>
-                ))}
-              </div>
+              <AnimatedCardSection
+                as="div"
+                items={discussions.map(mapDiscussionListItemToDiscussionCardData)}
+                columns={{ base: 1 }}
+                renderItem={(discussion) => (
+                  <DiscussionCard
+                    key={discussion.id}
+                    discussion={discussion}
+                    href={`/discussions/${discussion.slug}`}
+                    showAuthor={false}
+                    showDate
+                    showEngagement
+                    showTags
+                    className="bg-background/70"
+                  />
+                )}
+              />
             )}
           </div>
         </>

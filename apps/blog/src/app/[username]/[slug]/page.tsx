@@ -10,7 +10,7 @@ import { communityUrl, mainUrl, siteUrl } from "@/lib/site-urls";
 export const dynamic = "force-dynamic";
 
 type BlogPostPageParams = {
-  author: string;
+  username: string;
   slug: string;
 };
 
@@ -88,7 +88,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const relatedPosts = allPosts.filter((candidate) => candidate.slug !== post.slug).slice(0, 2);
   const authorSegment = buildAuthorSegment(post.authorName);
   const authorProfile = post.authorId ? await fetchBlogAuthorProfileById(post.authorId) : null;
-  const authorHomeHref = authorProfile ? `/author/${authorProfile.username}` : "/";
+  const authorHomeHref = authorProfile ? `/${authorProfile.username}` : "/";
 
   const articleSchema = {
     "@context": "https://schema.org",

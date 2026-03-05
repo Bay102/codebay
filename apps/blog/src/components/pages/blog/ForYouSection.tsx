@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { SurfaceCard } from "@codebay/ui";
+import { AnimatedCardSection, BlogPostCard, SurfaceCard } from "@codebay/ui";
 import { useAuth } from "@/contexts/AuthContext";
 import { communityUrl } from "@/lib/site-urls";
 
@@ -158,39 +158,40 @@ export function ForYouSection() {
     <section className="mt-8">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
       <p className="mt-1 text-xs text-muted-foreground">Based on your preferred topics</p>
-      <div className="mt-3 grid gap-4 md:grid-cols-2">
-        {posts.map((post) => (
-          <SurfaceCard as="article" key={post.slug} variant="card">
-            <Link
+      <div className="mt-3">
+        <AnimatedCardSection
+          as="div"
+          items={posts}
+          columns={{ base: 1, md: 2 }}
+          renderItem={(post) => (
+            <BlogPostCard
+              key={post.slug}
+              post={{
+                id: post.slug,
+                slug: post.slug,
+                title: post.title,
+                excerpt: post.excerpt,
+                description: "",
+                publishedAt: post.publishedAt,
+                updatedAt: post.publishedAt,
+                authorName: post.authorName,
+                authorUsername: undefined,
+                authorAvatarUrl: null,
+                tags: post.tags,
+                views: 0,
+                reactions: 0,
+                comments: 0,
+                readTimeMinutes: post.readTimeMinutes,
+                isFeatured: false,
+              }}
               href={`/${buildAuthorSegment(post.authorName)}/${post.slug}`}
-              className="block"
-              aria-label={`Read article: ${post.title}`}
-            >
-              <p className="text-xs text-muted-foreground">{formatDate(post.publishedAt)}</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {post.readTimeMinutes} min read
-              </p>
-              <h3 className="mt-1 text-sm font-semibold text-foreground sm:text-base">{post.title}</h3>
-              {post.excerpt ? (
-                <p className="mt-2 line-clamp-3 text-xs leading-6 text-muted-foreground sm:text-sm">
-                  {post.excerpt}
-                </p>
-              ) : null}
-              {post.tags.length > 0 ? (
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {post.tags.slice(0, 3).map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-lg border border-border/70 bg-secondary/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-            </Link>
-          </SurfaceCard>
-        ))}
+              showAuthor={false}
+              showDate
+              showEngagement={false}
+              showTags
+            />
+          )}
+        />
       </div>
       <div className="mt-3">
         <a

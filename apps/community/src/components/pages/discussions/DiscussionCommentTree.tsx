@@ -150,6 +150,7 @@ export function DiscussionCommentTree({
   const [comments, setComments] = useState(initialComments);
   const [newCommentBody, setNewCommentBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCommentFormOpen, setIsCommentFormOpen] = useState(false);
   const { supabase, user } = useAuth();
 
   const refreshComments = useCallback(async () => {
@@ -185,33 +186,6 @@ export function DiscussionCommentTree({
 
   return (
     <div className="mt-4">
-      {viewerId && supabase && user ? (
-        <form onSubmit={handleSubmitComment} className="mb-6">
-          <textarea
-            value={newCommentBody}
-            onChange={(e) => setNewCommentBody(e.target.value)}
-            placeholder="Add a comment…"
-            rows={4}
-            className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
-            disabled={isSubmitting}
-          />
-          <button
-            type="submit"
-            disabled={isSubmitting || !newCommentBody.trim()}
-            className="mt-2 rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-70"
-          >
-            {isSubmitting ? "Sending…" : "Comment"}
-          </button>
-        </form>
-      ) : (
-        <p className="mb-4 text-sm text-muted-foreground">
-          <Link href="/join" className="font-medium text-primary hover:underline">
-            Sign in
-          </Link>{" "}
-          to comment.
-        </p>
-      )}
-
       {comments.length === 0 ? (
         <p className="text-sm text-muted-foreground">No comments yet.</p>
       ) : (
@@ -230,6 +204,59 @@ export function DiscussionCommentTree({
           ))}
         </ul>
       )}
+
+      <div className="mt-6">
+        {viewerId && supabase && user ? (
+          <>
+            {!isCommentFormOpen ? (
+              <button
+                type="button"
+                onClick={() => setIsCommentFormOpen(true)}
+                className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+              >
+                Add a comment
+              </button>
+            ) : (
+              <form onSubmit={handleSubmitComment}>
+                <textarea
+                  value={newCommentBody}
+                  onChange={(e) => setNewCommentBody(e.target.value)}
+                  placeholder="Add a comment…"
+                  rows={4}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  disabled={isSubmitting}
+                />
+                <div className="mt-2 flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !newCommentBody.trim()}
+                    className="rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-70"
+                  >
+                    {isSubmitting ? "Sending…" : "Comment"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsCommentFormOpen(false);
+                      setNewCommentBody("");
+                    }}
+                    className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary/70"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            <Link href="/join" className="font-medium text-primary hover:underline">
+              Sign in
+            </Link>{" "}
+            to comment.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

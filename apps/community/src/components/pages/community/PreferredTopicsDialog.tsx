@@ -20,11 +20,11 @@ export function PreferredTopicsDialog({ allowedTags, initialPreferredTagIds }: P
       <DialogTrigger asChild>
         <button
           type="button"
-          aria-label="Edit preferred topics"
+          aria-label="Edit followed topics"
           className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:text-primary"
         >
           <Pencil className="h-3.5 w-3.5" />
-          <span className="sr-only">Edit preferred topics</span>
+          <span className="sr-only">Edit followed topics</span>
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">

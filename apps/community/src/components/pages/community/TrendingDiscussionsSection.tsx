@@ -1,15 +1,7 @@
-import Link from "next/link";
+import { AnimatedCardSection, DiscussionCard } from "@codebay/ui";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
-import { SurfaceCard } from "@codebay/ui";
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  }).format(new Date(value));
-}
+import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
 
 export async function TrendingDiscussionsSection() {
   const supabase = await createServerSupabaseClient();
@@ -24,52 +16,27 @@ export async function TrendingDiscussionsSection() {
   if (discussions.length === 0) return null;
 
   return (
-    <section className="mt-8">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Trending discussions
-      </h2>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        {discussions.map((d) => (
-          <SurfaceCard as="article" key={d.id} variant="card">
-            <Link href={`/discussions/${d.slug}`} className="block">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span>@{d.authorUsername}</span>
-                <span aria-hidden>·</span>
-                <time dateTime={d.createdAt}>{formatDate(d.createdAt)}</time>
-                <span aria-hidden>·</span>
-                <span>{d.commentCount} comments</span>
-                <span>{d.reactionCount} reactions</span>
-              </div>
-              <h3 className="mt-1 text-sm font-semibold text-foreground sm:text-base">{d.title}</h3>
-              {d.body ? (
-                <p className="mt-1 line-clamp-2 text-xs leading-6 text-muted-foreground sm:text-sm">
-                  {d.body}
-                </p>
-              ) : null}
-              {d.tags.length > 0 ? (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {d.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-lg border border-border/70 bg-secondary/60 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              ) : null}
-            </Link>
-          </SurfaceCard>
-        ))}
-      </div>
-      <div className="mt-3">
-        <Link
-          href="/discussions"
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          View all discussions →
-        </Link>
-      </div>
-    </section>
+    <AnimatedCardSection
+      as="section"
+      title="Trending discussions"
+      columns={{ base: 1, sm: 2 }}
+      viewAllHref="/discussions"
+      viewAllLabel="View all discussions →"
+    >
+      {discussions.map((item) => {
+        const discussion = mapDiscussionListItemToDiscussionCardData(item);
+        return (
+          <DiscussionCard
+            key={discussion.id}
+            discussion={discussion}
+            href={`/discussions/${discussion.slug}`}
+            showAuthor
+            showDate
+            showEngagement
+            showTags
+          />
+        );
+      })}
+    </AnimatedCardSection>
   );
 }

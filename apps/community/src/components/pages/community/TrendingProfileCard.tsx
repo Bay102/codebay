@@ -1,19 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { blogUrl } from "@/lib/site-urls";
+import { Popover, PopoverContent, PopoverTrigger, ProfileCard, ProfilePreviewContent } from "@codebay/ui";
 import type { FollowStats } from "@/lib/follows";
 import type { LandingProfile } from "@/lib/landing";
-import { blogUrl } from "@/lib/site-urls";
-import { Popover, PopoverContent, PopoverTrigger, ProfilePreviewContent, SurfaceCard } from "@codebay/ui";
 import { FollowButton } from "@/components/pages/dashboard/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
-
-function getInitials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "CB";
-  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
-  return (parts[0]![0] + parts[1]![0]).toUpperCase();
-}
+import { mapLandingProfileToProfileCardData } from "@/lib/ui-mappers";
 
 type TrendingProfileWithFollowers = LandingProfile & { followerCount: number };
 
@@ -28,7 +22,7 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [followerCount, setFollowerCount] = useState<number>(profile.followerCount);
   const { user } = useAuth();
-  const href = `${blogUrl}/author/${profile.username}`;
+  const href = `${blogUrl}/${profile.username}`;
   const showFollowButton = user != null && user.id !== profile.id;
 
   const clearCloseTimeout = () => {
@@ -66,90 +60,80 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
       />
     ) : null;
 
-  const hasFollowers = followerCount > 0;
+  const profileCardData = {
+    ...mapLandingProfileToProfileCardData(profile, followerCount),
+    followerCount,
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <SurfaceCard as="article" variant="card" className="flex flex-col gap-2">
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className="inline-flex w-full items-center gap-2 text-left"
-            onMouseEnter={() => {
-              clearCloseTimeout();
-              clearOpenTimeout();
-              openTimeoutRef.current = setTimeout(() => {
-                setOpen(true);
-              }, 180);
-            }}
-            onMouseLeave={scheduleClose}
-            onClick={() => {
+      <PopoverTrigger asChild>
+        <div
+          role="button"
+          tabIndex={0}
+          className="w-full text-left"
+          onMouseEnter={() => {
+            clearCloseTimeout();
+            clearOpenTimeout();
+            openTimeoutRef.current = setTimeout(() => {
+              setOpen(true);
+            }, 180);
+          }}
+          onMouseLeave={scheduleClose}
+          onClick={() => {
+            clearOpenTimeout();
+            clearCloseTimeout();
+            setOpen((previous) => !previous);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
               clearOpenTimeout();
               clearCloseTimeout();
               setOpen((previous) => !previous);
-            }}
-          >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary/70 text-xs font-medium text-foreground">
-              {profile.avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={profile.avatarUrl}
-                  alt={`${profile.name} avatar`}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                getInitials(profile.name)
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-foreground">{profile.name}</p>
-              <p className="truncate text-xs text-muted-foreground">
-                @{profile.username}
-                {hasFollowers ? (
-                  <span className="ml-1">
-                    · {followerCount.toLocaleString()} follower
-                    {followerCount === 1 ? "" : "s"}
-                  </span>
-                ) : null}
-              </p>
-            </div>
-          </button>
-        </PopoverTrigger>
-
-        {profile.bio ? (
-          <p className="mt-1 line-clamp-3 text-xs leading-6 text-muted-foreground">
-            {profile.bio}
-          </p>
-        ) : null}
-
-        <PopoverContent
-          align="start"
-          side="bottom"
-          sideOffset={8}
-          className="w-[min(90vw,20rem)] sm:w-80 max-h-[min(80dvh,480px)] overflow-y-auto rounded-2xl bg-card/95 p-4"
-          onMouseEnter={clearCloseTimeout}
-          onMouseLeave={scheduleClose}
+            }
+          }}
         >
-          <ProfilePreviewContent
-            profile={{
-              name: profile.name,
-              username: profile.username,
-              avatarUrl: profile.avatarUrl
-            }}
-            sections={{
-              bio: profile.bio ?? undefined,
-              techStack: profile.techStack.length > 0 ? profile.techStack : undefined,
-              articles:
-                profile.featuredArticles.length > 0
-                  ? profile.featuredArticles.map((a) => ({ title: a.title, href: a.href }))
-                  : undefined
-            }}
-            authorPageHref={href}
-            authorPageLabel="Open full profile"
-            followButton={followButton}
+          <ProfileCard
+            profile={profileCardData}
+            // followButton={followButton}
+            className="h-[180px]"
+            showBio
+            showStats
+            showTechStack={false}
           />
-        </PopoverContent>
-      </SurfaceCard>
+        </div>
+      </PopoverTrigger>
+
+      <PopoverContent
+        align="start"
+        side="bottom"
+        sideOffset={8}
+        className="w-[min(90vw,20rem)] sm:w-80 max-h-[min(80dvh,480px)] overflow-y-auto rounded-2xl bg-card/95 p-4"
+        onMouseEnter={clearCloseTimeout}
+        onMouseLeave={scheduleClose}
+        onOpenAutoFocus={(event) => event.preventDefault()}
+        onCloseAutoFocus={(event) => event.preventDefault()}
+      >
+        <ProfilePreviewContent
+          profile={{
+            name: profile.name,
+            username: profile.username,
+            avatarUrl: profile.avatarUrl
+          }}
+          sections={{
+            bio: profile.bio ?? undefined,
+            techStack: profile.techStack.length > 0 ? profile.techStack : undefined,
+            articles:
+              profile.featuredArticles.length > 0
+                ? profile.featuredArticles.map((a) => ({ title: a.title, href: a.href }))
+                : undefined
+          }}
+          authorPageHref={href}
+          authorPageLabel="Open full profile"
+          followButton={followButton}
+        />
+      </PopoverContent>
     </Popover>
   );
 }

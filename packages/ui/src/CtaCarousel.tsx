@@ -30,6 +30,10 @@ export type CtaCarouselProps = {
    * Extra Tailwind classes for the outer `SurfaceCard`.
    */
   className?: string;
+  /**
+   * Variant of the `SurfaceCard`.
+   */
+  variant?: "card" | "panel" | "hero" | "subtle";
 };
 
 export function CtaCarousel({
@@ -37,7 +41,8 @@ export function CtaCarousel({
   heading,
   slides,
   intervalMs = 4500,
-  className
+  className,
+  variant = "card"
 }: CtaCarouselProps) {
   const [index, setIndex] = useState(0);
 
@@ -52,7 +57,7 @@ export function CtaCarousel({
   const activeSlide = slides[index];
 
   return (
-    <SurfaceCard as="section" variant="hero" className={cn("mt-8", className)}>
+    <SurfaceCard as="section" variant={variant} className={cn("mt-4", className)}>
       <p className="text-xs font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
       <h2 className="mt-2 text-xl font-semibold text-foreground sm:text-2xl">{heading}</h2>
 
