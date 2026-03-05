@@ -59,7 +59,7 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
           {author.techStack.map((item) => (
             <span
               key={item}
-              className="rounded-full border border-border/80 bg-secondary/60 px-3 py-1 text-xs"
+              className="rounded-md border border-border/80 bg-secondary/60 px-3 py-1 text-xs"
             >
               {item}
             </span>

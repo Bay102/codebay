@@ -14,6 +14,20 @@ export type { AuthEmailPasswordFormProps } from "./AuthEmailPasswordForm";
 export { SurfaceCard } from "./SurfaceCard";
 export { CtaCarousel } from "./CtaCarousel";
 export type { CtaCarouselProps, CtaCarouselSlide } from "./CtaCarousel";
+export type {
+  ProfileCardData,
+  BlogPostCardData,
+  DiscussionCardData,
+  ProfileCardFeaturedArticle,
+} from "./cards/types";
+export { AnimatedCardSection } from "./cards/AnimatedCardSection";
+export type { AnimatedCardSectionProps } from "./cards/AnimatedCardSection";
+export { ProfileCard } from "./cards/ProfileCard";
+export type { ProfileCardProps, ProfileCardVariant } from "./cards/ProfileCard";
+export { BlogPostCard } from "./cards/BlogPostCard";
+export type { BlogPostCardProps, BlogPostCardVariant } from "./cards/BlogPostCard";
+export { DiscussionCard } from "./cards/DiscussionCard";
+export type { DiscussionCardProps, DiscussionCardVariant } from "./cards/DiscussionCard";
 export { SiteFooter } from "./SiteFooter";
 export type { SiteFooterProps, SiteFooterLinkItem } from "./SiteFooter";
 export { Button, buttonVariants } from "./button";

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AnimatedCardSection, BlogPostCard } from "@codebay/ui";
+import { mapBlogPostToBlogPostCardData } from "@/lib/ui-mappers";
 import {
   fetchBlogAuthorProfileByUsername,
   fetchBlogEngagementCounts,
-  fetchPublishedBlogPostsByAuthorId
+  fetchPublishedBlogPostsByAuthorId,
 } from "@/lib/blog";
 import { AuthorHero } from "@/components/pages/blog/AuthorHero";
 
@@ -23,14 +24,6 @@ function buildAuthorSegment(authorName: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   return base || "author";
-}
-
-function formatPublishedDate(date: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric"
-  }).format(new Date(date));
 }
 
 export async function generateMetadata({ params }: AuthorPageProps): Promise<Metadata> {
@@ -65,71 +58,58 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
   const authorSegment = buildAuthorSegment(author.name);
 
   return (
-    <main className="min-h-screen bg-background pb-20">
-      <section className="mx-auto w-full max-w-6xl px-5 py-8 sm:px-6 lg:px-8">
+    <main className="bg-background pb-10">
+      <section className="mx-auto w-full max-w-6xl px-3 sm:px-6 md:py-8 lg:px-8">
         <AuthorHero author={author} posts={posts} />
 
         {featuredPosts.length > 0 ? (
-          <section className="mt-10">
-            <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured articles</h2>
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              {featuredPosts.map((post) => (
-                <Link
-                  key={post.slug}
+          <AnimatedCardSection as="section" title="Featured articles" columns={{ base: 1, md: 2 }}>
+            {featuredPosts.map((post) => {
+              const counts = engagement[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
+              const cardData = mapBlogPostToBlogPostCardData(post, counts);
+              return (
+                <BlogPostCard
+                  key={cardData.slug}
+                  post={cardData}
                   href={`/${authorSegment}/${post.slug}`}
-                  className="rounded-2xl border border-border/70 bg-card p-5 text-left transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:p-6"
-                >
-                  <article>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                      <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt)}</time>
-                      <span aria-hidden="true">-</span>
-                      <span>{post.readTimeMinutes} min read</span>
-                    </div>
-                    <h3 className="mt-2 text-base font-semibold leading-tight text-foreground sm:text-lg">
-                      {post.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-7 text-muted-foreground">{post.excerpt}</p>
-                  </article>
-                </Link>
-              ))}
-            </div>
-          </section>
+                  showAuthor={false}
+                  showDate
+                  showEngagement
+                  showTags
+                />
+              );
+            })}
+          </AnimatedCardSection>
         ) : null}
 
-        <section className="mt-8">
-          <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Published articles</h2>
-          {posts.length > 0 ? (
-            <div className="mt-4 grid gap-5 md:grid-cols-2">
-              {posts.map((post) => {
-                const counts = engagement[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
-                return (
-                  <Link
-                    key={post.slug}
-                    href={`/${authorSegment}/${post.slug}`}
-                    className="rounded-2xl border border-border/70 bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:p-6"
-                  >
-                    <article>
-                      <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                        <time dateTime={post.publishedAt}>{formatPublishedDate(post.publishedAt)}</time>
-                        <span aria-hidden="true">-</span>
-                        <span>{post.readTimeMinutes} min read</span>
-                      </div>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {counts.views.toLocaleString()} views · {counts.reactions} reactions · {counts.comments} comments
-                      </p>
-                      <h3 className="mt-3 text-xl font-semibold leading-tight text-foreground">{post.title}</h3>
-                      <p className="mt-3 text-base leading-8 text-muted-foreground">{post.excerpt}</p>
-                    </article>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
+        {posts.length > 0 ? (
+          <AnimatedCardSection as="section" title="Published articles" columns={{ base: 1, md: 2 }}>
+            {posts.map((post) => {
+              const counts = engagement[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
+              const cardData = mapBlogPostToBlogPostCardData(post, counts);
+              return (
+                <BlogPostCard
+                  key={cardData.slug}
+                  post={cardData}
+                  href={`/${authorSegment}/${post.slug}`}
+                  showAuthor={false}
+                  showDate
+                  showEngagement
+                  showTags
+                />
+              );
+            })}
+          </AnimatedCardSection>
+        ) : (
+          <section className="mt-8">
+            <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">
+              Published articles
+            </h2>
             <div className="mt-4 rounded-2xl border border-border/70 bg-card p-6">
               <p className="text-sm text-muted-foreground">No published posts yet.</p>
             </div>
-          )}
-        </section>
+          </section>
+        )}
       </section>
     </main>
   );

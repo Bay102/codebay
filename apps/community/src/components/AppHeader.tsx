@@ -19,25 +19,26 @@ function getMenuItems(
 ): AppHeaderMenuItem[] {
   const accountChildren: Array<SidebarNavItemLink | SidebarNavItemButton> = isAuthenticated
     ? [
-        { type: "link", href: myProfileHref, label: "My Profile" },
-        { type: "link", href: "/account/settings", label: "Settings" },
-        { type: "button", label: "Sign out", onSelect: onSignOut },
-      ]
+      { type: "link", href: myProfileHref, label: "My Profile" },
+      { type: "link", href: "/account/settings", label: "Settings" },
+      { type: "button", label: "Sign out", onSelect: onSignOut },
+    ]
     : [{ type: "link", href: "/join?mode=signin", label: "Sign in" }];
 
   return [
     { type: "link", href: "/", label: "Home" },
-    {
-      type: "group",
-      label: "Community",
-      children: [{ type: "link", href: "/dashboard", label: "My Dashboard" }],
-    },
+    { type: "link", href: "/dashboard", label: "My Dashboard" },
+    // {
+    //   type: "group",
+    //   label: "Community",
+    //   children: [{ type: "link", href: "/dashboard", label: "My Dashboard" }],
+    // },
     {
       type: "group",
       label: "Discussions",
       children: [
         { type: "link", href: "/discussions", label: "All Discussions" },
-        { type: "link", href: "/discussions/new", label: "New Discussion" },
+        // { type: "link", href: "/discussions/new", label: "New Discussion" },
       ],
     },
     {

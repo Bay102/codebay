@@ -3,9 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronUp, MessagesSquare } from "lucide-react";
+import { AnimatedCardSection, DiscussionCard } from "@codebay/ui";
 import type { DiscussionListItem } from "@/lib/discussions";
 import type { TagOption } from "@/lib/tags";
 import { NewDiscussionForm } from "@/components/pages/dashboard/NewDiscussionForm";
+import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
 
 type DiscussionManagementCardProps = {
   discussions: DiscussionListItem[];
@@ -79,35 +81,23 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
                 You haven’t started any discussions yet. Create one to get the conversation going.
               </p>
             ) : (
-              <div className="space-y-2">
-                {discussions.map((d) => (
-                  <Link
-                    key={d.id}
-                    href={`/discussions/${d.slug}`}
-                    className="block rounded-xl border border-border/70 bg-background/70 p-3 text-left text-sm transition-colors hover:border-primary/40 hover:bg-secondary/60"
-                  >
-                    <p className="font-medium text-foreground line-clamp-2">{d.title}</p>
-                    <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <time dateTime={d.createdAt}>{formatDate(d.createdAt)}</time>
-                      <span aria-hidden>·</span>
-                      <span>{d.commentCount} comments</span>
-                      <span>{d.reactionCount} reactions</span>
-                    </div>
-                    {d.tags.length > 0 ? (
-                      <div className="mt-2 flex flex-wrap gap-1">
-                        {d.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded border border-border/70 bg-secondary/60 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-                  </Link>
-                ))}
-              </div>
+              <AnimatedCardSection
+                as="div"
+                items={discussions.map(mapDiscussionListItemToDiscussionCardData)}
+                columns={{ base: 1 }}
+                renderItem={(discussion) => (
+                  <DiscussionCard
+                    key={discussion.id}
+                    discussion={discussion}
+                    href={`/discussions/${discussion.slug}`}
+                    showAuthor={false}
+                    showDate
+                    showEngagement
+                    showTags
+                    className="bg-background/70"
+                  />
+                )}
+              />
             )}
           </div>
         </>

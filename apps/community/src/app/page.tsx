@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { SurfaceCard, CtaCarousel, type CtaCarouselSlide } from "@codebay/ui";
 import { InViewSection } from "@/components/InViewSection";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -107,25 +106,11 @@ export default async function CommunityLandingPage() {
           />
         </InViewSection>
 
-        <Suspense fallback={null}>
-          <TrendingTopicsSection />
-        </Suspense>
-
-        <Suspense fallback={null}>
-          <TrendingDiscussionsSection />
-        </Suspense>
-
-        <Suspense fallback={null}>
-          <TrendingProfilesSection />
-        </Suspense>
-
-        <Suspense fallback={null}>
-          <ForYouSection userId={user?.id ?? null} />
-        </Suspense>
-
-        <Suspense fallback={null}>
-          <FeaturedBlogPostsSection />
-        </Suspense>
+        <TrendingTopicsSection />
+        <TrendingDiscussionsSection />
+        <TrendingProfilesSection />
+        <ForYouSection userId={user?.id ?? null} />
+        <FeaturedBlogPostsSection />
       </section>
     </main>
   );
