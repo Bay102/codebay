@@ -26,7 +26,7 @@ export function CommunityDashboardActions() {
     <div className="flex items-center gap-3">
       <button
         type="button"
-        className="inline-flex h-9 items-center rounded-md border border-border px-3 text-sm text-foreground transition-colors hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex h-9 items-center rounded-sm border border-border px-3 text-sm text-foreground transition-colors hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-70"
         onClick={() => void handleSignOut()}
         disabled={isSigningOut}
       >

@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: AuthorPageProps): Promise<Met
     title: `${author.name} | CodingBay Blog`,
     description: author.bio ?? `Read engineering posts from ${author.name}.`,
     alternates: {
-      canonical: `/author/${author.username}`
+      canonical: `/${author.username}`
     }
   };
 }

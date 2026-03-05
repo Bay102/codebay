@@ -8,7 +8,7 @@ type DashboardHeroProps = {
 };
 
 export function DashboardHero({ name, username }: DashboardHeroProps) {
-  const publicBlogUrl = username ? `${blogUrl}/author/${username}` : null;
+  const publicBlogUrl = username ? `${blogUrl}/${username}` : null;
 
   return (
     <SurfaceCard as="section" variant="hero" className="px-5 py-6 sm:px-6 sm:py-8 md:px-8">
@@ -22,20 +22,20 @@ export function DashboardHero({ name, username }: DashboardHeroProps) {
       <nav className="mt-4 flex flex-wrap gap-2.5 text-sm">
         <Link
           href="/"
-          className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
+          className="inline-flex items-center rounded-sm border border-primary/35 bg-primary/10 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
         >
           Explore
         </Link>
         <Link
           href="/dashboard/blog"
-          className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
+          className="inline-flex items-center rounded-sm border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
         >
           Blog dashboard
         </Link>
         {publicBlogUrl ? (
           <Link
             href={publicBlogUrl}
-            className="inline-flex items-center rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
+            className="inline-flex items-center rounded-sm border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
           >
             Public blog page
           </Link>

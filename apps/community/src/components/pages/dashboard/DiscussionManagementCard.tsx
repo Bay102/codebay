@@ -26,11 +26,11 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
 
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-          Discussion management
+      <div className="flex flex-row flex-nowrap items-center justify-between gap-3">
+        <h2 className="min-w-0 shrink text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          Discussions
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <Link
             href="/dashboard/discussions"
             aria-label="Manage discussions"

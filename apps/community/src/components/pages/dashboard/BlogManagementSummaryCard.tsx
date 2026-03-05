@@ -15,7 +15,7 @@ export function BlogManagementSummaryCard({ summary }: BlogManagementSummaryCard
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Blog management</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Blog</h2>
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/blog"

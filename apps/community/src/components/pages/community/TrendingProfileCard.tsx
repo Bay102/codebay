@@ -28,7 +28,7 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [followerCount, setFollowerCount] = useState<number>(profile.followerCount);
   const { user } = useAuth();
-  const href = `${blogUrl}/author/${profile.username}`;
+  const href = `${blogUrl}/${profile.username}`;
   const showFollowButton = user != null && user.id !== profile.id;
 
   const clearCloseTimeout = () => {

@@ -1,5 +1,13 @@
 export { AppHeader } from "./AppHeader";
 export type { AppHeaderProps, AppHeaderMenuItem } from "./AppHeader";
+export { SidebarNavMenu } from "./SidebarNavMenu";
+export type {
+  SidebarNavMenuProps,
+  SidebarNavMenuItem,
+  SidebarNavItemLink,
+  SidebarNavItemButton,
+  SidebarNavItemGroup,
+} from "./SidebarNavMenu";
 export { CodeBayLogo } from "./CodeBayLogo";
 export { AuthEmailPasswordForm } from "./AuthEmailPasswordForm";
 export type { AuthEmailPasswordFormProps } from "./AuthEmailPasswordForm";

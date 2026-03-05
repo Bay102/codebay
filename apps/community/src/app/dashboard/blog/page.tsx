@@ -91,7 +91,7 @@ export default async function CommunityBlogDashboardPage({
   const params = await searchParams;
   const filter = resolveStatusFilter(params.status);
   const filteredPosts = filter === "all" ? posts : posts.filter((post) => post.status === filter);
-  const publicBlogUrl = profile.username ? `${blogUrl}/author/${profile.username}` : blogUrl;
+  const publicBlogUrl = profile.username ? `${blogUrl}/${profile.username}` : blogUrl;
 
   return (
     <main className="min-h-screen bg-background">
