@@ -13,20 +13,21 @@ export async function TrendingTopicsSection() {
 
   return (
     <InViewSection as="section" className="mt-8">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Trending topics</h2>
       <SurfaceCard
         as="div"
-        variant="card"
-        className="mt-3 hover:shadow-lg hover:border-border/40 hover:bg-card/80"
+        className="hover:shadow-lg hover:border-border/40 hover:bg-card/80"
       >
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Trending topics: {' '}
+          </h2>
           {topics.map((topic) => {
             const href = `${blogUrl}?tag=${encodeURIComponent(topic.tag)}`;
             return (
               <Link
                 key={topic.tag}
                 href={href}
-                className="inline-flex items-center gap-1 rounded-md border border-border/70 bg-secondary/50 px-3 py-1 text-xs font-medium text-foreground transition-colors hover:bg-secondary/80"
+                className="inline-flex items-center gap-1 rounded-md border border-border/70 bg-secondary/50 px-2.5 py-1 text-sm font-medium text-foreground transition-colors hover:bg-secondary/80"
               >
                 <span>{topic.tag}</span>
                 {/* <span className="text-[10px] text-muted-foreground">

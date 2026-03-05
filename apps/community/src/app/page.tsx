@@ -44,7 +44,7 @@ export default async function CommunityLandingPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="mx-auto w-full max-w-7xl px-5 py-4 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-5 py-4 sm:px-6 lg:px-8 md:pb-10">
         <InViewSection>
           <SurfaceCard
             as="div"
@@ -98,18 +98,20 @@ export default async function CommunityLandingPage() {
             </div>
           </SurfaceCard>
 
-          <CtaCarousel
-            eyebrow="Community Highlights"
-            heading=""
-            slides={whyJoinSlides}
-            className="mt-4 hover:shadow-lg hover:border-border/40 hover:bg-card/70"
-          />
+          {!hasSession && (
+            <CtaCarousel
+              eyebrow="Community Highlights"
+              heading=""
+              slides={whyJoinSlides}
+              className="mt-4 hover:shadow-lg hover:border-border/40 hover:bg-card/70"
+            />
+          )}
         </InViewSection>
 
         <TrendingTopicsSection />
-        <TrendingDiscussionsSection />
-        <TrendingProfilesSection />
         <ForYouSection userId={user?.id ?? null} />
+        <TrendingProfilesSection />
+        <TrendingDiscussionsSection />
         <FeaturedBlogPostsSection />
       </section>
     </main>

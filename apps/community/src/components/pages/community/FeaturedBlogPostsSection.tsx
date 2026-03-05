@@ -10,7 +10,7 @@ export async function FeaturedBlogPostsSection() {
   }
 
   return (
-    <AnimatedCardSection as="section" title="Featured blog posts" columns={{ base: 1, md: 2 }}>
+    <AnimatedCardSection as="section" title="Featured blog posts" columns={{ base: 1, md: 2 }} className="mt-10">
       {posts.map((post) => {
         const cardData = mapLandingFeaturedPostToBlogPostCardData(post);
         return (

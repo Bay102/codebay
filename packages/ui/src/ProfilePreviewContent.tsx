@@ -154,14 +154,14 @@ export function ProfilePreviewContent({
 
       {techStack.length > 0 ? (
         <div className="mt-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/90">
             Tech stack
           </p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {techStack.slice(0, 6).map((item) => (
               <span
                 key={item}
-                className="rounded-sm border border-border/70 bg-background/80 px-2 py-1 text-[10px] text-foreground"
+                className="inline-flex items-center rounded-full border border-border/60 bg-secondary/60 px-2.5 py-0.5 text-[10px] font-mono tracking-[0.16em] uppercase text-foreground/90"
               >
                 {item}
               </span>

@@ -41,7 +41,7 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
   if (!supabase) return null;
 
   const [posts, discussions, allowedTags, preferredTagIds] = await Promise.all([
-    fetchForYouBlogPosts(supabase, userId, 4),
+    fetchForYouBlogPosts(supabase, userId, 2),
     fetchForYouDiscussions(supabase, userId, 4),
     fetchAllTags(supabase),
     getPreferredTagIdsAction()
@@ -70,35 +70,11 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
   }
 
   return (
-    <InViewSection as="section" className="mt-8">
+    <InViewSection as="section" className="mt-4">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Tailored for you</h2>
         <PreferredTopicsDialog allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
       </div>
-      {/* <p className="mt-1 text-xs text-muted-foreground">Based on your preferred topics</p> */}
-      {posts.length > 0 ? (
-        <>
-          <p className="mt-3 text-xs font-medium text-muted-foreground">Blog posts</p>
-          <div className="mt-1">
-            <AnimatedCardSection as="div" columns={{ base: 1, md: 2 }}>
-              {posts.map((post) => {
-                const cardData = mapLandingFeaturedPostToBlogPostCardData(post);
-                return (
-                  <BlogPostCard
-                    key={cardData.id}
-                    post={cardData}
-                    href={buildPostUrl(post.authorName, post.slug)}
-                    showAuthor
-                    showDate
-                    showEngagement
-                    showTags
-                  />
-                );
-              })}
-            </AnimatedCardSection>
-          </div>
-        </>
-      ) : null}
       {discussions.length > 0 ? (
         <>
           <p className="mt-4 text-xs font-medium text-muted-foreground">Discussions</p>
@@ -120,6 +96,28 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
               })}
             </AnimatedCardSection>
           </div>
+        </>
+      ) : null}
+      {/* <p className="mt-1 text-xs text-muted-foreground">Based on your preferred topics</p> */}
+      {posts.length > 0 ? (
+        <>
+          <p className="mt-3 text-xs font-medium text-muted-foreground">Blog posts</p>
+          <AnimatedCardSection as="div" columns={{ base: 1, md: 2 }}>
+            {posts.map((post) => {
+              const cardData = mapLandingFeaturedPostToBlogPostCardData(post);
+              return (
+                <BlogPostCard
+                  key={cardData.id}
+                  post={cardData}
+                  href={buildPostUrl(post.authorName, post.slug)}
+                  showAuthor
+                  showDate
+                  showEngagement
+                  showTags
+                />
+              );
+            })}
+          </AnimatedCardSection>
         </>
       ) : null}
     </InViewSection>

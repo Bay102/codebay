@@ -30,6 +30,7 @@ export async function TrendingProfilesSection() {
       as="section"
       title="Profiles Getting Noticed"
       columns={{ base: 1, sm: 2, md: 3 }}
+      className="mt-10"
     >
       {profilesWithFollowers.map((profile) => (
         <TrendingProfileCard

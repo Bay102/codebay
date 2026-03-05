@@ -122,7 +122,7 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
             avatarUrl: profile.avatarUrl
           }}
           sections={{
-            bio: profile.bio ?? undefined,
+            // bio: profile.bio ?? undefined,
             techStack: profile.techStack.length > 0 ? profile.techStack : undefined,
             articles:
               profile.featuredArticles.length > 0
