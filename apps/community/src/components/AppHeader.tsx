@@ -19,11 +19,20 @@ function getMenuItems(
 ): AppHeaderMenuItem[] {
   const accountChildren: Array<SidebarNavItemLink | SidebarNavItemButton> = isAuthenticated
     ? [
-      { type: "link", href: myProfileHref, label: "My Profile" },
-      { type: "link", href: "/account/settings", label: "Settings" },
-      { type: "button", label: "Sign out", onSelect: onSignOut },
-    ]
+        { type: "link", href: myProfileHref, label: "My Profile" },
+        { type: "link", href: "/account/settings", label: "Settings" },
+        { type: "button", label: "Sign out", onSelect: onSignOut },
+      ]
     : [{ type: "link", href: "/join?mode=signin", label: "Sign in" }];
+
+  const blogChildren: SidebarNavItemLink[] = isAuthenticated
+    ? [
+        { type: "link", href: "/dashboard/blog", label: "Blog Dashboard" },
+        { type: "link", href: myBlogHref, label: "My Blog" },
+        { type: "link", href: "/dashboard/blog/new", label: "New Blog Post" },
+        { type: "link", href: blogUrl, label: "CodingBay Blog" },
+      ]
+    : [{ type: "link", href: blogUrl, label: "CodingBay Blog" }];
 
   return [
     { type: "link", href: "/", label: "Home" },
@@ -44,12 +53,7 @@ function getMenuItems(
     {
       type: "group",
       label: "Blog",
-      children: [
-        { type: "link", href: "/dashboard/blog", label: "Blog dashboard" },
-        { type: "link", href: myBlogHref, label: "My Blog" },
-        { type: "link", href: "/dashboard/blog/new", label: "New Blog Post" },
-        { type: "link", href: blogUrl, label: "CodingBay Blog" },
-      ],
+      children: blogChildren,
     },
     {
       type: "group",

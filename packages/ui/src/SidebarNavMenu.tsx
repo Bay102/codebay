@@ -66,7 +66,7 @@ function NavGroup({
   };
 
   return (
-    <div className="border-b border-border/60 pb-2 last:border-b-0">
+    <div className="border-b border-border/70 last:border-b-0">
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}

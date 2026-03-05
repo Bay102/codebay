@@ -91,7 +91,7 @@ export function DiscussionCard({
                 {discussion.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-lg border border-border/70 bg-secondary/60 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
+                    className="inline-flex items-center rounded-md border border-border/60 bg-secondary/60 px-2.5 py-0.5 text-xs font-medium tracking-[0.08em] uppercase text-foreground/90"
                   >
                     {tag}
                   </span>

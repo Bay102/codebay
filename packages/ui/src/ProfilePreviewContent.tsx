@@ -161,7 +161,7 @@ export function ProfilePreviewContent({
             {techStack.slice(0, 6).map((item) => (
               <span
                 key={item}
-                className="inline-flex items-center rounded-full border border-border/60 bg-secondary/60 px-2.5 py-0.5 text-[10px] font-mono tracking-[0.16em] uppercase text-foreground/90"
+                className="inline-flex items-center rounded-md border border-border/60 bg-secondary/60 px-2.5 py-0.5 text-xs font-medium tracking-[0.08em] uppercase text-foreground/90"
               >
                 {item}
               </span>

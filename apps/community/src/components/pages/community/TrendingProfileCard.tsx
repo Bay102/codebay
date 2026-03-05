@@ -106,9 +106,8 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
       </PopoverTrigger>
 
       <PopoverContent
-        align="start"
-        side="bottom"
-        sideOffset={8}
+        align="center"
+        side="right" sideOffset={8}
         className="w-[min(90vw,20rem)] sm:w-80 max-h-[min(80dvh,480px)] overflow-y-auto rounded-2xl bg-card/95 p-4"
         onMouseEnter={clearCloseTimeout}
         onMouseLeave={scheduleClose}

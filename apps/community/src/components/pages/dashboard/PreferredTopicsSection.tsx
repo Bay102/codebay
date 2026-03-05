@@ -46,7 +46,7 @@ export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: 
         <div>
           <h3 className="text-sm font-semibold text-foreground">Topics you follow</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Choose topics you care about. We use these to show relevant blog posts and discussions on your home feed.
+            Used to show relevant discussions, blog posts and profiles
           </p>
         </div>
         <ChevronDown
