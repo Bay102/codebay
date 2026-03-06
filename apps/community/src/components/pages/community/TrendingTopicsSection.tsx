@@ -3,6 +3,7 @@ import { SurfaceCard } from "@codebay/ui";
 import { fetchTrendingTopics } from "@/lib/landing";
 import { blogUrl } from "@/lib/site-urls";
 import { InViewSection } from "@/components/InViewSection";
+import { Tag } from "@codebay/ui";
 
 export async function TrendingTopicsSection() {
   const topics = await fetchTrendingTopics(10);
@@ -29,7 +30,7 @@ export async function TrendingTopicsSection() {
                 href={href}
                 className="inline-flex items-center rounded-md border border-border/60 bg-secondary/60 px-2.5 py-0.5 text-xs font-medium tracking-[0.08em] uppercase text-foreground/90 transition-colors hover:bg-secondary/80"
               >
-                <span>{topic.tag}</span>
+                <Tag variant="muted">{topic.tag}</Tag>
               </Link>
             );
           })}

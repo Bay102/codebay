@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { SurfaceCard } from "../SurfaceCard";
+import { Tag } from "../Tag";
 import { cn } from "../utils";
 import type { DiscussionCardData } from "./types";
 
@@ -49,52 +50,51 @@ export function DiscussionCard({
       as="article"
       variant="card"
       className={cn(
-        "transition-all hover:shadow-lg hover:border-border/40 hover:bg-card/80",
+        "flex h-full flex-col transition-all hover:shadow-lg hover:border-border/40 hover:bg-card/80",
         spacing,
         className,
       )}
     >
-      <Link href={href} className="block">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            {showAuthor || showDate || showEngagement ? (
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                {showAuthor ? <span>@{discussion.authorUsername}</span> : null}
-                {showAuthor && showDate ? <span aria-hidden>·</span> : null}
-                {showDate ? (
-                  <time dateTime={discussion.createdAt}>{formatDate(discussion.createdAt)}</time>
-                ) : null}
-                {showEngagement ? (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span>
-                      {discussion.commentCount} comments
-                    </span>
-                    <span>{discussion.reactionCount} reactions</span>
-                  </>
-                ) : null}
-              </div>
-            ) : null}
+      <Link href={href} className="flex h-full flex-col">
+        <div className="flex min-h-0 flex-1 flex-wrap items-stretch justify-between gap-3">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+            <div className="min-h-0 flex-1">
+              {showAuthor || showDate || showEngagement ? (
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  {showAuthor ? <span>@{discussion.authorUsername}</span> : null}
+                  {showAuthor && showDate ? <span aria-hidden>·</span> : null}
+                  {showDate ? (
+                    <time dateTime={discussion.createdAt}>{formatDate(discussion.createdAt)}</time>
+                  ) : null}
+                  {showEngagement ? (
+                    <>
+                      <span aria-hidden>·</span>
+                      <span>
+                        {discussion.commentCount} comments
+                      </span>
+                      <span>{discussion.reactionCount} reactions</span>
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
 
-            <h3 className="mt-1 text-sm font-semibold text-foreground sm:text-base">
-              {discussion.title}
-            </h3>
+              <h3 className="mt-1 text-sm font-semibold text-foreground sm:text-base">
+                {discussion.title}
+              </h3>
 
-            {discussion.body ? (
-              <p className="mt-1 line-clamp-2 text-xs leading-6 text-muted-foreground sm:text-sm">
-                {discussion.body}
-              </p>
-            ) : null}
+              {discussion.body ? (
+                <p className="mt-1 line-clamp-2 text-xs leading-6 text-muted-foreground sm:text-sm">
+                  {discussion.body}
+                </p>
+              ) : null}
+            </div>
 
             {showTags && discussion.tags.length > 0 ? (
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
                 {discussion.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center rounded-md border border-border/60 bg-secondary/60 px-2.5 py-0.5 text-xs font-medium tracking-[0.08em] uppercase text-foreground/90"
-                  >
+                  <Tag key={tag} variant="muted">
                     {tag}
-                  </span>
+                  </Tag>
                 ))}
               </div>
             ) : null}
@@ -103,7 +103,7 @@ export function DiscussionCard({
           {headerSlot ? <div className="shrink-0">{headerSlot}</div> : null}
         </div>
 
-        {footerSlot ? <div className="mt-3">{footerSlot}</div> : null}
+        {footerSlot ? <div className="mt-3 shrink-0">{footerSlot}</div> : null}
       </Link>
     </SurfaceCard>
   );

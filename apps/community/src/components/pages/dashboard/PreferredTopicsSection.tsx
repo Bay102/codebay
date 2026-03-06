@@ -9,13 +9,14 @@ import type { TagOption } from "@/lib/tags";
 type PreferredTopicsSectionProps = {
   allowedTags: TagOption[];
   initialPreferredTagIds: string[];
+  defaultOpen?: boolean;
 };
 
-export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: PreferredTopicsSectionProps) {
+export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds, defaultOpen = false }: PreferredTopicsSectionProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(initialPreferredTagIds));
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const handleChange = async (nextIds: string[]) => {
     setSelectedIds(new Set(nextIds));

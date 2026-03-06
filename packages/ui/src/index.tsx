@@ -34,6 +34,8 @@ export { Button, buttonVariants } from "./button";
 export type { ButtonProps } from "./button";
 export { Input } from "./input";
 export { Badge } from "./badge";
+export { Tag, tagVariants } from "./Tag";
+export type { TagProps } from "./Tag";
 export { Label } from "./label";
 export { Textarea } from "./textarea";
 export { Checkbox } from "./checkbox";
