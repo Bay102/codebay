@@ -47,6 +47,8 @@ export type SidebarNavMenuProps = {
   title?: string;
   /** Optional class name for the sheet content. */
   className?: string;
+  /** Optional content rendered at the bottom of the menu (e.g. theme controller). */
+  footer?: React.ReactNode;
 };
 
 function NavGroup({
@@ -128,6 +130,7 @@ export function SidebarNavMenu({
   side = "right",
   title,
   className,
+  footer,
 }: SidebarNavMenuProps) {
   const handleClose = () => onOpenChange(false);
 
@@ -187,6 +190,9 @@ export function SidebarNavMenu({
             );
           })}
         </nav>
+        {footer ? (
+          <div className="shrink-0 border-t border-border/60 px-4 py-4">{footer}</div>
+        ) : null}
       </SheetContent>
     </Sheet>
   );

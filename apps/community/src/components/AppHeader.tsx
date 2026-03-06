@@ -3,6 +3,7 @@
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader as SharedAppHeader, CodeBayLogo } from "@codebay/ui";
+import { MenuThemeController } from "@/components/MenuThemeController";
 import type {
   AppHeaderMenuItem,
   SidebarNavItemButton,
@@ -97,6 +98,7 @@ export function CommunityAppHeader() {
       homeHref="/"
       logo={<CodeBayLogo className="h-6 w-auto md:h-8" />}
       menuItems={menuItems}
+      menuFooter={<MenuThemeController />}
     />
   );
 }
