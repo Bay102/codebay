@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Tag } from "./Tag";
 
 /** Minimal profile data for the preview header */
 export interface ProfilePreviewHeader {
@@ -130,7 +131,7 @@ export function ProfilePreviewContent({
                   </span>
                 ) : null}
                 {typeof followStats?.followerCount === "number" &&
-                typeof followStats?.followingCount === "number" ? (
+                  typeof followStats?.followingCount === "number" ? (
                   <span className="mx-1.5 text-border">•</span>
                 ) : null}
                 {typeof followStats?.followingCount === "number" ? (
@@ -154,17 +155,17 @@ export function ProfilePreviewContent({
 
       {techStack.length > 0 ? (
         <div className="mt-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground/90">
             Tech stack
           </p>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {techStack.slice(0, 6).map((item) => (
-              <span
+              <Tag
                 key={item}
-                className="rounded-sm border border-border/70 bg-background/80 px-2 py-1 text-[10px] text-foreground"
+                variant="muted"
               >
                 {item}
-              </span>
+              </Tag>
             ))}
           </div>
         </div>

@@ -5,6 +5,13 @@ const config: Config = {
   presets: [codebayTailwindPreset],
   content: ["./src/**/*.{ts,tsx}", "../../packages/ui/src/**/*.{ts,tsx}"],
   plugins: [require("tailwindcss-animate")],
+  theme: {
+    extend: {
+      fontFamily: {
+        hero: ["var(--font-hero)", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+    },
+  },
 };
 
 export default config;

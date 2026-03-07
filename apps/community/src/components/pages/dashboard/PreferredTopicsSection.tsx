@@ -9,13 +9,14 @@ import type { TagOption } from "@/lib/tags";
 type PreferredTopicsSectionProps = {
   allowedTags: TagOption[];
   initialPreferredTagIds: string[];
+  defaultOpen?: boolean;
 };
 
-export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: PreferredTopicsSectionProps) {
+export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds, defaultOpen = false }: PreferredTopicsSectionProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(initialPreferredTagIds));
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const handleChange = async (nextIds: string[]) => {
     setSelectedIds(new Set(nextIds));
@@ -46,7 +47,7 @@ export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: 
         <div>
           <h3 className="text-sm font-semibold text-foreground">Topics you follow</h3>
           <p className="mt-1 text-xs text-muted-foreground">
-            Choose topics you care about. We use these to show relevant blog posts and discussions on your home feed.
+            Used to show relevant discussions, blog posts and profiles
           </p>
         </div>
         <ChevronDown

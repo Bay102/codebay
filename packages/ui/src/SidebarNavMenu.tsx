@@ -47,6 +47,8 @@ export type SidebarNavMenuProps = {
   title?: string;
   /** Optional class name for the sheet content. */
   className?: string;
+  /** Optional content rendered at the bottom of the menu (e.g. theme controller). */
+  footer?: React.ReactNode;
 };
 
 function NavGroup({
@@ -66,7 +68,7 @@ function NavGroup({
   };
 
   return (
-    <div className="border-b border-border/60 pb-2 last:border-b-0">
+    <div className="border-b border-border/70 last:border-b-0">
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}
@@ -128,6 +130,7 @@ export function SidebarNavMenu({
   side = "right",
   title,
   className,
+  footer,
 }: SidebarNavMenuProps) {
   const handleClose = () => onOpenChange(false);
 
@@ -187,6 +190,9 @@ export function SidebarNavMenu({
             );
           })}
         </nav>
+        {footer ? (
+          <div className="shrink-0 border-t border-border/60 px-4 py-4">{footer}</div>
+        ) : null}
       </SheetContent>
     </Sheet>
   );

@@ -158,7 +158,7 @@ export function AnimatedCardSection<T>({
     <Component
       ref={ref as any}
       data-in-view={hasEnteredView ? "true" : "false"}
-      className={cn("group/section will-change-transform will-change-opacity mt-8", className)}
+      className={cn("group/section will-change-transform will-change-opacity mt-4", className)}
       style={animationStyle}
       {...rest}
     >

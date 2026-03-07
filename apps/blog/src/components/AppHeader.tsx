@@ -28,12 +28,13 @@ export function BlogAppHeader() {
   const menuItems = useMemo<AppHeaderMenuItem[]>(() => {
     const items: AppHeaderMenuItem[] = [
       { type: "link", href: communityUrl, label: "Community" },
-      { type: "link", href: `${communityUrl}/dashboard`, label: "Dashboard" }
     ];
 
     if (!supabase || isCheckingSession) {
       return items;
     }
+
+    const username = session?.user?.user_metadata?.username;
 
     if (hasSession) {
       items.push({
@@ -45,7 +46,13 @@ export function BlogAppHeader() {
             router.refresh();
           })();
         }
-      });
+      },
+        {
+          type: "group", label: "My Blog", children: [
+            { type: "link", href: `/${username}`, label: "My Blog" }
+          ]
+        }
+      );
     } else {
       items.push({
         type: "button",

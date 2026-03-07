@@ -1,18 +1,23 @@
 import Link from "next/link";
-import { AnimatedCardSection, BlogPostCard, DiscussionCard, SurfaceCard } from "@codebay/ui";
-import { buildPostUrl, fetchForYouBlogPosts, fetchForYouDiscussions } from "@/lib/landing";
+import { SurfaceCard } from "@codebay/ui";
+import { fetchForYouBlogPosts, fetchForYouDiscussions } from "@/lib/landing";
 import { fetchAllTags } from "@/lib/tags";
 import { getPreferredTagIdsAction } from "@/app/actions";
 import { PreferredTopicsDialog } from "@/components/pages/community/PreferredTopicsDialog";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { InViewSection } from "@/components/InViewSection";
-import { mapForYouDiscussionToDiscussionCardData, mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
+import { ForYouSectionContent } from "./ForYouSectionContent";
 
 type ForYouSectionProps = {
   userId: string | null;
 };
 
 export async function ForYouSection({ userId }: ForYouSectionProps) {
+  const MAX_DISCUSSION_PAGES = 3;
+  const DISCUSSIONS_PER_PAGE = 4;
+  const MAX_POST_PAGES = 3;
+  const POSTS_PER_PAGE = 2;
+
   if (!userId) {
     return (
       <InViewSection as="section" className="mt-8">
@@ -40,9 +45,12 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
   const supabase = await createServerSupabaseClient();
   if (!supabase) return null;
 
+  const totalDiscussionLimit = MAX_DISCUSSION_PAGES * DISCUSSIONS_PER_PAGE;
+  const totalPostLimit = MAX_POST_PAGES * POSTS_PER_PAGE;
+
   const [posts, discussions, allowedTags, preferredTagIds] = await Promise.all([
-    fetchForYouBlogPosts(supabase, userId, 4),
-    fetchForYouDiscussions(supabase, userId, 4),
+    fetchForYouBlogPosts(supabase, userId, totalPostLimit),
+    fetchForYouDiscussions(supabase, userId, totalDiscussionLimit),
     fetchAllTags(supabase),
     getPreferredTagIdsAction()
   ]);
@@ -70,58 +78,12 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
   }
 
   return (
-    <InViewSection as="section" className="mt-8">
+    <InViewSection as="section" className="mt-10">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Tailored for you</h2>
         <PreferredTopicsDialog allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
       </div>
-      {/* <p className="mt-1 text-xs text-muted-foreground">Based on your preferred topics</p> */}
-      {posts.length > 0 ? (
-        <>
-          <p className="mt-3 text-xs font-medium text-muted-foreground">Blog posts</p>
-          <div className="mt-1">
-            <AnimatedCardSection as="div" columns={{ base: 1, md: 2 }}>
-              {posts.map((post) => {
-                const cardData = mapLandingFeaturedPostToBlogPostCardData(post);
-                return (
-                  <BlogPostCard
-                    key={cardData.id}
-                    post={cardData}
-                    href={buildPostUrl(post.authorName, post.slug)}
-                    showAuthor
-                    showDate
-                    showEngagement
-                    showTags
-                  />
-                );
-              })}
-            </AnimatedCardSection>
-          </div>
-        </>
-      ) : null}
-      {discussions.length > 0 ? (
-        <>
-          <p className="mt-4 text-xs font-medium text-muted-foreground">Discussions</p>
-          <div className="mt-1">
-            <AnimatedCardSection as="div" columns={{ base: 1, sm: 2 }}>
-              {discussions.map((item) => {
-                const discussion = mapForYouDiscussionToDiscussionCardData(item);
-                return (
-                  <DiscussionCard
-                    key={discussion.id}
-                    discussion={discussion}
-                    href={`/discussions/${discussion.slug}`}
-                    showAuthor
-                    showDate
-                    showEngagement
-                    showTags
-                  />
-                );
-              })}
-            </AnimatedCardSection>
-          </div>
-        </>
-      ) : null}
+      <ForYouSectionContent discussions={discussions} posts={posts} />
     </InViewSection>
   );
 }

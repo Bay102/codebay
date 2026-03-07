@@ -31,7 +31,7 @@ export function PreferredTopicsDialog({ allowedTags, initialPreferredTagIds }: P
         <DialogHeader>
           <DialogTitle>Edit preferred topics</DialogTitle>
         </DialogHeader>
-        <PreferredTopicsSection allowedTags={allowedTags} initialPreferredTagIds={initialPreferredTagIds} />
+        <PreferredTopicsSection allowedTags={allowedTags} initialPreferredTagIds={initialPreferredTagIds} defaultOpen={true} />
       </DialogContent>
     </Dialog>
   );

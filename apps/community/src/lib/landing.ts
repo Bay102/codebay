@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/lib/database";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { blogUrl } from "@/lib/site-urls";
+import { buildPostUrl } from "@/lib/blog-urls";
 
 type BlogPostRow = Pick<
   Tables<"blog_posts">,
@@ -491,14 +491,5 @@ function mapProfileRowToLandingProfile(
     techStack,
     featuredArticles
   };
-}
-
-export function buildPostUrl(authorName: string, slug: string): string {
-  const base = authorName
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "") || "author";
-  return `${blogUrl}/${base}/${slug}`;
 }
 

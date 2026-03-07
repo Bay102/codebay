@@ -3,8 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CommunityDashboardActions } from "@/components/pages/community/CommunityDashboardActions";
-import { DismissibleNextStepsCard } from "@/components/pages/community/DismissibleNextStepsCard";
-import { ActivityOverviewCard } from "@/components/pages/dashboard/ActivityOverviewCard";
+import { DashboardActivitySection } from "@/components/pages/dashboard/DashboardActivitySection";
 import { BlogManagementSummaryCard } from "@/components/pages/dashboard/BlogManagementSummaryCard";
 import { DiscussionManagementCard } from "@/components/pages/dashboard/DiscussionManagementCard";
 import { DashboardHero } from "@/components/pages/dashboard/DashboardHero";
@@ -122,10 +121,12 @@ export default async function CommunityDashboardPage() {
         </div>
         <DashboardHero name={profile.name} username={profile.username} />
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {hasAnyIncompleteStep ? <DismissibleNextStepsCard steps={nextSteps} /> : null}
-          <ActivityOverviewCard items={overviewActivityItems} allItems={activityItems} />
-        </div>
+        <DashboardActivitySection
+          showNextSteps={hasAnyIncompleteStep}
+          nextSteps={nextSteps}
+          overviewActivityItems={overviewActivityItems}
+          activityItems={activityItems}
+        />
 
 
         <div className="mt-6 grid gap-4 md:grid-cols-1">

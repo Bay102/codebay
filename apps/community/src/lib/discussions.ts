@@ -341,21 +341,36 @@ export async function createDiscussionComment(
   return data.id;
 }
 
-/** Add or replace reaction (one type per user per discussion). */
+/** Add a reaction if the viewer has not reacted yet (one reaction per user per discussion). */
 export async function setDiscussionReaction(
   supabase: SupabaseClient<Database>,
   discussionId: string,
   userId: string,
   reactionType: string
 ): Promise<boolean> {
-  const { error } = await supabase.from("discussion_reactions").upsert(
-    {
-      discussion_id: discussionId,
-      user_id: userId,
-      reaction_type: reactionType
-    },
-    { onConflict: "discussion_id,user_id,reaction_type" }
-  );
+  // Check for an existing reaction from this user on this discussion.
+  const { data: existing, error: existingError } = await supabase
+    .from("discussion_reactions")
+    .select("id, reaction_type")
+    .eq("discussion_id", discussionId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (existingError && existingError.code !== "PGRST116") {
+    // Unexpected error (other than no rows); surface as failure.
+    return false;
+  }
+
+  if (existing) {
+    // User has already reacted on this discussion; do not allow another reaction.
+    return false;
+  }
+
+  const { error } = await supabase.from("discussion_reactions").insert({
+    discussion_id: discussionId,
+    user_id: userId,
+    reaction_type: reactionType
+  });
   return !error;
 }
 

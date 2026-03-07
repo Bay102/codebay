@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BlogPostCard } from "@codebay/ui";
+import { BlogPostCard, Tag } from "@codebay/ui";
 import type { DashboardBlogPostStats, DashboardProfile } from "@/lib/dashboard";
 import { blogUrl } from "@/lib/site-urls";
 import { ProfileHeaderWithFollow } from "@/components/pages/dashboard/ProfileHeaderWithFollow";
@@ -104,9 +104,9 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
             {profile.techStack.length > 0 ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {profile.techStack.map((item) => (
-                  <span key={item} className="rounded-sm border border-border/80 bg-background px-2.5 py-1 text-xs">
+                  <Tag key={item} variant="pill">
                     {item}
-                  </span>
+                  </Tag>
                 ))}
               </div>
             ) : (

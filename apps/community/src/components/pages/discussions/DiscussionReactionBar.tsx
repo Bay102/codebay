@@ -36,7 +36,6 @@ export function DiscussionReactionBar({
     insightful: 0,
     love: 0
   });
-  const [totalReactions, setTotalReactions] = useState(initialReactionCount);
   const [viewerReactionType, setViewerReactionType] = useState<ReactionType | null>(initialViewerReactionType);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -69,7 +68,6 @@ export function DiscussionReactionBar({
       });
 
       setReactionCounts(nextCounts);
-      setTotalReactions(data.length);
     };
 
     void loadReactions();
@@ -84,29 +82,21 @@ export function DiscussionReactionBar({
   const handleReaction = async (reactionType: ReactionType) => {
     if (!supabase || !user || isLoading) return;
 
-    // Once a user has reacted for this discussion, keep that category
-    // (or a different one) selected; do not allow clearing to "no reaction".
-    if (viewerReactionType === reactionType) return;
+    // Hard one-reaction rule: once a viewer has reacted for this discussion,
+    // they cannot change or add another reaction (including across reloads).
+    if (viewerReactionType !== null) return;
 
     setIsLoading(true);
 
     try {
-      const previousType = viewerReactionType;
       const ok = await setDiscussionReaction(supabase, discussionId, user.id, reactionType);
       if (!ok) return;
 
       setViewerReactionType(reactionType);
-      setReactionCounts((previous) => {
-        const next: ReactionCounts = { ...previous };
-        if (previousType && previousType in next) {
-          next[previousType] = Math.max(0, next[previousType] - 1);
-        } else {
-          // New reaction from this viewer; increase total.
-          setTotalReactions((current) => current + 1);
-        }
-        next[reactionType] = (next[reactionType] ?? 0) + 1;
-        return next;
-      });
+      setReactionCounts((previous) => ({
+        ...previous,
+        [reactionType]: (previous[reactionType] ?? 0) + 1
+      }));
     } finally {
       setIsLoading(false);
     }
@@ -127,6 +117,7 @@ export function DiscussionReactionBar({
           <div className="flex items-center gap-2 md:justify-end">
             {REACTION_TYPES.map(({ type, label, icon }) => {
               const isSelected = viewerReactionType === type;
+              const isLocked = viewerReactionType !== null;
 
               return (
                 <button
@@ -138,7 +129,7 @@ export function DiscussionReactionBar({
                       : "border-border/70 bg-background hover:bg-secondary/70"
                   }`}
                   onClick={() => void handleReaction(type)}
-                  disabled={isLoading || isSelected}
+                  disabled={isLoading || isLocked}
                   aria-label={label}
                   aria-pressed={isSelected}
                   aria-disabled={isSelected || undefined}

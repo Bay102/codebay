@@ -17,6 +17,8 @@ export type AppHeaderProps = {
   menuItems: AppHeaderMenuItem[];
   /** Side the menu sheet slides in from. Default "right". */
   menuSide?: "left" | "right";
+  /** Optional content at the bottom of the menu sheet (e.g. theme controller). */
+  menuFooter?: ReactNode;
 };
 
 function MenuIcon() {
@@ -40,7 +42,7 @@ function MenuIcon() {
   );
 }
 
-export function AppHeader({ homeHref, logo, menuItems, menuSide = "right" }: AppHeaderProps) {
+export function AppHeader({ homeHref, logo, menuItems, menuSide = "right", menuFooter }: AppHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -56,7 +58,7 @@ export function AppHeader({ homeHref, logo, menuItems, menuSide = "right" }: App
         <button
           type="button"
           aria-label="Open header menu"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
           onClick={() => setMenuOpen(true)}
         >
           <MenuIcon />
@@ -68,6 +70,8 @@ export function AppHeader({ homeHref, logo, menuItems, menuSide = "right" }: App
         onOpenChange={setMenuOpen}
         items={menuItems}
         side={menuSide}
+        className="border-primary/30"
+        footer={menuFooter}
       />
     </header>
   );
