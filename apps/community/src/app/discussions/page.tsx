@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ q?: string; tag?: string }> | { q?: string; tag?: string };
+  searchParams: Promise<{ q?: string; tag?: string }>;
 };
 
 export default async function DiscussionsListPage({ searchParams }: PageProps) {
@@ -29,7 +29,7 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
     );
   }
 
-  const resolved = await Promise.resolve(searchParams);
+  const resolved = await searchParams;
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
   const tag = typeof resolved.tag === "string" ? resolved.tag : undefined;
 
