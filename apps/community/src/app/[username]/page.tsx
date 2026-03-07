@@ -60,7 +60,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
   const viewerId = followResult.viewerId;
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="bg-background">
       <section className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-6 lg:px-8">
         <div className="mt-0 grid gap-4 md:grid-cols-1">
           <ProfileOverviewCard

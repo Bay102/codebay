@@ -13,12 +13,15 @@ type NewDiscussionFormProps = {
   allowedTags?: TagOption[];
   /** When false, hides the Cancel button (for inline usage). Defaults to true. */
   showCancelButton?: boolean;
+  /** Called when Cancel is clicked. If not provided, Cancel calls router.back(). */
+  onCancel?: () => void;
 };
 
 export function NewDiscussionForm({
   authorName,
   allowedTags = [],
-  showCancelButton = true
+  showCancelButton = true,
+  onCancel
 }: NewDiscussionFormProps) {
   const router = useRouter();
   const { supabase, user } = useAuth();
@@ -81,7 +84,7 @@ export function NewDiscussionForm({
       </div>
       {allowedTags.length > 0 ? (
         <div>
-          <span className="block text-sm font-medium text-foreground" id="discussion-tags-label">
+          <span className="block text-sm font-medium text-foreground mb-2" id="discussion-tags-label">
             Topics
           </span>
           <TopicPillsPicker
@@ -119,7 +122,7 @@ export function NewDiscussionForm({
         {showCancelButton ? (
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => (onCancel ? onCancel() : router.back())}
             className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary/70"
           >
             Cancel

@@ -96,7 +96,7 @@ export function ProfileHeaderWithFollow({
             initialIsFollowing={isFollowing}
             onSuccess={handleFollowSuccess}
             getFollowStatsAction={getFollowStatsAction}
-            variant="icon"
+            variant="default"
           />
         ) : null}
       </div>

@@ -1,5 +1,7 @@
 export { AppHeader } from "./AppHeader";
 export type { AppHeaderProps, AppHeaderMenuItem } from "./AppHeader";
+export { MenuThemeController, PRIMARY_COLOR_STORAGE_KEY } from "./MenuThemeController";
+export type { ThemeOption, PrimaryColorId, MenuThemeControllerProps } from "./MenuThemeController";
 export { SidebarNavMenu } from "./SidebarNavMenu";
 export type {
   SidebarNavMenuProps,
@@ -57,6 +59,8 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
 } from "./DropdownMenu";
+export { FilterDropdown } from "./FilterDropdown";
+export type { FilterDropdownProps, FilterDropdownOption } from "./FilterDropdown";
 export {
   Select,
   SelectGroup,

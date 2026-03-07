@@ -9,6 +9,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         hero: ["var(--font-hero)", "ui-sans-serif", "system-ui", "sans-serif"],
+        "mono-ticker": ["var(--font-mono-ticker)", "ui-monospace", "monospace"],
       },
     },
   },

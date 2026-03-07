@@ -120,7 +120,7 @@ export function BlogPostCard({
             {showTags && post.tags.length > 0 ? (
               <div className="mt-auto flex flex-wrap gap-1 pt-3">
                 {post.tags.slice(0, 3).map((tag) => (
-                  <Tag key={tag} variant="muted">
+                  <Tag key={tag} variant="tech">
                     {tag}
                   </Tag>
                 ))}

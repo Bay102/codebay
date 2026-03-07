@@ -5,7 +5,10 @@ import type { LandingProfile } from "@/lib/landing";
 import type { FollowStats } from "@/lib/follows";
 import { TrendingProfileCard } from "./TrendingProfileCard";
 
-type LandingProfileWithFollowers = LandingProfile & { followerCount: number };
+type LandingProfileWithFollowers = LandingProfile & {
+  followerCount: number;
+  isFollowing?: boolean;
+};
 
 type TrendingProfilesTickerProps = {
   profiles: LandingProfileWithFollowers[];

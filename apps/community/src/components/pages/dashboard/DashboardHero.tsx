@@ -8,12 +8,10 @@ type DashboardHeroProps = {
 };
 
 export function DashboardHero({ name, username }: DashboardHeroProps) {
-  const publicBlogUrl = username ? `${blogUrl}/${username}` : null;
-
   return (
     <SurfaceCard as="section" variant="hero" className="px-5 py-6 sm:px-6 sm:py-8 md:px-8">
       <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Community</p>
-      <h1 className="mt-2 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+      <h1 className="font-hero mt-2 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
         Welcome back, {name}
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
@@ -30,16 +28,9 @@ export function DashboardHero({ name, username }: DashboardHeroProps) {
           href="/dashboard/blog"
           className="inline-flex items-center rounded-sm border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
         >
-          Blog dashboard
+          Blog Dashboard
         </Link>
-        {publicBlogUrl ? (
-          <Link
-            href={publicBlogUrl}
-            className="inline-flex items-center rounded-sm border border-border/70 bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
-          >
-            Public blog page
-          </Link>
-        ) : null}
+
       </nav>
     </SurfaceCard>
   );

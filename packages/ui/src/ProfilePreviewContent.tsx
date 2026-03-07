@@ -162,7 +162,7 @@ export function ProfilePreviewContent({
             {techStack.slice(0, 6).map((item) => (
               <Tag
                 key={item}
-                variant="muted"
+                variant="tech"
               >
                 {item}
               </Tag>

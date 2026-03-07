@@ -41,3 +41,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Stock-ticker infinite scroll (GPU-friendly, no JS) */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ticker] {
+    animation: none !important;
+  }
+}

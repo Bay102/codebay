@@ -104,7 +104,7 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
             {profile.techStack.length > 0 ? (
               <div className="mt-2 flex flex-wrap gap-2">
                 {profile.techStack.map((item) => (
-                  <Tag key={item} variant="pill">
+                  <Tag key={item} variant="tech">
                     {item}
                   </Tag>
                 ))}
