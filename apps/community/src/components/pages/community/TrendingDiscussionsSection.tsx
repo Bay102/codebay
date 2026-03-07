@@ -22,7 +22,6 @@ export async function TrendingDiscussionsSection() {
       columns={{ base: 1, sm: 2 }}
       viewAllHref="/discussions"
       viewAllLabel="View all discussions →"
-      className="mt-11"
     >
       {discussions.map((item) => {
         const discussion = mapDiscussionListItemToDiscussionCardData(item);
