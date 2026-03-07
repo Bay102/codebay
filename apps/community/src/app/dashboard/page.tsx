@@ -17,6 +17,7 @@ import {
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { fetchAllTags } from "@/lib/tags";
+import { SectionSeparator } from "@/components/pages/community/SectionSeparator";
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -137,7 +138,7 @@ export default async function CommunityDashboardPage() {
         <div className="mt-6 grid gap-4 md:grid-cols-1">
           <DiscussionManagementCard discussions={discussions} authorName={profile.name} allowedTags={allowedTags} />
         </div>
-
+        <SectionSeparator />
         <div className="mt-6 grid gap-4 md:grid-cols-1">
           <ProfileOverviewCard profile={profileWithFollowStats} posts={posts} viewerId={user.id} />
         </div>

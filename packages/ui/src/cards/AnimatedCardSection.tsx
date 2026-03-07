@@ -162,7 +162,7 @@ export function AnimatedCardSection<T>({
       style={animationStyle}
       {...rest}
     >
-      {(eyebrow || title || subtitle) && (
+      {(eyebrow || title || subtitle || viewAllHref) && (
         <div className={cn("flex items-center justify-between gap-2", headerClassName)}>
           <div>
             {eyebrow ? (
@@ -179,6 +179,14 @@ export function AnimatedCardSection<T>({
               </p>
             ) : null}
           </div>
+          {viewAllHref ? (
+            <Link
+              href={viewAllHref}
+              className="shrink-0 text-sm font-medium text-primary hover:underline"
+            >
+              {viewAllLabel}
+            </Link>
+          ) : null}
         </div>
       )}
 
@@ -191,17 +199,6 @@ export function AnimatedCardSection<T>({
       ) : (
         emptyState ?? null
       )}
-
-      {viewAllHref ? (
-        <div className={cn("mt-3", footerClassName)}>
-          <Link
-            href={viewAllHref}
-            className="text-sm font-medium text-primary hover:underline"
-          >
-            {viewAllLabel}
-          </Link>
-        </div>
-      ) : null}
     </Component>
   );
 }

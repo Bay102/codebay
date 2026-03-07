@@ -8,6 +8,7 @@ import { TrendingProfilesSection } from "@/components/pages/community/TrendingPr
 import { TrendingTopicsSection } from "@/components/pages/community/TrendingTopicsSection";
 import { FeaturedBlogPostsSection } from "@/components/pages/community/FeaturedBlogPostsSection";
 import { TrendingDiscussionsSection } from "@/components/pages/community/TrendingDiscussionsSection";
+import { SectionSeparator } from "@/components/pages/community/SectionSeparator";
 import { ForYouSection } from "@/components/pages/community/ForYouSection";
 
 export const metadata: Metadata = {
@@ -43,12 +44,12 @@ export default async function CommunityLandingPage() {
   const hasSession = !!user;
 
   return (
-    <main className="min-h-screen bg-background">
+    <main className="bg-background">
       <section className="mx-auto w-full max-w-7xl px-2 py-4 md:pb-10 lg:px-8">
         <InViewSection>
           <SurfaceCard
             as="div"
-            variant="hero"
+            variant="card"
             className="shadow-xl border-border/40 bg-card/70"
           >
             <p className="text-sm font-medium uppercase tracking-wide text-primary">Stay Relevant</p>
@@ -72,9 +73,13 @@ export default async function CommunityLandingPage() {
         </InViewSection>
 
         <TrendingTopicsSection />
+        <SectionSeparator />
         <ForYouSection userId={user?.id ?? null} />
+        <SectionSeparator />
         <TrendingProfilesSection />
+        <SectionSeparator />
         <TrendingDiscussionsSection />
+        <SectionSeparator />
         <FeaturedBlogPostsSection />
       </section>
     </main>
