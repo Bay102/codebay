@@ -47,7 +47,7 @@ function getMenuItems(
       label: "Discussions",
       children: [
         { type: "link", href: "/discussions", label: "All Discussions" },
-        // { type: "link", href: "/discussions/new", label: "New Discussion" },
+        { type: "link", href: "/dashboard/discussions/new", label: "New Discussion" },
       ],
     },
     {

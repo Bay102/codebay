@@ -180,9 +180,9 @@ export function ProfilePreviewPopover({
           followStats={
             followStats
               ? {
-                  followerCount: followStats.followerCount,
-                  followingCount: followStats.followingCount
-                }
+                followerCount: followStats.followerCount,
+                followingCount: followStats.followingCount
+              }
               : undefined
           }
         />

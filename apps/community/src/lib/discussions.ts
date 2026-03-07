@@ -171,6 +171,17 @@ export async function getDiscussionComments(
   return attachReplies(byParent.get(null) ?? []);
 }
 
+function matchSearchPhrase(item: DiscussionListItem, phrase: string): boolean {
+  const p = phrase.toLowerCase().trim();
+  if (!p) return true;
+  return (
+    item.title.toLowerCase().includes(p) ||
+    item.authorName.toLowerCase().includes(p) ||
+    item.authorUsername.toLowerCase().includes(p) ||
+    item.tags.some((t) => t.toLowerCase().includes(p))
+  );
+}
+
 /** Trending or list: discussions with comment_count and reaction_count in one query. */
 export async function getDiscussionsWithCounts(
   supabase: SupabaseClient<Database>,
@@ -179,9 +190,23 @@ export async function getDiscussionsWithCounts(
     limit?: number;
     offset?: number;
     orderByTrend?: boolean;
+    /** Filter by phrase in title, author name/username, or tags (topics). */
+    search?: string;
+    /** Filter by tag name (single tag). */
+    tagFilter?: string;
   } = {}
 ): Promise<DiscussionListItem[]> {
-  const { authorId, limit = 20, offset = 0, orderByTrend = true } = options;
+  const {
+    authorId,
+    limit = 20,
+    offset = 0,
+    orderByTrend = true,
+    search,
+    tagFilter
+  } = options;
+
+  const fetchLimit = search ? Math.min(100, limit * 4) : limit;
+  const fetchOffset = search ? 0 : offset;
 
   let query = supabase
     .from("discussions")
@@ -206,7 +231,13 @@ export async function getDiscussionsWithCounts(
     query = query.eq("author_id", authorId);
   }
 
-  query = query.order("created_at", { ascending: false }).range(offset, offset + limit - 1);
+  if (tagFilter?.trim()) {
+    query = query.overlaps("tags", [tagFilter.trim()]);
+  }
+
+  query = query
+    .order("created_at", { ascending: false })
+    .range(fetchOffset, fetchOffset + fetchLimit - 1);
 
   const { data: rows, error } = await query;
 
@@ -231,7 +262,7 @@ export async function getDiscussionsWithCounts(
     community_users: { name: string; username: string } | null;
   };
 
-  const items: DiscussionListItem[] = (rows as Row[]).map((r) => {
+  let items: DiscussionListItem[] = (rows as Row[]).map((r) => {
     const author = r.community_users;
     return {
       id: r.id,
@@ -248,6 +279,10 @@ export async function getDiscussionsWithCounts(
       reactionCount: reactionByDiscussion.get(r.id) ?? 0
     };
   });
+
+  if (search?.trim()) {
+    items = items.filter((item) => matchSearchPhrase(item, search));
+  }
 
   if (orderByTrend && !authorId) {
     const now = Date.now();
@@ -275,6 +310,10 @@ export async function getDiscussionsWithCounts(
       const scoreB = computeTrendingScore(b);
       return scoreB - scoreA;
     });
+  }
+
+  if (search?.trim()) {
+    items = items.slice(offset, offset + limit);
   }
 
   return items;

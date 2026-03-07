@@ -59,6 +59,8 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuRadioGroup,
 } from "./DropdownMenu";
+export { FilterDropdown } from "./FilterDropdown";
+export type { FilterDropdownProps, FilterDropdownOption } from "./FilterDropdown";
 export {
   Select,
   SelectGroup,
