@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { ChevronDown, ChevronRight, Monitor, Moon, Sun } from "lucide-react";
-import { Button } from "@codebay/ui";
+import { Button } from "./button";
 
 export const PRIMARY_COLOR_STORAGE_KEY = "codebay-primary-color";
 
@@ -42,7 +42,12 @@ function getStoredPrimaryColor(): PrimaryColorId | null {
   return null;
 }
 
-export function MenuThemeController() {
+export type MenuThemeControllerProps = {
+  /** Optional: when set (e.g. ".codebay.com"), accent color is stored in a cookie for cross-subdomain persistence. */
+  cookieDomain?: string;
+};
+
+export function MenuThemeController({ cookieDomain }: MenuThemeControllerProps = {}) {
   const { theme, setTheme } = useTheme();
   const [expanded, setExpanded] = useState(false);
   const [primaryColor, setPrimaryColorState] = useState<PrimaryColorId | null>(null);

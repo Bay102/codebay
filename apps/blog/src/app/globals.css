@@ -1,4 +1,42 @@
-@import "@codebay/theme/tokens.css";
+@import '@codebay/theme/tokens.css';
+
+/* Primary color overrides (data-primary is set by MenuThemeController) */
+:root[data-primary="orange"],
+.dark[data-primary="orange"] {
+  --primary: 24 95% 53%;
+  --accent: 24 95% 53%;
+  --ring: 24 95% 53%;
+}
+:root[data-primary="blue"],
+.dark[data-primary="blue"] {
+  --primary: 217 91% 60%;
+  --accent: 217 91% 60%;
+  --ring: 217 91% 60%;
+}
+:root[data-primary="red"],
+.dark[data-primary="red"] {
+  --primary: 0 84% 60%;
+  --accent: 0 84% 60%;
+  --ring: 0 84% 60%;
+}
+:root[data-primary="green"],
+.dark[data-primary="green"] {
+  --primary: 142 71% 45%;
+  --accent: 142 71% 45%;
+  --ring: 142 71% 45%;
+}
+:root[data-primary="yellow"],
+.dark[data-primary="yellow"] {
+  --primary: 45 93% 47%;
+  --accent: 45 93% 47%;
+  --ring: 45 93% 47%;
+}
+:root[data-primary="purple"],
+.dark[data-primary="purple"] {
+  --primary: 262 83% 58%;
+  --accent: 262 83% 58%;
+  --ring: 262 83% 58%;
+}
 
 @tailwind base;
 @tailwind components;

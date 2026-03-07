@@ -120,7 +120,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <section className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-6 lg:px-8">
         <div className="rounded-3xl border border-border/60 bg-card/40 px-6 py-8 sm:px-8 md:px-10">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Insights</p>
-          <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
+          <h1 className="font-hero mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             {post.title}
           </h1>
 

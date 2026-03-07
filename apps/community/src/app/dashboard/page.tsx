@@ -117,8 +117,10 @@ export default async function CommunityDashboardPage() {
             <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
             <h1 className="text-lg font-semibold text-foreground sm:text-xl">Dashboard</h1>
           </div>
+
           <CommunityDashboardActions />
         </div>
+
         <DashboardHero name={profile.name} username={profile.username} />
 
         <DashboardActivitySection
@@ -127,7 +129,6 @@ export default async function CommunityDashboardPage() {
           overviewActivityItems={overviewActivityItems}
           activityItems={activityItems}
         />
-
 
         <div className="mt-6 grid gap-4 md:grid-cols-1">
           <BlogManagementSummaryCard summary={blogSummary} />

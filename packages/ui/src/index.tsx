@@ -1,5 +1,7 @@
 export { AppHeader } from "./AppHeader";
 export type { AppHeaderProps, AppHeaderMenuItem } from "./AppHeader";
+export { MenuThemeController, PRIMARY_COLOR_STORAGE_KEY } from "./MenuThemeController";
+export type { ThemeOption, PrimaryColorId, MenuThemeControllerProps } from "./MenuThemeController";
 export { SidebarNavMenu } from "./SidebarNavMenu";
 export type {
   SidebarNavMenuProps,
