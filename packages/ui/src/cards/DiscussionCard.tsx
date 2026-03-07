@@ -92,7 +92,7 @@ export function DiscussionCard({
             {showTags && discussion.tags.length > 0 ? (
               <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
                 {discussion.tags.map((tag) => (
-                  <Tag key={tag} variant="muted">
+                  <Tag key={tag} variant="tech">
                     {tag}
                   </Tag>
                 ))}

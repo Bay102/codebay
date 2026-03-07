@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { IBM_Plex_Sans } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { CodeBayThemeProvider } from "@codebay/theme/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CommunityAppHeader } from "@/components/AppHeader";
@@ -11,6 +11,13 @@ const ibmPlexSans = IBM_Plex_Sans({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-hero",
+  display: "swap"
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  variable: "--font-mono-ticker",
   display: "swap"
 });
 
@@ -26,7 +33,7 @@ type RootLayoutProps = {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning className={ibmPlexSans.variable}>
+    <html lang="en" suppressHydrationWarning className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
