@@ -164,6 +164,8 @@ Credentials are stored in Supabase; no extra env vars are required in the app.
 
 ### Provider developer consoles
 
-- **Google:** [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → OAuth 2.0 Client IDs. Add the redirect URI above to the client.
-- **GitHub:** [GitHub Developer Settings](https://github.com/settings/developers) → OAuth Apps → create/edit app. Set **Authorization callback URL** to the redirect URL above.
-- **Apple:** [Apple Developer](https://developer.apple.com/) → Certificates, Identifiers & Profiles → Identifiers → Services ID. Configure Sign In with Apple and set the redirect URL. See Supabase Apple docs for key and secret setup.
+For each provider, the **callback URL that the provider sees** is Supabase’s (users are sent to Supabase first, then Supabase redirects to your app). In Supabase **Auth → Providers → [Provider]**, copy the **Callback URL (for OAuth)** and use that in the provider’s console.
+
+- **Google:** [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → OAuth 2.0 Client IDs. In **Authorized redirect URIs** add **only** the Supabase callback URL (from Supabase Google provider). In **Authorized JavaScript origins** add your app origin(s), e.g. `https://<your-domain>` and `http://localhost:3002`.
+- **GitHub:** [GitHub Developer Settings](https://github.com/settings/developers) → OAuth Apps → New OAuth App (or edit existing). Set **Authorization callback URL** to the **Supabase** callback URL (from Supabase Auth → Providers → GitHub). Homepage URL can be your app URL. Save and use the generated Client ID and Client secret in Supabase.
+- **Apple:** [Apple Developer](https://developer.apple.com/) → Certificates, Identifiers & Profiles → Identifiers → Services ID. Configure Sign In with Apple and set the redirect URL to the Supabase callback. See [Supabase Apple Sign In](https://supabase.com/docs/guides/auth/social-login/auth-apple) for key and secret setup.
