@@ -257,7 +257,11 @@ export function CommunityAuthCard() {
     setError(null);
     setSuccess(null);
     setOauthSubmitting(provider);
-    const origin = typeof window !== "undefined" ? window.location.origin : siteUrl;
+    // Use canonical siteUrl when it's production so redirect never goes to localhost; use current origin for local dev
+    const origin =
+      typeof window !== "undefined"
+        ? (siteUrl.includes("localhost") ? window.location.origin : new URL(siteUrl).origin)
+        : new URL(siteUrl).origin;
     const callbackUrl = `${origin}/auth/callback?next=${encodeURIComponent(redirectDestination)}`;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
