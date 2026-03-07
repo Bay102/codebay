@@ -257,10 +257,12 @@ export function CommunityAuthCard() {
     setError(null);
     setSuccess(null);
     setOauthSubmitting(provider);
-    // Use canonical siteUrl when it's production so redirect never goes to localhost; use current origin for local dev
+    // In browser on production (non-localhost), always use current origin so redirect never goes to localhost
     const origin =
       typeof window !== "undefined"
-        ? (siteUrl.includes("localhost") ? window.location.origin : new URL(siteUrl).origin)
+        ? (window.location.hostname === "localhost"
+            ? (siteUrl.includes("localhost") ? window.location.origin : new URL(siteUrl).origin)
+            : window.location.origin)
         : new URL(siteUrl).origin;
     const callbackUrl = `${origin}/auth/callback?next=${encodeURIComponent(redirectDestination)}`;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
