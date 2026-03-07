@@ -11,9 +11,9 @@ import { TrendingDiscussionsSection } from "@/components/pages/community/Trendin
 import { ForYouSection } from "@/components/pages/community/ForYouSection";
 
 export const metadata: Metadata = {
-  title: "Community",
+  title: "Community | CodingBay – Where Tech Enthusiasts Connect",
   description:
-    "Explore the CodingBay Community – publish on your own blog, join discussions, and connect with fellow developers."
+    "Join the CodingBay Community – a place for tech enthusiasts to share blog posts, join discussions, and connect with fellow developers building in the open."
 };
 
 const whyJoinSlides: CtaCarouselSlide[] = [
@@ -44,19 +44,19 @@ export default async function CommunityLandingPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="mx-auto w-full max-w-7xl px-5 py-4 sm:px-6 lg:px-8 md:pb-10">
+      <section className="mx-auto w-full max-w-7xl px-2 py-4 md:pb-10 lg:px-8">
         <InViewSection>
           <SurfaceCard
             as="div"
             variant="hero"
-            className="hover:shadow-xl hover:border-border/40 hover:bg-card/70"
+            className="shadow-xl border-border/40 bg-card/70"
           >
-            <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Community</p>
-            <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground lg:text-4xl">
-              Elevate your presence. Grow your audience & connect with the right people.
+            <p className="text-sm font-medium uppercase tracking-wide text-primary">Stay Relevant</p>
+            <h1 className="font-hero mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground lg:text-4xl">
+              The Coding-Bay
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
-              Publish on your own blog page, join discussions, and connect with developers building in the open.
+              Follow your favorite topics, join discussions, and connect with other tech enthusiasts.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               {!hasSession && (

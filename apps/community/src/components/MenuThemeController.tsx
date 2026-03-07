@@ -125,7 +125,7 @@ export function MenuThemeController() {
 
             <div className="flex flex-col gap-1.5">
               <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-                Primary color
+                Accent Color
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {primaryColors.map(({ id, label, hsl }) => {

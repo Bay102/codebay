@@ -15,10 +15,16 @@ type NextStepsState = {
 
 type DismissibleNextStepsCardProps = {
   steps: NextStepsState;
+  onDismiss?: () => void;
 };
 
-export function DismissibleNextStepsCard({ steps }: DismissibleNextStepsCardProps) {
+export function DismissibleNextStepsCard({ steps, onDismiss }: DismissibleNextStepsCardProps) {
   const [isVisible, setIsVisible] = useState(true);
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    onDismiss?.();
+  };
 
   if (!isVisible) return null;
 
@@ -54,7 +60,7 @@ export function DismissibleNextStepsCard({ steps }: DismissibleNextStepsCardProp
       <button
         type="button"
         className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-        onClick={() => setIsVisible(false)}
+        onClick={handleDismiss}
         aria-label="Dismiss next steps"
       >
         x

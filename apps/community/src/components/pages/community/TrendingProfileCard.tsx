@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { blogUrl } from "@/lib/site-urls";
 import { Popover, PopoverContent, PopoverTrigger, ProfileCard, ProfilePreviewContent } from "@codebay/ui";
 import type { FollowStats } from "@/lib/follows";
@@ -16,12 +16,22 @@ type TrendingProfileCardProps = {
   getFollowStatsAction: (profileUserId: string) => Promise<FollowStats>;
 };
 
+const MOBILE_BREAKPOINT = 640;
+
 export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingProfileCardProps) {
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(true);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const openTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [followerCount, setFollowerCount] = useState<number>(profile.followerCount);
   const { user } = useAuth();
+
+  useEffect(() => {
+    const check = () => setIsMobile(typeof window !== "undefined" && window.innerWidth < MOBILE_BREAKPOINT);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   const href = `${blogUrl}/${profile.username}`;
   const showFollowButton = user != null && user.id !== profile.id;
 
@@ -107,7 +117,9 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
 
       <PopoverContent
         align="center"
-        side="right" sideOffset={8}
+        side={isMobile ? "bottom" : "right"}
+        sideOffset={8}
+        collisionPadding={16}
         className="w-[min(90vw,20rem)] sm:w-80 max-h-[min(80dvh,480px)] overflow-y-auto rounded-2xl bg-card/95 p-4"
         onMouseEnter={clearCloseTimeout}
         onMouseLeave={scheduleClose}
