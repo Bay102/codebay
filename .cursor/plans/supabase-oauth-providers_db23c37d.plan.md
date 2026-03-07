@@ -1,53 +1,84 @@
 ---
 name: supabase-oauth-providers
-overview: Add Google, Apple, and GitHub OAuth sign-in/sign-up for the existing Supabase-backed community app, ensuring new accounts get proper profiles and a clean UX.
+overview: Add Google, Apple, and GitHub OAuth sign-in/sign-up for the community app using the existing Supabase auth stack, with an auth callback route and profile creation already covered by the current DB trigger.
 todos:
- - id: review-current-auth
-   content: Review existing Supabase auth usage and profile model in the community app (email/password flows, `community_users` table).
-   status: pending
+ - id: add-auth-callback-route
+   content: Add Next.js route at apps/community/src/app/auth/callback that exchanges code for session, sets cookies, and redirects to intended destination.
+   status: completed
  - id: configure-supabase-providers
-   content: Enable Google, Apple, and GitHub providers in Supabase dashboard and set correct redirect URLs for local and production.
-   status: pending
+   content: Enable Google, Apple, and GitHub in Supabase dashboard; set redirect URL to {SITE_URL}/auth/callback and add provider client IDs/secrets.
+   status: completed
  - id: add-oauth-buttons
-   content: Update `CommunityAuthCard` to add Google/Apple/GitHub sign-in/sign-up buttons calling `supabase.auth.signInWithOAuth` with correct redirect handling.
-   status: pending
- - id: ensure-profile-creation
-   content: Add mechanism (DB trigger or onboarding screen) to create `community_users` rows for first-time OAuth users and resolve username rules/collisions.
-   status: pending
+   content: Add Google/Apple/GitHub buttons to CommunityAuthCard (sign-up and sign-in) using signInWithOAuth with redirectTo pointing at the new callback URL.
+   status: completed
+ - id: verify-oauth-profile-trigger
+   content: Confirm handle_new_community_user trigger works for OAuth (name/email from provider); optionally improve trigger to map provider-specific metadata.
+   status: completed
+ - id: document-oauth-setup
+   content: Update SUPABASE_SETUP.md with OAuth provider setup steps and required redirect URLs.
+   status: completed
  - id: test-oauth-flows
-   content: Test OAuth sign-up/sign-in for all providers across local and production-like environments, including error and edge cases.
-   status: pending
+   content: Test sign-up and sign-in for each provider (local + production URLs), including redirect and profile creation.
+   status: completed
 isProject: false
 ---
 
 ### Goal
 
-Add Supabase OAuth providers (Google, Apple, GitHub) to the existing community authentication so new users can create accounts via social login, while preserving the current email/password flow and profile model.
+Enable Google, Apple, and GitHub OAuth for the community app so new users can sign up/sign in with a provider. Email/password flow stays unchanged. New OAuth users get a `community_users` row automatically via the existing trigger.
 
-### High-level approach
+### Current state
 
-- **Reuse existing Supabase setup**: Leverage the current browser Supabase client and auth flows in `apps/community` rather than introducing new clients or auth stacks.
-- **Configure providers in Supabase**: Enable Google, Apple, and GitHub in the Supabase dashboard, wiring client IDs/secrets and allowed redirect URLs for local and production.
-- **Wire OAuth buttons into the UI**: Add provider buttons to the existing `CommunityAuthCard` sign-up/sign-in views, using `supabase.auth.signInWithOAuth` and existing redirect handling.
-- **Ensure profile row creation for OAuth users**: Make sure `community_users` rows are created on first OAuth sign-in, either via a DB trigger on `auth.users` or a small post-sign-in profile-completion flow.
-- **Handle username and profile UX**: Decide how to collect usernames for OAuth signups (e.g., auto-generate + editable later, or a dedicated “complete your profile” screen after first login).
-- **Test and harden**: Verify happy paths and edge cases (failed OAuth, existing email collisions, repeated sign-ins, provider-disabled environments).
+- **Auth**: [CommunityAuthCard](apps/community/src/components/pages/community/CommunityAuthCard.tsx) handles email/password sign-up/sign-in and writes to `community_users` on sign-up. No OAuth and no auth callback route yet.
+- **Profile on sign-up**: [handle_new_community_user](supabase/migrations/20260227000000_add_community_feature.sql) runs on `auth.users` INSERT and creates a `community_users` row with `name` from `raw_user_meta_data->>'name'` (or email local part), `username` = `'user_' || first 12 chars of UUID`, `email`, and optional `bio`/`avatar_url` from metadata. OAuth sign-ups will trigger this same path.
+- **Redirect handling**: `redirectDestination` is derived from `?redirect=` and validated against `siteUrl` / `blogUrl` / `mainUrl`. OAuth must redirect back to a callback that then sends the user to this destination.
+- **Site URL**: [site-urls](apps/community/src/lib/site-urls.ts) exposes `siteUrl` (community base). Callback and Supabase redirect URL should use this (e.g. `{siteUrl}/auth/callback`).
 
-### Key files and changes
+### Implementation order
 
-- **Auth UI**: Update `[apps/community/src/components/pages/community/CommunityAuthCard.tsx](apps/community/src/components/pages/community/CommunityAuthCard.tsx)` to:
-  - Add Google/Apple/GitHub buttons in both sign-up and sign-in modes.
-  - Call `supabase.auth.signInWithOAuth({ provider, options: { redirectTo } })` and reuse the existing `redirectDestination` logic.
-- **Profile creation for OAuth users**:
-  - Preferred: add a SQL function + trigger in a new Supabase migration under `supabase/migrations/` to insert into `community_users` whenever a new `auth.users` row appears (mapping `user_metadata` into name/username where available).
-  - Alternative: add a “post-OAuth onboarding” page under `apps/community/src/app/` that detects first login without a profile and prompts for username/name, then writes to `community_users`.
-- **Environment and config**:
-  - Document required provider client IDs/secrets in `SUPABASE_SETUP.md` and ensure redirect URLs (e.g. `https://community.codingbay.<tld>/auth/callback`) are added in provider consoles and Supabase Auth settings.
+1. **Auth callback route** (required for OAuth to work)
 
-### Rough complexity & timeline
+- Add `**apps/community/src/app/auth/callback/route.ts` (GET handler).
+- Read `code` and optional `next` (or `redirect`) from query. Use server Supabase client with cookie read/write (same pattern as [middleware](apps/community/src/lib/supabase/middleware.ts): `createServerClient` with `getAll`/`setAll` cookies from `request`/`response`).
+- Call `supabase.auth.exchangeCodeForSession(code)`, then redirect to `next` if allowed (same origin/path validation as `resolveRedirectDestination`), else `/dashboard`.
+- Supabase redirects to `redirect_uri?code=...` after provider sign-in; `redirect_uri` must be exactly the callback URL (e.g. `https://codingbay.community/auth/callback`). Pass intended post-login path via `redirectTo` when calling `signInWithOAuth` (Supabase can append it as a query param to the callback URL if we build it into the redirect URL we give Supabase).
 
-- **Config & wiring (Google + GitHub)**: Low–medium; ~0.5 day once provider credentials exist.
-- **Apple Sign In**: Medium; most work is in Apple Developer console setup, but code-side integration is the same as other providers.
-- **Profile/username handling**: Medium; 0.5–1 day depending on whether we do a DB trigger-only approach or build a dedicated onboarding screen.
+1. **Supabase dashboard**
 
-Overall, this is a **medium-complexity change** in this codebase: mostly configuration plus a few focused UI + migration changes, likely 1–2 engineering days including testing.
+- Auth → Providers: enable Google, GitHub, Apple. Per provider: paste Client ID and Secret (and Apple Services ID / key as per Supabase/Apple docs).
+- Auth → URL configuration: set "Redirect URLs" to include `{NEXT_PUBLIC_SITE_URL}/auth/callback` (and localhost equivalent for dev).
+- No code change; credentials come from env or dashboard.
+
+1. **CommunityAuthCard**
+
+- Add a row of provider buttons above or below the email/password form in both "Create account" and "Sign in" modes.
+- On click: `supabase.auth.signInWithOAuth({ provider: 'google' | 'github' | 'apple', options: { redirectTo: callbackUrlWithNext } })`. Build `callbackUrlWithNext` as `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback?next=${encodeURIComponent(redirectDestination)}` (origin from client; for SSR-safe default use `siteUrl` from env or pass from a small helper). Supabase will redirect the user to the provider, then to `redirectTo` with `?code=...`; our callback route will exchange code and redirect to `next`.
+- Handle loading and errors (e.g. provider disabled) in the card.
+
+1. **Profile trigger**
+
+- Existing trigger already inserts `community_users` with name/username/email. Supabase fills `raw_user_meta_data` from OAuth (e.g. Google full_name, email, avatar). If any provider uses different keys, add a small migration to extend `handle_new_community_user()` to prefer e.g. `full_name` / `avatar_url` from metadata. Otherwise leave as-is and verify with one provider.
+
+1. **Username / onboarding**
+
+- Trigger assigns `user_<uuid_prefix>`; users can change username later in dashboard profile. Optional follow-up: redirect new OAuth users (e.g. by `created_at` or a "profile complete" flag) to a "Choose your username" step—not in scope for this plan unless you want it.
+
+1. **Docs**
+
+- In [SUPABASE_SETUP.md](SUPABASE_SETUP.md): add a short "OAuth (Google, GitHub, Apple)" section listing redirect URL, where to set it in dashboard and in each provider console, and that client ID/secret are configured in Supabase (or via env if you use that pattern).
+
+### Key files
+
+- **OAuth callback**: New — `apps/community/src/app/auth/callback/route.ts`
+- **OAuth buttons + redirectTo**: `apps/community/src/components/pages/community/CommunityAuthCard.tsx`
+- **Session/cookies (reference)**: `apps/community/src/lib/supabase/middleware.ts`
+- **Profile on new user**: `supabase/migrations/20260227000000_add_community_feature.sql` (`handle_new_community_user`)
+- **Base URL for redirect**: `apps/community/src/lib/site-urls.ts` (`siteUrl`)
+
+### Complexity and scope
+
+- **Callback + buttons + config**: ~0.5–1 day.
+- **Apple**: Same code path; extra time only for Apple Developer setup (certificates, Services ID).
+- **Trigger tweak**: Only if provider metadata doesn't match; otherwise verify and document.
+
+Overall: **low–medium**; ready to implement in the order above.

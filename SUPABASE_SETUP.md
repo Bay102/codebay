@@ -134,3 +134,36 @@ supabase functions logs chat
 ```
 
 That's it! Once deployed, your chat will work both locally and in production.
+
+---
+
+## OAuth (Google, GitHub, Apple)
+
+The community app supports sign-in and sign-up via Google, GitHub, and Apple. Configure providers in the Supabase dashboard and in each provider’s developer console.
+
+### Redirect URL
+
+Supabase must redirect users back to your app after OAuth. Set this **exact** URL in Supabase and in each provider:
+
+- **Production:** `https://<your-community-domain>/auth/callback`
+- **Local:** `http://localhost:3002/auth/callback` (or the port your community app uses)
+
+Use the same value as `NEXT_PUBLIC_SITE_URL` for production (without a trailing slash). Add both production and local URLs if you test locally.
+
+### Supabase Dashboard
+
+1. **Auth → URL Configuration**
+   - Add the redirect URLs above to **Redirect URLs** (one per line).
+
+2. **Auth → Providers**
+   - Enable **Google**, **GitHub**, and/or **Apple**.
+   - For each provider, paste the **Client ID** and **Client Secret** (from the provider’s developer console).
+   - For **Apple**, follow [Supabase Apple Sign In](https://supabase.com/docs/guides/auth/social-login/auth-apple) (Services ID, key, etc.).
+
+Credentials are stored in Supabase; no extra env vars are required in the app.
+
+### Provider developer consoles
+
+- **Google:** [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → OAuth 2.0 Client IDs. Add the redirect URI above to the client.
+- **GitHub:** [GitHub Developer Settings](https://github.com/settings/developers) → OAuth Apps → create/edit app. Set **Authorization callback URL** to the redirect URL above.
+- **Apple:** [Apple Developer](https://developer.apple.com/) → Certificates, Identifiers & Profiles → Identifiers → Services ID. Configure Sign In with Apple and set the redirect URL. See Supabase Apple docs for key and secret setup.
