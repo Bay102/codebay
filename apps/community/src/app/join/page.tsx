@@ -47,10 +47,10 @@ export default function CommunityJoinPage() {
   return (
     <main className="bg-background">
       <section className="mx-auto w-full max-w-6xl px-5 sm:px-6 md:pt-5 lg:px-8">
-        <SurfaceCard as="div" variant="hero">
-          <p className="text-sm font-medium uppercase tracking-wide text-primary">Join CodingBay Community</p>
-          <h1 className="font-hero mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
-            Establish your presence
+        <SurfaceCard as="div" variant="card">
+          <p className="text-sm font-medium uppercase tracking-wide text-primary">Establish your presence</p>
+          <h1 className="font-hero mt-3 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl md:text-4xl">
+            Join the CodingBay Community
           </h1>
           <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
             Set up your profile to participate in discussions, comment on blog posts, and collaborate with other
@@ -58,12 +58,7 @@ export default function CommunityJoinPage() {
           </p>
         </SurfaceCard>
 
-        <CtaCarousel
-          eyebrow="Indulge in the community"
-          heading="Share your thoughts - grow your audience"
-          slides={whyJoinSlides}
-          intervalMs={5000}
-        />
+        <CtaCarousel slides={whyJoinSlides} intervalMs={5000} />
 
         <section id="community-auth" className="mt-4">
           <Suspense
