@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { LandingProfile } from "@/lib/landing";
 import type { FollowStats } from "@/lib/follows";
 import { TrendingProfileCard } from "./TrendingProfileCard";
@@ -17,49 +17,44 @@ type TrendingProfilesTickerProps = {
 
 const AUTO_SCROLL_INTERVAL = 5000;
 
+/** Cards per page = 2 rows × columns (Tailwind sm=640, md=768). */
+function getCardsPerPage(width: number): number {
+  if (width < 640) return 4;
+  if (width < 768) return 6;
+  return 8;
+}
+
 export function TrendingProfilesTicker({ profiles, getFollowStatsAction }: TrendingProfilesTickerProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
-  const [pageCount, setPageCount] = useState(1);
+  const [cardsPerPage, setCardsPerPage] = useState(8);
 
   const hasMultipleProfiles = profiles.length > 1;
+
+  const pageCount = useMemo(
+    () => Math.max(1, Math.ceil(profiles.length / cardsPerPage)),
+    [profiles.length, cardsPerPage]
+  );
 
   const clampedPageIndex = useMemo(
     () => (pageCount > 0 ? Math.min(pageIndex, pageCount - 1) : 0),
     [pageIndex, pageCount]
   );
 
+  const visibleProfiles = useMemo(() => {
+    const start = clampedPageIndex * cardsPerPage;
+    return profiles.slice(start, start + cardsPerPage);
+  }, [profiles, clampedPageIndex, cardsPerPage]);
+
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container || profiles.length === 0) return;
+    if (typeof window === "undefined") return;
 
-    const computePages = () => {
-      const firstCard = container.querySelector<HTMLElement>("[data-profile-card]");
-      if (!firstCard) {
-        setPageCount(1);
-        return;
-      }
+    const update = () => setCardsPerPage(getCardsPerPage(window.innerWidth));
 
-      const containerWidth = container.clientWidth;
-      const cardWidth = firstCard.offsetWidth || 1;
-      const cardsPerPage = Math.max(1, Math.floor(containerWidth / cardWidth));
-      const totalPages = Math.max(1, Math.ceil(profiles.length / cardsPerPage));
-      setPageCount(totalPages);
-    };
-
-    computePages();
-
-    if (typeof ResizeObserver !== "undefined") {
-      const observer = new ResizeObserver(() => computePages());
-      observer.observe(container);
-      return () => observer.disconnect();
-    }
-
-    const onResize = () => computePages();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [profiles.length]);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   useEffect(() => {
     if (!hasMultipleProfiles || pageCount <= 1 || isHovered) return;
@@ -73,19 +68,6 @@ export function TrendingProfilesTicker({ profiles, getFollowStatsAction }: Trend
 
     return () => window.clearInterval(id);
   }, [hasMultipleProfiles, isHovered, pageCount]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const width = container.clientWidth;
-    const target = clampedPageIndex * width;
-
-    container.scrollTo({
-      left: target,
-      behavior: "smooth"
-    });
-  }, [clampedPageIndex]);
 
   if (profiles.length === 0) {
     return null;
@@ -112,25 +94,18 @@ export function TrendingProfilesTicker({ profiles, getFollowStatsAction }: Trend
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        ref={containerRef}
-        className="overflow-x-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-        aria-label="Profiles getting noticed carousel"
+        className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4"
+        aria-label="Profiles getting noticed"
       >
-        <div className="flex gap-3 px-0.5 sm:px-1 snap-x snap-mandatory">
-          {profiles.map((profile) => (
-            <div
-              key={profile.id}
-              className="snap-start shrink-0 w-full sm:w-[260px] md:w-[320px]"
-              data-profile-card
-            >
-              <TrendingProfileCard profile={profile} getFollowStatsAction={getFollowStatsAction} />
-            </div>
-          ))}
-        </div>
+        {visibleProfiles.map((profile) => (
+          <div key={profile.id} data-profile-card>
+            <TrendingProfileCard profile={profile} getFollowStatsAction={getFollowStatsAction} />
+          </div>
+        ))}
       </div>
 
       {pageCount > 1 && (
-        <div className="mt-3 flex justify-end text-[11px]">
+        <div className="mt-4 flex justify-center text-[11px]">
           <div className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-background/90 px-1.5 py-0.5 shadow-sm">
             <button
               type="button"

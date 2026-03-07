@@ -33,7 +33,7 @@ export function TrendingTopicsTicker({ topics, blogUrl }: TrendingTopicsTickerPr
     <div className="relative w-full overflow-hidden rounded-xl border border-border/60 bg-card/50 py-3 pl-[7.5rem] sm:pl-[8.5rem]">
       {/* Label: opaque so scrolling tags don't show through */}
       <div className="absolute left-0 top-0 z-10 flex h-full min-w-[7.5rem] items-center rounded-l-xl bg-card pl-4 pr-4 sm:min-w-[8.5rem] sm:pr-6">
-        <span className="font-mono-ticker text-md font-semibold uppercase tracking-widest text-muted-foreground">
+        <span className="font-mono-ticker text-sm font-semibold uppercase tracking-widest text-muted-foreground sm:text-md">
           Trending 🔥
         </span>
       </div>
