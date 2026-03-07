@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { blogUrl } from "@/lib/site-urls";
 import { Popover, PopoverContent, PopoverTrigger, ProfileCard, ProfilePreviewContent } from "@codebay/ui";
 import type { FollowStats } from "@/lib/follows";
 import type { LandingProfile } from "@/lib/landing";
@@ -9,7 +8,10 @@ import { FollowButton } from "@/components/pages/dashboard/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { mapLandingProfileToProfileCardData } from "@/lib/ui-mappers";
 
-type TrendingProfileWithFollowers = LandingProfile & { followerCount: number };
+type TrendingProfileWithFollowers = LandingProfile & {
+  followerCount: number;
+  isFollowing?: boolean;
+};
 
 type TrendingProfileCardProps = {
   profile: TrendingProfileWithFollowers;
@@ -32,7 +34,7 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-  const href = `${blogUrl}/${profile.username}`;
+  const href = `/${profile.username}`;
   const showFollowButton = user != null && user.id !== profile.id;
 
   const clearCloseTimeout = () => {
@@ -61,12 +63,12 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
     showFollowButton ? (
       <FollowButton
         profileUserId={profile.id}
-        initialIsFollowing={false}
+        initialIsFollowing={profile.isFollowing ?? false}
         getFollowStatsAction={getFollowStatsAction}
         onSuccess={(stats) => {
           setFollowerCount(stats.followerCount);
         }}
-        variant="icon"
+        variant="default"
       />
     ) : null;
 
