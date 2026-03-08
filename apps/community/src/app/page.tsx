@@ -49,7 +49,7 @@ export default async function CommunityLandingPage() {
         <InViewSection>
           <SurfaceCard
             as="div"
-            variant="card"
+            variant="borderless"
             className="shadow-xl border-border/40 bg-card/70"
           >
             <p className="text-sm font-medium uppercase tracking-wide text-primary">Stay Relevant</p>
@@ -62,6 +62,8 @@ export default async function CommunityLandingPage() {
             <DashboardHeroButtons hasSession={hasSession} blogUrl={blogUrl} />
           </SurfaceCard>
 
+          <TrendingTopicsSection />
+
           {!hasSession && (
             <CtaCarousel
               eyebrow="Community Highlights"
@@ -72,8 +74,6 @@ export default async function CommunityLandingPage() {
           )}
         </InViewSection>
 
-        <TrendingTopicsSection />
-        <SectionSeparator />
         <ForYouSection userId={user?.id ?? null} />
         <SectionSeparator />
         <TrendingProfilesSection />

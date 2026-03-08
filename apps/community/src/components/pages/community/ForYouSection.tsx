@@ -24,7 +24,7 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
         <SurfaceCard
           as="div"
-          variant="card"
+          variant="borderless"
           className="mt-3 hover:shadow-lg hover:border-border/40 hover:bg-card/80"
         >
           <p className="text-sm text-muted-foreground">
@@ -62,7 +62,7 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
         <SurfaceCard
           as="div"
-          variant="card"
+          variant="borderless"
           className="mt-3 hover:shadow-lg hover:border-border/40 hover:bg-card/80"
         >
           <p className="text-sm text-muted-foreground">
