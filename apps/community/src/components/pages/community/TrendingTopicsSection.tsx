@@ -11,7 +11,7 @@ export async function TrendingTopicsSection() {
   }
 
   return (
-    <InViewSection as="section" className="mt-8">
+    <InViewSection as="section" className="mt-4">
       <TrendingTopicsTicker topics={topics} blogUrl={blogUrl} />
     </InViewSection>
   );

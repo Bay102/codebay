@@ -114,7 +114,7 @@ export function ForYouSection() {
     return (
       <section className="mt-8">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
-        <SurfaceCard as="div" variant="card" className="mt-3">
+        <SurfaceCard as="div" variant="borderless" className="mt-3">
           <p className="text-sm text-muted-foreground">
             Set your preferred topics in the{" "}
             <a
@@ -136,7 +136,7 @@ export function ForYouSection() {
     return (
       <section className="mt-8">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
-        <SurfaceCard as="div" variant="card" className="mt-3">
+        <SurfaceCard as="div" variant="borderless" className="mt-3">
           <p className="text-sm text-muted-foreground">
             No posts match your preferred topics yet. Update your topics in the{" "}
             <a

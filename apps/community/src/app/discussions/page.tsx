@@ -46,7 +46,7 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-4xl px-5 sm:px-6 lg:px-8">
         <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
           <h1 className="font-hero mt-2 text-2xl font-semibold text-foreground sm:text-3xl">Discussions</h1>

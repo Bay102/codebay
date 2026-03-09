@@ -42,7 +42,7 @@ export function DashboardHeroButtons({ hasSession, blogUrl }: DashboardHeroButto
         href={blogUrl}
         className="inline-flex rounded-md border border-border/70 bg-card px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
       >
-        Browse blog posts
+        Blog
       </Link>
     </div>
   );

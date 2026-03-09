@@ -257,13 +257,9 @@ export function CommunityAuthCard() {
     setError(null);
     setSuccess(null);
     setOauthSubmitting(provider);
-    // In browser on production (non-localhost), always use current origin so redirect never goes to localhost
+    // Use current origin so OAuth redirects back to the same host (localhost in dev, production in prod).
     const origin =
-      typeof window !== "undefined"
-        ? (window.location.hostname === "localhost"
-            ? (siteUrl.includes("localhost") ? window.location.origin : new URL(siteUrl).origin)
-            : window.location.origin)
-        : new URL(siteUrl).origin;
+      typeof window !== "undefined" ? window.location.origin : new URL(siteUrl).origin;
     const callbackUrl = `${origin}/auth/callback?next=${encodeURIComponent(redirectDestination)}`;
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,

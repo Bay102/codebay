@@ -30,7 +30,7 @@ export default async function NewDiscussionPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-4xl px-5 sm:px-6 lg:px-8">
         <div className="mb-6">
           <Link
             href="/dashboard/discussions"
