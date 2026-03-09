@@ -28,8 +28,12 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
           className="mt-3 hover:shadow-lg hover:border-border/40 hover:bg-card/80"
         >
           <p className="text-sm text-muted-foreground">
-            <Link href="/join" className="font-medium text-primary underline-offset-4 hover:underline">
+            <Link href="/join?mode=signin" className="font-medium text-primary underline-offset-4 hover:underline">
               Sign in
+            </Link>{" "}
+            or{" "}
+            <Link href="/join" className="font-medium text-primary underline-offset-4 hover:underline">
+              create an account
             </Link>{" "}
             and set your preferred topics in{" "}
             <Link href="/dashboard/profile" className="font-medium text-primary underline-offset-4 hover:underline">
