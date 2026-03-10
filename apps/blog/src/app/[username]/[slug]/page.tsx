@@ -1,4 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
+import { parseBlogSectionBlock } from "@codebay/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
@@ -177,11 +178,48 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <section key={section.heading}>
                 <h2 className="text-2xl font-semibold tracking-tight text-foreground">{section.heading}</h2>
                 <div className="mt-4 space-y-4">
-                  {section.paragraphs.map((paragraph, paragraphIndex) => (
-                    <p key={`${section.heading}-${paragraphIndex}`} className="text-base leading-8 text-muted-foreground sm:text-lg">
-                      {paragraph}
-                    </p>
-                  ))}
+                  {section.paragraphs.map((paragraph, paragraphIndex) => {
+                    const block = parseBlogSectionBlock(paragraph);
+
+                    if (block.type === "unordered-list") {
+                      return (
+                        <ul
+                          key={`${section.heading}-${paragraphIndex}`}
+                          className="list-disc space-y-2 pl-6 text-base leading-8 text-muted-foreground sm:text-lg"
+                        >
+                          {block.items.map((item, itemIndex) => (
+                            <li key={`${section.heading}-${paragraphIndex}-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ul>
+                      );
+                    }
+
+                    if (block.type === "ordered-list") {
+                      return (
+                        <ol
+                          key={`${section.heading}-${paragraphIndex}`}
+                          className="list-decimal space-y-2 pl-6 text-base leading-8 text-muted-foreground sm:text-lg"
+                        >
+                          {block.items.map((item, itemIndex) => (
+                            <li key={`${section.heading}-${paragraphIndex}-${itemIndex}`}>{item}</li>
+                          ))}
+                        </ol>
+                      );
+                    }
+
+                    if (block.type === "paragraph") {
+                      return (
+                        <p
+                          key={`${section.heading}-${paragraphIndex}`}
+                          className="whitespace-pre-line text-base leading-8 text-muted-foreground sm:text-lg"
+                        >
+                          {block.content}
+                        </p>
+                      );
+                    }
+
+                    return null;
+                  })}
                 </div>
               </section>
             ))}

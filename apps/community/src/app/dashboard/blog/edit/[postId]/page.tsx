@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { BlogPostEditorForm, type BlogPostEditorValues } from "@/components/pages/dashboard/blog/BlogPostEditorForm";
+import {
+  BlogPostEditorForm,
+  type BlogPostEditorValues,
+  type BlogPostSectionDraft
+} from "@/components/pages/dashboard/blog/BlogPostEditorForm";
 import type { Json } from "@/lib/database";
 import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -12,26 +16,38 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-function parseSectionBody(rawSections: Json): { heading: string; body: string } {
+function parseSections(rawSections: Json): BlogPostSectionDraft[] {
   if (!Array.isArray(rawSections) || rawSections.length === 0) {
-    return { heading: "", body: "" };
+    return [
+      {
+        id: "section-1",
+        heading: "",
+        content: ""
+      }
+    ];
   }
 
-  const firstSection = rawSections[0];
-  if (!firstSection || typeof firstSection !== "object" || Array.isArray(firstSection)) {
-    return { heading: "", body: "" };
-  }
+  return rawSections
+    .map((section, index): BlogPostSectionDraft | null => {
+      if (!section || typeof section !== "object" || Array.isArray(section)) {
+        return null;
+      }
 
-  const section = firstSection as Record<string, unknown>;
-  const heading = typeof section.heading === "string" ? section.heading : "";
-  const paragraphs = Array.isArray(section.paragraphs)
-    ? section.paragraphs.filter((paragraph): paragraph is string => typeof paragraph === "string")
-    : [];
+      const typedSection = section as Record<string, unknown>;
+      const heading = typeof typedSection.heading === "string" ? typedSection.heading : "";
+      const paragraphs = Array.isArray(typedSection.paragraphs)
+        ? typedSection.paragraphs.filter(
+            (paragraph): paragraph is string => typeof paragraph === "string"
+          )
+        : [];
 
-  return {
-    heading,
-    body: paragraphs.join("\n\n")
-  };
+      return {
+        id: `section-${index + 1}`,
+        heading,
+        content: paragraphs.join("\n\n")
+      };
+    })
+    .filter((section): section is BlogPostSectionDraft => section !== null);
 }
 
 type EditBlogPostPageProps = {
@@ -69,7 +85,7 @@ export default async function EditCommunityBlogPostPage({ params }: EditBlogPost
     notFound();
   }
 
-  const parsedSection = parseSectionBody(post.sections);
+  const parsedSections = parseSections(post.sections);
   const allowedTags = await fetchAllTags(supabase);
 
   const initialValues: BlogPostEditorValues = {
@@ -81,8 +97,7 @@ export default async function EditCommunityBlogPostPage({ params }: EditBlogPost
     authorName: post.author_name ?? "CodeBay Team",
     readTimeMinutes: String(post.read_time_minutes ?? 6),
     tagsInput: (post.tags ?? []).join(", "),
-    sectionHeading: parsedSection.heading,
-    sectionBody: parsedSection.body,
+    sections: parsedSections,
     isFeatured: post.is_featured ?? false,
     status: post.status === "published" ? "published" : "draft"
   };

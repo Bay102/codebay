@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { cn } from "./utils";
+import { Tag } from "./Tag";
 
 export type TopicPillOption = {
   /** Stable key for this option (id or name). */
@@ -67,14 +68,20 @@ export function TopicPillsPicker({
             onClick={() => handleToggle(option.key)}
             disabled={disabled}
             className={cn(
-              "shrink-0 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors sm:text-sm disabled:opacity-70",
-              isSelected
-                ? "border-primary bg-primary/15 text-primary"
-                : "border-border/70 bg-background text-muted-foreground hover:bg-muted/70 hover:text-foreground"
+              "shrink-0 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 disabled:opacity-70"
             )}
             aria-pressed={isSelected}
           >
-            {renderLabel ? renderLabel(option, isSelected) : option.label}
+            <Tag
+              variant="tech"
+              size="sm"
+              className={cn(
+                "transition-colors",
+                isSelected && "border-primary/70 border-l-primary bg-primary/12 text-primary shadow-sm"
+              )}
+            >
+              {renderLabel ? renderLabel(option, isSelected) : option.label}
+            </Tag>
           </button>
         );
       })}
