@@ -40,8 +40,13 @@ export default async function NewCommunityBlogPostPage() {
     authorName: profile.name,
     readTimeMinutes: "6",
     tagsInput: "",
-    sectionHeading: "",
-    sectionBody: "",
+    sections: [
+      {
+        id: "section-1",
+        heading: "",
+        content: ""
+      }
+    ],
     isFeatured: false,
     status: "draft"
   };

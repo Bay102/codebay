@@ -11,12 +11,24 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  TopicPillsPicker
+  TopicPillsPicker,
+  getBlogSectionParagraphsFromContent
 } from "@codebay/ui";
 import type { TablesInsert, TablesUpdate } from "@/lib/database";
 import { useAuth } from "@/contexts/AuthContext";
+import { BlogRichTextEditor } from "./BlogRichTextEditor";
 
 type PostStatus = "draft" | "published";
+
+export interface BlogPostSectionDraft {
+  id: string;
+  heading: string;
+  /**
+   * Rich text content stored as a string (plain text or HTML).
+   * The form is responsible for converting this into paragraphs for persistence.
+   */
+  content: string;
+}
 
 export interface BlogPostEditorValues {
   id?: string;
@@ -27,8 +39,7 @@ export interface BlogPostEditorValues {
   authorName: string;
   readTimeMinutes: string;
   tagsInput: string;
-  sectionHeading: string;
-  sectionBody: string;
+  sections: BlogPostSectionDraft[];
   isFeatured: boolean;
   status: PostStatus;
 }
@@ -57,7 +68,23 @@ function slugify(value: string): string {
 export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: BlogPostEditorFormProps) {
   const router = useRouter();
   const { supabase, session } = useAuth();
-  const [form, setForm] = useState<BlogPostEditorValues>(initialValues);
+  const [form, setForm] = useState<BlogPostEditorValues>(() => {
+    const hasSections = Array.isArray(initialValues.sections) && initialValues.sections.length > 0;
+    if (hasSections) {
+      return initialValues;
+    }
+
+    return {
+      ...initialValues,
+      sections: [
+        {
+          id: "section-1",
+          heading: "",
+          content: ""
+        }
+      ]
+    };
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -92,6 +119,13 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
     .split(",")
     .map((tag) => tag.trim())
     .filter(Boolean);
+
+  const handleSectionsChange = (nextSections: BlogPostSectionDraft[]) => {
+    setForm((previous) => ({
+      ...previous,
+      sections: nextSections
+    }));
+  };
 
   const handleFieldChange = <Key extends keyof BlogPostEditorValues>(key: Key, value: BlogPostEditorValues[Key]) => {
     setForm((previous) => {
@@ -142,12 +176,32 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
       .map((tag) => tag.trim())
       .filter(Boolean)
       .filter((name) => (allowedTags.length > 0 ? allowedNames.has(name) : true));
-    const sectionHeading = form.sectionHeading.trim() || normalizedTitle;
-    const paragraphs = form.sectionBody
-      .split(/\n{2,}/)
-      .map((paragraph) => paragraph.trim())
-      .filter(Boolean);
-    const sections = paragraphs.length > 0 ? [{ heading: sectionHeading, paragraphs }] : [];
+
+    const uiSections = (form.sections.length > 0
+      ? form.sections
+      : [
+        {
+          id: "section-1",
+          heading: "",
+          content: ""
+        }
+      ]
+    ).map((section) => ({
+      heading: (section.heading || "").trim(),
+      content: (section.content || "").trim()
+    }));
+
+    const sections = uiSections
+      .map(({ heading, content }) => {
+        const effectiveHeading = heading || normalizedTitle;
+        const paragraphs = getBlogSectionParagraphsFromContent(content);
+
+        return {
+          heading: effectiveHeading,
+          paragraphs
+        };
+      })
+      .filter((section) => section.paragraphs.length > 0);
 
     setIsSubmitting(true);
     const publishedAt = form.status === "published" ? new Date().toISOString() : null;
@@ -365,32 +419,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="post-section-heading" className="text-sm font-medium">
-            Section heading
-          </label>
-          <input
-            id="post-section-heading"
-            value={form.sectionHeading}
-            onChange={(event) => handleFieldChange("sectionHeading", event.target.value)}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="post-section-body" className="text-sm font-medium">
-            Body
-          </label>
-          <textarea
-            id="post-section-body"
-            value={form.sectionBody}
-            onChange={(event) => handleFieldChange("sectionBody", event.target.value)}
-            placeholder={"Separate paragraphs with a blank line."}
-            rows={12}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          />
-        </div>
-
+        <BlogRichTextEditor sections={form.sections} onChange={handleSectionsChange} disabled={isSubmitting} />
         <div className="flex flex-wrap items-center gap-6">
           <label className="inline-flex items-center gap-2 text-sm">
             <input
