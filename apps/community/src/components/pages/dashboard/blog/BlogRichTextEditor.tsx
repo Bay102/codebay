@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { SurfaceCard, Tag } from "@codebay/ui";
+import { SurfaceCard } from "@codebay/ui";
 import { Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Minus, Trash2, ChevronUp, ChevronDown, PlusCircle, Wand2 } from "lucide-react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -75,7 +75,7 @@ function SectionEditor({
       editorProps: {
         attributes: {
           class:
-            "min-h-[260px] px-5 py-4 text-[15px] leading-7 text-foreground outline-none [&_h1]:mt-6 [&_h1]:text-2xl [&_h1]:font-semibold [&_h2]:mt-5 [&_h2]:text-xl [&_h2]:font-semibold [&_p]:my-3 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1 [&_strong]:font-semibold [&_em]:italic [&_u]:underline"
+            "min-h-[260px] px-5 py-2 text-[15px] leading-7 text-foreground outline-none [&_h1]:mt-6 [&_h1]:text-2xl [&_h1]:font-semibold [&_h2]:mt-5 [&_h2]:text-xl [&_h2]:font-semibold [&_p]:my-1 [&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:my-1 [&_strong]:font-semibold [&_em]:italic [&_u]:underline"
         }
       },
       onUpdate: ({ editor: nextEditor }) => {
@@ -156,13 +156,13 @@ function SectionEditor({
   };
 
   const toolbarButtonClass = (isActive: boolean) =>
-    `inline-flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${isActive
+    `inline-flex h-7 w-7 items-center justify-center rounded-md border transition-colors ${isActive
       ? "border-primary/50 bg-primary/10 text-primary"
       : "border-transparent text-muted-foreground hover:border-border hover:bg-secondary"
     }`;
 
   return (
-    <SurfaceCard as="div" variant="panel" className="space-y-3 overflow-hidden">
+    <SurfaceCard as="div" variant="card" className="space-y-3 overflow-hidden">
       <div className="flex items-center justify-between gap-3">
         <div className="flex-1 space-y-1">
           <label htmlFor={`section-heading-${section.id}`} className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -213,87 +213,89 @@ function SectionEditor({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border/70 bg-muted/50 px-3 py-2 text-xs">
-        <span className="mr-1 text-[11px] uppercase tracking-wide text-muted-foreground">Formatting</span>
-        <button
-          type="button"
-          onClick={() => applyFormatting("bold")}
-          className={toolbarButtonClass(editor.isActive("bold"))}
-          aria-label="Bold"
-        >
-          <Bold className="h-3.5 w-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => applyFormatting("italic")}
-          className={toolbarButtonClass(editor.isActive("italic"))}
-          aria-label="Italic"
-        >
-          <Italic className="h-3.5 w-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => applyFormatting("underline")}
-          className={toolbarButtonClass(editor.isActive("underline"))}
-          aria-label="Underline"
-        >
-          <UnderlineIcon className="h-3.5 w-3.5" />
-        </button>
-        <span className="mx-1 h-5 w-px bg-border/70" aria-hidden />
-        <button
-          type="button"
-          onClick={() => applyFormatting("bulletList")}
-          className={toolbarButtonClass(editor.isActive("bulletList"))}
-          aria-label="Bullet list"
-        >
-          <List className="h-3.5 w-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => applyFormatting("orderedList")}
-          className={toolbarButtonClass(editor.isActive("orderedList"))}
-          aria-label="Numbered list"
-        >
-          <ListOrdered className="h-3.5 w-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => applyFormatting("dashList")}
-          className={toolbarButtonClass(editor.isActive("bulletList"))}
-          aria-label="Dashed list"
-        >
-          <Minus className="h-3.5 w-3.5" />
-        </button>
-
-        <span className="mx-1 h-5 w-px bg-border/70" aria-hidden />
-
-        <button
-          type="button"
-          disabled={disabled || isAiLoading}
-          className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[11px] font-medium text-muted-foreground hover:bg-secondary disabled:opacity-50"
-        >
-          <Wand2 className="h-3.5 w-3.5" />
-          <span>AI</span>
-        </button>
-        <div className="flex flex-wrap items-center gap-1">
-          {aiActions.map((action) => (
-            <button
-              key={action.id}
-              type="button"
-              disabled={disabled || isAiLoading}
-              onClick={() => void runAiAction(action.id)}
-            >
-              <Tag variant="tech" size="sm" className="hover:bg-secondary/80 disabled:opacity-50">
-                {action.label}
-              </Tag>
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className="rounded-2xl border border-border/70 bg-background shadow-sm">
-        <div className="border-b border-border/60 px-5 py-2 text-xs text-muted-foreground">
-          Start typing naturally. Use the toolbar for emphasis and lists.
+        <div className="flex flex-wrap items-center gap-1 border-b border-border/60 px-3 py-1.5 text-xs text-muted-foreground">
+          <button
+            type="button"
+            onClick={() => applyFormatting("bold")}
+            disabled={disabled || isAiLoading}
+            className={toolbarButtonClass(editor.isActive("bold"))}
+            aria-label="Bold"
+          >
+            <Bold className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => applyFormatting("italic")}
+            disabled={disabled || isAiLoading}
+            className={toolbarButtonClass(editor.isActive("italic"))}
+            aria-label="Italic"
+          >
+            <Italic className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => applyFormatting("underline")}
+            disabled={disabled || isAiLoading}
+            className={toolbarButtonClass(editor.isActive("underline"))}
+            aria-label="Underline"
+          >
+            <UnderlineIcon className="h-3.5 w-3.5" />
+          </button>
+          <span className="mx-1 h-4 w-px bg-border/70" aria-hidden />
+          <button
+            type="button"
+            onClick={() => applyFormatting("bulletList")}
+            disabled={disabled || isAiLoading}
+            className={toolbarButtonClass(editor.isActive("bulletList"))}
+            aria-label="Bullet list"
+          >
+            <List className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => applyFormatting("orderedList")}
+            disabled={disabled || isAiLoading}
+            className={toolbarButtonClass(editor.isActive("orderedList"))}
+            aria-label="Numbered list"
+          >
+            <ListOrdered className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => applyFormatting("dashList")}
+            disabled={disabled || isAiLoading}
+            className={toolbarButtonClass(editor.isActive("bulletList"))}
+            aria-label="Dashed list"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
+          <span className="mx-1 h-4 w-px bg-border/70" aria-hidden />
+          <button
+            type="button"
+            disabled={disabled || isAiLoading}
+            className="inline-flex h-7 items-center gap-1 rounded-md border border-border bg-background px-2 text-[11px] font-medium text-muted-foreground hover:bg-secondary disabled:opacity-50"
+            aria-label="AI editing tools"
+          >
+            <Wand2 className="h-3.5 w-3.5" />
+            <span>AI</span>
+          </button>
+          <div className="flex flex-wrap items-center gap-1">
+            {aiActions.map((action) => (
+              <button
+                key={action.id}
+                type="button"
+                disabled={disabled || isAiLoading}
+                onClick={() => void runAiAction(action.id)}
+                className="inline-flex h-7 items-center rounded-md border border-transparent px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:border-border hover:bg-secondary disabled:opacity-50"
+              >
+                {action.label}
+              </button>
+            ))}
+          </div>
+          <div className="ml-auto hidden text-[11px] lg:block">
+            Start typing naturally.
+          </div>
         </div>
         <EditorContent editor={editor} />
       </div>
