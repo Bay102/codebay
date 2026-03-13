@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, ArrowUpRight, MessageSquareText, RadioTower, Rss, Sparkles } from "lucide-react";
+import { Activity, MessageSquareText, RadioTower, Rss, Sparkles } from "lucide-react";
 import { SurfaceCard } from "@codebay/ui";
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
 import { buildPostUrl } from "@/lib/blog-urls";
@@ -48,7 +48,6 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
   ]);
 
   const featuredPost = featuredPosts[0] ?? null;
-  const primaryTopics = topics.slice(0, 4);
   const metricItems = [
     {
       label: "Topics in motion",
@@ -143,7 +142,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
             ))}
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+          <div className="grid gap-4">
             {/* <div className="rounded-[1.5rem] border border-border/60 bg-background/80 p-4 backdrop-blur">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
@@ -180,7 +179,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
               </div>
             </div> */}
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+            <div className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-[1.5rem] border border-border/60 bg-background/80 p-4 backdrop-blur">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <MessageSquareText className="h-3.5 w-3.5 text-primary" />
