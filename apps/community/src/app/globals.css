@@ -42,6 +42,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Stock-ticker infinite scroll (GPU-friendly, no JS) */
 @keyframes ticker-scroll-2 {
   from {
@@ -61,8 +72,32 @@
   }
 }
 
+@keyframes signal-sweep {
+  from {
+    transform: translate3d(-12rem, -50%, 0);
+  }
+  to {
+    transform: translate3d(calc(100vw + 12rem), -50%, 0);
+  }
+}
+
+[data-signal-beam] {
+  animation: signal-sweep 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+[data-signal-beam-core] {
+  animation: signal-sweep 7s ease-in-out infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [data-ticker] {
+    animation: none !important;
+  }
+
+  [data-signal-beam],
+  [data-signal-beam-core] {
     animation: none !important;
   }
 }
