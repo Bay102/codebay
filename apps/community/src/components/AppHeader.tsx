@@ -25,7 +25,7 @@ function getMenuItems(
   const discussionChildren: SidebarNavItemLink[] = [
     { type: "link", href: "/discussions", label: "All Discussions" },
     ...(isAuthenticated
-      ? [{ type: "link", href: "/dashboard/discussions/new", label: "New Discussion" }]
+      ? [{ type: "link", href: "/dashboard/discussions/new", label: "New Discussion" } satisfies SidebarNavItemLink]
       : []),
   ];
 
