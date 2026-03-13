@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExternalLink, Globe2 } from "lucide-react";
 import { BlogPostCard, Tag } from "@codebay/ui";
 import type { DashboardBlogPostStats, DashboardProfile } from "@/lib/dashboard";
 import { blogUrl } from "@/lib/site-urls";
@@ -27,6 +28,22 @@ function buildAuthorSegment(authorName: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
   return base || "author";
+}
+
+function getProjectHostname(url: string): string | null {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./i, "");
+    return hostname || null;
+  } catch {
+    return null;
+  }
+}
+
+function getProjectFaviconUrl(url: string): string | null {
+  const hostname = getProjectHostname(url);
+  if (!hostname) return null;
+
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64`;
 }
 
 export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewerId = null }: ProfileOverviewCardProps) {
@@ -140,23 +157,60 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured projects</p>
             {profile.featuredProjects.length > 0 ? (
-              <div className="mt-2 space-y-2">
-                {profile.featuredProjects.slice(0, 3).map((project) => (
-                  <div key={project.title} className="rounded-xl border border-border/70 bg-background/70 p-3">
-                    <p className="text-sm font-medium text-foreground">{project.title}</p>
-                    {project.description ? (
-                      <p className="mt-1 text-xs text-muted-foreground">{project.description}</p>
-                    ) : null}
-                    {project.url ? (
-                      <Link
-                        href={project.url}
-                        className="mt-2 inline-flex text-xs font-medium text-primary underline-offset-4 hover:underline"
-                      >
-                        View project
-                      </Link>
-                    ) : null}
-                  </div>
-                ))}
+              <div className="mt-2 space-y-1.5">
+                {profile.featuredProjects.slice(0, 3).map((project) => {
+                  const hostname = project.url ? getProjectHostname(project.url) : null;
+                  const faviconUrl = project.url ? getProjectFaviconUrl(project.url) : null;
+
+                  return (
+                    <div key={project.title} className="rounded-xl border border-border/70 bg-background/70 p-2.5">
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="text-sm font-medium text-foreground">{project.title}</p>
+                        {faviconUrl ? (
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/80">
+                            <img
+                              src={faviconUrl}
+                              alt=""
+                              aria-hidden="true"
+                              className="h-4 w-4 rounded-sm object-contain"
+                              loading="lazy"
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/80 text-muted-foreground">
+                            <Globe2 className="h-3.5 w-3.5" />
+                          </div>
+                        )}
+                      </div>
+                      {project.description ? (
+                        <p className="mt-0.5 text-[11px] leading-5 text-muted-foreground">{project.description}</p>
+                      ) : null}
+                      {project.url ? (
+                        <Link
+                          href={project.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
+                        >
+                          {faviconUrl ? (
+                            <img
+                              src={faviconUrl}
+                              alt=""
+                              aria-hidden="true"
+                              className="h-3.5 w-3.5 rounded-sm object-contain"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <Globe2 className="h-3.5 w-3.5" />
+                          )}
+                          <span>View project</span>
+                          {hostname ? <span className="text-muted-foreground">{hostname}</span> : null}
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </Link>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             ) : (
               <p className="mt-2 text-sm text-muted-foreground">No featured projects yet.</p>
