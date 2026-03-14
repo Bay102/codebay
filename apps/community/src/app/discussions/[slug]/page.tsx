@@ -7,8 +7,10 @@ import {
   getDiscussionCounts,
   getDiscussionComments
 } from "@/lib/discussions";
+import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
 import { DiscussionReactionBar } from "@/components/pages/discussions/DiscussionReactionBar";
 import { DiscussionCommentTree } from "@/components/pages/discussions/DiscussionCommentTree";
+import { Tag } from "@codebay/ui";
 
 export const metadata: Metadata = {
   title: "Discussion",
@@ -62,28 +64,38 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
         </div>
 
         <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <Link href={`/${discussion.author.username}`} className="font-medium text-foreground hover:underline">
-              {discussion.author.name} (@{discussion.author.username})
+          <div className="flex items-start gap-3">
+            <Link href={`/${discussion.author.username}`} className="transition-opacity hover:opacity-90">
+              <DiscussionAuthorAvatar
+                name={discussion.author.name}
+                avatarUrl={discussion.author.avatarUrl}
+                sizeClassName="h-12 w-12"
+              />
             </Link>
-            <span aria-hidden>·</span>
-            <time dateTime={discussion.created_at}>{formatDate(discussion.created_at)}</time>
-          </div>
-          <h1 className="mt-2 text-xl font-semibold text-foreground sm:text-2xl">{discussion.title}</h1>
-          {discussion.tags.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {discussion.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-lg border border-border/70 bg-secondary/60 px-2.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground"
-                >
-                  {tag}
-                </span>
-              ))}
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <Link href={`/${discussion.author.username}`} className="font-medium text-foreground hover:underline">
+                  {discussion.author.name} (@{discussion.author.username})
+                </Link>
+                <span aria-hidden>·</span>
+                <time dateTime={discussion.created_at}>{formatDate(discussion.created_at)}</time>
+              </div>
+              <h1 className="mt-2 text-xl font-semibold text-foreground sm:text-2xl">{discussion.title}</h1>
+              {discussion.tags.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {discussion.tags.map((tag) => (
+                    <Tag variant="tech" size="sm"
+                      key={tag}
+                    >
+                      {tag}
+                    </Tag>
+                  ))}
+                </div>
+              ) : null}
+              <div className="mt-4 whitespace-pre-line text-sm leading-7 text-muted-foreground">
+                {discussion.body}
+              </div>
             </div>
-          ) : null}
-          <div className="mt-4 whitespace-pre-line text-sm leading-7 text-muted-foreground">
-            {discussion.body}
           </div>
 
           <div className="mt-6">

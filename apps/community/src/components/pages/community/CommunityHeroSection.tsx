@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { Activity, ArrowUpRight, MessageSquareText, RadioTower, Rss, Sparkles } from "lucide-react";
+import type { ComponentType } from "react";
+import { Activity, Eye, MessageSquareText, RadioTower, Rss, Sparkles, Zap } from "lucide-react";
 import { SurfaceCard } from "@codebay/ui";
+import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
 import { buildPostUrl } from "@/lib/blog-urls";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
@@ -10,6 +12,12 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type CommunityHeroSectionProps = {
   hasSession: boolean;
+};
+
+type SignalMetric = {
+  label: string;
+  value: number;
+  icon: ComponentType<{ className?: string }>;
 };
 
 function formatCompactNumber(value: number): string {
@@ -31,6 +39,61 @@ function formatShortDate(value: string | null): string {
   }).format(date);
 }
 
+function SignalMetricGrid({
+  eyebrow,
+  metrics,
+  compact = false
+}: {
+  eyebrow: string;
+  metrics: SignalMetric[];
+  compact?: boolean;
+}) {
+  const columnClassName = metrics.length >= 3 ? "grid-cols-3" : "grid-cols-2";
+
+  return (
+    <div
+      className={`rounded-xl border border-border/60 bg-card/55 backdrop-blur-sm ${compact ? "px-1.5 py-1.5" : "px-2 py-2"}`}
+    >
+      <div
+        className={`flex items-center gap-2 uppercase text-muted-foreground ${compact ? "text-[7px] tracking-[0.18em]" : "text-[8px] tracking-[0.22em]"}`}
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.55)]" />
+        <span className="font-mono-ticker">{eyebrow}</span>
+      </div>
+
+      <div className={`mt-1.5 grid gap-px overflow-hidden rounded-lg bg-border/50 ${columnClassName}`}>
+        {metrics.map((metric) => {
+          const Icon = metric.icon;
+
+          return (
+            <div
+              key={metric.label}
+              className={`relative min-w-0 bg-background/60 ${compact ? "px-2 py-1.5" : "px-2.5 py-2"}`}
+            >
+              <div
+                className={`pointer-events-none absolute top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent ${compact ? "inset-x-2" : "inset-x-2.5"}`}
+              />
+              <div className="flex items-center justify-between gap-2 lg:justify-end">
+                <span
+                  className={`min-w-0 truncate uppercase text-muted-foreground lg:hidden ${compact ? "text-[7px] tracking-[0.05em]" : "text-[8px] tracking-[0.08em]"}`}
+                >
+                  {metric.label}
+                </span>
+                <Icon className={`shrink-0 text-primary/80 ${compact ? "h-2.5 w-2.5" : "h-3 w-3"}`} />
+              </div>
+              <div
+                className={`font-mono-ticker font-semibold leading-none text-foreground ${compact ? "mt-0.5 text-base sm:text-lg" : "mt-1 text-lg sm:text-xl"}`}
+              >
+                {formatCompactNumber(metric.value)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionProps) {
   const [topics, featuredPosts, trendingDiscussion] = await Promise.all([
     fetchTrendingTopics(5),
@@ -48,7 +111,6 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
   ]);
 
   const featuredPost = featuredPosts[0] ?? null;
-  const primaryTopics = topics.slice(0, 4);
   const metricItems = [
     {
       label: "Topics in motion",
@@ -143,7 +205,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
             ))}
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+          <div className="grid gap-4">
             {/* <div className="rounded-[1.5rem] border border-border/60 bg-background/80 p-4 backdrop-blur">
               <div className="flex items-center justify-between gap-3">
                 <div className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
@@ -180,30 +242,50 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
               </div>
             </div> */}
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
-              <div className="rounded-[1.5rem] border border-border/60 bg-background/80 p-4 backdrop-blur">
+            <div className="grid gap-4 lg:grid-cols-2">
+              <div className="flex h-full flex-col rounded-[1.5rem] border border-border/60 bg-background/80 p-4 backdrop-blur">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <MessageSquareText className="h-3.5 w-3.5 text-primary" />
                   Live discussion
                 </div>
                 {trendingDiscussion ? (
-                  <div className="mt-3">
+                  <div className="mt-2.5 flex flex-1 flex-col">
+                    <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+                      <Link
+                        href={`/${trendingDiscussion.authorUsername}`}
+                        className="inline-flex shrink-0 items-center transition-opacity hover:opacity-90"
+                      >
+                        <DiscussionAuthorAvatar
+                          name={trendingDiscussion.authorName}
+                          avatarUrl={trendingDiscussion.authorAvatarUrl}
+                          sizeClassName="h-6 w-6"
+                          textClassName="text-[9px]"
+                        />
+                      </Link>
+                      <Link
+                        href={`/${trendingDiscussion.authorUsername}`}
+                        className="truncate transition-colors hover:text-foreground"
+                      >
+                        {trendingDiscussion.authorName}
+                      </Link>
+                    </div>
                     <Link
                       href={`/discussions/${trendingDiscussion.slug}`}
                       className="line-clamp-2 text-base font-semibold text-foreground transition-colors hover:text-primary"
                     >
                       {trendingDiscussion.title}
                     </Link>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                    <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-muted-foreground">
                       {trendingDiscussion.body || "Join the thread and add your perspective to the discussion."}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      <span className="rounded-full border border-border/70 px-2.5 py-1">
-                        {trendingDiscussion.commentCount} comments
-                      </span>
-                      <span className="rounded-full border border-border/70 px-2.5 py-1">
-                        {trendingDiscussion.reactionCount} reactions
-                      </span>
+                    <div className="mt-auto pt-3">
+                      <SignalMetricGrid
+                        eyebrow="thread telemetry"
+                        metrics={[
+                          { label: "comments", value: trendingDiscussion.commentCount, icon: MessageSquareText },
+                          { label: "reactions", value: trendingDiscussion.reactionCount, icon: Zap }
+                        ]}
+                      />
                     </div>
                   </div>
                 ) : (
@@ -213,29 +295,41 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
                 )}
               </div>
 
-              <div className="rounded-[1.5rem] border border-border/60 bg-background/80 p-4 backdrop-blur">
+              <div className="flex h-full flex-col rounded-[1.5rem] border border-border/60 bg-background/80 p-4 backdrop-blur">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <Rss className="h-3.5 w-3.5 text-primary" />
                   Featured post
                 </div>
                 {featuredPost ? (
-                  <div className="mt-3">
+                  <div className="mt-2.5 flex flex-1 flex-col">
+                    <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+                      <DiscussionAuthorAvatar
+                        name={featuredPost.authorName}
+                        avatarUrl={featuredPost.authorAvatarUrl}
+                        sizeClassName="h-6 w-6"
+                        textClassName="text-[9px]"
+                      />
+                      <span className="truncate">{featuredPost.authorName}</span>
+                    </div>
                     <Link
                       href={buildPostUrl(featuredPost.authorName, featuredPost.slug)}
                       className="line-clamp-2 text-base font-semibold text-foreground transition-colors hover:text-primary"
                     >
                       {featuredPost.title}
                     </Link>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {featuredPost.authorName} · {formatShortDate(featuredPost.publishedAt)}
+                    <p className="mt-1.5 text-sm text-muted-foreground">
+                      {formatShortDate(featuredPost.publishedAt)}
                     </p>
-                    <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      <span className="rounded-full border border-border/70 px-2.5 py-1">
-                        {featuredPost.views} views
-                      </span>
-                      <span className="rounded-full border border-border/70 px-2.5 py-1">
-                        {featuredPost.comments} comments
-                      </span>
+                    <div className="mt-auto pt-3">
+                      <SignalMetricGrid
+                        eyebrow="post telemetry"
+                        compact
+                        metrics={[
+                          { label: "views", value: featuredPost.views, icon: Eye },
+                          { label: "comments", value: featuredPost.comments, icon: MessageSquareText },
+                          { label: "reactions", value: featuredPost.reactions, icon: Zap }
+                        ]}
+                      />
                     </div>
                   </div>
                 ) : (

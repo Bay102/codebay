@@ -17,6 +17,18 @@ function getMenuItems(
   isAuthenticated: boolean,
   onSignOut: () => void
 ): AppHeaderMenuItem[] {
+  const primaryItems: AppHeaderMenuItem[] = [
+    { type: "link", href: "/", label: "Home" },
+    ...(isAuthenticated ? [{ type: "link", href: "/dashboard", label: "My Dashboard" } satisfies AppHeaderMenuItem] : []),
+  ];
+
+  const discussionChildren: SidebarNavItemLink[] = [
+    { type: "link", href: "/discussions", label: "All Discussions" },
+    ...(isAuthenticated
+      ? [{ type: "link", href: "/dashboard/discussions/new", label: "New Discussion" } satisfies SidebarNavItemLink]
+      : []),
+  ];
+
   const accountChildren: Array<SidebarNavItemLink | SidebarNavItemButton> = isAuthenticated
     ? [
       { type: "link", href: myProfileHref, label: "My Profile" },
@@ -35,20 +47,11 @@ function getMenuItems(
     : [{ type: "link", href: blogUrl, label: "CodingBay Blog" }];
 
   return [
-    { type: "link", href: "/", label: "Home" },
-    { type: "link", href: "/dashboard", label: "My Dashboard" },
-    // {
-    //   type: "group",
-    //   label: "Community",
-    //   children: [{ type: "link", href: "/dashboard", label: "My Dashboard" }],
-    // },
+    ...primaryItems,
     {
       type: "group",
       label: "Discussions",
-      children: [
-        { type: "link", href: "/discussions", label: "All Discussions" },
-        { type: "link", href: "/dashboard/discussions/new", label: "New Discussion" },
-      ],
+      children: discussionChildren,
     },
     {
       type: "group",

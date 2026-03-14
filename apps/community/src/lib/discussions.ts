@@ -8,6 +8,7 @@ interface DiscussionAuthor {
   id: string;
   name: string;
   username: string;
+  avatarUrl: string | null;
 }
 
 interface DiscussionWithAuthor extends DiscussionRow {
@@ -28,6 +29,7 @@ export interface DiscussionListItem {
   authorId: string;
   authorName: string;
   authorUsername: string;
+  authorAvatarUrl: string | null;
   createdAt: string;
   updatedAt: string;
   tags: string[];
@@ -40,6 +42,7 @@ export interface DiscussionComment {
   discussionId: string;
   authorId: string | null;
   authorName: string;
+  authorAvatarUrl: string | null;
   body: string;
   parentId: string | null;
   createdAt: string;
@@ -66,7 +69,8 @@ export async function getDiscussionBySlug(
       community_users!discussions_author_id_fkey (
         id,
         name,
-        username
+        username,
+        avatar_url
       )
     `
     )
@@ -76,7 +80,7 @@ export async function getDiscussionBySlug(
   if (error || !data) return null;
 
   const row = data as DiscussionRow & {
-    community_users: { id: string; name: string; username: string } | null;
+    community_users: { id: string; name: string; username: string; avatar_url: string | null } | null;
   };
   if (!row.community_users) return null;
 
@@ -92,7 +96,8 @@ export async function getDiscussionBySlug(
     author: {
       id: row.community_users.id,
       name: row.community_users.name,
-      username: row.community_users.username
+      username: row.community_users.username,
+      avatarUrl: row.community_users.avatar_url
     }
   };
 }
@@ -136,13 +141,26 @@ export async function getDiscussionComments(
 ): Promise<DiscussionComment[]> {
   const { data, error } = await supabase
     .from("discussion_comments")
-    .select("id, discussion_id, author_id, author_name, body, parent_id, created_at")
+    .select(`
+      id,
+      discussion_id,
+      author_id,
+      author_name,
+      body,
+      parent_id,
+      created_at,
+      community_users!discussion_comments_author_id_fkey (
+        avatar_url
+      )
+    `)
     .eq("discussion_id", discussionId)
     .order("created_at", { ascending: true });
 
   if (error || !data) return [];
 
-  const rows = data as DiscussionCommentRow[];
+  const rows = data as (DiscussionCommentRow & {
+    community_users: { avatar_url: string | null } | null;
+  })[];
   const byParent = new Map<string | null, DiscussionComment[]>();
   byParent.set(null, []);
 
@@ -154,6 +172,7 @@ export async function getDiscussionComments(
       discussionId: r.discussion_id,
       authorId: r.author_id,
       authorName: r.author_name,
+      authorAvatarUrl: r.community_users?.avatar_url ?? null,
       body: r.body,
       parentId: r.parent_id,
       createdAt: r.created_at,
@@ -222,7 +241,8 @@ export async function getDiscussionsWithCounts(
       tags,
       community_users!discussions_author_id_fkey (
         name,
-        username
+        username,
+        avatar_url
       )
     `
     );
@@ -259,7 +279,7 @@ export async function getDiscussionsWithCounts(
   });
 
   type Row = DiscussionRow & {
-    community_users: { name: string; username: string } | null;
+    community_users: { name: string; username: string; avatar_url: string | null } | null;
   };
 
   let items: DiscussionListItem[] = (rows as Row[]).map((r) => {
@@ -272,6 +292,7 @@ export async function getDiscussionsWithCounts(
       authorId: r.author_id,
       authorName: author?.name ?? "Unknown",
       authorUsername: author?.username ?? "unknown",
+      authorAvatarUrl: author?.avatar_url ?? null,
       createdAt: r.created_at,
       updatedAt: r.updated_at,
       tags: (r as { tags?: string[] }).tags ?? [],
