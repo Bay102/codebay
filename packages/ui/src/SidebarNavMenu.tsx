@@ -92,17 +92,38 @@ function NavGroup({
       >
         <div className="overflow-hidden">
           <nav className="flex flex-col gap-0.5 pl-2" aria-label={group.label}>
-            {group.children.map((child, index) =>
-              child.type === "link" ? (
-                <Link
-                  key={`${child.href}-${index}`}
-                  href={child.href}
-                  onClick={handleItemSelect}
-                  className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
-                >
-                  {child.label}
-                </Link>
-              ) : (
+            {group.children.map((child, index) => {
+              if (child.type === "link") {
+                const href = child.href;
+                const hasValidHref = typeof href === "string" && href.length > 0;
+
+                // Guard against undefined/empty href at runtime.
+                if (!hasValidHref) {
+                  return (
+                    <button
+                      key={`${child.label}-${index}`}
+                      type="button"
+                      onClick={handleItemSelect}
+                      className="rounded-md px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+                    >
+                      {child.label}
+                    </button>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={`${href}-${index}`}
+                    href={href}
+                    onClick={handleItemSelect}
+                    className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+                  >
+                    {child.label}
+                  </Link>
+                );
+              }
+
+              return (
                 <button
                   key={`${child.label}-${index}`}
                   type="button"
@@ -114,8 +135,8 @@ function NavGroup({
                 >
                   {child.label}
                 </button>
-              )
-            )}
+              );
+            })}
           </nav>
         </div>
       </div>
