@@ -131,14 +131,19 @@ export function ProfilePreviewPopover({
   };
 
   const followButton =
-    showFollowButton && profileId && followStats && typeof followStats.isFollowing !== "undefined" ? (
-      <FollowButton
-        key={profileId}
-        profileUserId={profileId}
-        initialIsFollowing={followStats.isFollowing ?? false}
-        variant="icon"
-      />
-    ) : null;
+    showFollowButton && profileId && followStats && typeof followStats.isFollowing !== "undefined"
+      ? (
+        <FollowButton
+          key={profileId}
+          profileUserId={profileId}
+          initialIsFollowing={followStats.isFollowing ?? false}
+          getFollowStatsAction={(targetProfileId) =>
+            getFollowStatsForProfile(supabase!, targetProfileId, user!.id)
+          }
+          variant="icon"
+        />
+        )
+      : null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
