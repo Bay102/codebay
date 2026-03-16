@@ -3,13 +3,8 @@
 import { useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader as SharedAppHeader, CodeBayLogo, MenuThemeController } from "@codebay/ui";
-import type {
-  AppHeaderMenuItem,
-  SidebarNavItemButton,
-  SidebarNavItemLink,
-} from "@codebay/ui";
+import type { AppHeaderMenuItem, SidebarNavItemButton, SidebarNavItemLink } from "@codebay/ui";
 import { useAuth } from "@/contexts/AuthContext";
-import { blogUrl, communityUrl, siteUrl } from "@/lib/site-urls";
 
 function getMenuItems(
   myBlogHref: string,
@@ -42,9 +37,9 @@ function getMenuItems(
       { type: "link", href: "/dashboard/blog", label: "Blog Dashboard" },
       { type: "link", href: myBlogHref, label: "My Blog" },
       { type: "link", href: "/dashboard/blog/new", label: "New Blog Post" },
-      { type: "link", href: blogUrl, label: "CodingBay Blog" },
+      { type: "link", href: "/blog", label: "CodingBay Blog" },
     ]
-    : [{ type: "link", href: blogUrl, label: "CodingBay Blog" }];
+    : [{ type: "link", href: "/blog", label: "CodingBay Blog" }];
 
   return [
     ...primaryItems,
@@ -86,8 +81,8 @@ export function CommunityAppHeader() {
       ? user.user_metadata.username.trim()
       : null;
 
-  const myBlogHref = username ? `${blogUrl}/${username}` : blogUrl;
-  const myProfileHref = username ? `/${username}` : siteUrl;
+  const myBlogHref = username ? `/blog/${username}` : "/blog";
+  const myProfileHref = username ? `/${username}` : "/";
   const isAuthenticated = Boolean(user);
 
   const menuItems = useMemo(
