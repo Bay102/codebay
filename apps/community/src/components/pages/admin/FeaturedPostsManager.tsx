@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Tables } from "@/lib/database";
-import { getBlogSupabaseClient } from "@/lib/supabase/client";
+import { getCommunitySupabaseClient } from "@/lib/supabase/client";
 import { SurfaceCard } from "@codebay/ui";
 
 type BlogPostRow = Pick<Tables<"blog_posts">, "id" | "title" | "slug" | "published_at" | "status"> & {
@@ -10,7 +10,7 @@ type BlogPostRow = Pick<Tables<"blog_posts">, "id" | "title" | "slug" | "publish
 };
 
 export function FeaturedPostsManager() {
-  const supabase = getBlogSupabaseClient();
+  const supabase = getCommunitySupabaseClient();
   const [posts, setPosts] = useState<BlogPostRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

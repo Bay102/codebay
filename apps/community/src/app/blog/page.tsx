@@ -1,0 +1,248 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Suspense } from "react";
+import { AnimatedCardSection, BlogPostCard, SurfaceCard } from "@codebay/ui";
+import {
+  fetchBlogEngagementCounts,
+  fetchPublishedBlogPosts,
+  type BlogEngagementCounts,
+  type BlogPost
+} from "@/lib/blog";
+import { BlogFilterBar } from "@/components/pages/blog/BlogFilterBar";
+import { ForYouSection } from "@/components/pages/blog/ForYouSection";
+import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
+import { mainUrl, siteUrl } from "@/lib/site-urls";
+
+export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Engineering Blog",
+  description:
+    "Technical articles from CodeBay on AI development, product engineering, and practical SEO implementation for modern web apps.",
+  keywords: ["AI software development blog", "Next.js SEO", "product engineering", "MVP delivery", "CodeBay blog"],
+  alternates: {
+    canonical: "/blog"
+  },
+  openGraph: {
+    type: "website",
+    url: "/blog",
+    title: "CodingBay Blog | AI and Product Engineering Insights",
+    description:
+      "Technical articles on AI-powered development, SEO patterns, and product delivery practices from the CodeBay team.",
+    siteName: "CodingBay Blog"
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CodingBay Blog | AI and Product Engineering Insights",
+    description:
+      "Technical articles on AI-powered development, SEO patterns, and product delivery practices from the CodeBay team."
+  }
+};
+
+function formatPublishedDate(date: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  }).format(new Date(date));
+}
+
+function buildAuthorSegment(authorName: string): string {
+  const base = authorName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return base || "author";
+}
+
+function EngagementLine({ counts }: { counts: BlogEngagementCounts }) {
+  const parts: string[] = [];
+  if (counts.views > 0) parts.push(`${counts.views.toLocaleString()} views`);
+  if (counts.reactions > 0) parts.push(`${counts.reactions} reactions`);
+  parts.push(`${counts.comments} comment${counts.comments === 1 ? "" : "s"}`);
+  return (
+    <p className="text-xs text-muted-foreground" aria-label="Engagement">
+      {parts.join(" · ")}
+    </p>
+  );
+}
+
+function buildBlogSchema(posts: Awaited<ReturnType<typeof fetchPublishedBlogPosts>>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "CodingBay Blog",
+    url: `${siteUrl}/blog`,
+    description:
+      "Technical articles on AI development, engineering delivery, and practical SEO for modern software teams.",
+    publisher: {
+      "@type": "Organization",
+      name: "CodeBay",
+      url: mainUrl
+    },
+    blogPost: posts.map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.description,
+      datePublished: post.publishedAt,
+      dateModified: post.updatedAt,
+      url: `${siteUrl}/blog/${buildAuthorSegment(post.authorName)}/${post.slug}`,
+      author: {
+        "@type": "Organization",
+        name: post.authorName
+      }
+    }))
+  };
+}
+
+type BlogPageSearchParams = {
+  tag?: string | string[];
+  q?: string | string[];
+};
+
+function matchesSearch(post: BlogPost, query: string): boolean {
+  if (!query.trim()) return true;
+  const terms = query
+    .toLowerCase()
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const searchable = [post.title, post.excerpt, post.description, ...post.tags].join(" ").toLowerCase();
+  return terms.every((term) => searchable.includes(term));
+}
+
+export default async function BlogPage({
+  searchParams
+}: {
+  searchParams: Promise<BlogPageSearchParams>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const posts = await fetchPublishedBlogPosts();
+  const slugs = posts.map((p) => p.slug);
+  const engagementCounts = await fetchBlogEngagementCounts(slugs);
+  const blogSchema = buildBlogSchema(posts);
+
+  const allTags = Array.from(new Set(posts.flatMap((post) => post.tags))).sort((a, b) => a.localeCompare(b));
+
+  const rawTag = resolvedSearchParams.tag;
+  const activeTag = Array.isArray(rawTag) ? rawTag[0] : rawTag ?? "";
+  const rawQuery = resolvedSearchParams.q;
+  const searchQuery = Array.isArray(rawQuery) ? rawQuery[0] : rawQuery ?? "";
+
+  const tagFiltered = activeTag && allTags.includes(activeTag) ? posts.filter((post) => post.tags.includes(activeTag)) : posts;
+  const filteredPosts = tagFiltered.filter((post) => matchesSearch(post, searchQuery));
+
+  const featuredPost = filteredPosts.find((post) => post.isFeatured) ?? filteredPosts[0];
+  const latestPosts = featuredPost ? filteredPosts.filter((post) => post.slug !== featuredPost.slug) : filteredPosts;
+
+  return (
+    <main className="min-h-screen bg-background pb-20">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogSchema) }} />
+
+      <div className="mx-auto w-full max-w-6xl px-5 py-4 sm:px-6 lg:px-8">
+        <SurfaceCard variant="hero">
+          <p className="text-sm font-medium uppercase tracking-wide text-primary">CodingBay Blog</p>
+          <h1 className="font-hero mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
+            The tech blog for engineers who ship: AI, systems, and product
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
+            Tutorials, deep-dives, and how-tos on the stack we use in production—web, systems, and AI. Real code, real
+            trade-offs, no filler.
+          </p>
+        </SurfaceCard>
+
+        {allTags.length > 0 ? (
+          <Suspense fallback={<div className="mt-6 h-9 animate-pulse rounded-md bg-muted/50" />}>
+            <BlogFilterBar tags={allTags} />
+          </Suspense>
+        ) : null}
+
+        <ForYouSection />
+
+        {filteredPosts.length === 0 ? (
+          <section className="mt-12">
+            <p className="text-muted-foreground">
+              No articles match your filters. Try a different search or{" "}
+              <Link href="/blog" className="text-primary underline-offset-4 hover:underline">
+                clear filters
+              </Link>
+              .
+            </p>
+          </section>
+        ) : featuredPost ? (
+          <section className="mt-6">
+            <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured post</h2>
+            <Link
+              href={`/blog/${buildAuthorSegment(featuredPost.authorName)}/${featuredPost.slug}`}
+              className="mt-4 block rounded-3xl border border-border/70 bg-card px-6 py-7 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:px-8 sm:py-8 md:px-10"
+              aria-label={`Read featured article: ${featuredPost.title}`}
+            >
+              <article>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <time dateTime={featuredPost.publishedAt}>{formatPublishedDate(featuredPost.publishedAt)}</time>
+                  <span aria-hidden="true">-</span>
+                  <span>{featuredPost.readTimeMinutes} min read</span>
+                </div>
+                <div className="mt-2">
+                  <EngagementLine counts={engagementCounts[featuredPost.slug]!} />
+                </div>
+                <h3 className="mt-4 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+                  {featuredPost.title}
+                </h3>
+                <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">{featuredPost.excerpt}</p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {featuredPost.tags.map((tag) => (
+                    <span key={tag} className="rounded-full border border-border/80 bg-secondary/60 px-3 py-1 text-xs">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <span className="mt-6 inline-flex text-sm font-medium text-primary">Read featured article {"->"}</span>
+              </article>
+            </Link>
+          </section>
+        ) : null}
+
+        {filteredPosts.length > 0 ? (
+          <section className="mt-12">
+            <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Latest articles</h2>
+            <div className="mt-4">
+              <AnimatedCardSection as="div" columns={{ base: 1, md: 2 }}>
+                {latestPosts.map((post) => {
+                  const cardData = mapLandingFeaturedPostToBlogPostCardData({
+                    id: post.slug,
+                    slug: post.slug,
+                    title: post.title,
+                    excerpt: post.excerpt,
+                    authorName: post.authorName,
+                    authorId: post.authorId,
+                    authorAvatarUrl: null,
+                    publishedAt: post.publishedAt,
+                    tags: post.tags,
+                    views: engagementCounts[post.slug]!.views,
+                    reactions: engagementCounts[post.slug]!.reactions,
+                    comments: engagementCounts[post.slug]!.comments
+                  });
+                  return (
+                    <BlogPostCard
+                      key={cardData.slug}
+                      post={cardData}
+                      href={`/blog/${buildAuthorSegment(post.authorName)}/${post.slug}`}
+                      showAuthor={false}
+                      showDate
+                      showEngagement
+                      showTags={false}
+                    />
+                  );
+                })}
+              </AnimatedCardSection>
+            </div>
+          </section>
+        ) : null}
+      </div>
+    </main>
+  );
+}
+
