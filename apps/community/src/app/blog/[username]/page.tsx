@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AnimatedCardSection, BlogPostCard } from "@codebay/ui";
-import { mapBlogPostToBlogPostCardData } from "@/lib/ui-mappers";
-import {
-  fetchBlogAuthorProfileByUsername,
-  fetchBlogEngagementCounts,
-  fetchPublishedBlogPostsByAuthorId,
-} from "@/lib/blog";
+import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
+import { fetchBlogAuthorProfileByUsername, fetchBlogEngagementCounts, fetchPublishedBlogPostsByAuthorId } from "@/lib/blog";
 import { AuthorHero } from "@/components/pages/blog/AuthorHero";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +36,7 @@ export async function generateMetadata({ params }: AuthorPageProps): Promise<Met
     title: `${author.name} | CodingBay Blog`,
     description: author.bio ?? `Read engineering posts from ${author.name}.`,
     alternates: {
-      canonical: `/${author.username}`
+      canonical: `/blog/${author.username}`
     }
   };
 }
@@ -66,12 +62,25 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
           <AnimatedCardSection as="section" title="Featured articles" columns={{ base: 1, md: 2 }}>
             {featuredPosts.map((post) => {
               const counts = engagement[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
-              const cardData = mapBlogPostToBlogPostCardData(post, counts);
+              const cardData = mapLandingFeaturedPostToBlogPostCardData({
+                id: post.slug,
+                slug: post.slug,
+                title: post.title,
+                excerpt: post.excerpt,
+                authorName: post.authorName,
+                authorId: post.authorId,
+                authorAvatarUrl: null,
+                publishedAt: post.publishedAt,
+                tags: post.tags,
+                views: counts.views,
+                reactions: counts.reactions,
+                comments: counts.comments
+              });
               return (
                 <BlogPostCard
                   key={cardData.slug}
                   post={cardData}
-                  href={`/${authorSegment}/${post.slug}`}
+                  href={`/blog/${authorSegment}/${post.slug}`}
                   showAuthor={false}
                   showDate
                   showEngagement
@@ -86,12 +95,25 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
           <AnimatedCardSection as="section" title="Published articles" columns={{ base: 1, md: 2 }}>
             {posts.map((post) => {
               const counts = engagement[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
-              const cardData = mapBlogPostToBlogPostCardData(post, counts);
+              const cardData = mapLandingFeaturedPostToBlogPostCardData({
+                id: post.slug,
+                slug: post.slug,
+                title: post.title,
+                excerpt: post.excerpt,
+                authorName: post.authorName,
+                authorId: post.authorId,
+                authorAvatarUrl: null,
+                publishedAt: post.publishedAt,
+                tags: post.tags,
+                views: counts.views,
+                reactions: counts.reactions,
+                comments: counts.comments
+              });
               return (
                 <BlogPostCard
                   key={cardData.slug}
                   post={cardData}
-                  href={`/${authorSegment}/${post.slug}`}
+                  href={`/blog/${authorSegment}/${post.slug}`}
                   showAuthor={false}
                   showDate
                   showEngagement
@@ -114,3 +136,4 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
     </main>
   );
 }
+

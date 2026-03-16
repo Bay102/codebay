@@ -1,6 +1,6 @@
 /**
  * Base URLs for this app and sibling apps. Set in .env for local dev
- * (e.g. NEXT_PUBLIC_BLOG_URL=http://localhost:3001).
+ * (e.g. NEXT_PUBLIC_COMMUNITY_SITE_URL=http://localhost:3002).
  */
 function normalizePublicUrl(value: string | undefined, fallback: string): string {
   const raw = value?.trim();
@@ -18,8 +18,8 @@ function normalizePublicUrl(value: string | undefined, fallback: string): string
 }
 
 const siteUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_COMMUNITY_SITE_URL, "https://codingbay.community");
-const blogUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_BLOG_URL, "https://codingbay.blog");
 const mainUrl = normalizePublicUrl(process.env.NEXT_PUBLIC_MAIN_URL, "https://codebay.solutions");
 const communityUrl = siteUrl;
+const blogUrl = `${siteUrl}/blog`;
 
-export { siteUrl, blogUrl, mainUrl, communityUrl };
+export { siteUrl, mainUrl, communityUrl, blogUrl };

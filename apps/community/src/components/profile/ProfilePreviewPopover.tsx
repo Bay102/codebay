@@ -12,7 +12,7 @@ import type {
 import { Popover, PopoverContent, PopoverTrigger, ProfilePreviewContent } from "@codebay/ui";
 import type { FollowStats } from "@/lib/follows";
 import { getFollowStatsForProfile } from "@/lib/follows";
-import { FollowButton } from "@/components/profile/FollowButton";
+import { FollowButton } from "@/components/pages/dashboard/FollowButton";
 import { useAuth } from "@/contexts/AuthContext";
 
 const followStatsCache = new Map<string, FollowStats>();
@@ -131,14 +131,19 @@ export function ProfilePreviewPopover({
   };
 
   const followButton =
-    showFollowButton && profileId && followStats && typeof followStats.isFollowing !== "undefined" ? (
-      <FollowButton
-        key={profileId}
-        profileUserId={profileId}
-        initialIsFollowing={followStats.isFollowing ?? false}
-        variant="icon"
-      />
-    ) : null;
+    showFollowButton && profileId && followStats && typeof followStats.isFollowing !== "undefined"
+      ? (
+        <FollowButton
+          key={profileId}
+          profileUserId={profileId}
+          initialIsFollowing={followStats.isFollowing ?? false}
+          getFollowStatsAction={(targetProfileId) =>
+            getFollowStatsForProfile(supabase!, targetProfileId, user!.id)
+          }
+          variant="icon"
+        />
+        )
+      : null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -180,9 +185,9 @@ export function ProfilePreviewPopover({
           followStats={
             followStats
               ? {
-                followerCount: followStats.followerCount,
-                followingCount: followStats.followingCount
-              }
+                  followerCount: followStats.followerCount,
+                  followingCount: followStats.followingCount
+                }
               : undefined
           }
         />
@@ -190,3 +195,4 @@ export function ProfilePreviewPopover({
     </Popover>
   );
 }
+

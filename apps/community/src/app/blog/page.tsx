@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AnimatedCardSection, BlogPostCard, SurfaceCard } from "@codebay/ui";
-import { fetchPublishedBlogPosts, fetchBlogEngagementCounts, type BlogEngagementCounts } from "@/lib/blog";
-import type { BlogPost } from "@/lib/blog";
+import {
+  fetchBlogEngagementCounts,
+  fetchPublishedBlogPosts,
+  type BlogEngagementCounts,
+  type BlogPost
+} from "@/lib/blog";
 import { BlogFilterBar } from "@/components/pages/blog/BlogFilterBar";
 import { ForYouSection } from "@/components/pages/blog/ForYouSection";
-import { mapBlogPostToBlogPostCardData } from "@/lib/ui-mappers";
+import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
 import { mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
@@ -17,11 +21,11 @@ export const metadata: Metadata = {
     "Technical articles from CodeBay on AI development, product engineering, and practical SEO implementation for modern web apps.",
   keywords: ["AI software development blog", "Next.js SEO", "product engineering", "MVP delivery", "CodeBay blog"],
   alternates: {
-    canonical: "/"
+    canonical: "/blog"
   },
   openGraph: {
     type: "website",
-    url: "/",
+    url: "/blog",
     title: "CodingBay Blog | AI and Product Engineering Insights",
     description:
       "Technical articles on AI-powered development, SEO patterns, and product delivery practices from the CodeBay team.",
@@ -70,7 +74,7 @@ function buildBlogSchema(posts: Awaited<ReturnType<typeof fetchPublishedBlogPost
     "@context": "https://schema.org",
     "@type": "Blog",
     name: "CodingBay Blog",
-    url: siteUrl,
+    url: `${siteUrl}/blog`,
     description:
       "Technical articles on AI development, engineering delivery, and practical SEO for modern software teams.",
     publisher: {
@@ -84,7 +88,7 @@ function buildBlogSchema(posts: Awaited<ReturnType<typeof fetchPublishedBlogPost
       description: post.description,
       datePublished: post.publishedAt,
       dateModified: post.updatedAt,
-      url: `${siteUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`,
+      url: `${siteUrl}/blog/${buildAuthorSegment(post.authorName)}/${post.slug}`,
       author: {
         "@type": "Organization",
         name: post.authorName
@@ -161,7 +165,7 @@ export default async function BlogPage({
           <section className="mt-12">
             <p className="text-muted-foreground">
               No articles match your filters. Try a different search or{" "}
-              <Link href="/" className="text-primary underline-offset-4 hover:underline">
+              <Link href="/blog" className="text-primary underline-offset-4 hover:underline">
                 clear filters
               </Link>
               .
@@ -171,7 +175,7 @@ export default async function BlogPage({
           <section className="mt-6">
             <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured post</h2>
             <Link
-              href={`/${buildAuthorSegment(featuredPost.authorName)}/${featuredPost.slug}`}
+              href={`/blog/${buildAuthorSegment(featuredPost.authorName)}/${featuredPost.slug}`}
               className="mt-4 block rounded-3xl border border-border/70 bg-card px-6 py-7 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:px-8 sm:py-8 md:px-10"
               aria-label={`Read featured article: ${featuredPost.title}`}
             >
@@ -207,12 +211,25 @@ export default async function BlogPage({
             <div className="mt-4">
               <AnimatedCardSection as="div" columns={{ base: 1, md: 2 }}>
                 {latestPosts.map((post) => {
-                  const cardData = mapBlogPostToBlogPostCardData(post, engagementCounts[post.slug]!);
+                  const cardData = mapLandingFeaturedPostToBlogPostCardData({
+                    id: post.slug,
+                    slug: post.slug,
+                    title: post.title,
+                    excerpt: post.excerpt,
+                    authorName: post.authorName,
+                    authorId: post.authorId,
+                    authorAvatarUrl: null,
+                    publishedAt: post.publishedAt,
+                    tags: post.tags,
+                    views: engagementCounts[post.slug]!.views,
+                    reactions: engagementCounts[post.slug]!.reactions,
+                    comments: engagementCounts[post.slug]!.comments
+                  });
                   return (
                     <BlogPostCard
                       key={cardData.slug}
                       post={cardData}
-                      href={`/${buildAuthorSegment(post.authorName)}/${post.slug}`}
+                      href={`/blog/${buildAuthorSegment(post.authorName)}/${post.slug}`}
                       showAuthor={false}
                       showDate
                       showEngagement
@@ -228,3 +245,4 @@ export default async function BlogPage({
     </main>
   );
 }
+

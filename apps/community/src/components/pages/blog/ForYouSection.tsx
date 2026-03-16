@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatedCardSection, BlogPostCard, SurfaceCard } from "@codebay/ui";
 import { useAuth } from "@/contexts/AuthContext";
@@ -182,9 +181,9 @@ export function ForYouSection() {
                 reactions: 0,
                 comments: 0,
                 readTimeMinutes: post.readTimeMinutes,
-                isFeatured: false,
+                isFeatured: false
               }}
-              href={`/${buildAuthorSegment(post.authorName)}/${post.slug}`}
+              href={`/blog/${buildAuthorSegment(post.authorName)}/${post.slug}`}
               showAuthor={false}
               showDate
               showEngagement={false}
@@ -206,3 +205,4 @@ export function ForYouSection() {
     </section>
   );
 }
+

@@ -25,7 +25,7 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
   const sourcePosts = featuredPosts.length > 0 ? featuredPosts : posts;
   const articles = sourcePosts.slice(0, 4).map((post) => ({
     title: post.title,
-    href: `/${authorSegment}/${post.slug}`
+    href: `/blog/${authorSegment}/${post.slug}`
   }));
 
   return (
@@ -49,7 +49,6 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
           }}
           authorPageHref={`${communityUrl}/${author.username}`}
           profileId={author.id}
-
         />
       </div>
       <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
@@ -58,9 +57,7 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
       {author.techStack.length > 0 ? (
         <div className="mt-5 flex flex-wrap gap-2">
           {author.techStack.map((item) => (
-            <Tag variant="tech" size="md"
-              key={item}
-            >
+            <Tag variant="tech" size="md" key={item}>
               {item}
             </Tag>
           ))}

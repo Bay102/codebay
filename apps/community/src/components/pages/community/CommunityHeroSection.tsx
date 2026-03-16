@@ -7,7 +7,6 @@ import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHero
 import { buildPostUrl } from "@/lib/blog-urls";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { fetchFeaturedBlogPosts, fetchTrendingTopics } from "@/lib/landing";
-import { blogUrl } from "@/lib/site-urls";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type CommunityHeroSectionProps = {
@@ -186,7 +185,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
             </span>
           </div>
 
-          <DashboardHeroButtons hasSession={hasSession} blogUrl={blogUrl} />
+          <DashboardHeroButtons hasSession={hasSession} />
         </div>
 
         <div className="grid gap-4">

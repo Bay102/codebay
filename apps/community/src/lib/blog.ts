@@ -1,5 +1,5 @@
-import { getBlogSupabaseClient } from "@/lib/supabase";
 import type { Json, Tables } from "@/lib/database";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export interface BlogPostSection {
   heading: string;
@@ -109,7 +109,7 @@ function mapRowToBlogPost(row: BlogPostRow): BlogPost {
 }
 
 export async function fetchPublishedBlogPosts(): Promise<BlogPost[]> {
-  const supabase = getBlogSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   if (!supabase) return [];
 
   const { data, error } = await supabase
@@ -129,7 +129,7 @@ export async function fetchPublishedBlogPosts(): Promise<BlogPost[]> {
 }
 
 export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost | null> {
-  const supabase = getBlogSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   if (!supabase) return null;
 
   const { data, error } = await supabase
@@ -150,6 +150,27 @@ export async function fetchBlogPostBySlug(slug: string): Promise<BlogPost | null
   }
 
   return mapRowToBlogPost(data as BlogPostRow);
+}
+
+export async function fetchPublishedBlogPostsByAuthorId(authorId: string): Promise<BlogPost[]> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select(
+      "slug,title,description,excerpt,author_id,published_at,updated_at,created_at,read_time_minutes,author_name,tags,sections,is_featured"
+    )
+    .eq("status", "published")
+    .eq("author_id", authorId)
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  const rows = (data ?? []) as BlogPostRow[];
+  return rows.map(mapRowToBlogPost);
 }
 
 function normalizeUrl(value: string): string | null {
@@ -248,7 +269,7 @@ async function fetchAuthorProfileBy(
   key: "id" | "username",
   value: string
 ): Promise<BlogAuthorProfile | null> {
-  const supabase = getBlogSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   if (!supabase) return null;
 
   const enhancedSelection = "id,name,username,bio,avatar_url,tech_stack,featured_projects,profile_links";
@@ -279,27 +300,6 @@ export async function fetchBlogAuthorProfileById(authorId: string): Promise<Blog
   return fetchAuthorProfileBy("id", authorId);
 }
 
-export async function fetchPublishedBlogPostsByAuthorId(authorId: string): Promise<BlogPost[]> {
-  const supabase = getBlogSupabaseClient();
-  if (!supabase) return [];
-
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select(
-      "slug,title,description,excerpt,author_id,published_at,updated_at,created_at,read_time_minutes,author_name,tags,sections,is_featured"
-    )
-    .eq("status", "published")
-    .eq("author_id", authorId)
-    .order("published_at", { ascending: false });
-
-  if (error) {
-    throw error;
-  }
-
-  const rows = (data ?? []) as BlogPostRow[];
-  return rows.map(mapRowToBlogPost);
-}
-
 export interface BlogEngagementCounts {
   views: number;
   reactions: number;
@@ -309,7 +309,7 @@ export interface BlogEngagementCounts {
 export async function fetchBlogEngagementCounts(
   slugs: string[]
 ): Promise<Record<string, BlogEngagementCounts>> {
-  const supabase = getBlogSupabaseClient();
+  const supabase = await createServerSupabaseClient();
   const empty: BlogEngagementCounts = { views: 0, reactions: 0, comments: 0 };
   const result = Object.fromEntries(slugs.map((s) => [s, { ...empty }]));
   if (slugs.length === 0 || !supabase) return result;
@@ -341,3 +341,4 @@ export async function fetchBlogEngagementCounts(
 
   return result;
 }
+

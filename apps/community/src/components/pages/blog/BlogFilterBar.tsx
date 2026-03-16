@@ -38,7 +38,7 @@ export function BlogFilterBar({ tags }: BlogFilterBarProps) {
     const next = params.toString();
     const current = searchParams.toString();
     if (next !== current) {
-      router.replace(next ? `/?${next}` : "/", { scroll: false });
+      router.replace(next ? `/blog?${next}` : "/blog", { scroll: false });
     }
   }, [debouncedQuery, router, searchParams]);
 
@@ -50,14 +50,14 @@ export function BlogFilterBar({ tags }: BlogFilterBarProps) {
       const q = searchParams.get("q");
       if (q) params.set("q", q);
       const next = params.toString();
-      router.replace(next ? `/?${next}` : "/", { scroll: false });
+      router.replace(next ? `/blog?${next}` : "/blog", { scroll: false });
     },
     [router, searchParams, tags]
   );
 
   const clearFilters = useCallback(() => {
     setSearchInput("");
-    router.replace("/", { scroll: false });
+    router.replace("/blog", { scroll: false });
   }, [router]);
 
   if (tags.length === 0) return null;
@@ -112,3 +112,4 @@ export function BlogFilterBar({ tags }: BlogFilterBarProps) {
     </section>
   );
 }
+

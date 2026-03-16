@@ -1,11 +1,11 @@
+import { communityUrl } from "@/lib/site-urls";
 import Link from "next/link";
 
 export interface DashboardHeroButtonsProps {
   hasSession: boolean;
-  blogUrl: string;
 }
 
-export function DashboardHeroButtons({ hasSession, blogUrl }: DashboardHeroButtonsProps) {
+export function DashboardHeroButtons({ hasSession }: DashboardHeroButtonsProps) {
   return (
     <div className="mt-5 flex flex-wrap gap-3">
       {!hasSession && (
@@ -39,7 +39,7 @@ export function DashboardHeroButtons({ hasSession, blogUrl }: DashboardHeroButto
         Start a discussion
       </Link>
       <Link
-        href={blogUrl}
+        href={`${communityUrl}/blog`}
         className="inline-flex rounded-md border border-border/70 bg-card px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
       >
         Blog

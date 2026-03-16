@@ -3,7 +3,6 @@ import { parseBlogSectionBlock } from "@codebay/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
-import { AuthorHero } from "@/components/pages/blog/AuthorHero";
 import { ProfilePreviewPopover } from "@/components/profile/ProfilePreviewPopover";
 import { fetchBlogAuthorProfileById, fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
 import { communityUrl, mainUrl, siteUrl } from "@/lib/site-urls";
@@ -57,11 +56,11 @@ export async function generateMetadata(
     description: post.description,
     keywords: post.tags,
     alternates: {
-      canonical: `/${authorSegment}/${post.slug}`
+      canonical: `/blog/${authorSegment}/${post.slug}`
     },
     openGraph: {
       type: "article",
-      url: `/${authorSegment}/${post.slug}`,
+      url: `/blog/${authorSegment}/${post.slug}`,
       title: post.title,
       description: post.description,
       publishedTime: post.publishedAt,
@@ -89,7 +88,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const relatedPosts = allPosts.filter((candidate) => candidate.slug !== post.slug).slice(0, 2);
   const authorSegment = buildAuthorSegment(post.authorName);
   const authorProfile = post.authorId ? await fetchBlogAuthorProfileById(post.authorId) : null;
-  const authorHomeHref = authorProfile ? `/${authorProfile.username}` : "/";
+  const authorHomeHref = authorProfile ? `/blog/${authorProfile.username}` : "/blog";
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -109,7 +108,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${siteUrl}/${authorSegment}/${post.slug}`
+      "@id": `${siteUrl}/blog/${authorSegment}/${post.slug}`
     },
     keywords: post.tags.join(", ")
   };
@@ -148,7 +147,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   articles: [
                     {
                       title: post.title,
-                      href: `/${authorSegment}/${post.slug}`
+                      href: `/blog/${authorSegment}/${post.slug}`
                     }
                   ],
                   profileLinks: authorProfile.profileLinks
@@ -227,7 +226,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </article>
       </section>
 
-      <BlogEngagement slug={post.slug} postPath={`/${authorSegment}/${post.slug}`} />
+      <BlogEngagement slug={post.slug} postPath={`/blog/${authorSegment}/${post.slug}`} />
 
       <section className="mx-auto mt-10 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-border/70 bg-card p-6">
@@ -236,7 +235,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {relatedPosts.map((relatedPost) => (
               <Link
                 key={relatedPost.slug}
-                href={`/${buildAuthorSegment(relatedPost.authorName)}/${relatedPost.slug}`}
+                href={`/blog/${buildAuthorSegment(relatedPost.authorName)}/${relatedPost.slug}`}
                 className="rounded-xl border border-border/80 bg-background/70 p-4 transition-colors hover:border-primary/40"
               >
                 <p className="text-sm text-muted-foreground">{formatPublishedDate(relatedPost.publishedAt)}</p>
@@ -249,3 +248,4 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     </main>
   );
 }
+
