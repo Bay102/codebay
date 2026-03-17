@@ -135,17 +135,23 @@ export function DashboardHero({
 
           <nav className="mt-5 flex flex-wrap items-center gap-2.5 text-sm">
             <Link
-              href="/dashboard/blog"
-              className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/15 px-3.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-primary/25 hover:text-foreground sm:text-sm"
+              href="/"
+              className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/40 bg-emerald-500 px-3.5 py-2 text-xs font-medium text-emerald-50 shadow-sm transition-colors hover:bg-emerald-600 hover:text-emerald-50 sm:text-sm"
             >
-              Blog Dashboard
+              Explore community
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/"
+              href="/dashboard/discussions/new"
               className="inline-flex items-center rounded-md border border-border/70 bg-card/40 px-3.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
             >
-              Explore community
+              Start a discussion
+            </Link>
+            <Link
+              href="/dashboard/blog"
+              className="inline-flex items-center rounded-md border border-border/70 bg-card/40 px-3.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
+            >
+              Blog Dashboard
             </Link>
           </nav>
         </div>

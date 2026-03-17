@@ -135,17 +135,34 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Links</p>
             {profile.profileLinks.length > 0 ? (
               <div className="mt-2 flex flex-wrap gap-2">
-                {profile.profileLinks.map((link) => (
-                  <Link
-                    key={link.url}
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary hover:underline"
-                  >
-                    <span>{link.label}</span>
-                  </Link>
-                ))}
+                {profile.profileLinks.map((link) => {
+                  const faviconUrl = getProjectFaviconUrl(link.url);
+
+                  return (
+                    <Link
+                      key={link.url}
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary hover:underline"
+                    >
+                      <span className="flex h-4 w-4 items-center justify-center rounded-[3px] border border-border/60 bg-card/80">
+                        {faviconUrl ? (
+                          <img
+                            src={faviconUrl}
+                            alt=""
+                            aria-hidden="true"
+                            className="h-3 w-3 rounded-[2px] object-contain"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <Globe2 className="h-3 w-3 text-muted-foreground" />
+                        )}
+                      </span>
+                      <span>{link.label}</span>
+                    </Link>
+                  );
+                })}
               </div>
             ) : (
               <p className="mt-2 text-sm text-muted-foreground">No links added yet.</p>
@@ -203,7 +220,6 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
                           ) : (
                             <Globe2 className="h-3.5 w-3.5" />
                           )}
-                          <span>View project</span>
                           {hostname ? <span className="text-muted-foreground">{hostname}</span> : null}
                           <ExternalLink className="h-3.5 w-3.5" />
                         </Link>

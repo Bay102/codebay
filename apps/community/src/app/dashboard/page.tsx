@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import React from "react";
 import { CommunityDashboardActions } from "@/components/pages/community/CommunityDashboardActions";
 import { DashboardActivitySection } from "@/components/pages/dashboard/DashboardActivitySection";
 import { DashboardBlogPostsTable } from "@/components/pages/dashboard/DashboardBlogPostsTable";
@@ -14,12 +15,15 @@ import {
   buildBlogSummary,
   fetchDashboardActivity,
   fetchDashboardProfile,
+  fetchEngagementKpisByPeriod,
   fetchUserBlogPostsWithStats
 } from "@/lib/dashboard";
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { SectionSeparator } from "@/components/pages/community/SectionSeparator";
 import { DashboardNotificationModalProvider } from "@/contexts/DashboardNotificationModalContext";
+
+const DashboardKpiRowAny = DashboardKpiRow as React.ComponentType<any>;
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -71,6 +75,12 @@ export default async function CommunityDashboardPage() {
   });
 
   const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
+
+  const postSlugs = posts.map((post) => post.slug);
+  const kpiPeriodSummary = await fetchEngagementKpisByPeriod(supabase, {
+    slugs: postSlugs,
+    periods: ["7d", "30d", "90d", "6m"]
+  });
 
   const { count: preferredTagsCount } = await supabase
     .from("user_preferred_tags")
@@ -151,10 +161,11 @@ export default async function CommunityDashboardPage() {
           </div>
         </DashboardNotificationModalProvider>
 
-        <DashboardKpiRow
+        <DashboardKpiRowAny
           blogSummary={blogSummary}
           discussionCount={discussions.length}
           followerCount={followStats.followerCount}
+          kpiPeriodSummary={kpiPeriodSummary}
         />
 
         <div className="mt-6">
