@@ -4,9 +4,11 @@ import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CommunityDashboardActions } from "@/components/pages/community/CommunityDashboardActions";
 import { DashboardActivitySection } from "@/components/pages/dashboard/DashboardActivitySection";
-import { BlogManagementSummaryCard } from "@/components/pages/dashboard/BlogManagementSummaryCard";
-import { DiscussionManagementCard } from "@/components/pages/dashboard/DiscussionManagementCard";
+import { DashboardBlogPostsTable } from "@/components/pages/dashboard/DashboardBlogPostsTable";
+import { DashboardDiscussionsTable } from "@/components/pages/dashboard/DashboardDiscussionsTable";
+import { DashboardEngagementCard } from "@/components/pages/dashboard/DashboardEngagementCard";
 import { DashboardHero } from "@/components/pages/dashboard/DashboardHero";
+import { DashboardKpiRow } from "@/components/pages/dashboard/DashboardKpiRow";
 import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOverviewCard";
 import {
   buildBlogSummary,
@@ -16,8 +18,8 @@ import {
 } from "@/lib/dashboard";
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
-import { fetchAllTags } from "@/lib/tags";
 import { SectionSeparator } from "@/components/pages/community/SectionSeparator";
+import { DashboardNotificationModalProvider } from "@/contexts/DashboardNotificationModalContext";
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -40,12 +42,11 @@ export default async function CommunityDashboardPage() {
     redirect("/");
   }
 
-  const [profile, posts, followStats, discussions, allowedTags] = await Promise.all([
+  const [profile, posts, followStats, discussions] = await Promise.all([
     fetchDashboardProfile(supabase, user.id),
     fetchUserBlogPostsWithStats(supabase, user.id),
     getFollowStatsForProfile(supabase, user.id, user.id),
-    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 3, orderByTrend: false }),
-    fetchAllTags(supabase)
+    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 10, orderByTrend: false })
   ]);
 
   if (!profile) {
@@ -122,26 +123,50 @@ export default async function CommunityDashboardPage() {
           <CommunityDashboardActions />
         </div>
 
-        <DashboardHero name={profile.name} username={profile.username} />
+        <DashboardNotificationModalProvider>
+          <DashboardHero
+            name={profile.name}
+            username={profile.username}
+            stats={{
+              discussionCount: discussions.length,
+              publishedPostCount: blogSummary.publishedCount,
+              nextStepsDone: Object.values(nextSteps).filter(Boolean).length,
+              nextStepsTotal: Object.keys(nextSteps).length
+            }}
+            quickViewActivityItems={!hasAnyIncompleteStep ? overviewActivityItems.slice(0, 3) : undefined}
+          />
 
-        <DashboardActivitySection
-          showNextSteps={hasAnyIncompleteStep}
-          nextSteps={nextSteps}
-          overviewActivityItems={overviewActivityItems}
-          activityItems={activityItems}
-        />
+          <DashboardKpiRow
+            blogSummary={blogSummary}
+            discussionCount={discussions.length}
+            followerCount={followStats.followerCount}
+          />
 
-        <div className="mt-6 grid gap-4 md:grid-cols-1">
-          <DiscussionManagementCard discussions={discussions} authorName={profile.name} allowedTags={allowedTags} />
+          <div
+            id="activity"
+            className={`grid gap-4 ${hasAnyIncompleteStep ? "md:grid-cols-1 lg:grid-cols-2" : "md:grid-cols-1"}`}
+          >
+            {hasAnyIncompleteStep && <DashboardEngagementCard nextSteps={nextSteps} />}
+            <DashboardActivitySection
+              showNextSteps={hasAnyIncompleteStep}
+              nextSteps={nextSteps}
+              overviewActivityItems={overviewActivityItems}
+              activityItems={activityItems}
+            />
+          </div>
+        </DashboardNotificationModalProvider>
+
+        <div className="mt-6">
+          <DashboardBlogPostsTable posts={posts} maxRows={8} />
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-1">
-          <BlogManagementSummaryCard summary={blogSummary} />
+        <div className="mt-6">
+          <DashboardDiscussionsTable discussions={discussions} maxRows={8} />
         </div>
 
         <SectionSeparator />
 
-        <div className="mt-6 grid gap-4 md:grid-cols-1">
+        <div className="grid gap-4 md:grid-cols-1">
           <ProfileOverviewCard profile={profileWithFollowStats} posts={posts} viewerId={user.id} />
         </div>
 

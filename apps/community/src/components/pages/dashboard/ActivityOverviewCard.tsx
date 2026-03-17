@@ -10,6 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
 type ActivityOverviewCardProps = {
   items: DashboardActivityItem[];
   allItems: DashboardActivityItem[];
+  /** When provided, the notifications modal is controlled from the parent (e.g. hero "View all"). */
+  modalOpen?: boolean;
+  onModalOpenChange?: (open: boolean) => void;
 };
 
 const kindLabel: Record<DashboardActivityItem["kind"], string> = {
@@ -21,9 +24,17 @@ const kindLabel: Record<DashboardActivityItem["kind"], string> = {
   discussion_reaction: "Discussion reaction"
 };
 
-export function ActivityOverviewCard({ items, allItems }: ActivityOverviewCardProps) {
+export function ActivityOverviewCard({
+  items,
+  allItems,
+  modalOpen: controlledModalOpen,
+  onModalOpenChange
+}: ActivityOverviewCardProps) {
   const [overviewItems, setOverviewItems] = useState(items);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [internalModalOpen, setInternalModalOpen] = useState(false);
+  const isControlled = controlledModalOpen !== undefined && onModalOpenChange !== undefined;
+  const modalOpen = isControlled ? controlledModalOpen : internalModalOpen;
+  const setModalOpen = isControlled ? onModalOpenChange : setInternalModalOpen;
   const [modalItems, setModalItems] = useState(
     () => allItems.filter((item) => !item.isRead)
   );
