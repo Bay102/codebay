@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Globe2 } from "lucide-react";
 import { Tag } from "./Tag";
 
 /** Minimal profile data for the preview header */
@@ -56,6 +57,22 @@ export interface ProfilePreviewContentProps {
   followButton?: ReactNode;
   /** Optional follower/following counts to display under the name. */
   followStats?: ProfilePreviewFollowStats;
+}
+
+function getProjectHostname(url: string): string | null {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./i, "");
+    return hostname || null;
+  } catch {
+    return null;
+  }
+}
+
+function getProjectFaviconUrl(url: string): string | null {
+  const hostname = getProjectHostname(url);
+  if (!hostname) return null;
+
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64`;
 }
 
 function buildInitials(name: string): string {
@@ -225,21 +242,39 @@ export function ProfilePreviewContent({
 
       {profileLinks.length > 0 ? (
         <div className="mt-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Links
           </p>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {profileLinks.map((link) => (
-              <Link
-                key={link.url}
-                href={link.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex rounded-md border border-border/70 bg-background/80 px-2.5 py-1 text-[11px] font-medium text-foreground underline-offset-4 transition-colors hover:border-primary/50 hover:text-primary hover:underline"
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="mt-2 flex flex-wrap gap-2">
+            {profileLinks.map((link) => {
+              const faviconUrl = getProjectFaviconUrl(link.url);
+
+              return (
+                <Link
+                  key={link.url}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary"
+                >
+                  <span className="flex h-4 w-4 items-center justify-center rounded-[3px] border border-border/60 bg-card/80">
+                    {faviconUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={faviconUrl}
+                        alt=""
+                        aria-hidden="true"
+                        className="h-3 w-3 rounded-[2px] object-contain"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <Globe2 className="h-3 w-3 text-muted-foreground" />
+                    )}
+                  </span>
+                  <span>{link.label}</span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       ) : null}

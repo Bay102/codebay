@@ -49,6 +49,25 @@ export interface DiscussionComment {
   replies: DiscussionComment[];
 }
 
+/** Converts discussion body (HTML or plain text) to safe HTML for rendering. */
+export function getDiscussionBodyHtml(rawBody: string): string {
+  const trimmed = rawBody.trim();
+  if (!trimmed) {
+    return "<p></p>";
+  }
+
+  // If it already looks like HTML, return as-is.
+  if (/[<][a-zA-Z][^>]*>/.test(trimmed)) {
+    return trimmed;
+  }
+
+  // Fallback: treat as plain text and preserve basic paragraphs / line breaks.
+  return trimmed
+    .split(/\n{2,}/)
+    .map((paragraph) => `<p>${paragraph.replace(/\n/g, "<br />")}</p>`)
+    .join("");
+}
+
 /** Single discussion by slug with author. Use with getDiscussionCounts for full detail. */
 export async function getDiscussionBySlug(
   supabase: SupabaseClient<Database>,

@@ -171,10 +171,15 @@ export function CommunityAuthCard() {
     }
 
     setIsSubmitting(true);
+    // Use current origin so confirmation emails redirect to the same host (localhost in dev, production in prod).
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : new URL(siteUrl).origin;
+    const emailRedirectTo = `${origin}/auth/callback?next=${encodeURIComponent(redirectDestination)}`;
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: normalizedEmail,
       password,
       options: {
+        emailRedirectTo,
         data: {
           name: normalizedName,
           username: normalizedUsername

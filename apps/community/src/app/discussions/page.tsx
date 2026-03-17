@@ -84,6 +84,7 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
                 <DiscussionCard
                   key={discussion.id}
                   discussion={discussion}
+                  showAuthorAvatar
                   href={`/discussions/${discussion.slug}`}
                   showAuthor
                   showDate

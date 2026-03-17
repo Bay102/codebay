@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
+  getDiscussionBodyHtml,
   getDiscussionBySlug,
   getDiscussionCounts,
   getDiscussionComments
@@ -84,16 +85,17 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
               {discussion.tags.length > 0 ? (
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {discussion.tags.map((tag) => (
-                    <Tag variant="tech" size="sm"
-                      key={tag}
-                    >
+                    <Tag variant="tech" size="sm" key={tag}>
                       {tag}
                     </Tag>
                   ))}
                 </div>
               ) : null}
-              <div className="mt-4 whitespace-pre-line text-sm leading-7 text-muted-foreground">
-                {discussion.body}
+              <div className="mt-4 text-sm leading-7 text-muted-foreground">
+                <div
+                  className="prose prose-invert prose-sm max-w-none [&_code]:rounded-[4px] [&_code]:bg-muted/80 [&_code]:px-1 [&_code]:py-0.5 [&_pre]:my-3 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-muted/80 [&_pre]:p-3"
+                  dangerouslySetInnerHTML={{ __html: getDiscussionBodyHtml(discussion.body) }}
+                />
               </div>
             </div>
           </div>

@@ -12,6 +12,7 @@ export interface DiscussionCardProps {
   href: string;
   variant?: DiscussionCardVariant;
   showAuthor?: boolean;
+  showAuthorAvatar?: boolean;
   showDate?: boolean;
   showEngagement?: boolean;
   showTags?: boolean;
@@ -33,6 +34,7 @@ export function DiscussionCard({
   href,
   variant = "default",
   showAuthor = true,
+  showAuthorAvatar = false,
   showDate = true,
   showEngagement = true,
   showTags = true,
@@ -61,20 +63,32 @@ export function DiscussionCard({
             <div className="min-h-0 flex-1">
               {showAuthor || showDate || showEngagement ? (
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  {showAuthor ? <span>@{discussion.authorUsername}</span> : null}
-                  {showAuthor && showDate ? <span aria-hidden>·</span> : null}
-                  {showDate ? (
-                    <time dateTime={discussion.createdAt}>{formatDate(discussion.createdAt)}</time>
+                  {showAuthorAvatar && discussion.authorAvatarUrl ? (
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary/70 text-[10px] font-medium text-foreground">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={discussion.authorAvatarUrl}
+                        alt={`@${discussion.authorUsername} avatar`}
+                        className="h-full w-full rounded-full object-cover"
+                      />
+                    </span>
                   ) : null}
-                  {showEngagement ? (
-                    <>
-                      <span aria-hidden>·</span>
-                      <span>
-                        {discussion.commentCount} comments
-                      </span>
-                      <span>{discussion.reactionCount} reactions</span>
-                    </>
-                  ) : null}
+                  <span className="flex min-w-0 flex-wrap items-center gap-2">
+                    {showAuthor ? <span className="truncate">@{discussion.authorUsername}</span> : null}
+                    {showAuthor && showDate ? <span aria-hidden>·</span> : null}
+                    {showDate ? (
+                      <time dateTime={discussion.createdAt}>{formatDate(discussion.createdAt)}</time>
+                    ) : null}
+                    {showEngagement ? (
+                      <>
+                        <span aria-hidden>·</span>
+                        <span>
+                          {discussion.commentCount} comments
+                        </span>
+                        <span>{discussion.reactionCount} reactions</span>
+                      </>
+                    ) : null}
+                  </span>
                 </div>
               ) : null}
 

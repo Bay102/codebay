@@ -1,23 +1,28 @@
+import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { CommunityDashboardActions } from "@/components/pages/community/CommunityDashboardActions";
 import { DashboardActivitySection } from "@/components/pages/dashboard/DashboardActivitySection";
-import { BlogManagementSummaryCard } from "@/components/pages/dashboard/BlogManagementSummaryCard";
-import { DiscussionManagementCard } from "@/components/pages/dashboard/DiscussionManagementCard";
+import { DashboardBlogPostsTable } from "@/components/pages/dashboard/DashboardBlogPostsTable";
+import { DashboardDiscussionsTable } from "@/components/pages/dashboard/DashboardDiscussionsTable";
+import { DashboardEngagementCard } from "@/components/pages/dashboard/DashboardEngagementCard";
 import { DashboardHero } from "@/components/pages/dashboard/DashboardHero";
+import { DashboardKpiRow } from "@/components/pages/dashboard/DashboardKpiRow";
 import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOverviewCard";
 import {
   buildBlogSummary,
   fetchDashboardActivity,
   fetchDashboardProfile,
+  fetchEngagementKpisByPeriod,
   fetchUserBlogPostsWithStats
 } from "@/lib/dashboard";
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
-import { fetchAllTags } from "@/lib/tags";
 import { SectionSeparator } from "@/components/pages/community/SectionSeparator";
+import { DashboardNotificationModalProvider } from "@/contexts/DashboardNotificationModalContext";
+
+const DashboardKpiRowAny = DashboardKpiRow as React.ComponentType<any>;
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -40,12 +45,11 @@ export default async function CommunityDashboardPage() {
     redirect("/");
   }
 
-  const [profile, posts, followStats, discussions, allowedTags] = await Promise.all([
+  const [profile, posts, followStats, discussions] = await Promise.all([
     fetchDashboardProfile(supabase, user.id),
     fetchUserBlogPostsWithStats(supabase, user.id),
     getFollowStatsForProfile(supabase, user.id, user.id),
-    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 3, orderByTrend: false }),
-    fetchAllTags(supabase)
+    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 10, orderByTrend: false })
   ]);
 
   if (!profile) {
@@ -70,6 +74,12 @@ export default async function CommunityDashboardPage() {
   });
 
   const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
+
+  const postSlugs = posts.map((post) => post.slug);
+  const kpiPeriodSummary = await fetchEngagementKpisByPeriod(supabase, {
+    slugs: postSlugs,
+    periods: ["7d", "30d", "90d", "6m"]
+  });
 
   const { count: preferredTagsCount } = await supabase
     .from("user_preferred_tags")
@@ -113,35 +123,53 @@ export default async function CommunityDashboardPage() {
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto w-full max-w-6xl p-3 sm:px-6 lg:px-8">
-        <div className="hidden gap-4 sm:mb-8 sm:flex sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
-            <h1 className="text-lg font-semibold text-foreground sm:text-xl">Dashboard</h1>
+
+        <DashboardNotificationModalProvider>
+          <DashboardHero
+            name={profile.name}
+            username={profile.username}
+            stats={{
+              discussionCount: discussions.length,
+              publishedPostCount: blogSummary.publishedCount,
+              nextStepsDone: Object.values(nextSteps).filter(Boolean).length,
+              nextStepsTotal: Object.keys(nextSteps).length
+            }}
+            quickViewActivityItems={!hasAnyIncompleteStep ? overviewActivityItems.slice(0, 3) : undefined}
+          />
+
+
+          <div
+            id="activity"
+            className={`mt-6 grid gap-4 ${hasAnyIncompleteStep ? "md:grid-cols-1 lg:grid-cols-2" : "md:grid-cols-1"}`}
+          >
+            {hasAnyIncompleteStep && <DashboardEngagementCard nextSteps={nextSteps} />}
+            <DashboardActivitySection
+              showNextSteps={hasAnyIncompleteStep}
+              nextSteps={nextSteps}
+              overviewActivityItems={overviewActivityItems}
+              activityItems={activityItems}
+            />
           </div>
+        </DashboardNotificationModalProvider>
 
-          <CommunityDashboardActions />
-        </div>
-
-        <DashboardHero name={profile.name} username={profile.username} />
-
-        <DashboardActivitySection
-          showNextSteps={hasAnyIncompleteStep}
-          nextSteps={nextSteps}
-          overviewActivityItems={overviewActivityItems}
-          activityItems={activityItems}
+        <DashboardKpiRowAny
+          blogSummary={blogSummary}
+          discussionCount={discussions.length}
+          followerCount={followStats.followerCount}
+          kpiPeriodSummary={kpiPeriodSummary}
         />
 
-        <div className="mt-6 grid gap-4 md:grid-cols-1">
-          <DiscussionManagementCard discussions={discussions} authorName={profile.name} allowedTags={allowedTags} />
+        <div className="mt-6">
+          <DashboardBlogPostsTable posts={posts} maxRows={8} />
         </div>
 
-        <div className="mt-6 grid gap-4 md:grid-cols-1">
-          <BlogManagementSummaryCard summary={blogSummary} />
+        <div className="mt-6">
+          <DashboardDiscussionsTable discussions={discussions} maxRows={8} />
         </div>
 
         <SectionSeparator />
 
-        <div className="mt-6 grid gap-4 md:grid-cols-1">
+        <div className="grid gap-4 md:grid-cols-1">
           <ProfileOverviewCard profile={profileWithFollowStats} posts={posts} viewerId={user.id} />
         </div>
 

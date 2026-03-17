@@ -77,6 +77,28 @@ export interface DashboardBlogSummary {
   topPostByViews: DashboardBlogPostStats | null;
 }
 
+export type KpiPeriod = "7d" | "30d" | "90d" | "6m";
+
+export interface PeriodMetric {
+  current: number;
+  previous: number;
+  /**
+   * Absolute delta: current - previous.
+   */
+  delta: number;
+  /**
+   * Percentage change vs previous. Null when previous is 0 or missing.
+   */
+  deltaPercent: number | null;
+}
+
+export interface DashboardKpiPeriodSummary {
+  periods: KpiPeriod[];
+  views: Record<KpiPeriod, PeriodMetric>;
+  reactions: Record<KpiPeriod, PeriodMetric>;
+  comments: Record<KpiPeriod, PeriodMetric>;
+}
+
 export type ActivityKind =
   | "reply"
   | "comment"
@@ -280,6 +302,126 @@ async function fetchEngagementCountsBySlug(
   });
 
   return counts;
+}
+
+async function fetchCountForWindow(
+  supabase: SupabaseClient<Database>,
+  table:
+    | "blog_post_views"
+    | "blog_post_reactions"
+    | "blog_post_comments",
+  slugs: string[],
+  startIso: string,
+  endIso: string
+): Promise<number> {
+  if (slugs.length === 0) {
+    return 0;
+  }
+
+  const { count } = await supabase
+    .from(table)
+    .select("*", { count: "exact", head: true })
+    .in("slug", slugs)
+    .gte("created_at", startIso)
+    .lt("created_at", endIso);
+
+  return count ?? 0;
+}
+
+function buildPeriodMetric(current: number, previous: number): PeriodMetric {
+  const delta = current - previous;
+  if (previous <= 0) {
+    return {
+      current,
+      previous,
+      delta,
+      deltaPercent: null
+    };
+  }
+
+  const deltaPercent = (delta / previous) * 100;
+  return {
+    current,
+    previous,
+    delta,
+    deltaPercent
+  };
+}
+
+export async function fetchEngagementKpisByPeriod(
+  supabase: SupabaseClient<Database>,
+  {
+    slugs,
+    periods = ["7d", "30d", "90d", "6m"]
+  }: {
+    slugs: string[];
+    periods?: KpiPeriod[];
+  }
+): Promise<DashboardKpiPeriodSummary | null> {
+  if (slugs.length === 0) {
+    return null;
+  }
+
+  const now = Date.now();
+
+  const periodDurations: Record<KpiPeriod, number> = {
+    "7d": 7,
+    "30d": 30,
+    "90d": 90,
+    "6m": 180
+  };
+
+  const activePeriods = periods.filter((period): period is KpiPeriod => period in periodDurations);
+  if (activePeriods.length === 0) {
+    return null;
+  }
+
+  const views: Partial<Record<KpiPeriod, PeriodMetric>> = {};
+  const reactions: Partial<Record<KpiPeriod, PeriodMetric>> = {};
+  const comments: Partial<Record<KpiPeriod, PeriodMetric>> = {};
+
+  for (const period of activePeriods) {
+    const days = periodDurations[period];
+    const durationMs = days * 86_400_000;
+
+    const currentStart = new Date(now - durationMs);
+    const previousStart = new Date(now - durationMs * 2);
+    const previousEnd = currentStart;
+
+    const currentStartIso = currentStart.toISOString();
+    const currentEndIso = new Date(now).toISOString();
+    const previousStartIso = previousStart.toISOString();
+    const previousEndIso = previousEnd.toISOString();
+
+    // Views
+    const [viewsCurrent, viewsPrevious] = await Promise.all([
+      fetchCountForWindow(supabase, "blog_post_views", slugs, currentStartIso, currentEndIso),
+      fetchCountForWindow(supabase, "blog_post_views", slugs, previousStartIso, previousEndIso)
+    ]);
+
+    // Reactions
+    const [reactionsCurrent, reactionsPrevious] = await Promise.all([
+      fetchCountForWindow(supabase, "blog_post_reactions", slugs, currentStartIso, currentEndIso),
+      fetchCountForWindow(supabase, "blog_post_reactions", slugs, previousStartIso, previousEndIso)
+    ]);
+
+    // Comments (approved only, to match other dashboard use)
+    const [commentsCurrent, commentsPrevious] = await Promise.all([
+      fetchCountForWindow(supabase, "blog_post_comments", slugs, currentStartIso, currentEndIso),
+      fetchCountForWindow(supabase, "blog_post_comments", slugs, previousStartIso, previousEndIso)
+    ]);
+
+    views[period] = buildPeriodMetric(viewsCurrent, viewsPrevious);
+    reactions[period] = buildPeriodMetric(reactionsCurrent, reactionsPrevious);
+    comments[period] = buildPeriodMetric(commentsCurrent, commentsPrevious);
+  }
+
+  return {
+    periods: activePeriods,
+    views: views as Record<KpiPeriod, PeriodMetric>,
+    reactions: reactions as Record<KpiPeriod, PeriodMetric>,
+    comments: comments as Record<KpiPeriod, PeriodMetric>
+  };
 }
 
 export async function fetchUserBlogPostsWithStats(

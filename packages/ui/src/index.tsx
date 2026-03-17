@@ -125,3 +125,4 @@ export { TopicPillsPicker } from "./TopicPillsPicker";
 export type { TopicPillsPickerProps, TopicPillOption } from "./TopicPillsPicker";
 export { getBlogSectionParagraphsFromContent, parseBlogSectionBlock } from "./utils/blog-content";
 export type { BlogSectionBlock } from "./utils/blog-content";
+export { cn } from "./utils";

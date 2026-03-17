@@ -1,22 +1,22 @@
-"use client";
+ "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { type FormEvent, useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  TopicPillsPicker,
-  getBlogSectionParagraphsFromContent
-} from "@codebay/ui";
-import type { TablesInsert, TablesUpdate } from "@/lib/database";
-import { useAuth } from "@/contexts/AuthContext";
-import { BlogRichTextEditor } from "./BlogRichTextEditor";
+ import Link from "next/link";
+ import { useRouter } from "next/navigation";
+ import { type FormEvent, useMemo, useState } from "react";
+ import {
+   Button,
+   Dialog,
+   DialogClose,
+   DialogContent,
+   DialogFooter,
+   DialogHeader,
+   DialogTitle,
+   getBlogSectionParagraphsFromContent
+ } from "@codebay/ui";
+ import type { TablesInsert, TablesUpdate } from "@/lib/database";
+ import { useAuth } from "@/contexts/AuthContext";
+ import { TopicSelector } from "@/components/shared/TopicSelector";
+ import { BlogRichTextEditor } from "./BlogRichTextEditor";
 
 type PostStatus = "draft" | "published";
 
@@ -65,7 +65,7 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: BlogPostEditorFormProps) {
+ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: BlogPostEditorFormProps) {
   const router = useRouter();
   const { supabase, session } = useAuth();
   const [form, setForm] = useState<BlogPostEditorValues>(() => {
@@ -119,6 +119,11 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
     .split(",")
     .map((tag) => tag.trim())
     .filter(Boolean);
+
+  const topicSelectorTags = useMemo(
+    () => allowedTags.map((tag) => ({ id: tag.id, name: tag.name, slug: tag.slug })),
+    [allowedTags]
+  );
 
   const handleSectionsChange = (nextSections: BlogPostSectionDraft[]) => {
     setForm((previous) => ({
@@ -374,9 +379,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
                     aria-labelledby="post-tags-label"
                   >
                     <span className="truncate text-left text-foreground">
-                      {selectedTagNames.length === 0
-                        ? "No tags selected"
-                        : selectedTagNames.join(", ")}
+                      {selectedTagNames.length === 0 ? "No tags selected" : selectedTagNames.join(", ")}
                     </span>
                     <span className="ml-2 text-[11px] text-muted-foreground sm:text-xs">Edit</span>
                   </button>
@@ -384,15 +387,16 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
                     <DialogHeader>
                       <DialogTitle>Select tags for this post</DialogTitle>
                     </DialogHeader>
-                    <div className="mt-2 space-y-3">
+                    <div className="mt-2 space-y-4">
                       <p className="text-xs text-muted-foreground">
-                        Choose one or more tags that describe this post. You can change them at any time.
+                        Choose one or more tags that describe this post. Use quick topics or search all topics.
                       </p>
-                      <TopicPillsPicker
-                        options={allowedTags.map((tag) => ({ key: tag.name, label: tag.name }))}
-                        selectedKeys={selectedTagNames}
+                      <TopicSelector
+                        allowedTags={topicSelectorTags}
+                        selectedNames={selectedTagNames}
                         onChange={(next) => handleFieldChange("tagsInput", next.join(", "))}
-                        ariaLabel="Post tags"
+                        contextTitle={form.title}
+                        contextBody={form.description}
                         disabled={isSubmitting}
                       />
                     </div>

@@ -42,6 +42,7 @@ export type DiscussionCardData = {
   title: string;
   body?: string | null;
   createdAt: string;
+  authorAvatarUrl?: string | null;
   authorUsername: string;
   tags: string[];
   commentCount: number;
