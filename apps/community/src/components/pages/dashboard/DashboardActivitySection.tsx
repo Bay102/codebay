@@ -41,7 +41,7 @@ export function DashboardActivitySection({
   const gridCols = hasTwoCards ? "md:grid-cols-2" : "md:grid-cols-1";
 
   return (
-    <div className={`mt-6 grid gap-4 ${gridCols}`}>
+    <div className={`grid gap-4 ${gridCols}`}>
       {showNextSteps ? (
         <DismissibleNextStepsCard steps={nextSteps} onDismiss={() => setNextStepsVisible(false)} />
       ) : null}

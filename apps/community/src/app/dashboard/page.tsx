@@ -136,15 +136,10 @@ export default async function CommunityDashboardPage() {
             quickViewActivityItems={!hasAnyIncompleteStep ? overviewActivityItems.slice(0, 3) : undefined}
           />
 
-          <DashboardKpiRow
-            blogSummary={blogSummary}
-            discussionCount={discussions.length}
-            followerCount={followStats.followerCount}
-          />
 
           <div
             id="activity"
-            className={`grid gap-4 ${hasAnyIncompleteStep ? "md:grid-cols-1 lg:grid-cols-2" : "md:grid-cols-1"}`}
+            className={`mt-6 grid gap-4 ${hasAnyIncompleteStep ? "md:grid-cols-1 lg:grid-cols-2" : "md:grid-cols-1"}`}
           >
             {hasAnyIncompleteStep && <DashboardEngagementCard nextSteps={nextSteps} />}
             <DashboardActivitySection
@@ -155,6 +150,12 @@ export default async function CommunityDashboardPage() {
             />
           </div>
         </DashboardNotificationModalProvider>
+
+        <DashboardKpiRow
+          blogSummary={blogSummary}
+          discussionCount={discussions.length}
+          followerCount={followStats.followerCount}
+        />
 
         <div className="mt-6">
           <DashboardBlogPostsTable posts={posts} maxRows={8} />

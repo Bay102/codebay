@@ -31,13 +31,21 @@ export function DashboardBlogPostsTable({
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Blog posts
         </h2>
-        <Link
-          href="/dashboard/blog"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-primary transition-colors hover:text-primary/80"
-        >
-          Manage all
-          <FileText className="h-4 w-4" />
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/dashboard/blog/new"
+            className="inline-flex items-center rounded-md border border-primary/35 bg-primary/10 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-primary/20"
+          >
+            New blog post
+          </Link>
+          <Link
+            href="/dashboard/blog"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-primary transition-colors hover:text-primary/80"
+          >
+            Manage all
+            <FileText className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
 
       {displayPosts.length === 0 ? (

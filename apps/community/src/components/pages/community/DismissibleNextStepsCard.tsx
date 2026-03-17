@@ -66,7 +66,7 @@ export function DismissibleNextStepsCard({ steps, onDismiss }: DismissibleNextSt
         x
       </button>
       <h3 className="pr-10 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Establish your presence</h3>
-      <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+      <ul className="mt-3 space-y-2.5 text-sm text-muted-foreground">
         <li className="flex items-start gap-2">
           {renderStatusIcon(profileComplete)}
           <span>Set up your profile details and preferences.</span>
