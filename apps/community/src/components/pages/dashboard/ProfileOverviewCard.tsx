@@ -144,7 +144,7 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
                       href={link.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary hover:underline"
+                      className="inline-flex items-center gap-1.5 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary"
                     >
                       <span className="flex h-4 w-4 items-center justify-center rounded-[3px] border border-border/60 bg-card/80">
                         {faviconUrl ? (

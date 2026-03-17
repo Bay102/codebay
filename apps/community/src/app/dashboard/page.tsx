@@ -1,9 +1,8 @@
+import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import React from "react";
-import { CommunityDashboardActions } from "@/components/pages/community/CommunityDashboardActions";
 import { DashboardActivitySection } from "@/components/pages/dashboard/DashboardActivitySection";
 import { DashboardBlogPostsTable } from "@/components/pages/dashboard/DashboardBlogPostsTable";
 import { DashboardDiscussionsTable } from "@/components/pages/dashboard/DashboardDiscussionsTable";
@@ -124,14 +123,6 @@ export default async function CommunityDashboardPage() {
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto w-full max-w-6xl p-3 sm:px-6 lg:px-8">
-        <div className="hidden gap-4 sm:mb-8 sm:flex sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
-            <h1 className="text-lg font-semibold text-foreground sm:text-xl">Dashboard</h1>
-          </div>
-
-          <CommunityDashboardActions />
-        </div>
 
         <DashboardNotificationModalProvider>
           <DashboardHero

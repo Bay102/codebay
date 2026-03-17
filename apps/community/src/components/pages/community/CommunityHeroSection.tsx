@@ -5,7 +5,7 @@ import { SurfaceCard } from "@codebay/ui";
 import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
 import { buildPostUrl } from "@/lib/blog-urls";
-import { getDiscussionsWithCounts } from "@/lib/discussions";
+import { getDiscussionBodyHtml, getDiscussionsWithCounts } from "@/lib/discussions";
 import { fetchFeaturedBlogPosts, fetchTrendingTopics } from "@/lib/landing";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -274,9 +274,14 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
                     >
                       {trendingDiscussion.title}
                     </Link>
-                    <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-muted-foreground">
-                      {trendingDiscussion.body || "Join the thread and add your perspective to the discussion."}
-                    </p>
+                    <div
+                      className="mt-1.5 line-clamp-2 text-sm leading-6 text-muted-foreground prose prose-invert prose-sm max-w-none [&_code]:rounded-[4px] [&_code]:bg-muted/80 [&_code]:px-1 [&_code]:py-0.5 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-muted/80 [&_pre]:p-2 [&_pre]:text-xs"
+                      dangerouslySetInnerHTML={{
+                        __html: getDiscussionBodyHtml(
+                          trendingDiscussion.body || "Join the thread and add your perspective to the discussion."
+                        )
+                      }}
+                    />
                     <div className="mt-auto pt-3">
                       <SignalMetricGrid
                         eyebrow="thread telemetry"

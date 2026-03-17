@@ -3,6 +3,43 @@ import type { LandingFeaturedPost, LandingProfile, ForYouDiscussion } from "@/li
 import type { DashboardBlogPostStats, DashboardProfile } from "@/lib/dashboard";
 import type { DiscussionListItem } from "@/lib/discussions";
 
+function buildDiscussionPreviewBody(rawBody: string, maxLength = 220): string {
+  const normalized = (rawBody ?? "").trim();
+  if (!normalized) return "";
+
+  // If there's HTML, strip code blocks first so they don't dominate the preview.
+  let working = normalized;
+  const hasHtml = /<[^>]+>/.test(working);
+  const hasCode = /```|<pre[\s\S]*?>|<code[\s\S]*?>/i.test(working);
+
+  if (hasHtml) {
+    // Replace code regions with a lightweight marker.
+    working = working.replace(/<pre[\s\S]*?<\/pre>/gi, " [code snippet] ");
+    working = working.replace(/<code[\s\S]*?<\/code>/gi, " [code] ");
+    // Strip remaining tags.
+    working = working.replace(/<[^>]+>/g, " ");
+  }
+
+  // Handle fenced code (from legacy markdown-style content).
+  working = working.replace(/```[\s\S]*?```/g, " [code snippet] ");
+
+  // Collapse whitespace.
+  working = working.replace(/\s+/g, " ").trim();
+
+  if (!working) {
+    return hasCode ? "Code snippet" : "";
+  }
+
+  if (working.length <= maxLength) {
+    return working;
+  }
+
+  const truncated = working.slice(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(" ");
+  const safe = lastSpace > 40 ? truncated.slice(0, lastSpace) : truncated;
+  return `${safe}…`;
+}
+
 export function mapLandingFeaturedPostToBlogPostCardData(post: LandingFeaturedPost): BlogPostCardData {
   return {
     id: post.id,
@@ -50,8 +87,9 @@ export function mapForYouDiscussionToDiscussionCardData(discussion: ForYouDiscus
     id: discussion.id,
     slug: discussion.slug,
     title: discussion.title,
-    body: discussion.body,
+    body: buildDiscussionPreviewBody(discussion.body),
     createdAt: discussion.createdAt,
+    authorAvatarUrl: null,
     authorUsername: discussion.authorUsername,
     tags: discussion.tags,
     commentCount: discussion.commentCount,
@@ -64,8 +102,9 @@ export function mapDiscussionListItemToDiscussionCardData(item: DiscussionListIt
     id: item.id,
     slug: item.slug,
     title: item.title,
-    body: item.body,
+    body: buildDiscussionPreviewBody(item.body),
     createdAt: item.createdAt,
+    authorAvatarUrl: item.authorAvatarUrl,
     authorUsername: item.authorUsername,
     tags: item.tags,
     commentCount: item.commentCount,

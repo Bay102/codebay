@@ -104,14 +104,16 @@ export function DashboardHero({
 
       <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
         <div className="max-w-3xl pb-2">
+
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
             <LayoutDashboard className="h-3.5 w-3.5" />
-            CodingBay Community
+            Your Dashboard
           </div>
 
           <h1 className="font-hero mt-4 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl lg:text-4xl">
             {greeting}, {name}
           </h1>
+
           <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
             {allStepsComplete
               ? "Your hub is set up. Manage your profile, run your blog workflow, and stay on top of community activity."
@@ -138,7 +140,7 @@ export function DashboardHero({
               href="/"
               className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/40 bg-emerald-500 px-3.5 py-2 text-xs font-medium text-emerald-50 shadow-sm transition-colors hover:bg-emerald-600 hover:text-emerald-50 sm:text-sm"
             >
-              Explore community
+              Explore
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link

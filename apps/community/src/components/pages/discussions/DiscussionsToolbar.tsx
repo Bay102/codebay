@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useTransition } from "react";
+import { Search } from "lucide-react";
 import { Button, FilterDropdown, Input } from "@codebay/ui";
 import type { TagOption } from "@/lib/tags";
 
@@ -66,20 +67,29 @@ export function DiscussionsToolbar({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <form
           onSubmit={handleSearchSubmit}
-          className="flex w-full min-w-0 gap-2 sm:max-w-sm"
+          className="w-full min-w-0 sm:max-w-sm"
           role="search"
         >
-          <Input
-            type="search"
-            name="q"
-            defaultValue={currentQuery}
-            placeholder="Search by title, author, or topic…"
-            className="min-w-0"
-            aria-label="Search discussions"
-          />
-          <Button type="submit" variant="secondary" size="default" disabled={isPending}>
-            Search
-          </Button>
+          <div className="relative w-full">
+            <Input
+              type="search"
+              name="q"
+              defaultValue={currentQuery}
+              placeholder="Search by title, author, or topic…"
+              className="min-w-0 pr-10"
+              aria-label="Search discussions"
+            />
+            <Button
+              type="submit"
+              variant="secondary"
+              size="icon"
+              disabled={isPending}
+              className="absolute right-1.5 top-1/2 h-8 w-8 -translate-y-1/2"
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only">Search</span>
+            </Button>
+          </div>
         </form>
         <Button asChild variant="outline" size="default" className="w-full sm:w-auto">
           <a href="/dashboard/discussions/new">New discussion</a>
