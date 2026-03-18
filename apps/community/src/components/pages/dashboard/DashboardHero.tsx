@@ -15,7 +15,6 @@ type DashboardHeroStats = {
 
 type DashboardHeroProps = {
   name: string;
-  username: string | null;
   stats?: DashboardHeroStats;
   /** When hub setup is complete, pass up to 3 unread activity items for the notification quick view. */
   quickViewActivityItems?: DashboardActivityItem[];
@@ -55,7 +54,6 @@ function formatRelativeTime(createdAt: string): string {
 
 export function DashboardHero({
   name,
-  username,
   stats,
   quickViewActivityItems = [],
   onViewAllNotifications: onViewAllNotificationsProp
@@ -66,10 +64,12 @@ export function DashboardHero({
   const allStepsComplete = stats && stats.nextStepsTotal > 0 && stats.nextStepsDone >= stats.nextStepsTotal;
   const discussionCount = stats?.discussionCount ?? 0;
   const publishedCount = stats?.publishedPostCount ?? 0;
+
   const stepsLabel =
     stats && stats.nextStepsTotal > 0
       ? `${stats.nextStepsDone}/${stats.nextStepsTotal} setup`
       : "Hub ready";
+
   const showNotificationQuickView = allStepsComplete;
   const quickViewItems = quickViewActivityItems.slice(0, 3);
 

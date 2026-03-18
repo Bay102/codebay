@@ -127,7 +127,6 @@ export default async function CommunityDashboardPage() {
         <DashboardNotificationModalProvider>
           <DashboardHero
             name={profile.name}
-            username={profile.username}
             stats={{
               discussionCount: discussions.length,
               publishedPostCount: blogSummary.publishedCount,
