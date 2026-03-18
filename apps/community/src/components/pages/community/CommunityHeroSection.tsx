@@ -221,21 +221,26 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
         </div>
 
         <div className="grid gap-3">
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
             {metricItems.map((metric) => (
-              <div key={metric.label} className="rounded-2xl border border-border/60 bg-background/80 p-3.5 backdrop-blur">
-                <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">{metric.label}</div>
-                <div className="mt-2 font-mono-ticker text-2xl font-semibold uppercase tracking-[0.18em] text-foreground">
+              <div
+                key={metric.label}
+                className="rounded-2xl border border-border/60 bg-background/80 p-2.5 backdrop-blur sm:p-3.5"
+              >
+                <div className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px] sm:tracking-[0.24em]">
+                  {metric.label}
+                </div>
+                <div className="mt-1.5 font-mono-ticker text-lg font-semibold uppercase tracking-[0.14em] text-foreground sm:mt-2 sm:text-2xl sm:tracking-[0.18em]">
                   {metric.value}
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">{metric.detail}</div>
+                <div className="mt-0.5 text-[10px] text-muted-foreground sm:mt-1 sm:text-xs">{metric.detail}</div>
               </div>
             ))}
           </div>
 
           <div className="grid gap-3">
-            <div className="grid gap-3 lg:grid-cols-2">
-              <div className="flex h-full max-h-64 flex-col overflow-hidden rounded-xl border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
+            <div className="grid items-stretch gap-3 lg:grid-cols-2">
+              <div className="flex h-64 flex-col overflow-hidden rounded-xl border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <MessageSquareText className="h-3.5 w-3.5 text-primary" />
                   Live discussion
@@ -268,7 +273,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
                       {trendingDiscussion.title}
                     </Link>
                     <div
-                      className="mt-1 line-clamp-1 text-xs leading-5 text-muted-foreground prose prose-invert prose-[0.8rem] max-w-none sm:line-clamp-2 sm:text-sm sm:leading-6 [&_code]:rounded-[4px] [&_code]:bg-muted/80 [&_code]:px-1 [&_code]:py-0.5 [&_pre]:my-1.5 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-muted/80 [&_pre]:p-2 [&_pre]:text-[11px]"
+                      className="mt-1 line-clamp-1 text-xs leading-5 text-muted-foreground prose prose-invert prose-[0.8rem] max-w-none sm:text-sm sm:leading-6 [&_code]:rounded-[4px] [&_code]:bg-muted/80 [&_code]:px-1 [&_code]:py-0.5 [&_pre]:my-1.5 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-muted/80 [&_pre]:p-2 [&_pre]:text-[11px]"
                       dangerouslySetInnerHTML={{
                         __html: stripCodeFromHtml(
                           getDiscussionBodyHtml(
@@ -295,7 +300,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
                 )}
               </div>
 
-              <div className="flex h-full flex-col rounded-xl border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
+              <div className="flex h-64 flex-col overflow-hidden rounded-xl border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <Rss className="h-3.5 w-3.5 text-primary" />
                   Featured post

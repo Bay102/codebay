@@ -114,6 +114,10 @@ export interface DashboardActivityItem {
   description: string;
   createdAt: string;
   isRead: boolean;
+  /** Username (without @) of the actor that triggered this activity, when available. */
+  actorUsername?: string | null;
+  /** Reaction type (e.g. "insightful") when this activity is a reaction. */
+  reactionType?: string | null;
   /** Public URL to navigate to. Omit for direct_message (messaging not built yet). */
   href?: string;
 }
@@ -521,7 +525,8 @@ export async function fetchDashboardActivity(
 ): Promise<DashboardActivityItem[]> {
   const resolvedLimit = limit ?? 8;
   const postSlugs = Object.keys(postMapBySlug);
-  const items: Array<Omit<DashboardActivityItem, "isRead">> = [];
+  type ActivityDraft = Omit<DashboardActivityItem, "isRead" | "actorUsername"> & { actorUserId?: string | null };
+  const items: ActivityDraft[] = [];
 
   if (postSlugs.length > 0) {
     const incomingCommentsResult = await supabase
@@ -560,6 +565,7 @@ export async function fetchDashboardActivity(
           title: "New comment on your post",
           description: `${comment.author_name ?? "A reader"} commented on "${post.title}"`,
           createdAt: comment.created_at,
+          actorUserId: comment.author_id,
           href: articleHref
         });
       });
@@ -613,6 +619,7 @@ export async function fetchDashboardActivity(
         title: "Reply to your comment",
         description: `${reply.author_name ?? "A reader"} replied to your comment on "${post.title}"`,
         createdAt: reply.created_at,
+        actorUserId: reply.author_id,
         href: articleHref
       });
     });
@@ -631,7 +638,7 @@ export async function fetchDashboardActivity(
 
     (reactionRows ?? [])
       .slice(0, resolvedLimit)
-      .forEach((reaction: { id: string; slug: string; reaction_type: string; created_at: string }) => {
+      .forEach((reaction: { id: string; slug: string; reaction_type: string; user_id: string; created_at: string }) => {
         const post = postMapBySlug[reaction.slug];
         if (!post) return;
 
@@ -644,7 +651,9 @@ export async function fetchDashboardActivity(
           kind: "blog_reaction",
           title: "New reaction on your post",
           description: `Someone ${reactionLabel} "${post.title}"`,
+          reactionType: reaction.reaction_type,
           createdAt: reaction.created_at,
+          actorUserId: reaction.user_id,
           href: articleHref
         });
       });
@@ -702,6 +711,7 @@ export async function fetchDashboardActivity(
             title: "New comment on your discussion",
             description: `${comment.author_name ?? "A member"} commented on "${discussion.title}"`,
             createdAt: comment.created_at,
+            actorUserId: comment.author_id,
             href: `${communityUrl}/discussions/${discussion.slug}`
           });
         }
@@ -725,7 +735,9 @@ export async function fetchDashboardActivity(
             kind: "discussion_reaction",
             title: "New reaction on your discussion",
             description: `Someone reacted to "${discussion.title}"`,
+            reactionType: reaction.reaction_type,
             createdAt: reaction.created_at,
+            actorUserId: reaction.user_id,
             href: `${communityUrl}/discussions/${discussion.slug}`
           });
         }
@@ -762,10 +774,23 @@ export async function fetchDashboardActivity(
     (readsResult.data ?? []).map((row: { activity_id: string }) => row.activity_id)
   );
 
+  const actorIds = [
+    ...new Set(items.map((item) => item.actorUserId).filter((id): id is string => typeof id === "string"))
+  ];
+  const usernameById = new Map<string, string>();
+
+  if (actorIds.length > 0) {
+    const { data: actorRows } = await supabase.from("community_users").select("id,username").in("id", actorIds);
+    ((actorRows ?? []) as Array<{ id: string; username: string }>).forEach((row) => {
+      usernameById.set(row.id, row.username);
+    });
+  }
+
   return items
     .filter((item) => !readIds.has(item.id))
     .map((item) => ({
       ...item,
+      actorUsername: item.actorUserId ? usernameById.get(item.actorUserId) ?? null : null,
       isRead: false
     }))
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))

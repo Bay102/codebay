@@ -28,6 +28,12 @@ export function DismissibleNextStepsCard({ steps, onDismiss }: DismissibleNextSt
 
   if (!isVisible) return null;
 
+  const stepValues = Object.values(steps);
+  const done = stepValues.filter(Boolean).length;
+  const total = stepValues.length;
+  const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+  const progress = Math.min(100, Math.max(0, percent));
+
   const {
     profileComplete,
     preferredTopicsComplete,
@@ -65,8 +71,31 @@ export function DismissibleNextStepsCard({ steps, onDismiss }: DismissibleNextSt
       >
         x
       </button>
-      <h3 className="pr-10 text-sm font-semibold uppercase tracking-wide text-muted-foreground">Establish your presence</h3>
-      <ul className="mt-3 space-y-2.5 text-sm text-muted-foreground">
+      <div className="flex flex-col gap-3 pr-10">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              Establish your presence
+            </h3>
+            <div className="mt-2 flex flex-col gap-2">
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-sm text-foreground">
+                  {done} of {total} steps complete
+                </p>
+                <span className="text-sm font-semibold tabular-nums text-foreground">{percent}%</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-border/60">
+                <div
+                  className="h-full rounded-full bg-primary transition-[width]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
         <li className="flex items-start gap-2">
           {renderStatusIcon(profileComplete)}
           <span>Set up your profile details and preferences.</span>

@@ -6,7 +6,6 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { DashboardActivitySection } from "@/components/pages/dashboard/DashboardActivitySection";
 import { DashboardBlogPostsTable } from "@/components/pages/dashboard/DashboardBlogPostsTable";
 import { DashboardDiscussionsTable } from "@/components/pages/dashboard/DashboardDiscussionsTable";
-import { DashboardEngagementCard } from "@/components/pages/dashboard/DashboardEngagementCard";
 import { DashboardHero } from "@/components/pages/dashboard/DashboardHero";
 import { DashboardKpiRow } from "@/components/pages/dashboard/DashboardKpiRow";
 import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOverviewCard";
@@ -136,17 +135,13 @@ export default async function CommunityDashboardPage() {
             quickViewActivityItems={!hasAnyIncompleteStep ? overviewActivityItems.slice(0, 3) : undefined}
           />
 
-
-          <div
-            id="activity"
-            className={`mt-6 grid gap-4 ${hasAnyIncompleteStep ? "md:grid-cols-1 lg:grid-cols-2" : "md:grid-cols-1"}`}
-          >
-            {hasAnyIncompleteStep && <DashboardEngagementCard nextSteps={nextSteps} />}
+          <div id="activity" className="mt-6">
             <DashboardActivitySection
               showNextSteps={hasAnyIncompleteStep}
               nextSteps={nextSteps}
               overviewActivityItems={overviewActivityItems}
               activityItems={activityItems}
+              hideNotificationsCard
             />
           </div>
         </DashboardNotificationModalProvider>

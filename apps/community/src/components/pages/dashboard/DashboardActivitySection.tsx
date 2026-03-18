@@ -20,6 +20,8 @@ type DashboardActivitySectionProps = {
   nextSteps: NextStepsState;
   overviewActivityItems: DashboardActivityItem[];
   activityItems: DashboardActivityItem[];
+  /** Hide the on-page notifications card (modal still works via hero). */
+  hideNotificationsCard?: boolean;
   /** When set, the notifications modal can be opened from outside (e.g. hero "View all"). */
   notificationModalOpen?: boolean;
   onNotificationModalOpenChange?: (open: boolean) => void;
@@ -30,6 +32,7 @@ export function DashboardActivitySection({
   nextSteps,
   overviewActivityItems,
   activityItems,
+  hideNotificationsCard = false,
   notificationModalOpen: notificationModalOpenProp,
   onNotificationModalOpenChange: onNotificationModalOpenChangeProp
 }: DashboardActivitySectionProps) {
@@ -37,7 +40,7 @@ export function DashboardActivitySection({
   const modal = useDashboardNotificationModal();
   const notificationModalOpen = notificationModalOpenProp ?? modal?.open;
   const onNotificationModalOpenChange = onNotificationModalOpenChangeProp ?? modal?.setOpen;
-  const hasTwoCards = showNextSteps && nextStepsVisible;
+  const hasTwoCards = showNextSteps && nextStepsVisible && !hideNotificationsCard;
   const gridCols = hasTwoCards ? "md:grid-cols-2" : "md:grid-cols-1";
 
   return (
@@ -45,12 +48,24 @@ export function DashboardActivitySection({
       {showNextSteps ? (
         <DismissibleNextStepsCard steps={nextSteps} onDismiss={() => setNextStepsVisible(false)} />
       ) : null}
-      <ActivityOverviewCard
-        items={overviewActivityItems}
-        allItems={activityItems}
-        modalOpen={notificationModalOpen}
-        onModalOpenChange={onNotificationModalOpenChange}
-      />
+      {hideNotificationsCard ? (
+        <div className="hidden">
+          <ActivityOverviewCard
+            hideCard
+            items={overviewActivityItems}
+            allItems={activityItems}
+            modalOpen={notificationModalOpen}
+            onModalOpenChange={onNotificationModalOpenChange}
+          />
+        </div>
+      ) : (
+        <ActivityOverviewCard
+          items={overviewActivityItems}
+          allItems={activityItems}
+          modalOpen={notificationModalOpen}
+          onModalOpenChange={onNotificationModalOpenChange}
+        />
+      )}
     </div>
   );
 }
