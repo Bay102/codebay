@@ -6,7 +6,7 @@ import { DiscussionAuthorAvatar } from "@/components/pages/discussions/Discussio
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
 import { buildPostUrl } from "@/lib/blog-urls";
 import { getDiscussionBodyHtml, getDiscussionsWithCounts } from "@/lib/discussions";
-import { fetchFeaturedBlogPosts, fetchTrendingTopics } from "@/lib/landing";
+import { fetchFeaturedBlogPosts } from "@/lib/landing";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type CommunityHeroSectionProps = {
@@ -87,7 +87,7 @@ function SignalMetricGrid({
                 >
                   {metric.label}
                 </span>
-                <Icon className={`shrink-0 text-primary/80 ${compact ? "h-2.5 w-2.5" : "h-3 w-3"}`} />
+                <Icon className={`shrink-0 text-primary/80 ${compact ? "h-3.5 w-3.5" : "h-4 w-4"}`} />
               </div>
               <div
                 className={`font-mono-ticker font-semibold leading-none text-foreground ${compact ? "mt-0.5 text-base sm:text-lg" : "mt-1 text-lg sm:text-xl"}`}
@@ -103,11 +103,11 @@ function SignalMetricGrid({
 }
 
 export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionProps) {
-  const [topics, featuredPosts, trendingDiscussion] = await Promise.all([
-    fetchTrendingTopics(5),
+  const supabase = await createServerSupabaseClient();
+
+  const [featuredPosts, trendingDiscussion, monthlyBlogPostCount, monthlyDiscussionCount] = await Promise.all([
     fetchFeaturedBlogPosts(1),
     (async () => {
-      const supabase = await createServerSupabaseClient();
       if (!supabase) return null;
       const discussions = await getDiscussionsWithCounts(supabase, {
         limit: 1,
@@ -115,20 +115,43 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
         orderByTrend: true
       });
       return discussions[0] ?? null;
+    })(),
+    (async () => {
+      if (!supabase) return 0;
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const { count, error } = await supabase
+        .from("blog_posts")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "published")
+        .gte("published_at", monthStart);
+      if (error || typeof count !== "number") return 0;
+      return count;
+    })(),
+    (async () => {
+      if (!supabase) return 0;
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const { count, error } = await supabase
+        .from("discussions")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", monthStart);
+      if (error || typeof count !== "number") return 0;
+      return count;
     })()
   ]);
 
   const featuredPost = featuredPosts[0] ?? null;
   const metricItems = [
     {
-      label: "Topics in motion",
-      value: formatCompactNumber(topics.length || 0),
-      detail: "signal clusters"
+      label: "New blog posts",
+      value: formatCompactNumber(monthlyBlogPostCount),
+      detail: "published this month"
     },
     {
-      label: "Discussion activity",
-      value: formatCompactNumber((trendingDiscussion?.commentCount ?? 0) + (trendingDiscussion?.reactionCount ?? 0)),
-      detail: "comments + reactions"
+      label: "New discussions",
+      value: formatCompactNumber(monthlyDiscussionCount),
+      detail: "created this month"
     },
     {
       label: "Post engagement",
@@ -198,7 +221,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
         </div>
 
         <div className="grid gap-3">
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-3">
             {metricItems.map((metric) => (
               <div key={metric.label} className="rounded-2xl border border-border/60 bg-background/80 p-3.5 backdrop-blur">
                 <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">{metric.label}</div>
@@ -211,42 +234,6 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
           </div>
 
           <div className="grid gap-3">
-            {/* <div className="rounded-[1.5rem] border border-border/60 bg-background/80 p-4 backdrop-blur">
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-                  Trending topics
-                </div>
-                <Link
-                  href={blogUrl}
-                  className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  Explore
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {primaryTopics.length > 0 ? (
-                  primaryTopics.map((topic, index) => (
-                    <Link
-                      key={topic.tag}
-                      href={`${blogUrl}?tag=${encodeURIComponent(topic.tag)}`}
-                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                        index === 0
-                          ? "border-primary/30 bg-primary/10 text-primary"
-                          : "border-border/70 bg-card text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <span className="font-mono-ticker uppercase tracking-[0.16em]">{topic.tag}</span>
-                      <span className="text-muted-foreground">{topic.postCount}</span>
-                    </Link>
-                  ))
-                ) : (
-                  <div className="text-sm text-muted-foreground">Topics will appear here as the feed warms up.</div>
-                )}
-              </div>
-            </div> */}
-
             <div className="grid gap-3 lg:grid-cols-2">
               <div className="flex h-full max-h-64 flex-col overflow-hidden rounded-xl border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">

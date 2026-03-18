@@ -68,9 +68,6 @@ export function TrendingTopicsTicker({ topics, blogUrl }: TrendingTopicsTickerPr
             <Flame className="h-3.5 w-3.5 text-primary" />
           </span>
           <span className="h-px flex-1 bg-border/60" />
-          <span className="hidden text-[10px] uppercase tracking-[0.22em] text-muted-foreground sm:inline">
-            live community signal
-          </span>
         </div>
 
         <div className="relative">

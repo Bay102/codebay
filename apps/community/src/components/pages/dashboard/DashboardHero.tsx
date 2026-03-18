@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Activity, ArrowRight, Bell, FileText, LayoutDashboard, MessageSquareText } from "lucide-react";
+import { Activity, Bell, FileText, LayoutDashboard, MessageSquareText } from "lucide-react";
 import { SurfaceCard } from "@codebay/ui";
 import type { DashboardActivityItem } from "@/lib/dashboard";
 import { useDashboardNotificationModal } from "@/contexts/DashboardNotificationModalContext";
+import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
 
 type DashboardHeroStats = {
   discussionCount: number;
@@ -15,7 +16,6 @@ type DashboardHeroStats = {
 
 type DashboardHeroProps = {
   name: string;
-  username: string | null;
   stats?: DashboardHeroStats;
   /** When hub setup is complete, pass up to 3 unread activity items for the notification quick view. */
   quickViewActivityItems?: DashboardActivityItem[];
@@ -55,7 +55,6 @@ function formatRelativeTime(createdAt: string): string {
 
 export function DashboardHero({
   name,
-  username,
   stats,
   quickViewActivityItems = [],
   onViewAllNotifications: onViewAllNotificationsProp
@@ -66,10 +65,12 @@ export function DashboardHero({
   const allStepsComplete = stats && stats.nextStepsTotal > 0 && stats.nextStepsDone >= stats.nextStepsTotal;
   const discussionCount = stats?.discussionCount ?? 0;
   const publishedCount = stats?.publishedPostCount ?? 0;
+
   const stepsLabel =
     stats && stats.nextStepsTotal > 0
       ? `${stats.nextStepsDone}/${stats.nextStepsTotal} setup`
       : "Hub ready";
+
   const showNotificationQuickView = allStepsComplete;
   const quickViewItems = quickViewActivityItems.slice(0, 3);
 
@@ -135,27 +136,7 @@ export function DashboardHero({
             </span>
           </div>
 
-          <nav className="mt-5 flex flex-wrap items-center gap-2.5 text-sm">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/40 bg-emerald-500 px-3.5 py-2 text-xs font-medium text-emerald-50 shadow-sm transition-colors hover:bg-emerald-600 hover:text-emerald-50 sm:text-sm"
-            >
-              Explore
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              href="/dashboard/discussions/new"
-              className="inline-flex items-center rounded-md border border-border/70 bg-card/40 px-3.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
-            >
-              Start a discussion
-            </Link>
-            <Link
-              href="/dashboard/blog"
-              className="inline-flex items-center rounded-md border border-border/70 bg-card/40 px-3.5 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground sm:text-sm"
-            >
-              Blog Dashboard
-            </Link>
-          </nav>
+          <DashboardHeroButtons hasSession variant="dashboard" />
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
