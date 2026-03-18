@@ -73,13 +73,13 @@ export function TopicPillsPicker({
             aria-pressed={isSelected}
           >
             <Tag
-              variant="tech"
-              size="sm"
+              variant="pill"
+              size="lg"
               className={cn(
-                isSelected && "text-primary underline"
+                isSelected && "text-primary"
               )}
             >
-              {renderLabel ? renderLabel(option, isSelected) : `#${option.label}`}
+              {renderLabel ? renderLabel(option, isSelected) : option.label}
             </Tag>
           </button>
         );

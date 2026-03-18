@@ -121,7 +121,7 @@ export default async function CommunityDashboardPage() {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-6xl px-2 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-2 sm:px-6 lg:px-8">
 
         <DashboardNotificationModalProvider>
           <DashboardHero

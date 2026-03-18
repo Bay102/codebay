@@ -160,7 +160,7 @@ export function SidebarNavMenu({
       <SheetContent
         side={side}
         className={cn(
-          "flex w-full flex-col gap-0 p-0 w-3/5 sm:max-w-sm",
+          "flex w-full flex-col gap-0 p-0 w-3/5 sm:max-w-[20%]",
           "data-[state=closed]:duration-1000 data-[state=open]:duration-1000",
           className
         )}

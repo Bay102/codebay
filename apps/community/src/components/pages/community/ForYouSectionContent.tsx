@@ -134,6 +134,7 @@ export function ForYouSectionContent({ discussions, posts }: ForYouSectionConten
                     discussion={discussion}
                     href={`/discussions/${discussion.slug}`}
                     showAuthor
+                    showAuthorAvatar
                     showDate
                     showEngagement
                     showTags
@@ -165,6 +166,7 @@ export function ForYouSectionContent({ discussions, posts }: ForYouSectionConten
                   post={cardData}
                   href={buildPostUrl(post.authorName, post.slug)}
                   showAuthor
+                  showAuthorAvatar
                   showDate
                   showEngagement
                   showTags

@@ -89,7 +89,7 @@ export function mapForYouDiscussionToDiscussionCardData(discussion: ForYouDiscus
     title: discussion.title,
     body: buildDiscussionPreviewBody(discussion.body),
     createdAt: discussion.createdAt,
-    authorAvatarUrl: null,
+    authorAvatarUrl: discussion.authorAvatarUrl,
     authorUsername: discussion.authorUsername,
     tags: discussion.tags,
     commentCount: discussion.commentCount,
