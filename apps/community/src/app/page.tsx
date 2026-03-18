@@ -44,7 +44,7 @@ export default async function CommunityLandingPage() {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-7xl px-2 py-4 md:pb-10 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-2 md:pb-10 lg:px-8">
         <InViewSection>
           <CommunityHeroSection hasSession={hasSession} />
 

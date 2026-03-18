@@ -221,7 +221,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
         </div>
 
         <div className="grid gap-3">
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-3">
             {metricItems.map((metric) => (
               <div key={metric.label} className="rounded-2xl border border-border/60 bg-background/80 p-3.5 backdrop-blur">
                 <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">{metric.label}</div>

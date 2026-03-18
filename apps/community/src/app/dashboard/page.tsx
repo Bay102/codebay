@@ -121,8 +121,8 @@ export default async function CommunityDashboardPage() {
   const hasAnyIncompleteStep = Object.values(nextSteps).some((value) => !value);
 
   return (
-    <main className="min-h-screen bg-background">
-      <section className="mx-auto w-full max-w-6xl p-3 sm:px-6 lg:px-8">
+    <main className="bg-background">
+      <section className="mx-auto w-full max-w-6xl px-2 sm:px-6 lg:px-8">
 
         <DashboardNotificationModalProvider>
           <DashboardHero
