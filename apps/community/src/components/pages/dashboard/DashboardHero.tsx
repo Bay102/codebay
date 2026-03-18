@@ -39,6 +39,17 @@ const kindLabel: Record<DashboardActivityItem["kind"], string> = {
   discussion_reaction: "Reaction"
 };
 
+function formatNotificationDetails(item: DashboardActivityItem): string {
+  const parts: string[] = [];
+  if (item.actorUsername) {
+    parts.push(`@${item.actorUsername}`);
+  }
+  if (item.reactionType) {
+    parts.push(item.reactionType);
+  }
+  return parts.join(" · ");
+}
+
 function formatRelativeTime(createdAt: string): string {
   const date = new Date(createdAt);
   const now = new Date();
@@ -194,6 +205,12 @@ export function DashboardHero({
                       )}
                       <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                         <span>{kindLabel[item.kind]}</span>
+                        {formatNotificationDetails(item) ? (
+                          <>
+                            <span>·</span>
+                            <span className="line-clamp-1">{formatNotificationDetails(item)}</span>
+                          </>
+                        ) : null}
                         <span>·</span>
                         <span>{formatRelativeTime(item.createdAt)}</span>
                       </div>

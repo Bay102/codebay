@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { MessageSquareText, Zap } from "lucide-react";
 import { SurfaceCard } from "../SurfaceCard";
 import { Tag } from "../Tag";
 import { cn } from "../utils";
@@ -47,6 +48,8 @@ export function DiscussionCard({
       ? "p-4"
       : "";
 
+  const showFooterRow = (showTags && discussion.tags.length > 0) || showEngagement;
+
   return (
     <SurfaceCard
       as="article"
@@ -61,7 +64,7 @@ export function DiscussionCard({
         <div className="flex min-h-0 flex-1 flex-wrap items-stretch justify-between gap-3">
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             <div className="min-h-0 flex-1">
-              {showAuthor || showDate || showEngagement ? (
+              {showAuthor || showDate ? (
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   {showAuthorAvatar && discussion.authorAvatarUrl ? (
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary/70 text-[10px] font-medium text-foreground">
@@ -79,15 +82,6 @@ export function DiscussionCard({
                     {showDate ? (
                       <time dateTime={discussion.createdAt}>{formatDate(discussion.createdAt)}</time>
                     ) : null}
-                    {showEngagement ? (
-                      <>
-                        <span aria-hidden>·</span>
-                        <span>
-                          {discussion.commentCount} comments
-                        </span>
-                        <span>{discussion.reactionCount} reactions</span>
-                      </>
-                    ) : null}
                   </span>
                 </div>
               ) : null}
@@ -103,13 +97,35 @@ export function DiscussionCard({
               ) : null}
             </div>
 
-            {showTags && discussion.tags.length > 0 ? (
-              <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
-                {discussion.tags.map((tag) => (
-                  <Tag key={tag} variant="tech">
-                    {tag}
-                  </Tag>
-                ))}
+            {showFooterRow ? (
+              <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
+                {showTags && discussion.tags.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {discussion.tags.map((tag) => (
+                      <Tag key={tag} variant="tech">
+                        #{tag}
+                      </Tag>
+                    ))}
+                  </div>
+                ) : (
+                  <div />
+                )}
+
+                {showEngagement ? (
+                  <div className="ml-auto flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                      <span className="tabular-nums">{discussion.commentCount}</span>
+                      <span className="sr-only">comments</span>
+                    </span>
+                    <span aria-hidden>·</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Zap className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                      <span className="tabular-nums">{discussion.reactionCount}</span>
+                      <span className="sr-only">reactions</span>
+                    </span>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

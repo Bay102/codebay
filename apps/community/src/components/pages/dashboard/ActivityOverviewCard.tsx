@@ -10,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
 type ActivityOverviewCardProps = {
   items: DashboardActivityItem[];
   allItems: DashboardActivityItem[];
+  /** When true, only mount the modal logic (hide the on-page card). */
+  hideCard?: boolean;
   /** When provided, the notifications modal is controlled from the parent (e.g. hero "View all"). */
   modalOpen?: boolean;
   onModalOpenChange?: (open: boolean) => void;
@@ -24,9 +26,21 @@ const kindLabel: Record<DashboardActivityItem["kind"], string> = {
   discussion_reaction: "Discussion reaction"
 };
 
+function formatActivityDetails(item: DashboardActivityItem): string {
+  const parts: string[] = [];
+  if (item.actorUsername) {
+    parts.push(`@${item.actorUsername}`);
+  }
+  if (item.reactionType) {
+    parts.push(item.reactionType);
+  }
+  return parts.join(" · ");
+}
+
 export function ActivityOverviewCard({
   items,
   allItems,
+  hideCard = false,
   modalOpen: controlledModalOpen,
   onModalOpenChange
 }: ActivityOverviewCardProps) {
@@ -101,6 +115,7 @@ export function ActivityOverviewCard({
 
   const renderActivityItem = (item: DashboardActivityItem, variant: "compact" | "full") => {
     const isMarking = markingIds.has(item.id) || markingAll;
+    const details = formatActivityDetails(item);
     const leftContent = (
       <>
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">
@@ -108,6 +123,7 @@ export function ActivityOverviewCard({
         </p>
         <p className="mt-1 text-sm font-medium text-foreground">{item.title}</p>
         <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+        {details ? <p className="mt-1 text-sm text-muted-foreground">{details}</p> : null}
         <p className="mt-2 text-[11px] text-muted-foreground">
           {new Date(item.createdAt).toLocaleString()}
         </p>
@@ -165,6 +181,38 @@ export function ActivityOverviewCard({
     );
   };
 
+  const modal = (
+    <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader className="flex flex-row items-center justify-between gap-3">
+          <DialogTitle>Notifications</DialogTitle>
+          {modalItems.length > 0 ? (
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={() => void handleMarkAllRead()}
+              disabled={markingAll}
+            >
+              <CheckCheck className="h-4 w-4" />
+              <span className="sr-only">Mark all activity as read</span>
+            </button>
+          ) : null}
+        </DialogHeader>
+        {modalItems.length > 0 ? (
+          <div className="mt-2 max-h-[60vh] space-y-2 overflow-y-auto pr-1">
+            {modalItems.map((item) => renderActivityItem(item, "full"))}
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">You have no recent activity.</p>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+
+  if (hideCard) {
+    return modal;
+  }
+
   return (
     <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
@@ -190,31 +238,7 @@ export function ActivityOverviewCard({
         </p>
       )}
 
-      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader className="flex flex-row items-center justify-between gap-3">
-            <DialogTitle>Notifications</DialogTitle>
-            {modalItems.length > 0 ? (
-              <button
-                type="button"
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-                onClick={() => void handleMarkAllRead()}
-                disabled={markingAll}
-              >
-                <CheckCheck className="h-4 w-4" />
-                <span className="sr-only">Mark all activity as read</span>
-              </button>
-            ) : null}
-          </DialogHeader>
-          {modalItems.length > 0 ? (
-            <div className="mt-2 max-h-[60vh] space-y-2 overflow-y-auto pr-1">
-              {modalItems.map((item) => renderActivityItem(item, "full"))}
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-muted-foreground">You have no recent activity.</p>
-          )}
-        </DialogContent>
-      </Dialog>
+      {modal}
     </article>
   );
 }
