@@ -309,7 +309,7 @@ export async function fetchForYouBlogPosts(
   const { data: rows, error } = await supabase
     .from("blog_posts")
     .select(
-      "id,slug,title,excerpt,author_id,author_name,published_at,is_featured,featured_on_community_landing,tags"
+      "id,slug,title,excerpt,author_id,author_name,published_at,is_featured,featured_on_community_landing,tags,community_users!blog_posts_author_id_fkey(avatar_url)"
     )
     .eq("status", "published")
     .overlaps("tags", tagNames)
@@ -317,10 +317,12 @@ export async function fetchForYouBlogPosts(
     .limit(limit);
 
   if (error || !rows) return [];
-  const blogRows = rows as BlogPostRow[];
+  const blogRows = rows as (BlogPostRow & { community_users: { avatar_url: string | null } | null })[];
   const slugs = blogRows.map((r) => r.slug);
   const engagementMap = await fetchEngagementCountsForSlugs(supabase, slugs);
-  return blogRows.map((row) => mapPostRowToLandingPost(row, engagementMap[row.slug]));
+  return blogRows.map((row) =>
+    mapPostRowToLandingPost(row, engagementMap[row.slug], row.community_users?.avatar_url ?? null)
+  );
 }
 
 export type ForYouDiscussion = {
@@ -330,6 +332,7 @@ export type ForYouDiscussion = {
   body: string;
   authorName: string;
   authorUsername: string;
+  authorAvatarUrl: string | null;
   createdAt: string;
   tags: string[];
   commentCount: number;
@@ -358,7 +361,7 @@ export async function fetchForYouDiscussions(
   const { data: rows, error } = await supabase
     .from("discussions")
     .select(
-      "id,slug,title,body,author_id,created_at,updated_at,tags,community_users!discussions_author_id_fkey(name,username)"
+      "id,slug,title,body,author_id,created_at,updated_at,tags,community_users!discussions_author_id_fkey(name,username,avatar_url)"
     )
     .overlaps("tags", tagNames)
     .order("created_at", { ascending: false })
@@ -380,7 +383,15 @@ export async function fetchForYouDiscussions(
     reactionByDiscussion.set(r.discussion_id, (reactionByDiscussion.get(r.discussion_id) ?? 0) + 1);
   });
 
-  return (rows as { id: string; slug: string; title: string; body: string; created_at: string; tags: string[]; community_users: { name: string; username: string } | null }[]).map(
+  return (rows as {
+    id: string;
+    slug: string;
+    title: string;
+    body: string;
+    created_at: string;
+    tags: string[];
+    community_users: { name: string; username: string; avatar_url: string | null } | null;
+  }[]).map(
     (r) => ({
       id: r.id,
       slug: r.slug,
@@ -388,6 +399,7 @@ export async function fetchForYouDiscussions(
       body: r.body ?? "",
       authorName: r.community_users?.name ?? "Unknown",
       authorUsername: r.community_users?.username ?? "unknown",
+      authorAvatarUrl: r.community_users?.avatar_url ?? null,
       createdAt: r.created_at,
       tags: r.tags ?? [],
       commentCount: commentByDiscussion.get(r.id) ?? 0,

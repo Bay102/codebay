@@ -31,6 +31,7 @@ export async function TrendingDiscussionsSection() {
             discussion={discussion}
             href={`/discussions/${discussion.slug}`}
             showAuthor
+            showAuthorAvatar
             showDate
             showEngagement
             showTags

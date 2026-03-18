@@ -1,12 +1,13 @@
 "use client";
 
-import Link from "next/link";
 import type { FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { useEffect, useRef, useState } from "react";
+import { ThumbsDown, ThumbsUp } from "lucide-react";
 import type { Tables, TablesInsert } from "@/lib/database";
 import { communityUrl, siteUrl } from "@/lib/site-urls";
 import { useAuth } from "@/contexts/AuthContext";
+import { EngagementPanel } from "@/components/shared/engagement/EngagementPanel";
 
 type ReactionType = "like" | "insightful" | "love";
 type ReactionResponse = "up" | "down";
@@ -90,9 +91,8 @@ function CommentThread({
         </p>
       </div>
       <p
-        className={`mt-2 whitespace-pre-line leading-relaxed text-muted-foreground ${
-          isNested ? "text-xs" : "text-sm"
-        }`}
+        className={`mt-2 whitespace-pre-line leading-relaxed text-muted-foreground ${isNested ? "text-xs" : "text-sm"
+          }`}
       >
         {comment.body}
       </p>
@@ -473,194 +473,153 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
   const communityJoinHref = `${communityUrl}/join?redirect=${encodeURIComponent(`${siteUrl}${postPath}`)}`;
   const signInHref = `/sign-in?redirect=${encodeURIComponent(postPath)}`;
   const hasEngagementAccess = !!session;
+  const engagementSubtitle =
+    viewCount === null
+      ? "Loading views..."
+      : `${viewCount.toLocaleString()} views - ${totalReactions} reactions - ${totalCommentCount} comment${totalCommentCount === 1 ? "" : "s"
+      }`;
+
+  const reactionCards = reactionOptions.map((option) => {
+    const counts = reactionCounts[option.type];
+    const totalForType = counts.up + counts.down;
+    const upPct = totalForType > 0 ? Math.round((counts.up / totalForType) * 100) : 0;
+    const hasReactedToType = !!userReactions[option.type];
+    const canReact = hasEngagementAccess && !isLoading && !isAuthLoading && reactionSubmitting === null;
+
+    return {
+      label: option.label,
+      icon: option.icon,
+      summary:
+        totalForType > 0
+          ? `${upPct}% positive - ${totalForType} vote${totalForType === 1 ? "" : "s"}`
+          : "No feedback yet",
+      progressPct: totalForType > 0 ? upPct : 0,
+      actions: !hasReactedToType
+        ? {
+          primary: {
+            icon: <ThumbsUp className="h-4 w-4" strokeWidth={2} aria-hidden />,
+            onClick: () => void handleReact(option.type, "up"),
+            ariaLabel: `Mark this article as ${option.label.toLowerCase()}`,
+            disabled: !canReact
+          },
+          secondary: {
+            icon: <ThumbsDown className="h-4 w-4" strokeWidth={2} aria-hidden />,
+            onClick: () => void handleReact(option.type, "down"),
+            ariaLabel: `This article was not ${option.label.toLowerCase()}`,
+            disabled: !canReact
+          }
+        }
+        : undefined
+    } as const;
+  });
 
   return (
     <section className="mx-auto mt-10 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
-      <div className="rounded-2xl border border-border/70 bg-card p-6 sm:p-7">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Engagement</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {viewCount === null
-                ? "Loading views..."
-                : `${viewCount.toLocaleString()} views - ${totalReactions} reactions - ${totalCommentCount} comment${totalCommentCount === 1 ? "" : "s"}`}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2 md:justify-end">
-            {reactionOptions.map((option) => {
-              const counts = reactionCounts[option.type];
-              const totalForType = counts.up + counts.down;
-              const upPct = totalForType > 0 ? Math.round((counts.up / totalForType) * 100) : 0;
-              const hasReactedToType = !!userReactions[option.type];
+      <EngagementPanel
+        subtitle={engagementSubtitle}
+        cards={reactionCards}
+        hasEngagementAccess={hasEngagementAccess}
+        joinHref={communityJoinHref}
+        signInHref={signInHref}
+        error={null}
+      />
 
-              return (
-                <div
-                  key={option.type}
-                  className="flex min-w-[150px] flex-1 flex-col gap-1.5 rounded-lg border border-border/70 bg-background/60 p-2.5 sm:min-w-[160px] sm:p-3"
-                >
-                  <div className="flex items-center justify-between gap-1.5 md:flex-col md:items-start md:justify-start md:gap-0.5">
-                    <div className="flex items-center gap-1.5">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary/70 text-xs" aria-hidden>
-                        {option.icon}
-                      </span>
-                      <span className="text-xs font-medium text-foreground">{option.label}</span>
-                    </div>
-                    {totalForType > 0 ? (
-                      <span className="text-[11px] text-muted-foreground">
-                        {upPct}% positive - {totalForType} vote{totalForType === 1 ? "" : "s"}
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-muted-foreground">No feedback yet</span>
-                    )}
-                  </div>
-
-                  {totalForType > 0 ? (
-                    <div className="mt-0.5 h-1 w-full overflow-hidden rounded-full bg-border/80">
-                      <div className="h-full bg-primary transition-[width]" style={{ width: `${upPct}%` }} aria-hidden />
-                    </div>
-                  ) : (
-                    <div className="mt-0.5 h-1 w-full rounded-full bg-border/40" aria-hidden />
-                  )}
-
-                  {!hasReactedToType ? (
-                    <div className="mt-1.5 flex gap-1.5">
-                      <button
-                        type="button"
-                        className="h-7 flex-1 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                        onClick={() => void handleReact(option.type, "up")}
-                        disabled={reactionSubmitting !== null || isLoading || isAuthLoading || !hasEngagementAccess}
-                        aria-label={`Mark this article as ${option.label.toLowerCase()}`}
-                      >
-                        Yes
-                      </button>
-                      <button
-                        type="button"
-                        className="h-7 flex-1 rounded-md border border-transparent bg-muted px-2 text-xs font-medium transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50"
-                        onClick={() => void handleReact(option.type, "down")}
-                        disabled={reactionSubmitting !== null || isLoading || isAuthLoading || !hasEngagementAccess}
-                        aria-label={`This article was not ${option.label.toLowerCase()}`}
-                      >
-                        No
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
+      <div className="mt-6 rounded-2xl border border-border/70 bg-card p-6 sm:p-7">
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-semibold tracking-wide text-muted-foreground">Comments</p>
+          <button
+            type="button"
+            className="h-7 rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
+            onClick={() => setAreCommentsVisible((visible) => !visible)}
+            aria-expanded={areCommentsVisible}
+          >
+            {areCommentsVisible
+              ? "Hide comments"
+              : comments.length > 0
+                ? `Show comments (${totalCommentCount})`
+                : "Show comments"}
+          </button>
         </div>
 
-        {!hasEngagementAccess ? (
-          <p className="mt-4 text-xs text-muted-foreground">
-            Reactions and comments are available for community members.{" "}
-            <Link href={communityJoinHref} className="text-primary underline-offset-4 hover:underline">
-              Join
-            </Link>{" "}
-            or{" "}
-            <Link href={signInHref} className="text-primary underline-offset-4 hover:underline">
-              sign in
-            </Link>
-            .
-          </p>
+        {areCommentsVisible ? (
+          <>
+            <div className="mt-4 space-y-4">
+              {visibleComments.map((comment) => (
+                <CommentThread
+                  key={comment.id}
+                  comment={comment}
+                  replyingToId={replyingToId}
+                  replyBody={replyBody}
+                  isSubmittingReply={isSubmittingReply}
+                  hasEngagementAccess={hasEngagementAccess}
+                  onReplyClick={(commentId) =>
+                    setReplyingToId((id) => (id === commentId ? null : commentId))
+                  }
+                  onReplyBodyChange={setReplyBody}
+                  onSubmitReply={(parentId) => (e) => void handleSubmitReply(e, parentId)}
+                  formatDateTime={formatShortDateTime}
+                />
+              ))}
+              {!isLoading && totalCommentCount === 0 ? (
+                <p className="text-xs text-muted-foreground">No comments yet. Be the first to share your thoughts.</p>
+              ) : null}
+            </div>
+
+            {totalPages > 1 ? (
+              <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                <button
+                  type="button"
+                  className="h-7 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                >
+                  Previous
+                </button>
+                <span>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  className="h-7 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                >
+                  Next
+                </button>
+              </div>
+            ) : null}
+          </>
         ) : null}
 
-        <div className="mt-6 border-t border-border/70 pt-6">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-semibold tracking-wide text-muted-foreground">Comments</p>
-            <button
-              type="button"
-              className="h-7 rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
-              onClick={() => setAreCommentsVisible((visible) => !visible)}
-              aria-expanded={areCommentsVisible}
-            >
-              {areCommentsVisible
-                ? "Hide comments"
-                : comments.length > 0
-                  ? `Show comments (${totalCommentCount})`
-                  : "Show comments"}
-            </button>
-          </div>
-
-          {areCommentsVisible ? (
-            <>
-              <div className="mt-4 space-y-4">
-                {visibleComments.map((comment) => (
-                  <CommentThread
-                    key={comment.id}
-                    comment={comment}
-                    replyingToId={replyingToId}
-                    replyBody={replyBody}
-                    isSubmittingReply={isSubmittingReply}
-                    hasEngagementAccess={hasEngagementAccess}
-                    onReplyClick={(commentId) =>
-                      setReplyingToId((id) => (id === commentId ? null : commentId))
-                    }
-                    onReplyBodyChange={setReplyBody}
-                    onSubmitReply={(parentId) => (e) => void handleSubmitReply(e, parentId)}
-                    formatDateTime={formatShortDateTime}
-                  />
-                ))}
-                {!isLoading && totalCommentCount === 0 ? (
-                  <p className="text-xs text-muted-foreground">No comments yet. Be the first to share your thoughts.</p>
-                ) : null}
+        {hasEngagementAccess ? (
+          <div className="mt-6">
+            <p className="text-xs font-medium text-muted-foreground">Leave a comment</p>
+            <form className="mt-3 space-y-3" onSubmit={(event) => void handleSubmitComment(event)}>
+              <div className="space-y-2">
+                <label htmlFor="comment-body" className="text-sm font-medium text-foreground">
+                  Your comment
+                </label>
+                <textarea
+                  id="comment-body"
+                  value={commentBody}
+                  onChange={(event) => setCommentBody(event.target.value)}
+                  placeholder="What resonated with you from this article?"
+                  rows={3}
+                  className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                />
               </div>
+              <button
+                type="submit"
+                disabled={isSubmittingComment || !commentBody.trim()}
+                className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmittingComment ? "Posting..." : "Post comment"}
+              </button>
+            </form>
+          </div>
+        ) : null}
 
-              {totalPages > 1 ? (
-                <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                  <button
-                    type="button"
-                    className="h-7 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  >
-                    Previous
-                  </button>
-                  <span>
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    type="button"
-                    className="h-7 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                  >
-                    Next
-                  </button>
-                </div>
-              ) : null}
-            </>
-          ) : null}
-
-          {hasEngagementAccess ? (
-            <div className="mt-6">
-              <p className="text-xs font-medium text-muted-foreground">Leave a comment</p>
-              <form className="mt-3 space-y-3" onSubmit={(event) => void handleSubmitComment(event)}>
-                <div className="space-y-2">
-                  <label htmlFor="comment-body" className="text-sm font-medium text-foreground">
-                    Your comment
-                  </label>
-                  <textarea
-                    id="comment-body"
-                    value={commentBody}
-                    onChange={(event) => setCommentBody(event.target.value)}
-                    placeholder="What resonated with you from this article?"
-                    rows={3}
-                    className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSubmittingComment || !commentBody.trim()}
-                  className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isSubmittingComment ? "Posting..." : "Post comment"}
-                </button>
-              </form>
-            </div>
-          ) : null}
-
-          {error ? <p className="mt-3 text-xs text-destructive">{error}</p> : null}
-        </div>
+        {error ? <p className="mt-3 text-xs text-destructive">{error}</p> : null}
       </div>
     </section>
   );

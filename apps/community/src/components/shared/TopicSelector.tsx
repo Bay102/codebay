@@ -116,7 +116,6 @@ export function TopicSelector({
       <div className="flex flex-col gap-3">
         {showQuickTopics ? (
           <div className="flex min-w-0 flex-col gap-2 text-[11px] text-muted-foreground sm:flex-row sm:items-start">
-            <p className="shrink-0 font-medium">Quick topics</p>
             <div className="flex min-w-0 flex-wrap gap-1.5">
               {quickTopics.map((tag) => {
                 const isSelected = selectedSet.has(tag.name);
@@ -129,13 +128,13 @@ export function TopicSelector({
 
                   >
                     <Tag
-                      variant="tech"
-                      size="sm"
+                      variant="pill"
+                      size="md"
                       className={cn(
-                        isSelected && "text-primary underline"
+                        isSelected && "text-primary"
                       )}
                     >
-                      #{tag.name}
+                      {tag.name}
                     </Tag>
                   </button>
                 );

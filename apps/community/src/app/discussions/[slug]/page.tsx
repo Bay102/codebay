@@ -9,7 +9,7 @@ import {
   getDiscussionComments
 } from "@/lib/discussions";
 import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
-import { DiscussionReactionBar } from "@/components/pages/discussions/DiscussionReactionBar";
+import { DiscussionEngagement } from "@/components/pages/discussions/DiscussionEngagement";
 import { DiscussionCommentTree } from "@/components/pages/discussions/DiscussionCommentTree";
 import { Tag } from "@codebay/ui";
 
@@ -101,11 +101,10 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
           </div>
 
           <div className="mt-6">
-            <DiscussionReactionBar
+            <DiscussionEngagement
               discussionId={discussion.id}
               slug={slug}
               initialCommentCount={counts.commentCount}
-              initialReactionCount={counts.reactionCount}
               initialViewerReactionType={
                 (counts.viewerReactionType as "like" | "insightful" | "love" | null) ?? null
               }

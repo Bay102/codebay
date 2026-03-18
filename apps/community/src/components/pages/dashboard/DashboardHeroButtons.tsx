@@ -1,4 +1,3 @@
-import { communityUrl } from "@/lib/site-urls";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -57,7 +56,7 @@ export function DashboardHeroButtons({ hasSession, variant = "landing", classNam
             label: "Start a discussion",
             kind: "neutral"
           },
-          { href: `${communityUrl}/blog`, label: "Blog", kind: "neutral" }
+          { href: hasSession ? "/dashboard/blog" : "/join?redirect=/dashboard/blog", label: "Manage blog", kind: "neutral" }
         ];
 
   return (

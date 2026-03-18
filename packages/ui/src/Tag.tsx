@@ -7,7 +7,7 @@ const tagVariants = cva("inline-flex items-center font-medium leading-none", {
   variants: {
     variant: {
       muted: "text-muted-foreground",
-      pill: "rounded-full bg-secondary/60 text-foreground/90",
+      pill: "rounded-md border border-border bg-secondary/60 text-foreground/90 hover:bg-secondary",
       tech: "rounded-md text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4",
     },
     size: {
