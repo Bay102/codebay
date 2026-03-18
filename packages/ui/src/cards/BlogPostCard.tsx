@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Eye, MessageSquareText, Zap } from "lucide-react";
 import { SurfaceCard } from "../SurfaceCard";
 import { Tag } from "../Tag";
 import { cn } from "../utils";
@@ -30,14 +31,6 @@ function formatPublishedDate(date: string | null): string {
   }).format(new Date(date));
 }
 
-function formatEngagement(post: BlogPostCardData): string {
-  const parts: string[] = [];
-  if (post.views > 0) parts.push(`${post.views.toLocaleString()} views`);
-  if (post.reactions > 0) parts.push(`${post.reactions} reactions`);
-  parts.push(`${post.comments} comment${post.comments === 1 ? "" : "s"}`);
-  return parts.join(" · ");
-}
-
 export function BlogPostCard({
   post,
   href,
@@ -59,6 +52,8 @@ export function BlogPostCard({
       : variant === "list"
         ? "p-4 sm:p-5"
         : "";
+
+  const showFooterRow = (showTags && post.tags.length > 0) || showEngagement;
 
   return (
     <Container
@@ -100,12 +95,6 @@ export function BlogPostCard({
                 </div>
               ) : null}
 
-              {showEngagement ? (
-                <p className="mt-1 text-[11px] text-muted-foreground" aria-label="Engagement">
-                  {formatEngagement(post)}
-                </p>
-              ) : null}
-
               <h3 className="mt-1 text-sm font-semibold text-foreground sm:text-base">
                 {post.title}
               </h3>
@@ -117,13 +106,45 @@ export function BlogPostCard({
               ) : null}
             </div>
 
-            {showTags && post.tags.length > 0 ? (
-              <div className="mt-auto flex flex-wrap gap-1 pt-3">
-                {post.tags.slice(0, 3).map((tag) => (
-                  <Tag key={tag} variant="tech">
-                    {tag}
-                  </Tag>
-                ))}
+            {showFooterRow ? (
+              <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-3">
+                {showTags && post.tags.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {post.tags.slice(0, 3).map((tag) => (
+                      <Tag key={tag} variant="tech">
+                        #{tag}
+                      </Tag>
+                    ))}
+                  </div>
+                ) : (
+                  <div />
+                )}
+
+                {showEngagement ? (
+                  <div className="ml-auto flex shrink-0 items-center gap-2 text-[11px] text-muted-foreground" aria-label="Engagement">
+                    {post.views > 0 ? (
+                      <span className="inline-flex items-center gap-1.5">
+                        <Eye className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                        <span className="tabular-nums">{post.views.toLocaleString()}</span>
+                        <span className="sr-only">views</span>
+                      </span>
+                    ) : null}
+
+                    {post.views > 0 ? <span aria-hidden>·</span> : null}
+
+                    <span className="inline-flex items-center gap-1.5">
+                      <Zap className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                      <span className="tabular-nums">{post.reactions}</span>
+                      <span className="sr-only">reactions</span>
+                    </span>
+                    <span aria-hidden>·</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                      <span className="tabular-nums">{post.comments}</span>
+                      <span className="sr-only">comments</span>
+                    </span>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

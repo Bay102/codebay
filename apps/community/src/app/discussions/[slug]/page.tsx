@@ -86,7 +86,7 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
                 <div className="mt-2 flex flex-wrap gap-1.5">
                   {discussion.tags.map((tag) => (
                     <Tag variant="tech" size="sm" key={tag}>
-                      {tag}
+                      #{tag}
                     </Tag>
                   ))}
                 </div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ComponentType } from "react";
-import { Activity, Eye, MessageSquareText, RadioTower, Rss, Sparkles, Zap } from "lucide-react";
+import { Activity, Eye, MessageSquareText, RadioTower, Rss, Sparkles, Users, Zap } from "lucide-react";
 import { SurfaceCard } from "@codebay/ui";
 import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
@@ -205,15 +205,15 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
               <Activity className="h-3.5 w-3.5 text-primary" />
-              Real-time community pulse
+              Join Discussions
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
-              <MessageSquareText className="h-3.5 w-3.5 text-primary" />
-              Discussions + blog context
+              <Users className="h-3.5 w-3.5 text-primary" />
+              Make Connections
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              Built for curious builders
+              Stay Relevant
             </span>
           </div>
 

@@ -76,11 +76,10 @@ export function TopicPillsPicker({
               variant="tech"
               size="sm"
               className={cn(
-                "transition-colors",
-                isSelected && "border-primary/70 border-l-primary bg-primary/12 text-primary shadow-sm"
+                isSelected && "text-primary underline"
               )}
             >
-              {renderLabel ? renderLabel(option, isSelected) : option.label}
+              {renderLabel ? renderLabel(option, isSelected) : `#${option.label}`}
             </Tag>
           </button>
         );
