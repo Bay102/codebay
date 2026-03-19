@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getPreferredTagIdsAction } from "@/app/actions";
+import { getPreferredTagIdsAction } from "@/lib/actions";
 import { PreferredTopicsSection } from "@/components/pages/dashboard/PreferredTopicsSection";
 import { ProfileSettingsForm } from "@/components/pages/dashboard/ProfileSettingsForm";
 import { fetchDashboardProfile, fetchUserBlogPostsWithStats } from "@/lib/dashboard";

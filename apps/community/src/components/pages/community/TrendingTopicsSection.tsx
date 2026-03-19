@@ -1,6 +1,6 @@
 import { fetchTrendingTopics } from "@/lib/landing";
 import { blogUrl } from "@/lib/site-urls";
-import { InViewSection } from "@/components/InViewSection";
+import { InViewSection } from "@/components/shared/InViewSection";
 import { TrendingTopicsTicker } from "./TrendingTopicsTicker";
 
 export async function TrendingTopicsSection() {

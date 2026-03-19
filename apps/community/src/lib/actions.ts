@@ -43,7 +43,7 @@ export async function getPreferredTagIdsAction(): Promise<string[]> {
  * Only valid tag ids (existing in tags table) are stored; invalid ids are skipped.
  * Returns { success: boolean, error?: string }.
  */
-export async function setPreferredTagsAction(tagIds: string[]): Promise<{ success: boolean; error?: string }> {
+export async function setPreferreldTagsAction(tagIds: string[]): Promise<{ success: boolean; error?: string }> {
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
     return { success: false, error: "Not configured" };
