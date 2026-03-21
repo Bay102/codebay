@@ -6,6 +6,7 @@ import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { fetchAllTags } from "@/lib/tags";
 import { DiscussionCard, SurfaceCard } from "@codebay/ui";
 import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 import { DiscussionsToolbar } from "@/components/pages/discussions/DiscussionsToolbar";
 import { CommunityListingsHero } from "@/components/pages/community/CommunityListingsHero";
 
@@ -57,27 +58,39 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-4xl px-5 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8 lg:px-8">
+      <section className="mx-auto w-full max-w-6xl px-5 pb-12 sm:px-6 sm:pb-14 lg:px-8">
         <CommunityListingsHero
           EyebrowIcon={MessageSquareText}
           eyebrow="Community threads"
           title="Discussions"
           description="Jump into active threads, filter by topic, or spin up a new conversation for the community to riff on."
-          chips={[
-            { Icon: Zap, label: "Trending & timely" },
-            { Icon: Users, label: "Peer perspectives" },
-            { Icon: RadioTower, label: "Signal, not noise" }
-          ]}
+          // chips={[
+          //   { Icon: Zap, label: "Trending & timely" },
+          //   { Icon: Users, label: "Peer perspectives" },
+          //   { Icon: RadioTower, label: "Signal, not noise" }
+          // ]}
           stats={[
             { label: "In this view", value: String(discussions.length), detail: "threads listed" },
             { label: "Topic catalog", value: String(tags.length), detail: "tags to explore" }
           ]}
+          statsFooter={
+            <FocusButton
+              href="/dashboard/discussions/new"
+              colorVariant="primary"
+              borderVariant="bordered"
+              sizeVariant="sm"
+              radiusVariant="square"
+              className="w-full shrink-0"
+            >
+              New discussion
+            </FocusButton>
+          }
         >
           <DiscussionsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} variant="hero" />
         </CommunityListingsHero>
 
         {discussions.length === 0 ? (
-          <SurfaceCard as="div" variant="card" className="mt-6 p-8 text-center">
+          <SurfaceCard as="div" variant="card" className="mt-3 p-6 text-center">
             <p className="text-sm text-muted-foreground">
               {q || tag
                 ? "No discussions match your search or filter. Try different terms or clear filters."
@@ -86,7 +99,7 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
 
           </SurfaceCard>
         ) : (
-          <div className="mt-6 space-y-3">
+          <div className="mt-3 space-y-3">
             {discussions.map((item) => {
               const discussion = mapDiscussionListItemToDiscussionCardData(item);
               return (

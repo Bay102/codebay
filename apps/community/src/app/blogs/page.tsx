@@ -7,6 +7,7 @@ import { buildBlogPostPath } from "@/lib/blog-urls";
 import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 import { BlogsToolbar } from "@/components/pages/blogs/BlogsToolbar";
 import { CommunityListingsHero } from "@/components/pages/community/CommunityListingsHero";
 
@@ -26,7 +27,7 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
   if (!supabase) {
     return (
       <main className="min-h-screen bg-background">
-        <section className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-6 lg:px-8">
+        <section className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-6 lg:px-8">
           <div className="mb-6">
             <Link
               href="/"
@@ -60,21 +61,33 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-4xl px-5 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8 lg:px-8">
+      <section className="mx-auto w-full max-w-6xl px-5 pb-12 sm:px-6 sm:pb-14 lg:px-8">
         <CommunityListingsHero
           EyebrowIcon={Rss}
           eyebrow="Community writing"
           title="Blogs"
           description="Browse long-form posts from members, search by topic or author, and publish your own guides from the dashboard."
-          chips={[
-            { Icon: BookOpen, label: "Guides & tutorials" },
-            { Icon: Sparkles, label: "Fresh perspectives" },
-            { Icon: MessageSquareText, label: "Comments & reactions" }
-          ]}
+          // chips={[
+          //   { Icon: BookOpen, label: "Guides & tutorials" },
+          //   { Icon: Sparkles, label: "Fresh perspectives" },
+          //   { Icon: MessageSquareText, label: "Comments & reactions" }
+          // ]}
           stats={[
             { label: "In this view", value: String(posts.length), detail: "posts listed" },
             { label: "Topic catalog", value: String(tags.length), detail: "tags to explore" }
           ]}
+          statsFooter={
+            <FocusButton
+              href="/dashboard/blog/new"
+              colorVariant="primary"
+              borderVariant="bordered"
+              sizeVariant="sm"
+              radiusVariant="square"
+              className="w-full shrink-0"
+            >
+              New blog post
+            </FocusButton>
+          }
         >
           <BlogsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} variant="hero" />
         </CommunityListingsHero>

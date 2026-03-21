@@ -9,9 +9,15 @@ import type { TagOption } from "@/lib/tags";
 type PreferredTopicsSectionProps = {
   allowedTags: TagOption[];
   initialPreferredTagIds: string[];
+  /** When false, omit the visible "Topics you follow" heading (parent supplies the title, e.g. a collapsible card). */
+  showSectionTitle?: boolean;
 };
 
-export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: PreferredTopicsSectionProps) {
+export function PreferredTopicsSection({
+  allowedTags,
+  initialPreferredTagIds,
+  showSectionTitle = true
+}: PreferredTopicsSectionProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set(initialPreferredTagIds));
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -67,12 +73,18 @@ export function PreferredTopicsSection({ allowedTags, initialPreferredTagIds }: 
 
   return (
     <div className="space-y-8">
-      <div>
-        <h3 className="text-sm font-semibold text-foreground">Topics you follow</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
+      {showSectionTitle ? (
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">Topics you follow</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Used to show relevant discussions, blog posts and profiles.
+          </p>
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">
           Used to show relevant discussions, blog posts and profiles.
         </p>
-      </div>
+      )}
 
       <div className="space-y-3">
         <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

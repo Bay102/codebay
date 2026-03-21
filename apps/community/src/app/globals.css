@@ -60,6 +60,8 @@
    */
  .cb-focus-button {
   all: unset;
+  /* `all: unset` yields content-box; with Tailwind `w-full`, padding+border would overflow parents. */
+  box-sizing: border-box;
   position: relative;
   z-index: 0;
   isolation: isolate;

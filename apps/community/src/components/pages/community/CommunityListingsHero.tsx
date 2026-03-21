@@ -22,6 +22,8 @@ export type CommunityListingsHeroProps = {
   description: string;
   chips?: ListingsHeroChip[];
   stats?: ListingsHeroStat[];
+  /** Renders below the stats column (e.g. primary CTA under the last stat card). */
+  statsFooter?: ReactNode;
   children: ReactNode;
 };
 
@@ -34,13 +36,14 @@ export function CommunityListingsHero({
   description,
   chips,
   stats,
+  statsFooter,
   children
 }: CommunityListingsHeroProps) {
   return (
     <SurfaceCard
       as="section"
       variant="borderless"
-      className="relative mb-8 overflow-hidden border border-border/40 bg-card/70 p-5 shadow-xl sm:mb-10 sm:p-6 lg:p-8"
+      className="relative mb-6 overflow-hidden border border-border/40 bg-card/70 p-5 shadow-xl sm:mb-8 sm:p-6 lg:p-8"
     >
       <div
         className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/[0.08] via-transparent to-transparent"
@@ -117,21 +120,24 @@ export function CommunityListingsHero({
         </div>
 
         {stats && stats.length > 0 ? (
-          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-            {stats.map((stat) => (
-              <div
-                key={stat.label}
-                className="border border-border/60 bg-background/80 p-4 backdrop-blur"
-              >
-                <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                  {stat.label}
+          <div className="flex flex-col gap-3">
+            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+              {stats.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="border border-border/60 bg-background/80 p-4 backdrop-blur"
+                >
+                  <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    {stat.label}
+                  </div>
+                  <div className="mt-1.5 min-w-0 truncate font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
+                    {stat.value}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{stat.detail}</div>
                 </div>
-                <div className="mt-1.5 min-w-0 truncate font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
-                  {stat.value}
-                </div>
-                <div className="mt-1 text-xs text-muted-foreground">{stat.detail}</div>
-              </div>
-            ))}
+              ))}
+            </div>
+            {statsFooter}
           </div>
         ) : null}
       </div>

@@ -78,8 +78,17 @@ export default async function SettingsPage() {
           </a>
         </nav>
 
-        <SettingsSectionCard id="settings-topics" ariaLabel="Topics you follow">
-          <PreferredTopicsSection allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
+        <SettingsSectionCard
+          id="settings-topics"
+          ariaLabel="Topics you follow"
+          collapsible
+          defaultCollapsed
+        >
+          <PreferredTopicsSection
+            allowedTags={allowedTags}
+            initialPreferredTagIds={preferredTagIds}
+            showSectionTitle={false}
+          />
         </SettingsSectionCard>
 
         <SettingsSectionCard id="settings-newsletter" ariaLabel="Newsletter preferences">

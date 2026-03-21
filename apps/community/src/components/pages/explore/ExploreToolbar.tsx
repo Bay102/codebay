@@ -15,6 +15,7 @@ import {
 } from "@codebay/ui";
 import type { TagOption } from "@/lib/tags";
 import type { ExploreContentType } from "@/lib/explore";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 const AUTHOR_ALL = "__all__";
 
@@ -135,26 +136,24 @@ export function ExploreToolbar({
       role="group"
       aria-label="Content type"
     >
-      <Button
-        type="button"
-        variant={contentType === "discussions" ? "default" : "secondary"}
-        size="sm"
-        className="h-10 w-full sm:w-auto"
+      <FocusButton
         onClick={() => setExploreParams({ type: "discussions" })}
-        disabled={isPending}
+        borderVariant="bordered"
+        sizeVariant="md"
+        radiusVariant="square"
+        colorVariant={contentType === "discussions" ? "primary" : "plain"}
       >
         Discussions
-      </Button>
-      <Button
-        type="button"
-        variant={contentType === "blogs" ? "default" : "secondary"}
-        size="sm"
-        className="h-10 w-full sm:w-auto"
+      </FocusButton>
+      <FocusButton
         onClick={() => setExploreParams({ type: "blogs" })}
-        disabled={isPending}
+        borderVariant="bordered"
+        sizeVariant="md"
+        radiusVariant="square"
+        colorVariant={contentType === "blogs" ? "primary" : "plain"}
       >
         Blog posts
-      </Button>
+      </FocusButton>
     </div>
   );
 
