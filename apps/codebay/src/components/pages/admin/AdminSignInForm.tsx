@@ -22,7 +22,7 @@ export const AdminSignInForm = ({
   onSubmit,
 }: AdminSignInFormProps) => (
   <div className="min-h-[100dvh] bg-background px-4 py-8 sm:px-6 md:px-8 lg:px-12">
-    <div className="mx-auto w-full max-w-md rounded-2xl border border-border/60 bg-card/70 p-6 sm:p-7">
+    <div className="mx-auto w-full max-w-md border border-border/60 bg-card/70 p-6 sm:p-7">
       <div className="space-y-2">
         <p className="text-primary/80 text-xs font-semibold tracking-[0.16em] uppercase">
           Admin Access

@@ -209,7 +209,7 @@ export function DashboardKpiRow({
             return (
               <div
                 key={label}
-                className="group rounded-2xl border border-border/70 bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card/80"
+                className="group border border-border/70 bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card/80"
               >
                 <div className="flex items-center gap-2">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background/60">

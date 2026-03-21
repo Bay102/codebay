@@ -122,7 +122,7 @@ export function TrendingProfileCard({ profile, getFollowStatsAction }: TrendingP
         side={isMobile ? "bottom" : "right"}
         sideOffset={8}
         collisionPadding={16}
-        className="w-[min(90vw,20rem)] sm:w-80 max-h-[min(80dvh,480px)] overflow-y-auto rounded-2xl bg-card/95 p-4"
+        className="w-[min(90vw,20rem)] sm:w-80 max-h-[min(80dvh,480px)] overflow-y-auto bg-card/95 p-4"
         onMouseEnter={clearCloseTimeout}
         onMouseLeave={scheduleClose}
         onOpenAutoFocus={(event) => event.preventDefault()}

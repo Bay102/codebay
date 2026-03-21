@@ -66,7 +66,7 @@ export default async function DashboardProfilePage() {
           </div>
         </div>
 
-        <section className="mb-8 rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+        <section className="mb-8 border border-border/70 bg-card/70 p-5 sm:p-6">
           <PreferredTopicsSection allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
         </section>
 

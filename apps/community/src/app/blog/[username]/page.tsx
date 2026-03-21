@@ -127,7 +127,7 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
             <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">
               Published articles
             </h2>
-            <div className="mt-4 rounded-2xl border border-border/70 bg-card p-6">
+            <div className="mt-4 border border-border/70 bg-card p-6">
               <p className="text-sm text-muted-foreground">No published posts yet.</p>
             </div>
           </section>

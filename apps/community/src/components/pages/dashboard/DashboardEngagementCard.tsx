@@ -20,7 +20,7 @@ export function DashboardEngagementCard({ nextSteps }: DashboardEngagementCardPr
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+    <div className="border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div

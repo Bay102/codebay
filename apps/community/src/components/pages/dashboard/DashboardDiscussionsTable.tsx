@@ -25,7 +25,7 @@ export function DashboardDiscussionsTable({
   const displayItems = discussions.slice(0, maxRows);
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+    <div className="border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Discussions

@@ -281,7 +281,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
   };
 
   return (
-    <section className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+    <section className="border border-border/70 bg-card/70 p-5 sm:p-6">
       <form className="space-y-6" onSubmit={(event) => void handleSubmit(event)}>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-2 md:col-span-2">

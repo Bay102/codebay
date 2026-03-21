@@ -152,14 +152,14 @@ export function DashboardHero({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-          <div className="rounded-2xl border border-border/60 bg-background/80 p-4 backdrop-blur">
+          <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
             <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Discussions</div>
             <div className="mt-1.5 font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
               {discussionCount}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">your threads</div>
           </div>
-          <div className="rounded-2xl border border-border/60 bg-background/80 p-4 backdrop-blur">
+          <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
             <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Published</div>
             <div className="mt-1.5 font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
               {publishedCount}
@@ -167,7 +167,7 @@ export function DashboardHero({
             <div className="mt-1 text-xs text-muted-foreground">blog posts</div>
           </div>
           {showNotificationQuickView ? (
-            <div className="rounded-2xl border border-border/60 bg-background/80 p-4 backdrop-blur">
+            <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   <Bell className="h-3.5 w-3.5 text-primary" />
@@ -233,7 +233,7 @@ export function DashboardHero({
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-border/60 bg-background/80 p-4 backdrop-blur">
+            <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
               <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Hub setup</div>
               <div className="mt-1.5 font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
                 {stepsLabel}

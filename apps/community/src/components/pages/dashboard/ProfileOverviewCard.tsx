@@ -58,7 +58,7 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
   const showFollowSection = hasFollowStats && viewerId != null;
 
   return (
-    <article className="border border-border/70 bg-card/70 p-5 sm:p-6 md:rounded-lg md:pt-6">
+    <article className="border border-border/70 bg-card/70 p-5 sm:p-6 md:pt-6">
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
         {showEditLink ? (
@@ -180,7 +180,7 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
                   const faviconUrl = project.url ? getProjectFaviconUrl(project.url) : null;
 
                   return (
-                    <div key={project.title} className="rounded-xl border border-border/70 bg-background/70 p-2.5">
+                    <div key={project.title} className="border border-border/70 bg-background/70 p-2.5">
                       <div className="flex items-start justify-between gap-3">
                         <p className="text-sm font-medium text-foreground">{project.title}</p>
                         {faviconUrl ? (

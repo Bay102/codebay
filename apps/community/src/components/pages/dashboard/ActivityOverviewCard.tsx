@@ -186,8 +186,8 @@ export function ActivityOverviewCard({
 
     const className =
       variant === "compact"
-        ? "block rounded-xl border border-border/70 bg-background/70 p-3 transition-colors hover:bg-secondary/70"
-        : "block rounded-xl border border-border/70 bg-background/70 p-3";
+        ? "block border border-border/70 bg-background/70 p-3 transition-colors hover:bg-secondary/70"
+        : "block border border-border/70 bg-background/70 p-3";
 
     return (
       <div key={item.id} className={className}>
@@ -229,7 +229,7 @@ export function ActivityOverviewCard({
   }
 
   return (
-    <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+    <article className="border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex items-start justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Notifications</h2>
         {modalItems.length > 0 ? (

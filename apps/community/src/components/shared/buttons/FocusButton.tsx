@@ -15,6 +15,9 @@ type FocusButtonBaseProps = {
   "aria-label"?: string;
   title?: string;
   disabled?: boolean;
+  /** For disclosure-style controls (native button only). */
+  "aria-expanded"?: boolean;
+  "aria-controls"?: string;
   /** Render an icon inside the button (e.g. lucide icon). */
   icon?: React.ReactNode;
   /** When true, renders icon-only (text/children are ignored). */
@@ -37,6 +40,8 @@ type FocusButtonBaseProps = {
    * - `off` = disable overlay, keep a subtle hover effect
    */
   glassVariant?: FocusButtonGlassVariant;
+  /** Click handler. */
+  onClick?: () => void;
 };
 
 type FocusButtonSubmitProps = FocusButtonBaseProps & {
@@ -58,6 +63,8 @@ export function FocusButton(props: FocusButtonProps) {
     disabled,
     title,
     "aria-label": ariaLabel,
+    "aria-expanded": ariaExpanded,
+    "aria-controls": ariaControls,
     icon,
     iconOnly = false,
     borderVariant = "borderless",
@@ -65,6 +72,7 @@ export function FocusButton(props: FocusButtonProps) {
     colorVariant = "plain",
     sizeVariant = "md",
     glassVariant = "glass",
+    onClick,
   } = props;
 
   const dataAttrs = {
@@ -124,9 +132,12 @@ export function FocusButton(props: FocusButtonProps) {
       type={type}
       disabled={disabled}
       aria-label={finalAriaLabel}
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
       title={title}
       className={cn("cb-focus-button", className)}
       {...dataAttrs}
+      onClick={onClick}
     >
       {content}
     </button>

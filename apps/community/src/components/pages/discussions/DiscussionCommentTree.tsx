@@ -74,7 +74,7 @@ function CommentNode({
 
   return (
     <div
-      className={isNested ? "ml-4 mt-2 rounded-lg border border-border/50 bg-background/50 p-3" : "mt-4 rounded-xl border border-border/70 bg-background/70 p-4"}
+      className={isNested ? "ml-4 mt-2 border border-border/50 bg-background/50 p-3" : "mt-4 border border-border/70 bg-background/70 p-4"}
     >
       <div className="flex items-start gap-3">
         <DiscussionAuthorAvatar

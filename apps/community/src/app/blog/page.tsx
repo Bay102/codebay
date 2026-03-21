@@ -176,7 +176,7 @@ export default async function BlogPage({
             <h2 className="text-base font-semibold uppercase tracking-wide text-muted-foreground">Featured post</h2>
             <Link
               href={`/blog/${buildAuthorSegment(featuredPost.authorName)}/${featuredPost.slug}`}
-              className="mt-4 block rounded-3xl border border-border/70 bg-card px-6 py-7 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:px-8 sm:py-8 md:px-10"
+              className="mt-4 block border border-border/70 bg-card px-6 py-7 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/35 sm:px-8 sm:py-8 md:px-10"
               aria-label={`Read featured article: ${featuredPost.title}`}
             >
               <article>

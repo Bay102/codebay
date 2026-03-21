@@ -64,7 +64,7 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
           </Link>
         </div>
 
-        <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+        <article className="border border-border/70 bg-card/70 p-5 sm:p-6">
           <div className="flex items-start gap-3">
             <Link href={`/${discussion.author.username}`} className="transition-opacity hover:opacity-90">
               <DiscussionAuthorAvatar

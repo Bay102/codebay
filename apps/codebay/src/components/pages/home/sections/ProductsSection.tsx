@@ -314,7 +314,7 @@ const ProductsSection = () => {
 
           {/* Detail panel - MD and up, slides in from right */}
           {!isMobile && selectedProduct && (
-            <div className="liquid-glass-nav home-card-surface relative flex min-h-0 h-[560px] w-full flex-col md:w-[360px] lg:w-[400px] shrink-0 rounded-2xl p-6 animate-in slide-in-from-right-2 fade-in duration-300 border border-border/80">
+            <div className="liquid-glass-nav home-card-surface relative flex min-h-0 h-[560px] w-full flex-col md:w-[360px] lg:w-[400px] shrink-0 p-6 animate-in slide-in-from-right-2 fade-in duration-300 border border-border/80">
               <button
                 onClick={handleCloseDetail}
                 className="icon-btn absolute top-2 right-2 z-10 w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-border/50 bg-background/80 backdrop-blur-sm hover:bg-background/95 shadow-lg"

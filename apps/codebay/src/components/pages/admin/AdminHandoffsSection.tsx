@@ -52,7 +52,7 @@ export const AdminHandoffsSection = ({
       </div>
     ) : null}
 
-    <div className="glass-nav rounded-2xl border border-border/60 p-2 sm:p-3">
+    <div className="glass-nav border border-border/60 p-2 sm:p-3">
       <div className="px-3 pt-2 pb-3">
         <h2 className="text-base font-semibold text-foreground">New Chats</h2>
         <p className="text-sm text-muted-foreground">Incoming chat handoffs that are not archived.</p>
@@ -70,7 +70,7 @@ export const AdminHandoffsSection = ({
     <Collapsible
       open={isArchivedOpen}
       onOpenChange={onArchivedOpenChange}
-      className="glass-nav rounded-2xl border border-border/60 p-2 sm:p-3"
+      className="glass-nav border border-border/60 p-2 sm:p-3"
     >
       <div className="flex flex-col gap-3 px-3 pt-2 pb-3 sm:flex-row sm:items-center sm:justify-between">
         <div>

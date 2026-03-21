@@ -104,7 +104,7 @@ export function ForYouSection() {
     return (
       <section className="mt-8">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">For you</h2>
-        <div className="mt-3 h-24 animate-pulse rounded-2xl bg-muted/50" aria-hidden />
+        <div className="mt-3 h-24 animate-pulse bg-muted/50" aria-hidden />
       </section>
     );
   }

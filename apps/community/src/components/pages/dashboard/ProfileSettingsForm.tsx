@@ -161,7 +161,7 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
   };
 
   return (
-    <section className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+    <section className="border border-border/70 bg-card/70 p-5 sm:p-6">
       <form className="space-y-6" onSubmit={(event) => void handleSubmit(event)}>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
@@ -291,7 +291,7 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
                 return (
                   <label
                     key={post.id}
-                    className="flex cursor-pointer items-start gap-2 rounded-xl border border-border/70 bg-card/70 p-3"
+                    className="flex cursor-pointer items-start gap-2 border border-border/70 bg-card/70 p-3"
                   >
                     <input
                       type="checkbox"

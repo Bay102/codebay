@@ -197,7 +197,7 @@ export function ProfilePreviewContent({
             {featuredProjects.map((project) => (
               <div
                 key={project.title}
-                className="rounded-lg border border-border/60 bg-background/60 p-2"
+                className="border border-border/60 bg-background/60 p-2"
               >
                 <p className="truncate text-xs font-medium text-foreground">{project.title}</p>
                 {project.description ? (

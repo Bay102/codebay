@@ -225,23 +225,23 @@ export default async function CommunityBlogDashboardPage({
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
+          <div className="border border-border/70 bg-card/70 p-4">
             <p className="text-xs text-muted-foreground">Total posts</p>
             <p className="mt-1 text-2xl font-semibold text-foreground">{summary.totalPosts}</p>
           </div>
-          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
+          <div className="border border-border/70 bg-card/70 p-4">
             <p className="text-xs text-muted-foreground">Published</p>
             <p className="mt-1 text-2xl font-semibold text-foreground">{summary.publishedCount}</p>
           </div>
-          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
+          <div className="border border-border/70 bg-card/70 p-4">
             <p className="text-xs text-muted-foreground">Drafts</p>
             <p className="mt-1 text-2xl font-semibold text-foreground">{summary.draftCount}</p>
           </div>
-          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
+          <div className="border border-border/70 bg-card/70 p-4">
             <p className="text-xs text-muted-foreground">Reactions</p>
             <p className="mt-1 text-2xl font-semibold text-foreground">{summary.totalReactions}</p>
           </div>
-          <div className="rounded-xl border border-border/70 bg-card/70 p-4">
+          <div className="border border-border/70 bg-card/70 p-4">
             <p className="text-xs text-muted-foreground">Comments</p>
             <p className="mt-1 text-2xl font-semibold text-foreground">{summary.totalComments}</p>
           </div>
@@ -291,7 +291,7 @@ export default async function CommunityBlogDashboardPage({
               );
             })
           ) : (
-            <div className="rounded-2xl border border-border/70 bg-card/70 p-8 text-center">
+            <div className="border border-border/70 bg-card/70 p-8 text-center">
               <p className="text-base font-medium text-foreground">No posts found for this filter.</p>
               <p className="mt-2 text-sm text-muted-foreground">Create a new draft to get started.</p>
               <div className="mt-4">

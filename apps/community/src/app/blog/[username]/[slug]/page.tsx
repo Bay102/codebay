@@ -3,8 +3,15 @@ import { parseBlogSectionBlock } from "@codebay/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
+import { BlogPostHeroEngagement } from "@/components/pages/blog/BlogPostHeroEngagement";
 import { ProfilePreviewPopover } from "@/components/profile/ProfilePreviewPopover";
-import { fetchBlogAuthorProfileById, fetchBlogPostBySlug, fetchPublishedBlogPosts } from "@/lib/blog";
+import {
+  fetchBlogAuthorProfileById,
+  fetchBlogEngagementCounts,
+  fetchBlogPostBySlug,
+  fetchBlogPostReactionBreakdown,
+  fetchPublishedBlogPosts
+} from "@/lib/blog";
 import { communityUrl, mainUrl, siteUrl } from "@/lib/site-urls";
 
 export const dynamic = "force-dynamic";
@@ -89,6 +96,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const authorSegment = buildAuthorSegment(post.authorName);
   const authorProfile = post.authorId ? await fetchBlogAuthorProfileById(post.authorId) : null;
   const authorHomeHref = authorProfile ? `/blog/${authorProfile.username}` : "/blog";
+  const [engagementBySlug, reactionBreakdown] = await Promise.all([
+    fetchBlogEngagementCounts([post.slug]),
+    fetchBlogPostReactionBreakdown(post.slug)
+  ]);
+  const engagementCounts = engagementBySlug[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -118,7 +130,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
 
       <section className="mx-auto w-full max-w-5xl px-5 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-border/60 bg-card/40 px-6 py-8 sm:px-8 md:px-10">
+        <div className="border border-border/60 bg-card/40 px-6 py-8 sm:px-8 md:px-10">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Insights</p>
           <h1 className="font-hero mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             {post.title}
@@ -158,6 +170,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             ) : null}
           </div>
 
+          <BlogPostHeroEngagement counts={engagementCounts} reactionBreakdown={reactionBreakdown} />
+
           <p className="mt-6 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">{post.excerpt}</p>
 
           <div className="mt-6 flex flex-wrap gap-2">
@@ -171,7 +185,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       </section>
 
       <section className="mx-auto w-full max-w-5xl px-5 sm:px-6 lg:px-8">
-        <article className="rounded-3xl border border-border/70 bg-card px-6 py-8 shadow-sm sm:px-8 sm:py-10 md:px-10">
+        <article className="border border-border/70 bg-card px-6 py-8 shadow-sm sm:px-8 sm:py-10 md:px-10">
           <div className="space-y-10">
             {post.sections.map((section) => (
               <section key={section.heading}>
@@ -229,14 +243,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       <BlogEngagement slug={post.slug} postPath={`/blog/${authorSegment}/${post.slug}`} />
 
       <section className="mx-auto mt-10 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-border/70 bg-card p-6">
+        <div className="border border-border/70 bg-card p-6">
           <h2 className="text-lg font-semibold text-foreground">Continue reading</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {relatedPosts.map((relatedPost) => (
               <Link
                 key={relatedPost.slug}
                 href={`/blog/${buildAuthorSegment(relatedPost.authorName)}/${relatedPost.slug}`}
-                className="rounded-xl border border-border/80 bg-background/70 p-4 transition-colors hover:border-primary/40"
+                className="border border-border/80 bg-background/70 p-4 transition-colors hover:border-primary/40"
               >
                 <p className="text-sm text-muted-foreground">{formatPublishedDate(relatedPost.publishedAt)}</p>
                 <p className="mt-1 font-medium text-foreground">{relatedPost.title}</p>

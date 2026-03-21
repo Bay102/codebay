@@ -342,3 +342,39 @@ export async function fetchBlogEngagementCounts(
   return result;
 }
 
+const BLOG_POST_REACTION_TYPES = ["like", "insightful", "love"] as const;
+
+export type BlogPostReactionType = (typeof BLOG_POST_REACTION_TYPES)[number];
+
+export type BlogPostReactionBreakdown = Record<BlogPostReactionType, { up: number; down: number }>;
+
+function emptyBlogPostReactionBreakdown(): BlogPostReactionBreakdown {
+  return {
+    like: { up: 0, down: 0 },
+    insightful: { up: 0, down: 0 },
+    love: { up: 0, down: 0 }
+  };
+}
+
+export async function fetchBlogPostReactionBreakdown(slug: string): Promise<BlogPostReactionBreakdown> {
+  const supabase = await createServerSupabaseClient();
+  const result = emptyBlogPostReactionBreakdown();
+  if (!supabase) return result;
+
+  const { data, error } = await supabase
+    .from("blog_post_reactions")
+    .select("reaction_type, response")
+    .eq("slug", slug);
+
+  if (error || !data) return result;
+
+  for (const row of data) {
+    const type = row.reaction_type as BlogPostReactionType;
+    if (!BLOG_POST_REACTION_TYPES.includes(type)) continue;
+    const response = row.response === "down" ? "down" : "up";
+    result[type][response] += 1;
+  }
+
+  return result;
+}
+
