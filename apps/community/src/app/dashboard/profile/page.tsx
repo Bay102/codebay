@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getPreferredTagIdsAction } from "@/lib/actions";
+import { getNewsletterSettingsAction } from "@/lib/newsletter";
+import { getFollowing } from "@/lib/follows";
 import { PreferredTopicsSection } from "@/components/pages/dashboard/PreferredTopicsSection";
+import { NewsletterPreferencesSection } from "@/components/pages/dashboard/NewsletterPreferencesSection";
 import { ProfileSettingsForm } from "@/components/pages/dashboard/ProfileSettingsForm";
 import { fetchDashboardProfile, fetchUserBlogPostsWithStats } from "@/lib/dashboard";
 import { fetchAllTags } from "@/lib/tags";
@@ -33,10 +36,12 @@ export default async function DashboardProfilePage() {
     redirect("/join?redirect=/dashboard/profile");
   }
 
-  const [posts, allowedTags, preferredTagIds] = await Promise.all([
+  const [posts, allowedTags, preferredTagIds, followingUsers, newsletterSettings] = await Promise.all([
     fetchUserBlogPostsWithStats(supabase, user.id),
     fetchAllTags(supabase),
-    getPreferredTagIdsAction()
+    getPreferredTagIdsAction(),
+    getFollowing(supabase, user.id, 250, 0),
+    getNewsletterSettingsAction()
   ]);
 
   return (
@@ -68,6 +73,10 @@ export default async function DashboardProfilePage() {
 
         <section className="mb-8 border border-border/70 bg-card/70 p-5 sm:p-6">
           <PreferredTopicsSection allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
+        </section>
+
+        <section className="mb-8 border border-border/70 bg-card/70 p-5 sm:p-6">
+          <NewsletterPreferencesSection followingUsers={followingUsers} initialSettings={newsletterSettings} />
         </section>
 
         <ProfileSettingsForm profile={profile} blogPosts={posts} />

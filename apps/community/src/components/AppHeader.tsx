@@ -30,6 +30,7 @@ function getMenuItems(
   const accountChildren: Array<SidebarNavItemLink | SidebarNavItemButton> = isAuthenticated
     ? [
       { type: "link", href: myProfileHref, label: "My Profile" },
+      { type: "link", href: "/dashboard/profile", label: "Edit profile" },
       { type: "link", href: "/account/settings", label: "Settings" },
       { type: "button", label: "Sign Out", onSelect: onSignOut },
     ]
