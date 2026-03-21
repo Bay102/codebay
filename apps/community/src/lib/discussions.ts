@@ -225,6 +225,8 @@ export async function getDiscussionsWithCounts(
   supabase: SupabaseClient<Database>,
   options: {
     authorId?: string;
+    /** When set and non-empty, restricts to these author user ids (ignored if `authorId` is set). */
+    authorIds?: string[];
     limit?: number;
     offset?: number;
     orderByTrend?: boolean;
@@ -232,16 +234,24 @@ export async function getDiscussionsWithCounts(
     search?: string;
     /** Filter by tag name (single tag). */
     tagFilter?: string;
+    /** Match discussions tagged with any of these topic names (stored on `discussions.tags`). */
+    anyOfTagNames?: string[];
   } = {}
 ): Promise<DiscussionListItem[]> {
   const {
     authorId,
+    authorIds,
     limit = 20,
     offset = 0,
     orderByTrend = true,
     search,
-    tagFilter
+    tagFilter,
+    anyOfTagNames
   } = options;
+
+  if (authorIds !== undefined && authorIds.length === 0 && !authorId) {
+    return [];
+  }
 
   const fetchLimit = search ? Math.min(100, limit * 4) : limit;
   const fetchOffset = search ? 0 : offset;
@@ -268,10 +278,14 @@ export async function getDiscussionsWithCounts(
 
   if (authorId) {
     query = query.eq("author_id", authorId);
+  } else if (authorIds && authorIds.length > 0) {
+    query = query.in("author_id", authorIds);
   }
 
   if (tagFilter?.trim()) {
     query = query.overlaps("tags", [tagFilter.trim()]);
+  } else if (anyOfTagNames && anyOfTagNames.length > 0) {
+    query = query.overlaps("tags", anyOfTagNames);
   }
 
   query = query
