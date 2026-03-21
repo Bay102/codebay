@@ -172,7 +172,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           <BlogPostHeroEngagement counts={engagementCounts} reactionBreakdown={reactionBreakdown} />
 
-          <p className="mt-6 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">{post.excerpt}</p>
+          <p className="font-hero mt-6 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">{post.excerpt}</p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             {post.tags.map((tag) => (

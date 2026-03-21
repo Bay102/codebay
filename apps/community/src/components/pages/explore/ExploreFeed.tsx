@@ -1,3 +1,4 @@
+import { Tags, UsersRound } from "lucide-react";
 import { BlogPostCard, DiscussionCard } from "@codebay/ui";
 import { fetchBlogEngagementCounts, getBlogPostsForCommunityList, type BlogPostListItem } from "@/lib/blog";
 import { getDiscussionsWithCounts, type DiscussionListItem } from "@/lib/discussions";
@@ -136,6 +137,8 @@ export async function ExplorePersonalizedFeed({
         <ExploreContentSection
           title="From people you follow"
           description="Trending threads from creators in your network."
+          accentIcon={UsersRound}
+          accentIconClassName="-rotate-[7deg]"
           emptyMessage={
             followingIds.length === 0
               ? "Follow profiles you care about to see their discussions here."
@@ -164,6 +167,8 @@ export async function ExplorePersonalizedFeed({
         <ExploreContentSection
           title="From topics you follow"
           description="Discussions tagged with interests you saved in settings."
+          accentIcon={Tags}
+          accentIconClassName="rotate-[6deg]"
           emptyMessage={
             preferredTagNames.length === 0
               ? "Add preferred topics in settings to surface related discussions."
@@ -219,6 +224,8 @@ export async function ExplorePersonalizedFeed({
       <ExploreContentSection
         title="From people you follow"
         description="Latest posts from creators in your network."
+        accentIcon={UsersRound}
+        accentIconClassName="-rotate-[7deg]"
         emptyMessage={
           followingIds.length === 0
             ? "Follow writers you like to see their blog posts here."
@@ -261,6 +268,8 @@ export async function ExplorePersonalizedFeed({
       <ExploreContentSection
         title="From topics you follow"
         description="Posts tagged with interests you saved in settings."
+        accentIcon={Tags}
+        accentIconClassName="rotate-[6deg]"
         emptyMessage={
           preferredTagNames.length === 0
             ? "Add preferred topics in settings to surface related posts."

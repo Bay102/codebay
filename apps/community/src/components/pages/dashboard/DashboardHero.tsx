@@ -127,7 +127,7 @@ export function DashboardHero({
             {greeting}, {name}
           </h1>
 
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+          <p className="font-hero mt-3 max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
             {allStepsComplete
               ? "Your hub is set up. Manage your profile, run your blog workflow, and stay on top of community activity."
               : "Manage your profile, run your blog workflow, and keep up with community activity from one place."}

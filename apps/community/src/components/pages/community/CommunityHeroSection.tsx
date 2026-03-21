@@ -199,7 +199,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
             Stay relevant with the conversations shaping modern tech.
           </h1>
 
-          <p className="mt-3.5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
+          <p className="font-hero mt-3.5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
             Track your favorite creators and stay up to date with the latest discussions and blog posts about all things tech.
           </p>
 

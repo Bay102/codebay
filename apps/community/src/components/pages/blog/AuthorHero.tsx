@@ -33,7 +33,7 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium uppercase tracking-wide text-primary">Author page</p>
-          <h1 className="font-hero mt-3 max-w-4xl text-3xl font-medium leading-tight text-foreground sm:text-4xl md:text-5xl">
+          <h1 className="font-hero mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             {author.name}&apos;s blog
           </h1>
         </div>
@@ -51,7 +51,7 @@ export function AuthorHero({ author, posts }: AuthorHeroProps) {
           profileId={author.id}
         />
       </div>
-      <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
+      <p className="font-hero mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
         {author.bio?.trim() || "Engineering notes, practical guides, and implementation stories from the field."}
       </p>
       {author.techStack.length > 0 ? (

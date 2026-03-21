@@ -63,13 +63,13 @@ function getMenuItems(
 
   return [
     ...primaryItems,
-    searchGroup,
     ...(discussionChildren.length > 0 ? [discussionsGroup] : []),
     {
       type: "group",
       label: "Blog",
       children: blogChildren,
     },
+    searchGroup,
     {
       type: "group",
       label: "Account",

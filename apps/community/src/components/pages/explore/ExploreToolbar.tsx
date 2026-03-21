@@ -15,7 +15,7 @@ import {
 } from "@codebay/ui";
 import type { TagOption } from "@/lib/tags";
 import type { ExploreContentType } from "@/lib/explore";
-import { FocusButton } from "@/components/shared/buttons/FocusButton";
+import { ExploreContentTypeSegment } from "@/components/pages/explore/ExploreContentTypeSegment";
 
 const AUTHOR_ALL = "__all__";
 
@@ -130,31 +130,12 @@ export function ExploreToolbar({
     </form>
   );
 
-  const typeButtons = (
-    <div
-      className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center"
-      role="group"
-      aria-label="Content type"
-    >
-      <FocusButton
-        onClick={() => setExploreParams({ type: "discussions" })}
-        borderVariant="bordered"
-        sizeVariant="md"
-        radiusVariant="square"
-        colorVariant={contentType === "discussions" ? "primary" : "plain"}
-      >
-        Discussions
-      </FocusButton>
-      <FocusButton
-        onClick={() => setExploreParams({ type: "blogs" })}
-        borderVariant="bordered"
-        sizeVariant="md"
-        radiusVariant="square"
-        colorVariant={contentType === "blogs" ? "primary" : "plain"}
-      >
-        Blog posts
-      </FocusButton>
-    </div>
+  const contentTypeSegment = (
+    <ExploreContentTypeSegment
+      value={contentType}
+      disabled={isPending}
+      onChange={(type) => setExploreParams({ type })}
+    />
   );
 
   const authorSelect =
@@ -190,7 +171,7 @@ export function ExploreToolbar({
       aria-label="Explore filters"
     >
       <div className="flex min-w-0 max-w-full flex-col gap-3">
-        {typeButtons}
+        {contentTypeSegment}
         <div className="flex min-w-0 max-w-full flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
           {tags.length > 0 ? (
             <div className="w-full shrink-0 lg:w-auto">{topicDropdown}</div>

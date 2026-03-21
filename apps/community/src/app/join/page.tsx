@@ -52,7 +52,7 @@ export default function CommunityJoinPage() {
           <h1 className="font-hero mt-3 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl md:text-4xl">
             Join the CodingBay Community
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
+          <p className="font-hero mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
             Set up your profile to participate in discussions, comment on blog posts, and collaborate with other
             builders.
           </p>
