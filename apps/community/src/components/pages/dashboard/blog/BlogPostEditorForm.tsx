@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useMemo, useState } from "react";
 import {
@@ -432,9 +431,16 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
               checked={form.isFeatured}
               onChange={(event) => handleFieldChange("isFeatured", event.target.checked)}
             />
-            Feature on your blog home page
+            Feature this blog post
           </label>
+        </div>
 
+        {error ? <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p> : null}
+        {success ? (
+          <p className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600">{success}</p>
+        ) : null}
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-2">
           <label htmlFor="post-status" className="inline-flex items-center gap-2 text-sm">
             Status
             <select
@@ -447,25 +453,8 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
               <option value="published">Published</option>
             </select>
           </label>
-        </div>
-
-        {error ? <p className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</p> : null}
-        {success ? (
-          <p className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-600">{success}</p>
-        ) : null}
-
-        <div className="flex flex-wrap items-center justify-end gap-2">
           <FocusButton
-            href="/dashboard/blog"
-            radiusVariant="small"
-            colorVariant="plain"
-            borderVariant="bordered"
-            sizeVariant="sm"
-          >
-            Back
-          </FocusButton>
-          <FocusButton
-            href="/dashboard/blog"
+            type="submit"
             radiusVariant="small"
             colorVariant="primary"
             borderVariant="bordered"

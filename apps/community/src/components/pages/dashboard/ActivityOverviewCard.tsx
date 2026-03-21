@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Check, CheckCheck, CheckCircle2 } from "lucide-react";
 import type { DashboardActivityItem } from "@/lib/dashboard";
+import { getDashboardActivityIcon } from "@/components/pages/dashboard/dashboard-activity-icons";
 import { useAuth } from "@/contexts/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
 
@@ -116,18 +117,32 @@ export function ActivityOverviewCard({
   const renderActivityItem = (item: DashboardActivityItem, variant: "compact" | "full") => {
     const isMarking = markingIds.has(item.id) || markingAll;
     const details = formatActivityDetails(item);
+    const { Icon, iconClassName } = getDashboardActivityIcon(item);
     const leftContent = (
-      <>
-        <p className="text-xs font-semibold uppercase tracking-wide text-primary">
-          {kindLabel[item.kind]}
-        </p>
-        <p className="mt-1 text-sm font-medium text-foreground">{item.title}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
-        {details ? <p className="mt-1 text-sm text-muted-foreground">{details}</p> : null}
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          {new Date(item.createdAt).toLocaleString()}
-        </p>
-      </>
+      <div className="flex gap-3">
+        <div className="shrink-0 pt-0.5" aria-hidden>
+          <span
+            className={`inline-flex items-center justify-center rounded-full border border-border/60 bg-background/80 ${variant === "compact" ? "h-8 w-8" : "h-9 w-9"
+              }`}
+          >
+            <Icon
+              className={`${variant === "compact" ? "h-3.5 w-3.5" : "h-4 w-4"} ${iconClassName}`}
+              strokeWidth={2}
+            />
+          </span>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+            {kindLabel[item.kind]}
+          </p>
+          <p className="mt-1 text-sm font-medium text-foreground">{item.title}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+          {details ? <p className="mt-1 text-sm text-muted-foreground">{details}</p> : null}
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            {new Date(item.createdAt).toLocaleString()}
+          </p>
+        </div>
+      </div>
     );
 
     const baseContent = (

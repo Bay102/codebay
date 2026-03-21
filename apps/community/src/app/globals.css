@@ -164,20 +164,20 @@
   height: 100%;
  }
 
-/* Glass disabled: keep a subtle surface motion, but suppress the blur overlay. */
-.cb-focus-button[data-glass-variant='off']:hover::before {
+ /* Glass disabled: keep a subtle surface motion, but suppress the blur overlay. */
+ .cb-focus-button[data-glass-variant='off']:hover::before {
   transform: translate(2%, 4%);
   width: 99%;
   height: 99%;
-}
+ }
 
-.cb-focus-button[data-glass-variant='off']::after {
+ .cb-focus-button[data-glass-variant='off']::after {
   opacity: 0 !important;
-}
+ }
 
-.cb-focus-button[data-glass-variant='off']:hover::after {
+ .cb-focus-button[data-glass-variant='off']:hover::after {
   opacity: 0 !important;
-}
+ }
 
  .cb-focus-button:focus-visible {
   outline: none;

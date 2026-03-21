@@ -8,6 +8,7 @@ import {
 import type { Json } from "@/lib/database";
 import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 export const metadata: Metadata = {
   title: "Edit Blog Post",
@@ -108,9 +109,21 @@ export default async function EditCommunityBlogPostPage({ params }: EditBlogPost
         <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Blog Dashboard</p>
           <h1 className="mt-2 text-2xl font-semibold text-foreground">Edit post</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Update your post metadata, content, and publish state.
-          </p>
+          <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+            <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+              Update your post metadata, content, and publish state.
+            </p>
+            <FocusButton
+              href="/dashboard/blog"
+              radiusVariant="small"
+              colorVariant="plain"
+              borderVariant="bordered"
+              sizeVariant="sm"
+              className="shrink-0 self-start"
+            >
+              Back
+            </FocusButton>
+          </div>
         </div>
         <BlogPostEditorForm mode="edit" initialValues={initialValues} allowedTags={allowedTags} />
       </section>

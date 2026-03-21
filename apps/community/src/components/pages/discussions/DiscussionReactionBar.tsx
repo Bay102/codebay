@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Heart, Lightbulb, MessageCircle, ThumbsUp } from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import { COMMUNITY_REACTION_TYPES, type CommunityReactionType } from "@/components/pages/dashboard/dashboard-activity-icons";
 import { setDiscussionReaction } from "@/lib/discussions";
 import { useAuth } from "@/contexts/AuthContext";
 
-const REACTION_TYPES = [
-  { type: "like", label: "Helpful", Icon: ThumbsUp, iconColor: "text-primary" },
-  { type: "insightful", label: "Insightful", Icon: Lightbulb, iconColor: "text-amber-500" },
-  { type: "love", label: "Loved", Icon: Heart, iconColor: "text-rose-500" }
-] as const;
+const REACTION_TYPES = COMMUNITY_REACTION_TYPES;
 
-type ReactionType = (typeof REACTION_TYPES)[number]["type"];
+type ReactionType = CommunityReactionType;
 
 type ReactionCounts = Record<ReactionType, number>;
 
@@ -155,11 +152,10 @@ export function DiscussionReactionBar({
                 <button
                   key={type}
                   type="button"
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-                    isSelected
+                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${isSelected
                       ? "border-border/60 bg-muted cursor-default"
                       : "border-border/70 bg-background hover:bg-secondary/70"
-                  } ${isSelected ? iconColor : "text-muted-foreground"}`}
+                    } ${isSelected ? iconColor : "text-muted-foreground"}`}
                   onClick={() => void handleReaction(type)}
                   disabled={isLoading || isLocked}
                   aria-label={label}
