@@ -99,18 +99,18 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
               </div>
             </div>
           </div>
-
-          <div className="mt-6">
-            <DiscussionEngagement
-              discussionId={discussion.id}
-              slug={slug}
-              initialCommentCount={counts.commentCount}
-              initialViewerReactionType={
-                (counts.viewerReactionType as "like" | "insightful" | "love" | null) ?? null
-              }
-            />
-          </div>
         </article>
+
+        <div className="mt-4">
+          <DiscussionEngagement
+            discussionId={discussion.id}
+            slug={slug}
+            initialCommentCount={counts.commentCount}
+            initialViewerReactionType={
+              (counts.viewerReactionType as "like" | "insightful" | "love" | null) ?? null
+            }
+          />
+        </div>
 
         <div className="mt-8">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">

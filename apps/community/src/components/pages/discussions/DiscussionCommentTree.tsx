@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import type { DiscussionComment } from "@/lib/discussions";
 import { createDiscussionComment, getDiscussionComments } from "@/lib/discussions";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,6 +25,14 @@ function formatDate(value: string): string {
   }).format(new Date(value));
 }
 
+/** Total nested comments under this node (all depths). */
+function countDescendantReplies(comment: DiscussionComment): number {
+  return comment.replies.reduce(
+    (acc, reply) => acc + 1 + countDescendantReplies(reply),
+    0
+  );
+}
+
 function CommentNode({
   comment,
   discussionId,
@@ -42,7 +51,11 @@ function CommentNode({
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyBody, setReplyBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [threadCollapsed, setThreadCollapsed] = useState(false);
   const { supabase, user } = useAuth();
+
+  const descendantReplyCount = countDescendantReplies(comment);
+  const repliesRegionId = `discussion-comment-replies-${comment.id}`;
 
   const handleSubmitReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,21 +144,43 @@ function CommentNode({
               )}
             </div>
           )}
-          {comment.replies.length > 0 && (
-            <div className="mt-2 space-y-0">
-              {comment.replies.map((reply) => (
-                <CommentNode
-                  key={reply.id}
-                  comment={reply}
-                  discussionId={discussionId}
-                  slug={slug}
-                  viewerId={viewerId}
-                  onReplySubmitted={async () => onReplySubmitted()}
-                  depth={depth + 1}
-                />
-              ))}
-            </div>
-          )}
+          {comment.replies.length > 0 ? (
+            <>
+              <div className="mt-2">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
+                  aria-expanded={!threadCollapsed}
+                  aria-controls={repliesRegionId}
+                  onClick={() => setThreadCollapsed((c) => !c)}
+                >
+                  {threadCollapsed ? (
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  )}
+                  <span>
+                    {threadCollapsed
+                      ? `Show ${descendantReplyCount} ${descendantReplyCount === 1 ? "reply" : "replies"}`
+                      : "Hide replies"}
+                  </span>
+                </button>
+              </div>
+              <div id={repliesRegionId} className="mt-2 space-y-0" hidden={threadCollapsed}>
+                {comment.replies.map((reply) => (
+                  <CommentNode
+                    key={reply.id}
+                    comment={reply}
+                    discussionId={discussionId}
+                    slug={slug}
+                    viewerId={viewerId}
+                    onReplySubmitted={async () => onReplySubmitted()}
+                    depth={depth + 1}
+                  />
+                ))}
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
     </div>

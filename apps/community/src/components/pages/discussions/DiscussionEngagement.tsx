@@ -168,17 +168,16 @@ export function DiscussionEngagement({
   };
 
   return (
-    <section className="mx-auto w-full max-w-4xl">
-      <EngagementPanel
-        subtitle={engagementSubtitle}
-        cards={reactionCards}
-        hasEngagementAccess={hasEngagementAccess}
-        joinHref={communityJoinHref}
-        signInHref={signInHref}
-        accessCopy="Reactions are available for community members."
-        error={error}
-      />
-    </section>
+    <EngagementPanel
+      subtitle={engagementSubtitle}
+      cards={reactionCards}
+      hasEngagementAccess={hasEngagementAccess}
+      joinHref={communityJoinHref}
+      signInHref={signInHref}
+      accessCopy="Reactions are available for community members."
+      error={error}
+      density="compact"
+    />
   );
 }
 
