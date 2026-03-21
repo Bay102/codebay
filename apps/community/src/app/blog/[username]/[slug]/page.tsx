@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { parseBlogSectionBlock } from "@codebay/ui";
+import { parseBlogSectionBlock, Tag } from "@codebay/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
@@ -176,9 +176,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
           <div className="mt-6 flex flex-wrap gap-2">
             {post.tags.map((tag) => (
-              <span key={tag} className="rounded-full border border-border/80 bg-secondary/60 px-3 py-1 text-xs">
+              <Tag key={tag} variant="tech" size="md">
                 {tag}
-              </span>
+              </Tag>
             ))}
           </div>
         </div>

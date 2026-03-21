@@ -59,24 +59,32 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
 
   return (
     <article className="border border-border/70 bg-card/70 p-5 sm:p-6 md:pt-6">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
-        {showEditLink ? (
-          <div className="flex items-center gap-2">
-            <Link
-              href={`/${profile.username}`}
-              className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-            >
-              View public profile
-            </Link>
-            <Link
-              href="/dashboard/profile"
-              className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-            >
-              Edit profile
-            </Link>
-          </div>
-        ) : null}
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Link
+            href={`/blog/${profile.username}`}
+            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+          >
+            View blog
+          </Link>
+          {showEditLink ? (
+            <>
+              <Link
+                href={`/${profile.username}`}
+                className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+              >
+                View public profile
+              </Link>
+              <Link
+                href="/dashboard/profile"
+                className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+              >
+                Edit profile
+              </Link>
+            </>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-4">
@@ -137,6 +145,10 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
               <div className="mt-2 flex flex-wrap gap-2">
                 {profile.profileLinks.map((link) => {
                   const faviconUrl = getProjectFaviconUrl(link.url);
+                  const ariaLabel =
+                    link.label.trim() ||
+                    getProjectHostname(link.url) ||
+                    "External link";
 
                   return (
                     <Link
@@ -144,22 +156,23 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
                       href={link.url}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-sm border border-border/80 bg-background px-3 py-1 text-xs font-medium text-foreground underline-offset-4 hover:border-primary/50 hover:text-primary"
+                      aria-label={ariaLabel}
+                      title={ariaLabel}
+                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-sm border border-border/80 bg-background text-foreground transition-colors hover:border-primary/50 hover:text-primary"
                     >
-                      <span className="flex h-4 w-4 items-center justify-center rounded-[3px] border border-border/60 bg-card/80">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-[3px] border border-border/60 bg-card/80">
                         {faviconUrl ? (
                           <img
                             src={faviconUrl}
                             alt=""
                             aria-hidden="true"
-                            className="h-3 w-3 rounded-[2px] object-contain"
+                            className="h-3.5 w-3.5 rounded-[2px] object-contain"
                             loading="lazy"
                           />
                         ) : (
-                          <Globe2 className="h-3 w-3 text-muted-foreground" />
+                          <Globe2 className="h-3.5 w-3.5 text-muted-foreground" />
                         )}
                       </span>
-                      <span>{link.label}</span>
                     </Link>
                   );
                 })}
