@@ -1,6 +1,6 @@
 ## Community Content Flows
 
-This document describes how the Community landing page decides which content to show, how trending is computed, how "For you" content is selected, and how the **followed-creators email digest** is built and sent. The logic referenced here lives primarily in `apps/community/src/app/page.tsx`, `apps/community/src/lib/landing.ts`, `apps/community/src/lib/discussions.ts`, and (for the newsletter) `apps/community/src/lib/newsletter/digest-job.ts` plus related route handlers and profile UI.
+This document describes how the Community landing page decides which content to show, how trending is computed, how "For you" content is selected, how **`/explore`** personalizes and filters discussions and blog posts, and how the **followed-creators email digest** is built and sent. The logic referenced here lives primarily in `apps/community/src/app/page.tsx`, `apps/community/src/lib/landing.ts`, `apps/community/src/lib/discussions.ts`, `apps/community/src/app/explore/page.tsx`, and (for the newsletter) `apps/community/src/lib/newsletter/digest-job.ts` plus related route handlers and profile UI.
 
 ---
 
@@ -268,6 +268,29 @@ This gives a closed loop where:
 - The user sets their preferred topics.
 - The "For you" section queries posts and discussions with overlapping tags.
 - Trending and featured sections remain global, while "For you" is **personalized by tags only** (no behavioral tracking).
+
+---
+
+## Explore (`/explore`)
+
+**Route:** `apps/community/src/app/explore/page.tsx`, with UI under `apps/community/src/components/pages/explore/` and URL/query helpers in `apps/community/src/lib/explore.ts`.
+
+### Behavior
+
+1. **Scoped filters** — If the URL includes any of `tag` (topic **name**, same as `/discussions` / `/blogs`), `author` (valid `community_users.id` UUID), or `q` (search text), the page shows a single **Results** list for the active content type (`type=discussions` by default, or `type=blogs`). Data comes from `getDiscussionsWithCounts` or `getBlogPostsForCommunityList` with `tagFilter`, `authorId`, and `search`. Discussions use **trending** sort unless a single author filter is applied.
+
+2. **Signed in, no scoped filters** — Two sections per type:
+   - **From people you follow:** `following_id` values from `user_follows` for the viewer are passed as `authorIds` to the list helpers (discussions: trending among those authors; blog: `published_at` descending).
+   - **From topics you follow:** Preferred tag names (via `user_preferred_tags` → `tags.name`) are passed as `anyOfTagNames`. Rows already shown in the first section are dropped so the second section does not duplicate them.
+
+3. **Signed out, no scoped filters** — One list: trending discussions or latest blog posts, with messaging that sign-in unlocks follow- and topic-based sections.
+
+### Shared list query extensions
+
+- `getDiscussionsWithCounts` (`apps/community/src/lib/discussions.ts`): optional `authorIds` and `anyOfTagNames` (Postgres `overlaps` on `discussions.tags`). Empty `authorIds` with no `authorId` returns no rows.
+- `getBlogPostsForCommunityList` (`apps/community/src/lib/blog.ts`): optional `authorId`, `authorIds`, and `anyOfTagNames` on `blog_posts.tags`. Same empty-array rule for `authorIds`.
+
+The **Explore** toolbar (client) writes `type`, `tag`, `author`, and `q`. The author control lists people the viewer **follows**; if the URL contains another valid author id, that profile is loaded once so the select stays in sync.
 
 ---
 

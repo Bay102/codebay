@@ -209,12 +209,21 @@ export async function getBlogPostsForCommunityList(
     offset?: number;
     search?: string;
     tagFilter?: string;
+    authorId?: string;
+    /** When set and non-empty; ignored if `authorId` is set. */
+    authorIds?: string[];
+    /** Match posts tagged with any of these topic names (`blog_posts.tags`). */
+    anyOfTagNames?: string[];
   } = {}
 ): Promise<BlogPostListItem[]> {
-  const { limit = 32, offset = 0, search, tagFilter } = options;
+  const { limit = 32, offset = 0, search, tagFilter, authorId, authorIds, anyOfTagNames } = options;
   const hasSearch = Boolean(search?.trim());
   const fetchLimit = hasSearch ? Math.min(100, limit * 4) : limit;
   const fetchOffset = hasSearch ? 0 : offset;
+
+  if (authorIds !== undefined && authorIds.length === 0 && !authorId) {
+    return [];
+  }
 
   let query = supabase
     .from("blog_posts")
@@ -237,8 +246,16 @@ export async function getBlogPostsForCommunityList(
     .eq("status", "published")
     .order("published_at", { ascending: false, nullsFirst: false });
 
+  if (authorId) {
+    query = query.eq("author_id", authorId);
+  } else if (authorIds && authorIds.length > 0) {
+    query = query.in("author_id", authorIds);
+  }
+
   if (tagFilter?.trim()) {
     query = query.overlaps("tags", [tagFilter.trim()]);
+  } else if (anyOfTagNames && anyOfTagNames.length > 0) {
+    query = query.overlaps("tags", anyOfTagNames);
   }
 
   query = query.range(fetchOffset, fetchOffset + fetchLimit - 1);

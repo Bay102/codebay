@@ -113,7 +113,7 @@ export function CommunityListingsHero({
             </div>
           ) : null}
 
-          <div className="mt-6">{children}</div>
+          <div className="mt-6 min-w-0 max-w-full">{children}</div>
         </div>
 
         {stats && stats.length > 0 ? (

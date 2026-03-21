@@ -14,6 +14,7 @@ function getMenuItems(
 ): AppHeaderMenuItem[] {
   const primaryItems: AppHeaderMenuItem[] = [
     { type: "link", href: "/", label: "Home" },
+    { type: "link", href: "/explore", label: "Explore" },
     { type: "link", href: "/about", label: "About" },
     ...(isAuthenticated ? [{ type: "link", href: "/dashboard", label: "My Dashboard" } satisfies AppHeaderMenuItem] : []),
   ];

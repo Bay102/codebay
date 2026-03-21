@@ -40,7 +40,7 @@ export function DashboardHeroButtons({ hasSession, variant = "landing", classNam
   const links: HeroLink[] =
     variant === "dashboard"
       ? [
-          { href: "/", label: "Explore", kind: "primary" },
+          { href: "/explore", label: "Explore", kind: "primary" },
           { href: "/dashboard/discussions/new", label: "Start a discussion", kind: "neutral" },
           { href: "/dashboard/blog", label: "Blog Dashboard", kind: "neutral" }
         ]
@@ -51,6 +51,7 @@ export function DashboardHeroButtons({ hasSession, variant = "landing", classNam
                 { href: "/join?mode=signin", label: "Sign in", kind: "neutral" as const }
               ]
             : [{ href: "/dashboard", label: "Dashboard", kind: "primary" as const }]),
+          { href: "/explore", label: "Explore", kind: "neutral" },
           {
             href: hasSession ? "/dashboard/discussions/new" : "/join?redirect=/dashboard/discussions/new",
             label: "Start a discussion",
