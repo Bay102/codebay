@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BookOpen, MessageSquareText, Rss, Sparkles } from "lucide-react";
 import { BlogPostCard, SurfaceCard } from "@codebay/ui";
 import { fetchBlogEngagementCounts, getBlogPostsForCommunityList } from "@/lib/blog";
 import { buildBlogPostPath } from "@/lib/blog-urls";
@@ -7,6 +8,7 @@ import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
 import { BlogsToolbar } from "@/components/pages/blogs/BlogsToolbar";
+import { CommunityListingsHero } from "@/components/pages/community/CommunityListingsHero";
 
 export const metadata: Metadata = {
   title: "Blogs",
@@ -58,24 +60,24 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-4xl px-5 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            ← Home
-          </Link>
-          <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
-          <h1 className="font-hero mt-2 text-2xl font-semibold text-foreground sm:text-3xl">Blogs</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Browse posts from the community or publish your own.
-          </p>
-        </div>
-
-        <div className="mt-6">
-          <BlogsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} />
-        </div>
+      <section className="mx-auto w-full max-w-4xl px-5 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8 lg:px-8">
+        <CommunityListingsHero
+          EyebrowIcon={Rss}
+          eyebrow="Community writing"
+          title="Blogs"
+          description="Browse long-form posts from members, search by topic or author, and publish your own guides from the dashboard."
+          chips={[
+            { Icon: BookOpen, label: "Guides & tutorials" },
+            { Icon: Sparkles, label: "Fresh perspectives" },
+            { Icon: MessageSquareText, label: "Comments & reactions" }
+          ]}
+          stats={[
+            { label: "In this view", value: String(posts.length), detail: "posts listed" },
+            { label: "Topic catalog", value: String(tags.length), detail: "tags to explore" }
+          ]}
+        >
+          <BlogsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} variant="hero" />
+        </CommunityListingsHero>
 
         {posts.length === 0 ? (
           <SurfaceCard as="div" variant="card" className="mt-6 p-8 text-center">

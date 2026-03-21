@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { MessageSquareText, RadioTower, Users, Zap } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { fetchAllTags } from "@/lib/tags";
 import { DiscussionCard, SurfaceCard } from "@codebay/ui";
 import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
 import { DiscussionsToolbar } from "@/components/pages/discussions/DiscussionsToolbar";
+import { CommunityListingsHero } from "@/components/pages/community/CommunityListingsHero";
 
 export const metadata: Metadata = {
   title: "Discussions",
@@ -55,24 +57,24 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-4xl px-5 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            ← Home
-          </Link>
-          <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
-          <h1 className="font-hero mt-2 text-2xl font-semibold text-foreground sm:text-3xl">Discussions</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Start a thread or join the conversation.
-          </p>
-        </div>
-
-        <div className="mt-6">
-          <DiscussionsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} />
-        </div>
+      <section className="mx-auto w-full max-w-4xl px-5 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8 lg:px-8">
+        <CommunityListingsHero
+          EyebrowIcon={MessageSquareText}
+          eyebrow="Community threads"
+          title="Discussions"
+          description="Jump into active threads, filter by topic, or spin up a new conversation for the community to riff on."
+          chips={[
+            { Icon: Zap, label: "Trending & timely" },
+            { Icon: Users, label: "Peer perspectives" },
+            { Icon: RadioTower, label: "Signal, not noise" }
+          ]}
+          stats={[
+            { label: "In this view", value: String(discussions.length), detail: "threads listed" },
+            { label: "Topic catalog", value: String(tags.length), detail: "tags to explore" }
+          ]}
+        >
+          <DiscussionsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} variant="hero" />
+        </CommunityListingsHero>
 
         {discussions.length === 0 ? (
           <SurfaceCard as="div" variant="card" className="mt-6 p-8 text-center">
