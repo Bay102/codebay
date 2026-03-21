@@ -3,7 +3,7 @@
 import type { FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { useEffect, useRef, useState } from "react";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronDown, ChevronRight, ThumbsDown, ThumbsUp } from "lucide-react";
 import type { Tables, TablesInsert } from "@/lib/database";
 import { communityUrl, siteUrl } from "@/lib/site-urls";
 import { useAuth } from "@/contexts/AuthContext";
@@ -37,6 +37,14 @@ function formatShortDateTime(value: string): string {
     day: "numeric",
     year: "numeric"
   }).format(new Date(value));
+}
+
+/** Total nested comments under this node (all depths). */
+function countDescendantReplies(comment: CommentWithReplies): number {
+  return comment.replies.reduce(
+    (acc, reply) => acc + 1 + countDescendantReplies(reply),
+    0
+  );
 }
 
 function getSessionDisplayName(session: Session): string {
@@ -74,6 +82,9 @@ function CommentThread({
   isNested = false
 }: CommentThreadProps) {
   const isReplying = replyingToId === comment.id;
+  const [threadCollapsed, setThreadCollapsed] = useState(false);
+  const descendantReplyCount = countDescendantReplies(comment);
+  const repliesRegionId = `blog-comment-replies-${comment.id}`;
 
   return (
     <div
@@ -140,23 +151,49 @@ function CommentThread({
         </form>
       ) : null}
       {comment.replies.length > 0 ? (
-        <div className="mt-4 ml-4 space-y-3 border-l-2 border-border/60 pl-4">
-          {comment.replies.map((reply) => (
-            <CommentThread
-              key={reply.id}
-              comment={reply}
-              replyingToId={replyingToId}
-              replyBody={replyBody}
-              isSubmittingReply={isSubmittingReply}
-              hasEngagementAccess={hasEngagementAccess}
-              onReplyClick={onReplyClick}
-              onReplyBodyChange={onReplyBodyChange}
-              onSubmitReply={onSubmitReply}
-              formatDateTime={formatDateTime}
-              isNested
-            />
-          ))}
-        </div>
+        <>
+          <div className="mt-2">
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 rounded-md px-1 py-0.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/60 hover:text-foreground"
+              aria-expanded={!threadCollapsed}
+              aria-controls={repliesRegionId}
+              onClick={() => setThreadCollapsed((c) => !c)}
+            >
+              {threadCollapsed ? (
+                <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              )}
+              <span>
+                {threadCollapsed
+                  ? `Show ${descendantReplyCount} ${descendantReplyCount === 1 ? "reply" : "replies"}`
+                  : "Hide replies"}
+              </span>
+            </button>
+          </div>
+          <div
+            id={repliesRegionId}
+            className="mt-2 ml-4 space-y-3 border-l-2 border-border/60 pl-4"
+            hidden={threadCollapsed}
+          >
+            {comment.replies.map((reply) => (
+              <CommentThread
+                key={reply.id}
+                comment={reply}
+                replyingToId={replyingToId}
+                replyBody={replyBody}
+                isSubmittingReply={isSubmittingReply}
+                hasEngagementAccess={hasEngagementAccess}
+                onReplyClick={onReplyClick}
+                onReplyBodyChange={onReplyBodyChange}
+                onSubmitReply={onSubmitReply}
+                formatDateTime={formatDateTime}
+                isNested
+              />
+            ))}
+          </div>
+        </>
       ) : null}
     </div>
   );
@@ -517,19 +554,21 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
   });
 
   return (
-    <section className="mx-auto mt-10 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
-      <div className="border border-border/70 bg-card p-6 sm:p-7">
+    <section className="mx-auto mt-4 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
+      <div className="border border-border/70 bg-card p-3 sm:p-4">
         <EngagementPanel
           variant="embedded"
+          density="compact"
           subtitle={engagementSubtitle}
           cards={reactionCards}
           hasEngagementAccess={hasEngagementAccess}
           joinHref={communityJoinHref}
           signInHref={signInHref}
-          error={null}
+          accessCopy="Reactions and comments are available for community members."
+          error={error}
         />
 
-        <div className="mt-6 border-t border-border/70 pt-6">
+        <div className="mt-4 border-t border-border/70 pt-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs font-semibold tracking-wide text-muted-foreground">Comments</p>
             <div className="flex flex-wrap items-center justify-end gap-2">
@@ -629,7 +668,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
           {hasEngagementAccess && isCommentComposerOpen ? (
             <form
               id="blog-comment-composer"
-              className="mt-6 space-y-3"
+              className="mt-4 space-y-3"
               onSubmit={(event) => void handleSubmitComment(event)}
             >
               <div className="space-y-2">
@@ -658,8 +697,6 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
               </FocusButton>
             </form>
           ) : null}
-
-          {error ? <p className="mt-3 text-xs text-destructive">{error}</p> : null}
         </div>
       </div>
     </section>

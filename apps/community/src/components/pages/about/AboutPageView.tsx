@@ -31,7 +31,7 @@ export function AboutPageView() {
           <h1 className="font-hero mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
             About the platform
           </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="font-hero mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             One place to follow the people, stacks, and ideas shaping tech—through open discussions and creator-led
             blogs, tuned to what you care about.
           </p>

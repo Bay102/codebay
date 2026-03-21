@@ -20,7 +20,6 @@ function getMenuItems(
   ];
 
   const discussionChildren: SidebarNavItemLink[] = [
-    { type: "link", href: "/discussions", label: "All Discussions" },
     ...(isAuthenticated
       ? [
         { type: "link", href: "/dashboard/discussions", label: "Manage Discussions" } satisfies SidebarNavItemLink,
@@ -40,29 +39,37 @@ function getMenuItems(
 
   const blogChildren: SidebarNavItemLink[] = isAuthenticated
     ? [
-      { type: "link", href: "/blogs", label: "All Blogs" },
       { type: "link", href: myBlogHref, label: "My Blog" },
       { type: "link", href: "/dashboard/blog", label: "Manage Blog" },
       { type: "link", href: "/dashboard/blog/new", label: "New Blog Post" },
       // { type: "link", href: "/blog", label: "CodingBay Blog" },
     ]
-    : [
-      { type: "link", href: "/blogs", label: "All Blogs" },
-      { type: "link", href: "/blog", label: "CodingBay Blog" },
-    ];
+    : [{ type: "link", href: "/blog", label: "CodingBay Blog" }];
+
+  const searchGroup: AppHeaderMenuItem = {
+    type: "group",
+    label: "Search",
+    children: [
+      { type: "link", href: "/blogs", label: "Blogs" },
+      { type: "link", href: "/discussions", label: "Discussions" },
+    ],
+  };
+
+  const discussionsGroup: AppHeaderMenuItem = {
+    type: "group",
+    label: "Discussions",
+    children: discussionChildren,
+  };
 
   return [
     ...primaryItems,
-    {
-      type: "group",
-      label: "Discussions",
-      children: discussionChildren,
-    },
+    ...(discussionChildren.length > 0 ? [discussionsGroup] : []),
     {
       type: "group",
       label: "Blog",
       children: blogChildren,
     },
+    searchGroup,
     {
       type: "group",
       label: "Account",

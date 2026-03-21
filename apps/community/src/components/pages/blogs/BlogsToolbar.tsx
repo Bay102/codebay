@@ -108,7 +108,6 @@ export function BlogsToolbar({
       borderVariant="bordered"
       sizeVariant="sm"
       radiusVariant="square"
-      className={cn(variant === "hero" && "w-full shrink-0 sm:w-auto")}
     >
       New blog post
     </FocusButton>
@@ -117,13 +116,12 @@ export function BlogsToolbar({
   if (variant === "hero") {
     return (
       <div
-        className="rounded-xl border border-border/60 bg-background/75 p-3 backdrop-blur-sm sm:p-4"
+        className="w-full rounded-xl border border-border/60 bg-background/75 p-3 backdrop-blur-sm sm:p-4 lg:w-4/5"
         aria-label="Filter blog posts"
       >
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
           {filterDropdown}
           <div className="min-w-0 flex-1">{searchForm}</div>
-          {cta}
         </div>
       </div>
     );

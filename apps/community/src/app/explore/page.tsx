@@ -180,7 +180,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-4xl px-5 pb-12 pt-6 sm:px-6 sm:pb-14 sm:pt-8 lg:px-8">
+      <section className="mx-auto w-full max-w-6xl px-5 pb-12 sm:px-6 sm:pb-14 lg:px-8">
         <CommunityListingsHero
           EyebrowIcon={Compass}
           eyebrow="Discover"

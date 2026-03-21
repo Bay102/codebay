@@ -147,7 +147,7 @@ export default async function BlogPage({
           <h1 className="font-hero mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             The tech blog for engineers who ship: AI, systems, and product
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
+          <p className="font-hero mt-4 max-w-3xl text-base leading-8 text-muted-foreground sm:text-lg">
             Tutorials, deep-dives, and how-tos on the stack we use in production—web, systems, and AI. Real code, real
             trade-offs, no filler.
           </p>
