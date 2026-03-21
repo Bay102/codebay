@@ -260,9 +260,8 @@ On the landing page:
   - `allowedTags` via `fetchAllTags`.
   - `preferredTagIds` via `getPreferredTagIdsAction`.
 - The header renders `PreferredTopicsDialog`, which:
-  - Shows all allowed tags.
-  - Allows the user to adjust which tags they follow.
-  - Persists updates back to `user_preferred_tags`.
+  - Lists followed tags (with remove) and a search field to find and add more from the catalog.
+  - Persists updates back to `user_preferred_tags` (same behavior as `PreferredTopicsSection` on `/settings` and profile).
 
 This gives a closed loop where:
 

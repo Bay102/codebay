@@ -6,6 +6,7 @@ import type { Session } from "@supabase/supabase-js";
 import { AuthEmailPasswordForm, SurfaceCard } from "@codebay/ui";
 import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import type { TablesInsert } from "@/lib/database";
+import { isValidCommunityUsername } from "@/lib/community-username";
 import { blogUrl, mainUrl, siteUrl } from "@/lib/site-urls";
 
 type AuthMode = "signup" | "signin";
@@ -68,7 +69,6 @@ function OAuthProviderIcon({ provider, className }: { provider: OAuthProvider; c
   }
 }
 
-const usernamePattern = /^[a-z0-9_]{3,32}$/;
 const fallbackRedirectPath = "/dashboard";
 
 const allowedRedirectOrigins = new Set(
@@ -165,8 +165,24 @@ export function CommunityAuthCard() {
     const normalizedUsername = username.trim().toLowerCase();
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (!usernamePattern.test(normalizedUsername)) {
+    if (!isValidCommunityUsername(normalizedUsername)) {
       setError("Username must be 3-32 characters and use only lowercase letters, numbers, or underscores.");
+      return;
+    }
+
+    const { data: existingUsername, error: usernameLookupError } = await supabase
+      .from("community_users")
+      .select("id")
+      .eq("username", normalizedUsername)
+      .maybeSingle();
+
+    if (usernameLookupError) {
+      setError(usernameLookupError.message ?? "Unable to verify username.");
+      return;
+    }
+
+    if (existingUsername) {
+      setError("That username is already taken. Please choose another.");
       return;
     }
 

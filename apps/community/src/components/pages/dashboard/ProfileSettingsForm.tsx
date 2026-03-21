@@ -1,9 +1,10 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { TablesUpdate } from "@/lib/database";
 import type { DashboardBlogPostStats, DashboardProfile, FeaturedProject, ProfileLink } from "@/lib/dashboard";
+import { isUsernamePlaceholderPendingClaim, isValidCommunityUsername } from "@/lib/community-username";
 import { useAuth } from "@/contexts/AuthContext";
 
 type ProfileSettingsFormProps = {
@@ -70,9 +71,13 @@ function parseProfileLinksInput(input: string): ProfileLink[] {
     .filter((item): item is ProfileLink => item !== null);
 }
 
+type UsernameAvailability = "idle" | "checking" | "available" | "taken" | "invalid";
+
 export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormProps) {
   const router = useRouter();
   const { supabase, session } = useAuth();
+
+  const canEditUsername = isUsernamePlaceholderPendingClaim(profile.id, profile.username);
 
   const [name, setName] = useState(profile.name);
   const [username, setUsername] = useState(profile.username);
@@ -86,6 +91,70 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [usernameAvailability, setUsernameAvailability] = useState<UsernameAvailability>("idle");
+
+  useEffect(() => {
+    setUsername(profile.username);
+    setUsernameAvailability("idle");
+  }, [profile.username]);
+
+  type UsernameLookupResult =
+    | { ok: true }
+    | { ok: false; reason: "taken" | "error"; message?: string };
+
+  async function lookupUsernameAvailability(normalized: string): Promise<UsernameLookupResult> {
+    if (!supabase || !session) {
+      return { ok: false, reason: "error", message: "Your session has expired. Please sign in again." };
+    }
+
+    const { data, error: lookupError } = await supabase
+      .from("community_users")
+      .select("id")
+      .eq("username", normalized)
+      .maybeSingle();
+
+    if (lookupError) {
+      return { ok: false, reason: "error", message: lookupError.message ?? "Unable to verify username." };
+    }
+
+    if (data && data.id !== session.user.id) {
+      return { ok: false, reason: "taken" };
+    }
+
+    return { ok: true };
+  }
+
+  const handleUsernameBlur = () => {
+    if (!canEditUsername || !supabase || !session) {
+      return;
+    }
+
+    const normalized = username.trim().toLowerCase();
+    if (!normalized) {
+      setUsernameAvailability("idle");
+      return;
+    }
+
+    if (!isValidCommunityUsername(normalized)) {
+      setUsernameAvailability("invalid");
+      return;
+    }
+
+    setUsernameAvailability("checking");
+    void (async () => {
+      const result = await lookupUsernameAvailability(normalized);
+      if (result.ok === false) {
+        if (result.reason === "taken") {
+          setUsernameAvailability("taken");
+          return;
+        }
+        setUsernameAvailability("idle");
+        setError(result.message ?? "Unable to verify username.");
+        return;
+      }
+      setUsernameAvailability("available");
+    })();
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -130,9 +199,32 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
       nextAvatarUrl = publicUrlData.publicUrl;
     }
 
+    const normalizedUsername = username.trim().toLowerCase();
+
+    if (canEditUsername) {
+      if (!isValidCommunityUsername(normalizedUsername)) {
+        setIsSaving(false);
+        setError("Username must be 3-32 characters and use only lowercase letters, numbers, or underscores.");
+        setUsernameAvailability("invalid");
+        return;
+      }
+
+      const usernameResult = await lookupUsernameAvailability(normalizedUsername);
+      if (usernameResult.ok === false) {
+        setIsSaving(false);
+        if (usernameResult.reason === "taken") {
+          setError("That username is already taken. Please choose another.");
+          setUsernameAvailability("taken");
+        } else {
+          setError(usernameResult.message ?? "Unable to verify username.");
+        }
+        return;
+      }
+    }
+
     const basePayload: TablesUpdate<"community_users"> = {
       name: name.trim() || profile.name,
-      username: username.trim().toLowerCase() || profile.username,
+      ...(canEditUsername ? { username: normalizedUsername } : {}),
       bio: bio.trim() || null,
       avatar_url: nextAvatarUrl,
       tech_stack: techStack,
@@ -180,13 +272,57 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
             <label htmlFor="profile-username" className="text-sm font-medium">
               Username
             </label>
-            <input
-              id="profile-username"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-              required
-            />
+            {canEditUsername ? (
+              <>
+                <input
+                  id="profile-username"
+                  value={username}
+                  onChange={(event) => {
+                    setUsername(event.target.value);
+                    setUsernameAvailability("idle");
+                  }}
+                  onBlur={() => handleUsernameBlur()}
+                  pattern="[a-z0-9_]{3,32}"
+                  title="3-32 characters: lowercase letters, numbers, underscores"
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  required
+                  autoComplete="username"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Choose a unique username for your public profile URL ({`/${username.trim() || "you"}`}). You can set
+                  this once; it cannot be changed afterward because it is tied to posts and comments.
+                </p>
+                {usernameAvailability === "checking" ? (
+                  <p className="text-xs text-muted-foreground">Checking availability…</p>
+                ) : null}
+                {usernameAvailability === "available" ? (
+                  <p className="text-xs text-emerald-600">That username is available.</p>
+                ) : null}
+                {usernameAvailability === "taken" ? (
+                  <p className="text-xs text-destructive">That username is already taken.</p>
+                ) : null}
+                {usernameAvailability === "invalid" ? (
+                  <p className="text-xs text-destructive">
+                    Username must be 3-32 characters and use only lowercase letters, numbers, or underscores.
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <input
+                  id="profile-username"
+                  value={profile.username}
+                  readOnly
+                  disabled
+                  className="h-10 w-full cursor-not-allowed rounded-md border border-input bg-muted/40 px-3 text-sm text-muted-foreground"
+                  aria-describedby="profile-username-locked-hint"
+                />
+                <p id="profile-username-locked-hint" className="text-xs text-muted-foreground">
+                  Usernames are permanent so links to your posts and public profile stay stable. Contact support if you
+                  need help with a mistaken username.
+                </p>
+              </>
+            )}
           </div>
         </div>
 
