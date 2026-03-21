@@ -59,6 +59,7 @@ export default async function NewDiscussionPage() {
                   <li>Use a clear, specific title that captures the core question or idea.</li>
                   <li>Explain what you have already tried or are considering.</li>
                   <li>Include relevant code snippets or examples when helpful.</li>
+                  <li>Use relevant topic tags to boost visibility & engagement.</li>
                 </ul>
               </div>
               <div className="border border-border/70 bg-card/60 p-4">

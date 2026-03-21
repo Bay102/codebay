@@ -14,6 +14,7 @@ function getMenuItems(
 ): AppHeaderMenuItem[] {
   const primaryItems: AppHeaderMenuItem[] = [
     { type: "link", href: "/", label: "Home" },
+    { type: "link", href: "/about", label: "About" },
     ...(isAuthenticated ? [{ type: "link", href: "/dashboard", label: "My Dashboard" } satisfies AppHeaderMenuItem] : []),
   ];
 
@@ -21,28 +22,33 @@ function getMenuItems(
     { type: "link", href: "/discussions", label: "All Discussions" },
     ...(isAuthenticated
       ? [
-          { type: "link", href: "/dashboard/discussions", label: "Manage Discussions" } satisfies SidebarNavItemLink,
-          { type: "link", href: "/dashboard/discussions/new", label: "New Discussion" } satisfies SidebarNavItemLink,
-        ]
+        { type: "link", href: "/dashboard/discussions", label: "Manage Discussions" } satisfies SidebarNavItemLink,
+        { type: "link", href: "/dashboard/discussions/new", label: "New Discussion" } satisfies SidebarNavItemLink,
+      ]
       : []),
   ];
 
   const accountChildren: Array<SidebarNavItemLink | SidebarNavItemButton> = isAuthenticated
     ? [
       { type: "link", href: myProfileHref, label: "My Profile" },
-      { type: "link", href: "/account/settings", label: "Settings" },
-      { type: "button", label: "Sign out", onSelect: onSignOut },
+      { type: "link", href: "/dashboard/profile", label: "Edit profile" },
+      { type: "link", href: "/settings", label: "Settings" },
+      { type: "button", label: "Sign Out", onSelect: onSignOut },
     ]
     : [{ type: "link", href: "/join?mode=signin", label: "Sign in" }];
 
   const blogChildren: SidebarNavItemLink[] = isAuthenticated
     ? [
-      { type: "link", href: "/dashboard/blog", label: "Blog Dashboard" },
+      { type: "link", href: "/blogs", label: "All Blogs" },
       { type: "link", href: myBlogHref, label: "My Blog" },
+      { type: "link", href: "/dashboard/blog", label: "Manage Blog" },
       { type: "link", href: "/dashboard/blog/new", label: "New Blog Post" },
-      { type: "link", href: "/blog", label: "CodingBay Blog" },
+      // { type: "link", href: "/blog", label: "CodingBay Blog" },
     ]
-    : [{ type: "link", href: "/blog", label: "CodingBay Blog" }];
+    : [
+      { type: "link", href: "/blogs", label: "All Blogs" },
+      { type: "link", href: "/blog", label: "CodingBay Blog" },
+    ];
 
   return [
     ...primaryItems,

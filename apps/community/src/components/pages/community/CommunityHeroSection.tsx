@@ -192,7 +192,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
         <div className="max-w-3xl pb-1.5">
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
             <RadioTower className="h-3.5 w-3.5" />
-            CodingBay Community
+            Teknow
           </div>
 
           <h1 className="font-hero mt-3.5 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl lg:text-5xl">
@@ -200,8 +200,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
           </h1>
 
           <p className="mt-3.5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg sm:leading-8">
-            CodingBay brings live engineering discussions, trending topics, and practical blog posts into one
-            community feed for developers building in the open.
+            Track your favorite creators and stay up to date with the latest discussions and blog posts about all things tech.
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2">

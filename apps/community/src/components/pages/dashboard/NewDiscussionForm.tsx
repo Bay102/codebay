@@ -89,6 +89,9 @@ export function NewDiscussionForm({
           disabled={isSubmitting}
         />
       </div>
+
+      <DiscussionRichTextEditor id="discussion-body" value={body} onChange={setBody} disabled={isSubmitting} />
+
       {allowedTags.length > 0 ? (
         <div>
           <span className="mb-2 block text-sm font-medium text-foreground" id="discussion-tags-label">
@@ -105,7 +108,7 @@ export function NewDiscussionForm({
           />
         </div>
       ) : null}
-      <DiscussionRichTextEditor id="discussion-body" value={body} onChange={setBody} disabled={isSubmitting} />
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <FocusButton
           type="submit"

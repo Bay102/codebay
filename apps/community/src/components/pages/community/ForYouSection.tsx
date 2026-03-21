@@ -36,8 +36,8 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
               create an account
             </Link>{" "}
             and set your preferred topics in{" "}
-            <Link href="/dashboard/profile" className="font-medium text-primary underline-offset-4 hover:underline">
-              profile settings
+            <Link href="/settings" className="font-medium text-primary underline-offset-4 hover:underline">
+              settings
             </Link>{" "}
             to see blog posts and discussions tailored to your interests.
           </p>
@@ -71,8 +71,8 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
         >
           <p className="text-sm text-muted-foreground">
             Choose topics you follow in{" "}
-            <Link href="/dashboard/profile" className="font-medium text-primary underline-offset-4 hover:underline">
-              profile settings
+            <Link href="/settings" className="font-medium text-primary underline-offset-4 hover:underline">
+              settings
             </Link>{" "}
             to see relevant blog posts and discussions here.
           </p>

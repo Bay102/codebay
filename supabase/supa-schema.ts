@@ -476,6 +476,108 @@ export type Database = {
           },
         ]
       }
+      newsletter_muted_follows: {
+        Row: {
+          created_at: string
+          following_id: string
+          subscriber_id: string
+        }
+        Insert: {
+          created_at?: string
+          following_id: string
+          subscriber_id: string
+        }
+        Update: {
+          created_at?: string
+          following_id?: string
+          subscriber_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_muted_follows_user_follows_fkey"
+            columns: ["subscriber_id", "following_id"]
+            isOneToOne: false
+            referencedRelation: "user_follows"
+            referencedColumns: ["follower_id", "following_id"]
+          },
+        ]
+      }
+      newsletter_send_log: {
+        Row: {
+          content_count: number
+          frequency: Database["public"]["Enums"]["newsletter_digest_frequency"]
+          id: string
+          period_key: string
+          provider_message_id: string | null
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          content_count?: number
+          frequency: Database["public"]["Enums"]["newsletter_digest_frequency"]
+          id?: string
+          period_key: string
+          provider_message_id?: string | null
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          content_count?: number
+          frequency?: Database["public"]["Enums"]["newsletter_digest_frequency"]
+          id?: string
+          period_key?: string
+          provider_message_id?: string | null
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_send_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      newsletter_settings: {
+        Row: {
+          created_at: string
+          frequency: Database["public"]["Enums"]["newsletter_digest_frequency"]
+          include_blog: boolean
+          include_discussions: boolean
+          last_digest_sent_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          frequency?: Database["public"]["Enums"]["newsletter_digest_frequency"]
+          include_blog?: boolean
+          include_discussions?: boolean
+          last_digest_sent_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          frequency?: Database["public"]["Enums"]["newsletter_digest_frequency"]
+          include_blog?: boolean
+          include_discussions?: boolean
+          last_digest_sent_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "newsletter_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_follows: {
         Row: {
           created_at: string
@@ -550,6 +652,7 @@ export type Database = {
       }
     }
     Enums: {
+      newsletter_digest_frequency: "none" | "weekly" | "biweekly" | "monthly"
       UserTypes:
         | "admin"
         | "client"
@@ -685,6 +788,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      newsletter_digest_frequency: ["none", "weekly", "biweekly", "monthly"],
       UserTypes: [
         "admin",
         "client",

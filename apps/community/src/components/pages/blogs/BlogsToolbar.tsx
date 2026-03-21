@@ -1,0 +1,100 @@
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useTransition } from "react";
+import { Search } from "lucide-react";
+import { Button, FilterDropdown, Input } from "@codebay/ui";
+import type { TagOption } from "@/lib/tags";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
+
+export interface BlogsToolbarProps {
+  tags: TagOption[];
+  initialQuery?: string;
+  initialTag?: string | null;
+}
+
+export function BlogsToolbar({ tags, initialQuery = "", initialTag = null }: BlogsToolbarProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  const currentTag = initialTag ?? searchParams.get("tag");
+  const currentQuery = initialQuery ?? searchParams.get("q") ?? "";
+
+  const setFilters = useCallback(
+    (updates: { q?: string; tag?: string | null }) => {
+      const next = new URLSearchParams(searchParams.toString());
+      if (updates.q !== undefined) {
+        if (updates.q.trim()) next.set("q", updates.q.trim());
+        else next.delete("q");
+      }
+      if (updates.tag !== undefined) {
+        if (updates.tag) next.set("tag", updates.tag);
+        else next.delete("tag");
+      }
+      next.delete("page");
+      const queryString = next.toString();
+      startTransition(() => {
+        router.push(queryString ? `/blogs?${queryString}` : "/blogs");
+      });
+    },
+    [router, searchParams]
+  );
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const input = form.querySelector<HTMLInputElement>('input[name="q"]');
+    setFilters({ q: input?.value ?? "" });
+  };
+
+  const filterOptions = tags.map((t) => ({ id: t.id, label: t.name }));
+
+  return (
+    <div className="space-y-4">
+      <FilterDropdown
+        label="Filter by topic"
+        options={filterOptions}
+        value={currentTag}
+        onSelect={(tag) => setFilters({ tag })}
+        allLabel="All"
+        hidden={tags.length === 0}
+        variant="secondary"
+      />
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <form onSubmit={handleSearchSubmit} className="w-full min-w-0 sm:max-w-sm" role="search">
+          <div className="relative w-full">
+            <Input
+              type="search"
+              name="q"
+              defaultValue={currentQuery}
+              placeholder="Search by title, author, or topic…"
+              className="min-w-0 pr-10"
+              aria-label="Search blog posts"
+            />
+            <Button
+              type="submit"
+              variant="secondary"
+              size="icon"
+              disabled={isPending}
+              className="absolute right-1.5 top-1/2 h-8 w-8 -translate-y-1/2"
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+              <span className="sr-only">Search</span>
+            </Button>
+          </div>
+        </form>
+        <FocusButton
+          href="/dashboard/blog/new"
+          colorVariant="primary"
+          borderVariant="bordered"
+          sizeVariant="sm"
+          radiusVariant="square"
+        >
+          New blog post
+        </FocusButton>
+      </div>
+    </div>
+  );
+}
