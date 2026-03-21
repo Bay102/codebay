@@ -134,12 +134,12 @@ export function DashboardHero({
 
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
-              <FileText className="h-3.5 w-3.5 text-primary" />
-              Blog workflow
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
               <MessageSquareText className="h-3.5 w-3.5 text-primary" />
               Discussions
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
+              <FileText className="h-3.5 w-3.5 text-primary" />
+              Blog workflow
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
               <Activity className="h-3.5 w-3.5 text-primary" />

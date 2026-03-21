@@ -37,8 +37,8 @@ function parseSections(rawSections: Json): BlogPostSectionDraft[] {
       const heading = typeof typedSection.heading === "string" ? typedSection.heading : "";
       const paragraphs = Array.isArray(typedSection.paragraphs)
         ? typedSection.paragraphs.filter(
-            (paragraph): paragraph is string => typeof paragraph === "string"
-          )
+          (paragraph): paragraph is string => typeof paragraph === "string"
+        )
         : [];
 
       return {
@@ -103,8 +103,8 @@ export default async function EditCommunityBlogPostPage({ params }: EditBlogPost
   };
 
   return (
-    <main className="min-h-screen bg-background">
-      <section className="mx-auto w-full max-w-4xl px-5 py-10 sm:px-6 lg:px-8">
+    <main className="bg-background pb-5 px-2">
+      <section className="mx-auto w-full max-w-4xl">
         <div className="mb-6">
           <p className="text-xs font-semibold uppercase tracking-wide text-primary">Blog Dashboard</p>
           <h1 className="mt-2 text-2xl font-semibold text-foreground">Edit post</h1>

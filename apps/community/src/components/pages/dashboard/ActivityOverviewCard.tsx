@@ -184,17 +184,17 @@ export function ActivityOverviewCard({
   const modal = (
     <Dialog open={modalOpen} onOpenChange={setModalOpen}>
       <DialogContent className="sm:max-w-2xl">
-        <DialogHeader className="flex flex-row items-center justify-between gap-3">
+        <DialogHeader className="flex flex-row items-center justify-between gap-3 space-y-0 text-left">
           <DialogTitle>Notifications</DialogTitle>
           {modalItems.length > 0 ? (
             <button
               type="button"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-8 items-center justify-center gap-2 rounded-full border border-border/70 bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
               onClick={() => void handleMarkAllRead()}
               disabled={markingAll}
             >
               <CheckCheck className="h-4 w-4" />
-              <span className="sr-only">Mark all activity as read</span>
+              <span className="whitespace-nowrap">Dismiss all notifications</span>
             </button>
           ) : null}
         </DialogHeader>

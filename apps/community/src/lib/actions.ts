@@ -70,3 +70,11 @@ export async function setPreferreldTagsAction(tagIds: string[]): Promise<{ succe
   }
   return { success: true };
 }
+
+/**
+ * Correctly-spelled alias for `setPreferreldTagsAction`.
+ * Kept to avoid breaking existing imports.
+ */
+export async function setPreferredTagsAction(tagIds: string[]): Promise<{ success: boolean; error?: string }> {
+  return setPreferreldTagsAction(tagIds);
+}

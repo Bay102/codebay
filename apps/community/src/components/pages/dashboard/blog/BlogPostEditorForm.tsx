@@ -1,22 +1,23 @@
- "use client";
+"use client";
 
- import Link from "next/link";
- import { useRouter } from "next/navigation";
- import { type FormEvent, useMemo, useState } from "react";
- import {
-   Button,
-   Dialog,
-   DialogClose,
-   DialogContent,
-   DialogFooter,
-   DialogHeader,
-   DialogTitle,
-   getBlogSectionParagraphsFromContent
- } from "@codebay/ui";
- import type { TablesInsert, TablesUpdate } from "@/lib/database";
- import { useAuth } from "@/contexts/AuthContext";
- import { TopicSelector } from "@/components/shared/TopicSelector";
- import { BlogRichTextEditor } from "./BlogRichTextEditor";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { type FormEvent, useMemo, useState } from "react";
+import {
+  Button,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  getBlogSectionParagraphsFromContent
+} from "@codebay/ui";
+import type { TablesInsert, TablesUpdate } from "@/lib/database";
+import { useAuth } from "@/contexts/AuthContext";
+import { TopicSelector } from "@/components/shared/TopicSelector";
+import { BlogRichTextEditor } from "./BlogRichTextEditor";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 type PostStatus = "draft" | "published";
 
@@ -65,7 +66,7 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
- export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: BlogPostEditorFormProps) {
+export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: BlogPostEditorFormProps) {
   const router = useRouter();
   const { supabase, session } = useAuth();
   const [form, setForm] = useState<BlogPostEditorValues>(() => {
@@ -454,19 +455,25 @@ function slugify(value: string): string {
         ) : null}
 
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <Link
+          <FocusButton
             href="/dashboard/blog"
-            className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
+            radiusVariant="small"
+            colorVariant="plain"
+            borderVariant="bordered"
+            sizeVariant="sm"
           >
             Back
-          </Link>
-          <button
-            type="submit"
+          </FocusButton>
+          <FocusButton
+            href="/dashboard/blog"
+            radiusVariant="small"
+            colorVariant="primary"
+            borderVariant="bordered"
+            sizeVariant="md"
             disabled={isSubmitting}
-            className="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? "Saving..." : form.status === "published" ? "Save & publish" : "Save draft"}
-          </button>
+          </FocusButton>
         </div>
       </form>
     </section>

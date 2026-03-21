@@ -6,7 +6,7 @@ type CommunityUserRow = Tables<"community_users">;
 
 type BlogPostListRow = Pick<
   Tables<"blog_posts">,
-  "id" | "slug" | "title" | "author_name" | "status" | "created_at" | "updated_at" | "published_at"
+  "id" | "slug" | "title" | "author_name" | "status" | "is_featured" | "created_at" | "updated_at" | "published_at"
 >;
 
 type ActivityCommentRow = Pick<
@@ -58,6 +58,7 @@ export interface DashboardBlogPostStats {
   title: string;
   authorName: string;
   status: "draft" | "published" | string;
+  isFeatured: boolean;
   createdAt: string | null;
   updatedAt: string | null;
   publishedAt: string | null;
@@ -434,7 +435,7 @@ export async function fetchUserBlogPostsWithStats(
 ): Promise<DashboardBlogPostStats[]> {
   const { data, error } = await supabase
     .from("blog_posts")
-    .select("id,slug,title,author_name,status,created_at,updated_at,published_at")
+    .select("id,slug,title,author_name,status,is_featured,created_at,updated_at,published_at")
     .eq("author_id", userId)
     .order("updated_at", { ascending: false, nullsFirst: false });
 
@@ -454,6 +455,7 @@ export async function fetchUserBlogPostsWithStats(
     title: row.title,
     authorName: row.author_name ?? "CodeBay Team",
     status: row.status,
+    isFeatured: row.is_featured ?? false,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     publishedAt: row.published_at,

@@ -117,25 +117,27 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
       return discussions[0] ?? null;
     })(),
     (async () => {
-      if (!supabase) return 0;
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
       const { count, error } = await supabase
         .from("blog_posts")
         .select("id", { count: "exact", head: true })
         .eq("status", "published")
         .gte("published_at", monthStart);
+
       if (error || typeof count !== "number") return 0;
       return count;
     })(),
     (async () => {
-      if (!supabase) return 0;
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
       const { count, error } = await supabase
         .from("discussions")
         .select("id", { count: "exact", head: true })
         .gte("created_at", monthStart);
+
       if (error || typeof count !== "number") return 0;
       return count;
     })()

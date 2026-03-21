@@ -78,7 +78,7 @@ export function mapDashboardBlogPostToBlogPostCardData(post: DashboardBlogPostSt
     reactions: post.reactions,
     comments: post.comments,
     readTimeMinutes: undefined,
-    isFeatured: false,
+    isFeatured: post.isFeatured,
   };
 }
 
