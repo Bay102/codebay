@@ -1,7 +1,6 @@
 import { BlogPostCard, AnimatedCardSection } from "@codebay/ui";
 import { fetchFeaturedBlogPosts } from "@/lib/landing";
 import { buildPostUrl } from "@/lib/blog-urls";
-import { blogUrl } from "@/lib/site-urls";
 import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
 
 export async function FeaturedBlogPostsSection() {
@@ -17,7 +16,7 @@ export async function FeaturedBlogPostsSection() {
       title="Featured blog posts"
       columns={{ base: 1, md: 2 }}
       className="mt-11"
-      viewAllHref={blogUrl}
+      viewAllHref="/blogs"
       viewAllLabel="View all blog posts →"
     >
       {posts.map((post) => {

@@ -15,7 +15,7 @@ type HeroLink = {
 
 function HeroCtaLink({ href, label, kind }: HeroLink) {
   const base =
-    "group relative inline-flex items-center justify-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:px-4 sm:py-2.5 sm:text-sm";
+    "group relative inline-flex w-full items-center justify-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:w-auto sm:px-4 sm:py-2.5 sm:text-sm";
 
   const className =
     kind === "primary"
@@ -61,7 +61,7 @@ export function DashboardHeroButtons({ hasSession, variant = "landing", classNam
 
   return (
     <div
-      className={`mt-5 inline-flex w-full flex-wrap items-center gap-1.5 rounded-full border border-border/60 bg-background/40 p-1.5 backdrop-blur-sm sm:w-auto ${className ?? ""}`}
+      className={`mt-5 flex w-full flex-col gap-2 rounded-2xl border border-border/60 bg-background/40 p-2 backdrop-blur-sm sm:inline-flex sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:gap-1.5 sm:rounded-full sm:p-1.5 ${className ?? ""}`}
       role="navigation"
       aria-label="Primary actions"
     >
