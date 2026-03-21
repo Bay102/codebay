@@ -25,6 +25,8 @@ type CommunityUser = {
   username: string;
 };
 
+type BlogEngagementCounts = { views: number; reactions: number; comments: number };
+
 type DigestSummary = {
   usersChecked: number;
   usersEmailed: number;
@@ -87,6 +89,64 @@ function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 }
 
+async function fetchBlogEngagementBySlugs(
+  supabase: ReturnType<typeof createClient<Database>>,
+  slugs: string[]
+): Promise<Record<string, BlogEngagementCounts>> {
+  const result: Record<string, BlogEngagementCounts> = Object.fromEntries(
+    slugs.map((slug) => [slug, { views: 0, reactions: 0, comments: 0 }])
+  );
+  if (slugs.length === 0) return result;
+
+  const countRequests = slugs.flatMap((slug) => [
+    supabase.from("blog_post_views").select("*", { count: "exact", head: true }).eq("slug", slug),
+    supabase.from("blog_post_reactions").select("*", { count: "exact", head: true }).eq("slug", slug),
+    supabase
+      .from("blog_post_comments")
+      .select("*", { count: "exact", head: true })
+      .eq("slug", slug)
+      .eq("is_approved", true)
+  ]);
+
+  const settled = await Promise.all(countRequests);
+  const perSlug = 3;
+  slugs.forEach((slug, index) => {
+    const base = index * perSlug;
+    result[slug] = {
+      views: settled[base]?.count ?? 0,
+      reactions: settled[base + 1]?.count ?? 0,
+      comments: settled[base + 2]?.count ?? 0
+    };
+  });
+
+  return result;
+}
+
+async function fetchDiscussionEngagementByIds(
+  supabase: ReturnType<typeof createClient<Database>>,
+  discussionIds: string[]
+): Promise<{ commentById: Map<string, number>; reactionById: Map<string, number> }> {
+  const commentById = new Map<string, number>();
+  const reactionById = new Map<string, number>();
+  if (discussionIds.length === 0) {
+    return { commentById, reactionById };
+  }
+
+  const [commentCounts, reactionCounts] = await Promise.all([
+    supabase.from("discussion_comments").select("discussion_id").in("discussion_id", discussionIds),
+    supabase.from("discussion_reactions").select("discussion_id").in("discussion_id", discussionIds)
+  ]);
+
+  (commentCounts.data ?? []).forEach((r: { discussion_id: string }) => {
+    commentById.set(r.discussion_id, (commentById.get(r.discussion_id) ?? 0) + 1);
+  });
+  (reactionCounts.data ?? []).forEach((r: { discussion_id: string }) => {
+    reactionById.set(r.discussion_id, (reactionById.get(r.discussion_id) ?? 0) + 1);
+  });
+
+  return { commentById, reactionById };
+}
+
 async function fetchDigestItemsForUser(
   supabase: ReturnType<typeof createClient<Database>>,
   userId: string,
@@ -108,7 +168,7 @@ async function fetchDigestItemsForUser(
 
   const { data: authorRows } = await supabase
     .from("community_users")
-    .select("id,name,username")
+    .select("id,name,username,avatar_url")
     .in("id", followingIds);
 
   const authorById = new Map((authorRows ?? []).map((row) => [row.id, row]));
@@ -125,15 +185,23 @@ async function fetchDigestItemsForUser(
       .order("created_at", { ascending: false })
       .limit(30);
 
+    const blogSlugList = (blogRows ?? []).map((row) => row.slug);
+    const engagementBySlug = await fetchBlogEngagementBySlugs(supabase, blogSlugList);
+
     (blogRows ?? []).forEach((row) => {
       if (!row.author_id) return;
       const author = authorById.get(row.author_id);
       if (!author) return;
+      const counts = engagementBySlug[row.slug] ?? { views: 0, reactions: 0, comments: 0 };
       blogItems.push({
         title: row.title,
         url: `${baseUrl}/blog/${encodeURIComponent(author.username)}/${encodeURIComponent(row.slug)}`,
         authorName: author.name,
-        publishedAt: row.published_at ?? row.created_at
+        authorAvatarUrl: author.avatar_url,
+        publishedAt: row.published_at ?? row.created_at,
+        viewCount: counts.views,
+        reactionCount: counts.reactions,
+        commentCount: counts.comments
       });
     });
   }
@@ -141,11 +209,14 @@ async function fetchDigestItemsForUser(
   if (includeDiscussions) {
     const { data: discussionRows } = await supabase
       .from("discussions")
-      .select("author_id,slug,title,created_at")
+      .select("id,author_id,slug,title,created_at")
       .in("author_id", followingIds)
       .gte("created_at", windowStartIso)
       .order("created_at", { ascending: false })
       .limit(30);
+
+    const discussionIds = (discussionRows ?? []).map((row) => row.id);
+    const { commentById, reactionById } = await fetchDiscussionEngagementByIds(supabase, discussionIds);
 
     (discussionRows ?? []).forEach((row) => {
       const author = authorById.get(row.author_id);
@@ -154,7 +225,10 @@ async function fetchDigestItemsForUser(
         title: row.title,
         url: `${baseUrl}/discussions/${encodeURIComponent(row.slug)}`,
         authorName: author.name,
-        createdAt: row.created_at
+        authorAvatarUrl: author.avatar_url,
+        createdAt: row.created_at,
+        commentCount: commentById.get(row.id) ?? 0,
+        reactionCount: reactionById.get(row.id) ?? 0
       });
     });
   }
@@ -238,7 +312,7 @@ export async function runNewsletterDigestJob(input: { baseUrl: string; userLimit
 
     const token = createUnsubscribeToken(user.id, unsubscribeSecret);
     const unsubscribeUrl = `${baseUrl}/newsletter/unsubscribe?token=${encodeURIComponent(token)}`;
-    const managePreferencesUrl = `${baseUrl}/dashboard/profile`;
+    const managePreferencesUrl = `${baseUrl}/settings`;
     const html = await render(
       FollowedCreatorsDigestEmail({
         recipientName: user.name || user.username || "there",

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { getDiscussionsWithCounts } from "@/lib/discussions";
+import { BlogPostCard, SurfaceCard } from "@codebay/ui";
+import { fetchBlogEngagementCounts, getBlogPostsForCommunityList } from "@/lib/blog";
+import { buildBlogPostPath } from "@/lib/blog-urls";
 import { fetchAllTags } from "@/lib/tags";
-import { DiscussionCard, SurfaceCard } from "@codebay/ui";
-import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
-import { DiscussionsToolbar } from "@/components/pages/discussions/DiscussionsToolbar";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
+import { BlogsToolbar } from "@/components/pages/blogs/BlogsToolbar";
 
 export const metadata: Metadata = {
-  title: "Discussions",
-  description: "Community discussions – share ideas and join the conversation."
+  title: "Blogs",
+  description: "Community blog posts — read and discover articles from members."
 };
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ type PageProps = {
   searchParams: Promise<{ q?: string; tag?: string }>;
 };
 
-export default async function DiscussionsListPage({ searchParams }: PageProps) {
+export default async function BlogsListPage({ searchParams }: PageProps) {
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
     return (
@@ -32,7 +33,7 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
               ← Home
             </Link>
           </div>
-          <p className="text-sm text-muted-foreground">Unable to load discussions.</p>
+          <p className="text-sm text-muted-foreground">Unable to load blog posts.</p>
         </section>
       </main>
     );
@@ -42,16 +43,18 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
   const tag = typeof resolved.tag === "string" ? resolved.tag : undefined;
 
-  const [discussions, tags] = await Promise.all([
-    getDiscussionsWithCounts(supabase, {
+  const [posts, tags] = await Promise.all([
+    getBlogPostsForCommunityList(supabase, {
       limit: 32,
       offset: 0,
-      orderByTrend: true,
       search: q,
       tagFilter: tag
     }),
     fetchAllTags(supabase)
   ]);
+
+  const engagementBySlug =
+    posts.length > 0 ? await fetchBlogEngagementCounts(posts.map((p) => p.slug)) : {};
 
   return (
     <main className="bg-background">
@@ -64,35 +67,48 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
             ← Home
           </Link>
           <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-primary">CodingBay Community</p>
-          <h1 className="font-hero mt-2 text-2xl font-semibold text-foreground sm:text-3xl">Discussions</h1>
+          <h1 className="font-hero mt-2 text-2xl font-semibold text-foreground sm:text-3xl">Blogs</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Start a thread or join the conversation.
+            Browse posts from the community or publish your own.
           </p>
         </div>
 
         <div className="mt-6">
-          <DiscussionsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} />
+          <BlogsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} />
         </div>
 
-        {discussions.length === 0 ? (
+        {posts.length === 0 ? (
           <SurfaceCard as="div" variant="card" className="mt-6 p-8 text-center">
             <p className="text-sm text-muted-foreground">
               {q || tag
-                ? "No discussions match your search or filter. Try different terms or clear filters."
-                : "No discussions yet. Be the first to start one from your dashboard."}
+                ? "No blog posts match your search or filter. Try different terms or clear filters."
+                : "No blog posts yet. Be the first to publish from your dashboard."}
             </p>
-
           </SurfaceCard>
         ) : (
           <div className="mt-6 space-y-3">
-            {discussions.map((item) => {
-              const discussion = mapDiscussionListItemToDiscussionCardData(item);
+            {posts.map((post) => {
+              const counts = engagementBySlug[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
+              const cardData = mapLandingFeaturedPostToBlogPostCardData({
+                id: post.id,
+                slug: post.slug,
+                title: post.title,
+                excerpt: post.excerpt,
+                authorName: post.authorName,
+                authorId: post.authorId,
+                authorAvatarUrl: post.authorAvatarUrl,
+                publishedAt: post.publishedAt,
+                tags: post.tags,
+                views: counts.views,
+                reactions: counts.reactions,
+                comments: counts.comments
+              });
               return (
-                <DiscussionCard
-                  key={discussion.id}
-                  discussion={discussion}
+                <BlogPostCard
+                  key={post.id}
+                  post={cardData}
+                  href={buildBlogPostPath(post.authorName, post.slug)}
                   showAuthorAvatar
-                  href={`/discussions/${discussion.slug}`}
                   showAuthor
                   showDate
                   showEngagement

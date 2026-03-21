@@ -196,7 +196,7 @@ Discussions are sorted by `trendingScore` descending, then sliced to the request
 ### Eligibility and empty states
 
 - If no `userId` is available on the landing page:
-  - `ForYouSection` renders a card prompting the user to **sign in** and configure preferred topics in `/dashboard/profile`.
+  - `ForYouSection` renders a card prompting the user to **sign in** and configure preferred topics in `/settings`.
 - If the user is logged in but their preferences produce no matching posts/discussions:
   - `ForYouSection` renders a card explaining that they need to **choose topics** in profile settings.
 
@@ -278,12 +278,12 @@ The Community app can email subscribers a digest of **new blog posts and discuss
 
 ### User-facing flow
 
-- **Where to configure:** `/dashboard/profile` — the **Newsletter** block (`NewsletterPreferencesSection`) lets signed-in users set:
+- **Where to configure:** `/settings` (and the same blocks on `/dashboard/profile`) — **Newsletter** (`NewsletterPreferencesSection`) lets signed-in users set:
   - **Frequency:** `none`, `weekly`, `biweekly`, or `monthly` (stored enum `newsletter_digest_frequency`).
   - **Include blog** / **Include discussions:** booleans (`include_blog`, `include_discussions`); defaults match in-app defaults when no row exists yet (`weekly`, both on).
   - **Muted follows:** users they still follow but whose content should **not** appear in the digest (rows in `newsletter_muted_follows`).
 - **Server actions:** `getNewsletterSettingsAction`, `setNewsletterSettingsAction`, and `setNewsletterMutedFollowsAction` in `apps/community/src/lib/newsletter.ts` read/write these preferences under the authenticated user. Mutes are validated so only real `user_follows` pairs for the subscriber can be stored.
-- **Unsubscribe from email:** the digest footer includes a signed link to `GET /newsletter/unsubscribe?token=…`, which verifies the token and upserts `newsletter_settings` with `frequency = 'none'` for that user (`apps/community/src/app/newsletter/unsubscribe/route.ts`). Manage-preferences links point at `/dashboard/profile`.
+- **Unsubscribe from email:** the digest footer includes a signed link to `GET /newsletter/unsubscribe?token=…`, which verifies the token and upserts `newsletter_settings` with `frequency = 'none'` for that user (`apps/community/src/app/newsletter/unsubscribe/route.ts`). Manage-preferences links point at `/settings`.
 - **Email content:** React Email template `FollowedCreatorsDigestEmail` (`apps/community/src/components/emails/FollowedCreatorsDigestEmail.tsx`), rendered to HTML via `@react-email/render` and sent with **Resend**.
 
 ### Data model (Supabase)

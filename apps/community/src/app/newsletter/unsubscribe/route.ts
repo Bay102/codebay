@@ -20,7 +20,7 @@ function htmlResponse(title: string, body: string, status = 200): NextResponse {
       <h1 style="margin-top: 0; font-size: 24px; line-height: 32px;">${title}</h1>
       <p style="font-size: 14px; line-height: 22px; color: #d1d5db;">${body}</p>
       <p style="font-size: 14px; line-height: 22px; color: #d1d5db;">
-        You can manage all newsletter settings from your CodeBay profile page.
+        You can manage all newsletter settings from your CodeBay settings page (/settings).
       </p>
     </main>
   </body>

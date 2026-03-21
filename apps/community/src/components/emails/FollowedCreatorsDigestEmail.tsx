@@ -1,30 +1,41 @@
 import {
   Body,
   Button,
+  Column,
   Container,
   Head,
   Heading,
   Hr,
   Html,
+  Img,
   Link,
   Preview,
+  Row,
   Section,
   Text
 } from "@react-email/components";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export interface DigestBlogItem {
   title: string;
   url: string;
   authorName: string;
+  /** Public https URL; shown when valid. Otherwise initials are used. */
+  authorAvatarUrl: string | null;
   publishedAt: string;
+  viewCount: number;
+  reactionCount: number;
+  commentCount: number;
 }
 
 export interface DigestDiscussionItem {
   title: string;
   url: string;
   authorName: string;
+  authorAvatarUrl: string | null;
   createdAt: string;
+  commentCount: number;
+  reactionCount: number;
 }
 
 type FollowedCreatorsDigestEmailProps = {
@@ -38,12 +49,156 @@ type FollowedCreatorsDigestEmailProps = {
   unsubscribeUrl: string;
 };
 
+const darkModeStyles = `
+  :root {
+    color-scheme: light dark;
+    supported-color-schemes: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    .email-body {
+      background-color: #0a0a0a !important;
+    }
+    .email-container {
+      background-color: #141414 !important;
+      border-color: #2a2a2a !important;
+    }
+    .email-hero {
+      background-color: #171717 !important;
+      border-color: #404040 !important;
+    }
+    .email-eyebrow {
+      color: #a3a3a3 !important;
+    }
+    .email-title {
+      color: #fafafa !important;
+    }
+    .email-text {
+      color: #d4d4d4 !important;
+    }
+    .email-muted {
+      color: #a3a3a3 !important;
+    }
+    .email-kicker {
+      color: #737373 !important;
+    }
+    .email-link {
+      color: #fafafa !important;
+    }
+    .email-item-card {
+      background-color: #1a1a1a !important;
+      border-color: #2a2a2a !important;
+    }
+    .email-avatar-fallback {
+      background-color: #262626 !important;
+      border-color: #404040 !important;
+      color: #e5e5e5 !important;
+    }
+    .email-avatar-img {
+      border-color: #404040 !important;
+    }
+    .email-hr,
+    .email-section-rule {
+      border-color: #2a2a2a !important;
+    }
+    .email-accent-border-blog {
+      border-left-color: #737373 !important;
+    }
+    .email-accent-border-discussions {
+      border-left-color: #525252 !important;
+    }
+    .email-btn-primary {
+      background-color: #fafafa !important;
+      color: #0a0a0a !important;
+    }
+    .email-btn-secondary {
+      background-color: #262626 !important;
+      color: #fafafa !important;
+      border: 1px solid #404040 !important;
+    }
+    .email-footer-link {
+      color: #d4d4d4 !important;
+    }
+  }
+`;
+
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric"
   }).format(new Date(value));
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]![0] ?? ""}${parts[parts.length - 1]![0] ?? ""}`.toUpperCase() || "?";
+}
+
+function isAbsoluteHttpUrl(url: string | null | undefined): url is string {
+  return typeof url === "string" && /^https?:\/\//i.test(url.trim());
+}
+
+function formatBlogEngagement(item: DigestBlogItem): string {
+  return [
+    `${item.viewCount} ${item.viewCount === 1 ? "view" : "views"}`,
+    `${item.reactionCount} ${item.reactionCount === 1 ? "reaction" : "reactions"}`,
+    `${item.commentCount} ${item.commentCount === 1 ? "comment" : "comments"}`
+  ].join(" · ");
+}
+
+function formatDiscussionEngagement(item: DigestDiscussionItem): string {
+  return [
+    `${item.commentCount} ${item.commentCount === 1 ? "comment" : "comments"}`,
+    `${item.reactionCount} ${item.reactionCount === 1 ? "reaction" : "reactions"}`
+  ].join(" · ");
+}
+
+function DigestAuthorMedia({
+  authorName,
+  authorAvatarUrl
+}: {
+  authorName: string;
+  authorAvatarUrl: string | null;
+}) {
+  if (isAbsoluteHttpUrl(authorAvatarUrl)) {
+    return (
+      <Img
+        src={authorAvatarUrl.trim()}
+        width={40}
+        height={40}
+        alt=""
+        className="email-avatar-img"
+        style={styles.avatarImg}
+      />
+    );
+  }
+
+  return (
+    <Text className="email-avatar-fallback" style={styles.avatarFallback}>
+      {getInitials(authorName)}
+    </Text>
+  );
+}
+
+function DigestItemRow({
+  authorName,
+  authorAvatarUrl,
+  children
+}: {
+  authorName: string;
+  authorAvatarUrl: string | null;
+  children: ReactNode;
+}) {
+  return (
+    <Row>
+      <Column style={styles.avatarColumn}>
+        <DigestAuthorMedia authorName={authorName} authorAvatarUrl={authorAvatarUrl} />
+      </Column>
+      <Column style={styles.itemContentColumn}>{children}</Column>
+    </Row>
+  );
 }
 
 export function FollowedCreatorsDigestEmail({
@@ -59,96 +214,115 @@ export function FollowedCreatorsDigestEmail({
   const hasDiscussions = discussionItems.length > 0;
 
   return (
-    <Html>
-      <Head />
+    <Html lang="en">
+      <Head>
+        <meta name="color-scheme" content="light dark" />
+        <meta name="supported-color-schemes" content="light dark" />
+        <style>{darkModeStyles}</style>
+      </Head>
       <Preview>Your {frequencyLabel} CodeBay digest is ready.</Preview>
-      <Body style={styles.body}>
-        <Container style={styles.container}>
-          <Section style={styles.hero}>
-            <Text style={styles.heroEyebrow}>CodeBay Community</Text>
-            <Heading as="h1" style={styles.heroTitle}>
-              Jump back into the community
+      <Body className="email-body" style={styles.body}>
+        <Container className="email-container" style={styles.container}>
+          <Section className="email-hero" style={styles.hero}>
+            <Text className="email-eyebrow" style={styles.heroEyebrow}>
+              CodeBay Community
+            </Text>
+            <Heading as="h1" className="email-title" style={styles.heroTitle}>
+              Heres what's new from your favorite creators
             </Heading>
-            <Text style={styles.heroLead}>
+            <Text className="email-text" style={styles.heroLead}>
               Explore what is new beyond your digest — trending threads, fresh posts, and more.
             </Text>
-            <Button href={siteUrl} style={styles.heroButton}>
+            <Button href={siteUrl} className="email-btn-primary" style={styles.heroButton}>
               Open CodeBay
             </Button>
           </Section>
 
-          <Hr style={styles.heroRule} />
+          <Hr className="email-section-rule" style={styles.heroRule} />
 
           <Section>
-            <Text style={styles.kicker}>Your digest</Text>
-            <Heading style={styles.heading}>Followed creators · {frequencyLabel}</Heading>
-            <Text style={styles.text}>
-              Hi {recipientName}, here is what people you follow published in this period.
+            <Text className="email-kicker" style={styles.kicker}>
+              Creators you follow
+            </Text>
+            <Text className="email-text" style={styles.text}>
+              Hi {recipientName}, here are a few things you may have missed from the creators you follow.
             </Text>
           </Section>
 
           {hasBlog ? (
-            <Section style={styles.digestSectionBlog}>
-              <Heading as="h2" style={styles.sectionHeading}>
+            <Section className="email-accent-border-blog" style={styles.digestSectionBlog}>
+              <Heading as="h2" className="email-title" style={styles.sectionHeading}>
                 Blog posts
               </Heading>
-              <Text style={styles.sectionSub}>
+              <Text className="email-muted" style={styles.sectionSub}>
                 {blogItems.length} new {blogItems.length === 1 ? "post" : "posts"} from followed creators
               </Text>
               {blogItems.map((item) => (
-                <Section key={item.url} style={styles.itemCard}>
-                  <Link href={item.url} style={styles.itemTitle}>
-                    {item.title}
-                  </Link>
-                  <Text style={styles.itemMeta}>
-                    by {item.authorName} · {formatDate(item.publishedAt)}
-                  </Text>
+                <Section key={item.url} className="email-item-card" style={styles.itemCard}>
+                  <DigestItemRow authorName={item.authorName} authorAvatarUrl={item.authorAvatarUrl}>
+                    <Link href={item.url} className="email-link" style={styles.itemTitle}>
+                      {item.title}
+                    </Link>
+                    <Text className="email-muted" style={styles.itemMeta}>
+                      {item.authorName} · {formatDate(item.publishedAt)}
+                    </Text>
+                    <Text className="email-muted" style={styles.itemStats}>
+                      {formatBlogEngagement(item)}
+                    </Text>
+                  </DigestItemRow>
                 </Section>
               ))}
             </Section>
           ) : null}
 
-          {hasBlog && hasDiscussions ? <Hr style={styles.sectionDivider} /> : null}
+          {hasBlog && hasDiscussions ? <Hr className="email-section-rule" style={styles.sectionDivider} /> : null}
 
           {hasDiscussions ? (
             <Section
+              className="email-accent-border-discussions"
               style={{
                 ...styles.digestSectionDiscussions,
                 marginTop: hasBlog ? "16px" : "24px"
               }}
             >
-              <Heading as="h2" style={styles.sectionHeading}>
+              <Heading as="h2" className="email-title" style={styles.sectionHeading}>
                 Discussions
               </Heading>
-              <Text style={styles.sectionSub}>
-                {discussionItems.length} new {discussionItems.length === 1 ? "thread" : "threads"} from followed creators
+              <Text className="email-muted" style={styles.sectionSub}>
+                {discussionItems.length} new {discussionItems.length === 1 ? "thread" : "threads"} from followed
+                creators
               </Text>
               {discussionItems.map((item) => (
-                <Section key={item.url} style={styles.itemCard}>
-                  <Link href={item.url} style={styles.itemTitle}>
-                    {item.title}
-                  </Link>
-                  <Text style={styles.itemMeta}>
-                    by {item.authorName} · {formatDate(item.createdAt)}
-                  </Text>
+                <Section key={item.url} className="email-item-card" style={styles.itemCard}>
+                  <DigestItemRow authorName={item.authorName} authorAvatarUrl={item.authorAvatarUrl}>
+                    <Link href={item.url} className="email-link" style={styles.itemTitle}>
+                      {item.title}
+                    </Link>
+                    <Text className="email-muted" style={styles.itemMeta}>
+                      {item.authorName} · {formatDate(item.createdAt)}
+                    </Text>
+                    <Text className="email-muted" style={styles.itemStats}>
+                      {formatDiscussionEngagement(item)}
+                    </Text>
+                  </DigestItemRow>
                 </Section>
               ))}
             </Section>
           ) : null}
 
           <Section style={styles.actions}>
-            <Button href={managePreferencesUrl} style={styles.button}>
+            <Button href={managePreferencesUrl} className="email-btn-secondary" style={styles.buttonSecondary}>
               Manage newsletter preferences
             </Button>
           </Section>
 
-          <Hr style={styles.hr} />
+          <Hr className="email-hr" style={styles.hr} />
 
-          <Text style={styles.footerText}>
+          <Text className="email-muted" style={styles.footerText}>
             You are receiving this email because your newsletter digest is enabled in CodeBay.
           </Text>
-          <Text style={styles.footerText}>
-            <Link href={unsubscribeUrl} style={styles.footerLink}>
+          <Text className="email-muted" style={styles.footerText}>
+            <Link href={unsubscribeUrl} className="email-footer-link" style={styles.footerLink}>
               Unsubscribe from digest emails
             </Link>
           </Text>
@@ -160,29 +334,29 @@ export function FollowedCreatorsDigestEmail({
 
 const styles: Record<string, CSSProperties> = {
   body: {
-    backgroundColor: "#0b1020",
-    color: "#e5e7eb",
+    backgroundColor: "#fafafa",
+    color: "#171717",
     fontFamily: "-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif",
     margin: 0,
     padding: "24px 0"
   },
   container: {
-    backgroundColor: "#111827",
-    border: "1px solid #1f2937",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e5e5",
     borderRadius: "12px",
     margin: "0 auto",
     maxWidth: "600px",
     padding: "24px"
   },
   hero: {
-    backgroundColor: "#0c1628",
-    border: "1px solid #1d4ed8",
+    backgroundColor: "#f5f5f5",
+    border: "1px solid #e5e5e5",
     borderRadius: "10px",
     padding: "20px 18px",
     textAlign: "center"
   },
   heroEyebrow: {
-    color: "#93c5fd",
+    color: "#737373",
     fontSize: "11px",
     fontWeight: 700,
     letterSpacing: "0.1em",
@@ -190,20 +364,20 @@ const styles: Record<string, CSSProperties> = {
     textTransform: "uppercase"
   },
   heroTitle: {
-    color: "#f9fafb",
+    color: "#0a0a0a",
     fontSize: "20px",
     fontWeight: 700,
     lineHeight: "26px",
     margin: "0 0 8px"
   },
   heroLead: {
-    color: "#cbd5e1",
+    color: "#525252",
     fontSize: "13px",
     lineHeight: "20px",
     margin: "0 0 16px"
   },
   heroButton: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "#0a0a0a",
     borderRadius: "8px",
     color: "#ffffff",
     display: "inline-block",
@@ -213,11 +387,11 @@ const styles: Record<string, CSSProperties> = {
     textDecoration: "none"
   },
   heroRule: {
-    borderColor: "#1f2937",
+    borderColor: "#e5e5e5",
     margin: "20px 0"
   },
   kicker: {
-    color: "#60a5fa",
+    color: "#737373",
     fontSize: "12px",
     fontWeight: 700,
     letterSpacing: "0.08em",
@@ -225,68 +399,107 @@ const styles: Record<string, CSSProperties> = {
     textTransform: "uppercase"
   },
   heading: {
-    color: "#f9fafb",
+    color: "#0a0a0a",
     fontSize: "24px",
     lineHeight: "32px",
     margin: "8px 0 12px"
   },
   text: {
-    color: "#d1d5db",
+    color: "#404040",
     fontSize: "14px",
     lineHeight: "22px",
     margin: 0
   },
   digestSectionBlog: {
-    borderLeft: "4px solid #3b82f6",
+    borderLeft: "4px solid #d4d4d4",
     marginTop: "24px",
     paddingLeft: "14px"
   },
   digestSectionDiscussions: {
-    borderLeft: "4px solid #8b5cf6",
+    borderLeft: "4px solid #a3a3a3",
     paddingLeft: "14px"
   },
   sectionDivider: {
-    borderColor: "#273449",
+    borderColor: "#e5e5e5",
     margin: "28px 0 0"
   },
   sectionHeading: {
-    color: "#f9fafb",
+    color: "#0a0a0a",
     fontSize: "18px",
     margin: "0 0 4px"
   },
   sectionSub: {
-    color: "#9ca3af",
+    color: "#737373",
     fontSize: "12px",
     lineHeight: "18px",
     margin: "0 0 12px"
   },
   itemCard: {
-    backgroundColor: "#0f172a",
-    border: "1px solid #1f2937",
+    backgroundColor: "#fafafa",
+    border: "1px solid #e5e5e5",
     borderRadius: "8px",
     marginBottom: "10px",
     padding: "12px"
   },
+  avatarColumn: {
+    width: "48px",
+    verticalAlign: "top"
+  },
+  itemContentColumn: {
+    verticalAlign: "top",
+    paddingLeft: "12px"
+  },
+  avatarImg: {
+    border: "1px solid #e5e5e5",
+    borderRadius: "9999px",
+    display: "block",
+    height: "40px",
+    objectFit: "cover",
+    width: "40px"
+  },
+  avatarFallback: {
+    backgroundColor: "#f5f5f5",
+    border: "1px solid #e5e5e5",
+    borderRadius: "9999px",
+    color: "#404040",
+    display: "block",
+    fontSize: "13px",
+    fontWeight: 600,
+    height: "40px",
+    lineHeight: "40px",
+    margin: 0,
+    textAlign: "center",
+    width: "40px"
+  },
   itemTitle: {
-    color: "#93c5fd",
-    display: "inline-block",
+    color: "#0a0a0a",
+    display: "block",
     fontSize: "15px",
     fontWeight: 600,
-    marginBottom: "6px",
+    lineHeight: "22px",
+    margin: "0 0 4px",
     textDecoration: "none"
   },
   itemMeta: {
-    color: "#9ca3af",
+    color: "#737373",
     fontSize: "12px",
+    lineHeight: "18px",
+    margin: "0 0 4px"
+  },
+  itemStats: {
+    color: "#737373",
+    fontSize: "12px",
+    lineHeight: "18px",
     margin: 0
   },
   actions: {
     marginTop: "22px"
   },
-  button: {
-    backgroundColor: "#2563eb",
+  buttonSecondary: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #d4d4d4",
     borderRadius: "8px",
-    color: "#ffffff",
+    color: "#0a0a0a",
     display: "inline-block",
     fontSize: "14px",
     fontWeight: 600,
@@ -294,16 +507,16 @@ const styles: Record<string, CSSProperties> = {
     textDecoration: "none"
   },
   hr: {
-    borderColor: "#1f2937",
+    borderColor: "#e5e5e5",
     margin: "24px 0 16px"
   },
   footerText: {
-    color: "#9ca3af",
+    color: "#737373",
     fontSize: "12px",
     margin: "0 0 8px"
   },
   footerLink: {
-    color: "#93c5fd",
+    color: "#404040",
     textDecoration: "underline"
   }
 };

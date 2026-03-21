@@ -1,4 +1,5 @@
-import type { Json, Tables } from "@/lib/database";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database, Json, Tables } from "@/lib/database";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export interface BlogPostSection {
@@ -171,6 +172,112 @@ export async function fetchPublishedBlogPostsByAuthorId(authorId: string): Promi
 
   const rows = (data ?? []) as BlogPostRow[];
   return rows.map(mapRowToBlogPost);
+}
+
+export interface BlogPostListItem {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  authorId: string | null;
+  authorName: string;
+  authorUsername: string;
+  authorAvatarUrl: string | null;
+  publishedAt: string | null;
+  tags: string[];
+}
+
+function matchBlogSearchPhrase(item: BlogPostListItem, phrase: string): boolean {
+  const p = phrase.toLowerCase().trim();
+  if (!p) return true;
+  return (
+    item.title.toLowerCase().includes(p) ||
+    item.excerpt.toLowerCase().includes(p) ||
+    item.authorName.toLowerCase().includes(p) ||
+    item.authorUsername.toLowerCase().includes(p) ||
+    item.tags.some((t) => t.toLowerCase().includes(p))
+  );
+}
+
+/**
+ * Community blog index: published posts with optional topic and text search (mirrors discussions list behavior).
+ */
+export async function getBlogPostsForCommunityList(
+  supabase: SupabaseClient<Database>,
+  options: {
+    limit?: number;
+    offset?: number;
+    search?: string;
+    tagFilter?: string;
+  } = {}
+): Promise<BlogPostListItem[]> {
+  const { limit = 32, offset = 0, search, tagFilter } = options;
+  const hasSearch = Boolean(search?.trim());
+  const fetchLimit = hasSearch ? Math.min(100, limit * 4) : limit;
+  const fetchOffset = hasSearch ? 0 : offset;
+
+  let query = supabase
+    .from("blog_posts")
+    .select(
+      `
+      id,
+      slug,
+      title,
+      excerpt,
+      author_id,
+      author_name,
+      published_at,
+      tags,
+      community_users!blog_posts_author_id_fkey (
+        username,
+        avatar_url
+      )
+    `
+    )
+    .eq("status", "published")
+    .order("published_at", { ascending: false, nullsFirst: false });
+
+  if (tagFilter?.trim()) {
+    query = query.overlaps("tags", [tagFilter.trim()]);
+  }
+
+  query = query.range(fetchOffset, fetchOffset + fetchLimit - 1);
+
+  const { data: rows, error } = await query;
+
+  if (error || !rows || rows.length === 0) return [];
+
+  type ListRow = {
+    id: string;
+    slug: string;
+    title: string;
+    excerpt: string | null;
+    author_id: string | null;
+    author_name: string | null;
+    published_at: string | null;
+    tags: string[] | null;
+    community_users: { username: string; avatar_url: string | null } | null;
+  };
+
+  let items: BlogPostListItem[] = (rows as ListRow[]).map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    title: r.title,
+    excerpt: r.excerpt ?? "",
+    authorId: r.author_id,
+    authorName: r.author_name ?? "Unknown",
+    authorUsername: r.community_users?.username ?? "",
+    authorAvatarUrl: r.community_users?.avatar_url ?? null,
+    publishedAt: r.published_at,
+    tags: r.tags ?? []
+  }));
+
+  if (hasSearch) {
+    items = items.filter((item) => matchBlogSearchPhrase(item, search!));
+    items = items.slice(offset, offset + limit);
+  }
+
+  return items;
 }
 
 function normalizeUrl(value: string): string | null {

@@ -117,12 +117,12 @@ export function ForYouSection() {
           <p className="text-sm text-muted-foreground">
             Set your preferred topics in the{" "}
             <a
-              href={`${communityUrl}/dashboard/profile`}
+              href={`${communityUrl}/settings`}
               target="_blank"
               rel="noreferrer"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
-              community dashboard
+              community settings
             </a>{" "}
             to see posts tailored to your interests here.
           </p>
@@ -139,12 +139,12 @@ export function ForYouSection() {
           <p className="text-sm text-muted-foreground">
             No posts match your preferred topics yet. Update your topics in the{" "}
             <a
-              href={`${communityUrl}/dashboard/profile`}
+              href={`${communityUrl}/settings`}
               target="_blank"
               rel="noreferrer"
               className="font-medium text-primary underline-offset-4 hover:underline"
             >
-              community dashboard
+              community settings
             </a>
             .
           </p>
@@ -194,7 +194,7 @@ export function ForYouSection() {
       </div>
       <div className="mt-3">
         <a
-          href={`${communityUrl}/dashboard/profile`}
+          href={`${communityUrl}/settings`}
           target="_blank"
           rel="noreferrer"
           className="text-sm font-medium text-primary hover:underline"
