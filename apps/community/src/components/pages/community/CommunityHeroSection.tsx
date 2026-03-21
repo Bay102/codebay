@@ -60,7 +60,7 @@ function SignalMetricGrid({
 
   return (
     <div
-      className={`rounded-xl border border-border/60 bg-card/55 backdrop-blur-sm ${compact ? "px-1.5 py-1.5" : "px-2 py-2"}`}
+      className={`border border-border/60 bg-card/55 backdrop-blur-sm ${compact ? "px-1.5 py-1.5" : "px-2 py-2"}`}
     >
       <div
         className={`flex items-center gap-2 uppercase text-muted-foreground ${compact ? "text-[7px] tracking-[0.18em]" : "text-[8px] tracking-[0.22em]"}`}
@@ -69,7 +69,7 @@ function SignalMetricGrid({
         <span className="font-mono-ticker">{eyebrow}</span>
       </div>
 
-      <div className={`mt-1.5 grid gap-px overflow-hidden rounded-lg bg-border/50 ${columnClassName}`}>
+      <div className={`mt-1.5 grid gap-px overflow-hidden bg-border/50 ${columnClassName}`}>
         {metrics.map((metric) => {
           const Icon = metric.icon;
 
@@ -117,25 +117,27 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
       return discussions[0] ?? null;
     })(),
     (async () => {
-      if (!supabase) return 0;
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
       const { count, error } = await supabase
         .from("blog_posts")
         .select("id", { count: "exact", head: true })
         .eq("status", "published")
         .gte("published_at", monthStart);
+
       if (error || typeof count !== "number") return 0;
       return count;
     })(),
     (async () => {
-      if (!supabase) return 0;
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
       const { count, error } = await supabase
         .from("discussions")
         .select("id", { count: "exact", head: true })
         .gte("created_at", monthStart);
+
       if (error || typeof count !== "number") return 0;
       return count;
     })()
@@ -225,7 +227,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
             {metricItems.map((metric) => (
               <div
                 key={metric.label}
-                className="rounded-2xl border border-border/60 bg-background/80 p-2.5 backdrop-blur sm:p-3.5"
+                className="border border-border/60 bg-background/80 p-2.5 backdrop-blur sm:p-3.5"
               >
                 <div className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px] sm:tracking-[0.24em]">
                   {metric.label}
@@ -240,7 +242,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
 
           <div className="grid gap-3">
             <div className="grid items-stretch gap-3 lg:grid-cols-2">
-              <div className="flex h-64 flex-col overflow-hidden rounded-xl border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
+              <div className="flex h-64 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <MessageSquareText className="h-3.5 w-3.5 text-primary" />
                   Live discussion
@@ -300,7 +302,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
                 )}
               </div>
 
-              <div className="flex h-64 flex-col overflow-hidden rounded-xl border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
+              <div className="flex h-64 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <Rss className="h-3.5 w-3.5 text-primary" />
                   Featured post

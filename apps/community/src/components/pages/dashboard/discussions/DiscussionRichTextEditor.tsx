@@ -96,7 +96,7 @@ export function DiscussionRichTextEditor({ id, value, onChange, disabled }: Disc
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm font-medium text-foreground">Body</p>
       </div>
-      <div className="rounded-2xl border border-border/70 bg-background shadow-sm">
+      <div className="border border-border/70 bg-background shadow-sm">
         <div className="flex flex-wrap items-center gap-1 border-b border-border/60 px-3 py-1.5 text-xs text-muted-foreground">
           <button
             type="button"

@@ -92,7 +92,7 @@ export function FeaturedPostsManager() {
           {posts.map((post) => (
             <div
               key={post.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm"
+              className="flex items-center justify-between gap-3 border border-border/60 bg-card/40 px-3 py-2 text-sm"
             >
               <div className="min-w-0">
                 <p className="truncate font-medium text-foreground">{post.title}</p>

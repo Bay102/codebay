@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { fetchAllTags } from "@/lib/tags";
-import { Button, DiscussionCard, SurfaceCard } from "@codebay/ui";
+import { DiscussionCard, SurfaceCard } from "@codebay/ui";
 import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
 import { DiscussionsToolbar } from "@/components/pages/discussions/DiscussionsToolbar";
 
@@ -66,15 +66,7 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
                 ? "No discussions match your search or filter. Try different terms or clear filters."
                 : "No discussions yet. Be the first to start one from your dashboard."}
             </p>
-            {/* <a
-              href="/dashboard/discussions/new"
-              className="mt-4 inline-flex rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
-            >
-              New discussion
-            </a> */}
-            <Button asChild variant="default" size="default" className="w-full sm:w-auto">
-              <a href="/dashboard/discussions/new">New discussion</a>
-            </Button>
+
           </SurfaceCard>
         ) : (
           <div className="mt-6 space-y-3">

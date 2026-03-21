@@ -1,4 +1,4 @@
-import { getFollowStatsAction } from "@/app/actions";
+import { getFollowStatsAction } from "@/lib/actions";
 import type { LandingProfile } from "@/lib/landing";
 import { fetchTrendingProfiles } from "@/lib/landing";
 import { getFollowStatsForProfile } from "@/lib/follows";

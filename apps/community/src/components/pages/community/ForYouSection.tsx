@@ -2,10 +2,10 @@ import Link from "next/link";
 import { SurfaceCard } from "@codebay/ui";
 import { fetchForYouBlogPosts, fetchForYouDiscussions } from "@/lib/landing";
 import { fetchAllTags } from "@/lib/tags";
-import { getPreferredTagIdsAction } from "@/app/actions";
+import { getPreferredTagIdsAction } from "@/lib/actions";
 import { PreferredTopicsDialog } from "@/components/pages/community/PreferredTopicsDialog";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { InViewSection } from "@/components/InViewSection";
+import { InViewSection } from "@/components/shared/InViewSection";
 import { ForYouSectionContent } from "./ForYouSectionContent";
 
 type ForYouSectionProps = {

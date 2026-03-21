@@ -1,41 +1,41 @@
-@import "@codebay/theme/tokens.css";
+@import '@codebay/theme/tokens.css';
 
 /* Primary color overrides (data-primary is set by MenuThemeController) */
-:root[data-primary="orange"],
-.dark[data-primary="orange"] {
-  --primary: 24 95% 53%;
-  --accent: 24 95% 53%;
-  --ring: 24 95% 53%;
+:root[data-primary='orange'],
+.dark[data-primary='orange'] {
+ --primary: 24 95% 53%;
+ --accent: 24 95% 53%;
+ --ring: 24 95% 53%;
 }
-:root[data-primary="blue"],
-.dark[data-primary="blue"] {
-  --primary: 217 91% 60%;
-  --accent: 217 91% 60%;
-  --ring: 217 91% 60%;
+:root[data-primary='blue'],
+.dark[data-primary='blue'] {
+ --primary: 217 91% 60%;
+ --accent: 217 91% 60%;
+ --ring: 217 91% 60%;
 }
-:root[data-primary="red"],
-.dark[data-primary="red"] {
-  --primary: 0 84% 60%;
-  --accent: 0 84% 60%;
-  --ring: 0 84% 60%;
+:root[data-primary='red'],
+.dark[data-primary='red'] {
+ --primary: 0 84% 60%;
+ --accent: 0 84% 60%;
+ --ring: 0 84% 60%;
 }
-:root[data-primary="green"],
-.dark[data-primary="green"] {
-  --primary: 142 71% 45%;
-  --accent: 142 71% 45%;
-  --ring: 142 71% 45%;
+:root[data-primary='green'],
+.dark[data-primary='green'] {
+ --primary: 142 71% 45%;
+ --accent: 142 71% 45%;
+ --ring: 142 71% 45%;
 }
-:root[data-primary="yellow"],
-.dark[data-primary="yellow"] {
-  --primary: 45 93% 47%;
-  --accent: 45 93% 47%;
-  --ring: 45 93% 47%;
+:root[data-primary='yellow'],
+.dark[data-primary='yellow'] {
+ --primary: 45 93% 47%;
+ --accent: 45 93% 47%;
+ --ring: 45 93% 47%;
 }
-:root[data-primary="purple"],
-.dark[data-primary="purple"] {
-  --primary: 262 83% 58%;
-  --accent: 262 83% 58%;
-  --ring: 262 83% 58%;
+:root[data-primary='purple'],
+.dark[data-primary='purple'] {
+ --primary: 262 83% 58%;
+ --accent: 262 83% 58%;
+ --ring: 262 83% 58%;
 }
 
 @tailwind base;
@@ -43,61 +43,276 @@
 @tailwind utilities;
 
 @layer utilities {
-  .scrollbar-none {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
+ .scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+ }
 
-  .scrollbar-none::-webkit-scrollbar {
-    display: none;
+ .scrollbar-none::-webkit-scrollbar {
+  display: none;
+ }
+}
+
+@layer components {
+ /**
+   * Focus-style submit/navigation button.
+   * Uses pseudo elements for the expanding blur/glass effect.
+   */
+ .cb-focus-button {
+  all: unset;
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+
+  /* Variant-driven styling (set via data attributes on the element). */
+  --cb-radius: 0.625rem; /* md (10px) */
+  --cb-border-width: 0px;
+  --cb-border-color: hsl(var(--border));
+  --cb-surface-bg: hsl(var(--card));
+  --cb-glass-bg: hsl(var(--card-foreground) / 0.12);
+  --cb-text-color: hsl(var(--foreground));
+
+  /* Default sizing (overridable via data-size-variant) */
+  min-height: 2.25rem; /* ~h-9 */
+  padding: 0 1rem;
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.1;
+  font-family: inherit;
+  cursor: pointer;
+
+  color: var(--cb-text-color);
+  border: var(--cb-border-width) solid var(--cb-border-color);
+  border-radius: var(--cb-radius);
+ }
+
+ .cb-focus-button::before {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  bottom: 0;
+  right: 0;
+  /* Keep the base surface behind the glass overlay. */
+  z-index: -2;
+  transition: all 0.4s ease;
+ }
+
+ .cb-focus-button::before {
+  transform: translate(0%, 0%);
+  width: 100%;
+  height: 100%;
+  /* Use theme tokens so the base surface matches light/dark mode. */
+  background: var(--cb-surface-bg);
+  border-radius: var(--cb-radius);
+ }
+
+ .cb-focus-button::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  bottom: 0;
+  right: 0;
+  /* Glass overlay sits above the base surface. */
+  z-index: -1;
+  transition: all 0.4s ease;
+
+  transform: translate(0%, 0%);
+  width: 100%;
+  height: 100%;
+  /*
+     * Glass highlight: use foreground so it "lightens" in dark mode
+     * and "tints darker" in light mode, both with the same alpha.
+     */
+  background: var(--cb-glass-bg);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border-radius: var(--cb-radius);
+
+  opacity: 0;
+ }
+
+ .cb-focus-button:hover::before {
+  /* Move the expanded surface up a bit so it aligns better with focus. */
+  transform: translate(5%, 10%);
+  width: 98%;
+  height: 98%;
+ }
+
+ .cb-focus-button:active::before {
+  transition: 0s;
+  transform: translate(0, 5%);
+ }
+
+ .cb-focus-button:hover::after {
+  opacity: 1;
+  /* Snap the glass overlay to the original button surface. */
+  transform: translate(0, 0);
+  width: 100%;
+  height: 100%;
+ }
+
+ .cb-focus-button:active::after {
+  transition: 0s;
+  transform: translate(0, 0);
+  width: 100%;
+  height: 100%;
+ }
+
+ /* Glass disabled: keep a subtle surface motion, but suppress the blur overlay. */
+ .cb-focus-button[data-glass-variant='off']:hover::before {
+  transform: translate(2%, 4%);
+  width: 99%;
+  height: 99%;
+ }
+
+ .cb-focus-button[data-glass-variant='off']::after {
+  opacity: 0 !important;
+ }
+
+ .cb-focus-button[data-glass-variant='off']:hover::after {
+  opacity: 0 !important;
+ }
+
+ .cb-focus-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.35);
+ }
+
+ .cb-focus-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+ }
+
+ .cb-focus-button[aria-disabled='true'] {
+  cursor: not-allowed;
+ }
+
+ @media (prefers-reduced-motion: reduce) {
+  .cb-focus-button::before,
+  .cb-focus-button::after {
+   transition: none;
   }
+ }
+
+ /* Border variant */
+ .cb-focus-button[data-border-variant='bordered'] {
+  --cb-border-width: 1px;
+ }
+
+ /* Radius variants */
+ .cb-focus-button[data-radius-variant='pill'] {
+  --cb-radius: 9999px;
+ }
+ .cb-focus-button[data-radius-variant='square'] {
+  --cb-radius: 0.25rem;
+ }
+ .cb-focus-button[data-radius-variant='md'] {
+  --cb-radius: 0.625rem;
+ }
+ .cb-focus-button[data-radius-variant='small'] {
+  --cb-radius: 0.5rem;
+ }
+
+ /* Color variants */
+ .cb-focus-button[data-color-variant='primary'] {
+  --cb-text-color: hsl(var(--primary));
+  --cb-surface-bg: hsl(var(--primary) / 0.18);
+  --cb-glass-bg: hsl(var(--primary-foreground) / 0.12);
+  --cb-border-color: hsl(var(--primary) / 0.45);
+ }
+
+ /* Size variants */
+ .cb-focus-button[data-size-variant='xs'] {
+  min-height: 1.875rem; /* ~h-7 */
+  padding: 0 0.75rem;
+  font-size: 0.75rem; /* ~text-xs */
+  line-height: 1.1;
+ }
+ .cb-focus-button[data-size-variant='sm'] {
+  min-height: 2rem; /* ~h-8 */
+  padding: 0 0.875rem;
+  font-size: 0.8125rem; /* slightly smaller than text-sm */
+  line-height: 1.1;
+ }
+ .cb-focus-button[data-size-variant='md'] {
+  min-height: 2.25rem; /* ~h-9 */
+  padding: 0 1rem;
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.1;
+ }
+ .cb-focus-button[data-size-variant='lg'] {
+  min-height: 2.625rem; /* ~h-10/42px */
+  padding: 0 1.25rem;
+  font-size: 0.9375rem; /* ~text-base-ish */
+  line-height: 1.1;
+ }
+
+ /* Icon-only tweaks */
+ .cb-focus-button[data-icon-only='true'][data-size-variant='xs'] {
+  padding: 0 0.55rem;
+ }
+ .cb-focus-button[data-icon-only='true'][data-size-variant='sm'] {
+  padding: 0 0.65rem;
+ }
+ .cb-focus-button[data-icon-only='true'][data-size-variant='md'] {
+  padding: 0 0.8rem;
+ }
+ .cb-focus-button[data-icon-only='true'][data-size-variant='lg'] {
+  padding: 0 1rem;
+ }
 }
 
 /* Stock-ticker infinite scroll (GPU-friendly, no JS) */
 @keyframes ticker-scroll-2 {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
+ from {
+  transform: translateX(0);
+ }
+ to {
+  transform: translateX(-50%);
+ }
 }
 
 @keyframes ticker-scroll-4 {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-25%);
-  }
+ from {
+  transform: translateX(0);
+ }
+ to {
+  transform: translateX(-25%);
+ }
 }
 
 @keyframes signal-sweep {
-  from {
-    transform: translate3d(-12rem, -50%, 0);
-  }
-  to {
-    transform: translate3d(calc(100vw + 12rem), -50%, 0);
-  }
+ from {
+  transform: translate3d(-12rem, -50%, 0);
+ }
+ to {
+  transform: translate3d(calc(100vw + 12rem), -50%, 0);
+ }
 }
 
 [data-signal-beam] {
-  animation: signal-sweep 7s ease-in-out infinite;
-  will-change: transform;
+ animation: signal-sweep 7s ease-in-out infinite;
+ will-change: transform;
 }
 
 [data-signal-beam-core] {
-  animation: signal-sweep 7s ease-in-out infinite;
-  will-change: transform;
+ animation: signal-sweep 7s ease-in-out infinite;
+ will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-ticker] {
-    animation: none !important;
-  }
+ [data-ticker] {
+  animation: none !important;
+ }
 
-  [data-signal-beam],
-  [data-signal-beam-core] {
-    animation: none !important;
-  }
+ [data-signal-beam],
+ [data-signal-beam-core] {
+  animation: none !important;
+ }
 }

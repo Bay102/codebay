@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { TopicPillsPicker } from "@codebay/ui";
-import { setPreferredTagsAction } from "@/app/actions";
+import { setPreferredTagsAction } from "@/lib/actions";
 import type { TagOption } from "@/lib/tags";
 
 type PreferredTopicsSectionProps = {

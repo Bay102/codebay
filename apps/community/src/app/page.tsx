@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CtaCarousel, type CtaCarouselSlide } from "@codebay/ui";
-import { InViewSection } from "@/components/InViewSection";
+import { InViewSection } from "@/components/shared/InViewSection";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CommunityHeroSection } from "@/components/pages/community/CommunityHeroSection";
 import { TrendingProfilesSection } from "@/components/pages/community/TrendingProfilesSection";
@@ -48,7 +48,7 @@ export default async function CommunityLandingPage() {
         <InViewSection>
           <CommunityHeroSection hasSession={hasSession} />
 
-          <TrendingTopicsSection />
+          {/* <TrendingTopicsSection /> */}
 
           {!hasSession && (
             <CtaCarousel

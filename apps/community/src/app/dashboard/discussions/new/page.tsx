@@ -48,12 +48,12 @@ export default async function NewDiscussionPage() {
         </div>
 
         <div className="grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <div className="rounded-2xl border border-border/70 bg-card/70 px-3.5 py-5 sm:px-3.5 sm:py-6">
+          <div className="border border-border/70 bg-card/70 px-3.5 py-5 sm:px-3.5 sm:py-6">
             <NewDiscussionForm authorName={profile.name} allowedTags={allowedTags} />
           </div>
           <aside className="hidden lg:block">
             <div className="sticky top-20 space-y-4">
-              <div className="rounded-2xl border border-border/70 bg-card/60 p-4">
+              <div className="border border-border/70 bg-card/60 p-4">
                 <h2 className="text-sm font-semibold text-foreground">Tips for a great discussion</h2>
                 <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
                   <li>Use a clear, specific title that captures the core question or idea.</li>
@@ -61,7 +61,7 @@ export default async function NewDiscussionPage() {
                   <li>Include relevant code snippets or examples when helpful.</li>
                 </ul>
               </div>
-              <div className="rounded-2xl border border-border/70 bg-card/60 p-4">
+              <div className="border border-border/70 bg-card/60 p-4">
                 <h2 className="text-sm font-semibold text-foreground">Community guidelines</h2>
                 <p className="mt-2 text-xs text-muted-foreground">
                   Be kind, stay on topic, and share context so others can give high-signal responses.

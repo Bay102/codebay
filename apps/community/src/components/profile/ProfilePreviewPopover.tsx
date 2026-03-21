@@ -172,7 +172,7 @@ export function ProfilePreviewPopover({
         align="start"
         side="right"
         sideOffset={12}
-        className="w-80 max-h-[min(80dvh,480px)] overflow-y-auto rounded-2xl border border-border/80 bg-card/95 p-4 shadow-xl backdrop-blur"
+        className="w-80 max-h-[min(80dvh,480px)] overflow-y-auto border border-border/80 bg-card/95 p-4 shadow-xl backdrop-blur"
         onMouseEnter={handleContentMouseEnter}
         onMouseLeave={handleContentMouseLeave}
       >

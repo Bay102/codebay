@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ExternalLink, MessageSquare } from "lucide-react";
 import type { DiscussionListItem } from "@/lib/discussions";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 type DashboardDiscussionsTableProps = {
   discussions: DiscussionListItem[];
@@ -24,18 +25,21 @@ export function DashboardDiscussionsTable({
   const displayItems = discussions.slice(0, maxRows);
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+    <div className="border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Discussions
         </h2>
         <div className="flex flex-wrap items-center gap-2">
-          <Link
+          <FocusButton
             href="/dashboard/discussions/new"
-            className="inline-flex items-center rounded-md border border-primary/35 bg-primary/10 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-primary/20"
+            colorVariant="primary"
+            borderVariant="bordered"
+            radiusVariant="square"
+            sizeVariant="xs"
           >
             Start a discussion
-          </Link>
+          </FocusButton>
           <Link
             href="/discussions"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-primary transition-colors hover:text-primary/80"

@@ -30,7 +30,7 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
   return (
     <div className="flex flex-col gap-4">
 
-      <div className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+      <div className="border border-border/70 bg-card/70 p-5 sm:p-6">
         <button
           type="button"
           onClick={() => setIsFormOpen((open) => !open)}
@@ -57,7 +57,7 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
             id="new-discussion-form"
             role="region"
             aria-labelledby="new-discussion-toggle"
-            className="mt-3 rounded-xl border border-border/70 bg-background/70 p-3 sm:p-4"
+            className="mt-3 border border-border/70 bg-background/70 p-3 sm:p-4"
           >
             <NewDiscussionForm
               authorName={authorName}
@@ -69,7 +69,7 @@ export function DiscussionManagementCard({ discussions, authorName, allowedTags 
         )}
       </div>
 
-      <article className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+      <article className="border border-border/70 bg-card/70 p-5 sm:p-6">
         <div className="flex flex-row flex-nowrap items-center justify-between gap-3">
           <h2 className="min-w-0 shrink text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             My Latest Discussions

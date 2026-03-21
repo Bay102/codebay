@@ -2,11 +2,11 @@ import type { ComponentPropsWithoutRef, ElementType, ReactNode } from "react";
 import { cn } from "./utils";
 
 const surfaceCardVariants = {
-  hero: "rounded-3xl border border-border/60 bg-card/40 px-6 py-8 sm:px-8 sm:py-10 md:px-10",
-  panel: "rounded-3xl border border-border/70 bg-card/60 p-6 sm:p-8",
-  card: "rounded-2xl border border-border/70 bg-card/60 p-4",
-  subtle: "rounded-2xl border border-dashed border-border/70 bg-card/40 p-6 sm:p-8",
-  borderless: "rounded-2xl border-none bg-card/60 p-4"
+  hero: "border border-border/60 bg-card/40 px-6 py-8 sm:px-8 sm:py-10 md:px-10",
+  panel: "border border-border/70 bg-card/60 p-6 sm:p-8",
+  card: "border border-border/70 bg-card/60 p-4",
+  subtle: "border border-dashed border-border/70 bg-card/40 p-6 sm:p-8",
+  borderless: "border-none bg-card/60 p-4"
 } as const;
 
 type SurfaceCardVariant = keyof typeof surfaceCardVariants;

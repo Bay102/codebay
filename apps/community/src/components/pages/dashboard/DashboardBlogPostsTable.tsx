@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ExternalLink, FileText, Pencil } from "lucide-react";
 import type { DashboardBlogPostStats } from "@/lib/dashboard";
 import { buildPostUrl } from "@/lib/blog-urls";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 type DashboardBlogPostsTableProps = {
   posts: DashboardBlogPostStats[];
@@ -26,18 +27,21 @@ export function DashboardBlogPostsTable({
   const displayPosts = posts.slice(0, maxRows);
 
   return (
-    <div className="rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+    <div className="border border-border/70 bg-card/70 p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Blog posts
         </h2>
         <div className="flex flex-wrap items-center gap-2">
-          <Link
+          <FocusButton
             href="/dashboard/blog/new"
-            className="inline-flex items-center rounded-md border border-primary/35 bg-primary/10 px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-primary/20"
+            colorVariant="primary"
+            borderVariant="bordered"
+            radiusVariant="square"
+            sizeVariant="xs"
           >
             New blog post
-          </Link>
+          </FocusButton>
           <Link
             href="/dashboard/blog"
             className="inline-flex items-center gap-1.5 text-xs font-medium text-primary transition-colors hover:text-primary/80"
@@ -101,11 +105,10 @@ export function DashboardBlogPostsTable({
                     </td>
                     <td className="py-3 px-2">
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                          isPublished
-                            ? "border border-primary/30 bg-primary/10 text-primary"
-                            : "border border-border/70 bg-muted/50 text-muted-foreground"
-                        }`}
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${isPublished
+                          ? "border border-primary/30 bg-primary/10 text-primary"
+                          : "border border-border/70 bg-muted/50 text-muted-foreground"
+                          }`}
                       >
                         {post.status}
                       </span>

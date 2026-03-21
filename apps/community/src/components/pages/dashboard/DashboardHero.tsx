@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Activity, Bell, FileText, LayoutDashboard, MessageSquareText } from "lucide-react";
 import { SurfaceCard } from "@codebay/ui";
 import type { DashboardActivityItem } from "@/lib/dashboard";
+import { getDashboardActivityIcon } from "@/components/pages/dashboard/dashboard-activity-icons";
 import { useDashboardNotificationModal } from "@/contexts/DashboardNotificationModalContext";
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
 
@@ -134,12 +135,12 @@ export function DashboardHero({
 
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
-              <FileText className="h-3.5 w-3.5 text-primary" />
-              Blog workflow
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
               <MessageSquareText className="h-3.5 w-3.5 text-primary" />
               Discussions
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
+              <FileText className="h-3.5 w-3.5 text-primary" />
+              Blog workflow
             </span>
             <span className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/75 px-3 py-1 text-xs text-muted-foreground">
               <Activity className="h-3.5 w-3.5 text-primary" />
@@ -151,14 +152,14 @@ export function DashboardHero({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-          <div className="rounded-2xl border border-border/60 bg-background/80 p-4 backdrop-blur">
+          <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
             <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Discussions</div>
             <div className="mt-1.5 font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
               {discussionCount}
             </div>
             <div className="mt-1 text-xs text-muted-foreground">your threads</div>
           </div>
-          <div className="rounded-2xl border border-border/60 bg-background/80 p-4 backdrop-blur">
+          <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
             <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Published</div>
             <div className="mt-1.5 font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
               {publishedCount}
@@ -166,7 +167,7 @@ export function DashboardHero({
             <div className="mt-1 text-xs text-muted-foreground">blog posts</div>
           </div>
           {showNotificationQuickView ? (
-            <div className="rounded-2xl border border-border/60 bg-background/80 p-4 backdrop-blur">
+            <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                   <Bell className="h-3.5 w-3.5 text-primary" />
@@ -189,40 +190,50 @@ export function DashboardHero({
                   </Link>
                 )}
               </div>
-              <div className="mt-3 min-h-[3.5rem] space-y-2">
+              <div className="mt-3 min-h-[3.5rem] divide-y divide-border/50">
                 {quickViewItems.length > 0 ? (
-                  quickViewItems.map((item) => (
-                    <div key={item.id} className="flex flex-col gap-0.5">
-                      {item.href ? (
-                        <Link
-                          href={item.href}
-                          className="line-clamp-1 text-sm font-medium text-foreground transition-colors hover:text-primary"
-                        >
-                          {item.title}
-                        </Link>
-                      ) : (
-                        <span className="line-clamp-1 text-sm font-medium text-foreground">{item.title}</span>
-                      )}
-                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <span>{kindLabel[item.kind]}</span>
-                        {formatNotificationDetails(item) ? (
-                          <>
+                  quickViewItems.map((item) => {
+                    const { Icon, iconClassName } = getDashboardActivityIcon(item);
+                    return (
+                      <div key={item.id} className="flex gap-2.5 py-2.5 first:pt-0">
+                        <div className="shrink-0 pt-0.5" aria-hidden>
+                          <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-border/50 bg-background/60">
+                            <Icon className={`h-3.5 w-3.5 ${iconClassName}`} strokeWidth={2} />
+                          </span>
+                        </div>
+                        <div className="min-w-0 flex flex-1 flex-col gap-0.5">
+                          {item.href ? (
+                            <Link
+                              href={item.href}
+                              className="line-clamp-1 text-sm font-medium text-foreground transition-colors hover:text-primary"
+                            >
+                              {item.title}
+                            </Link>
+                          ) : (
+                            <span className="line-clamp-1 text-sm font-medium text-foreground">{item.title}</span>
+                          )}
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
+                            <span>{kindLabel[item.kind]}</span>
+                            {formatNotificationDetails(item) ? (
+                              <>
+                                <span>·</span>
+                                <span className="line-clamp-1">{formatNotificationDetails(item)}</span>
+                              </>
+                            ) : null}
                             <span>·</span>
-                            <span className="line-clamp-1">{formatNotificationDetails(item)}</span>
-                          </>
-                        ) : null}
-                        <span>·</span>
-                        <span>{formatRelativeTime(item.createdAt)}</span>
+                            <span>{formatRelativeTime(item.createdAt)}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 ) : (
                   <p className="text-sm text-muted-foreground">No new activity</p>
                 )}
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-border/60 bg-background/80 p-4 backdrop-blur">
+            <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
               <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Hub setup</div>
               <div className="mt-1.5 font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
                 {stepsLabel}

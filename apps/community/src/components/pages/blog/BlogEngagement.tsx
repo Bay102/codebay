@@ -8,6 +8,7 @@ import type { Tables, TablesInsert } from "@/lib/database";
 import { communityUrl, siteUrl } from "@/lib/site-urls";
 import { useAuth } from "@/contexts/AuthContext";
 import { EngagementPanel } from "@/components/shared/engagement/EngagementPanel";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 type ReactionType = "like" | "insightful" | "love";
 type ReactionResponse = "up" | "down";
@@ -78,8 +79,8 @@ function CommentThread({
     <div
       className={
         isNested
-          ? "rounded-lg border border-border/50 bg-background/50 p-3 text-sm"
-          : "rounded-xl border border-border/70 bg-background/70 p-4 text-sm"
+          ? "border border-border/50 bg-background/50 p-3 text-sm"
+          : "border border-border/70 bg-background/70 p-4 text-sm"
       }
     >
       <div className="flex items-center justify-between gap-2">
@@ -214,6 +215,8 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [areCommentsVisible, setAreCommentsVisible] = useState(false);
+  const [isCommentComposerOpen, setIsCommentComposerOpen] = useState(false);
+  const commentComposerTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   const pageSize = 5;
 
@@ -515,91 +518,126 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
 
   return (
     <section className="mx-auto mt-10 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
-      <EngagementPanel
-        subtitle={engagementSubtitle}
-        cards={reactionCards}
-        hasEngagementAccess={hasEngagementAccess}
-        joinHref={communityJoinHref}
-        signInHref={signInHref}
-        error={null}
-      />
+      <div className="border border-border/70 bg-card p-6 sm:p-7">
+        <EngagementPanel
+          variant="embedded"
+          subtitle={engagementSubtitle}
+          cards={reactionCards}
+          hasEngagementAccess={hasEngagementAccess}
+          joinHref={communityJoinHref}
+          signInHref={signInHref}
+          error={null}
+        />
 
-      <div className="mt-6 rounded-2xl border border-border/70 bg-card p-6 sm:p-7">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-semibold tracking-wide text-muted-foreground">Comments</p>
-          <button
-            type="button"
-            className="h-7 rounded-md border border-input bg-background px-3 text-xs font-medium transition-colors hover:bg-muted"
-            onClick={() => setAreCommentsVisible((visible) => !visible)}
-            aria-expanded={areCommentsVisible}
-          >
-            {areCommentsVisible
-              ? "Hide comments"
-              : comments.length > 0
-                ? `Show comments (${totalCommentCount})`
-                : "Show comments"}
-          </button>
-        </div>
-
-        {areCommentsVisible ? (
-          <>
-            <div className="mt-4 space-y-4">
-              {visibleComments.map((comment) => (
-                <CommentThread
-                  key={comment.id}
-                  comment={comment}
-                  replyingToId={replyingToId}
-                  replyBody={replyBody}
-                  isSubmittingReply={isSubmittingReply}
-                  hasEngagementAccess={hasEngagementAccess}
-                  onReplyClick={(commentId) =>
-                    setReplyingToId((id) => (id === commentId ? null : commentId))
-                  }
-                  onReplyBodyChange={setReplyBody}
-                  onSubmitReply={(parentId) => (e) => void handleSubmitReply(e, parentId)}
-                  formatDateTime={formatShortDateTime}
-                />
-              ))}
-              {!isLoading && totalCommentCount === 0 ? (
-                <p className="text-xs text-muted-foreground">No comments yet. Be the first to share your thoughts.</p>
+        <div className="mt-6 border-t border-border/70 pt-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground">Comments</p>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <FocusButton
+                radiusVariant="small"
+                colorVariant="plain"
+                borderVariant="bordered"
+                sizeVariant="sm"
+                glassVariant="off"
+                className="shrink-0"
+                onClick={() => setAreCommentsVisible((visible) => !visible)}
+                aria-expanded={areCommentsVisible}
+              >
+                {areCommentsVisible
+                  ? "Hide comments"
+                  : comments.length > 0
+                    ? `Show comments (${totalCommentCount})`
+                    : "Show comments"}
+              </FocusButton>
+              {hasEngagementAccess ? (
+                <FocusButton
+                  type="button"
+                  radiusVariant="small"
+                  colorVariant="plain"
+                  borderVariant="bordered"
+                  sizeVariant="sm"
+                  glassVariant="off"
+                  className="shrink-0"
+                  aria-expanded={isCommentComposerOpen}
+                  aria-controls="blog-comment-composer"
+                  onClick={() => {
+                    setIsCommentComposerOpen((open) => {
+                      const next = !open;
+                      if (next) {
+                        requestAnimationFrame(() => commentComposerTextareaRef.current?.focus());
+                      }
+                      return next;
+                    });
+                  }}
+                >
+                  {isCommentComposerOpen ? "Hide comment box" : "Comment"}
+                </FocusButton>
               ) : null}
             </div>
+          </div>
 
-            {totalPages > 1 ? (
-              <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                <button
-                  type="button"
-                  className="h-7 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                >
-                  Previous
-                </button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  type="button"
-                  className="h-7 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
-                >
-                  Next
-                </button>
+          {areCommentsVisible ? (
+            <>
+              <div className="mt-4 space-y-4">
+                {visibleComments.map((comment) => (
+                  <CommentThread
+                    key={comment.id}
+                    comment={comment}
+                    replyingToId={replyingToId}
+                    replyBody={replyBody}
+                    isSubmittingReply={isSubmittingReply}
+                    hasEngagementAccess={hasEngagementAccess}
+                    onReplyClick={(commentId) =>
+                      setReplyingToId((id) => (id === commentId ? null : commentId))
+                    }
+                    onReplyBodyChange={setReplyBody}
+                    onSubmitReply={(parentId) => (e) => void handleSubmitReply(e, parentId)}
+                    formatDateTime={formatShortDateTime}
+                  />
+                ))}
+                {!isLoading && totalCommentCount === 0 ? (
+                  <p className="text-xs text-muted-foreground">No comments yet. Be the first to share your thoughts.</p>
+                ) : null}
               </div>
-            ) : null}
-          </>
-        ) : null}
 
-        {hasEngagementAccess ? (
-          <div className="mt-6">
-            <p className="text-xs font-medium text-muted-foreground">Leave a comment</p>
-            <form className="mt-3 space-y-3" onSubmit={(event) => void handleSubmitComment(event)}>
+              {totalPages > 1 ? (
+                <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                  <button
+                    type="button"
+                    className="h-7 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  >
+                    Previous
+                  </button>
+                  <span>
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    className="h-7 rounded-md border border-input bg-background px-2 text-xs font-medium transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  >
+                    Next
+                  </button>
+                </div>
+              ) : null}
+            </>
+          ) : null}
+
+          {hasEngagementAccess && isCommentComposerOpen ? (
+            <form
+              id="blog-comment-composer"
+              className="mt-6 space-y-3"
+              onSubmit={(event) => void handleSubmitComment(event)}
+            >
               <div className="space-y-2">
                 <label htmlFor="comment-body" className="text-sm font-medium text-foreground">
                   Your comment
                 </label>
                 <textarea
+                  ref={commentComposerTextareaRef}
                   id="comment-body"
                   value={commentBody}
                   onChange={(event) => setCommentBody(event.target.value)}
@@ -608,18 +646,21 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                   className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
-              <button
+              <FocusButton
                 type="submit"
+                radiusVariant="small"
+                colorVariant="primary"
+                borderVariant="bordered"
+                sizeVariant="sm"
                 disabled={isSubmittingComment || !commentBody.trim()}
-                className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmittingComment ? "Posting..." : "Post comment"}
-              </button>
+              </FocusButton>
             </form>
-          </div>
-        ) : null}
+          ) : null}
 
-        {error ? <p className="mt-3 text-xs text-destructive">{error}</p> : null}
+          {error ? <p className="mt-3 text-xs text-destructive">{error}</p> : null}
+        </div>
       </div>
     </section>
   );

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getPreferredTagIdsAction } from "@/app/actions";
+import { getPreferredTagIdsAction } from "@/lib/actions";
 import { PreferredTopicsSection } from "@/components/pages/dashboard/PreferredTopicsSection";
 import { ProfileSettingsForm } from "@/components/pages/dashboard/ProfileSettingsForm";
 import { fetchDashboardProfile, fetchUserBlogPostsWithStats } from "@/lib/dashboard";
@@ -66,7 +66,7 @@ export default async function DashboardProfilePage() {
           </div>
         </div>
 
-        <section className="mb-8 rounded-2xl border border-border/70 bg-card/70 p-5 sm:p-6">
+        <section className="mb-8 border border-border/70 bg-card/70 p-5 sm:p-6">
           <PreferredTopicsSection allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
         </section>
 

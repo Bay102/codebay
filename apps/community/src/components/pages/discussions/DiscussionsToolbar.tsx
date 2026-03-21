@@ -5,6 +5,7 @@ import { useCallback, useTransition } from "react";
 import { Search } from "lucide-react";
 import { Button, FilterDropdown, Input } from "@codebay/ui";
 import type { TagOption } from "@/lib/tags";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 export interface DiscussionsToolbarProps {
   tags: TagOption[];
@@ -62,6 +63,7 @@ export function DiscussionsToolbar({
         onSelect={(tag) => setFilters({ tag })}
         allLabel="All"
         hidden={tags.length === 0}
+        variant="secondary"
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -91,9 +93,9 @@ export function DiscussionsToolbar({
             </Button>
           </div>
         </form>
-        <Button asChild variant="outline" size="default" className="w-full sm:w-auto">
-          <a href="/dashboard/discussions/new">New discussion</a>
-        </Button>
+        <FocusButton href="/dashboard/discussions/new" colorVariant="primary" borderVariant="bordered" sizeVariant="sm" radiusVariant="square">
+          New discussion
+        </FocusButton>
       </div>
 
 

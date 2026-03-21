@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { FollowStats } from "@/lib/follows";
-import { getFollowStatsAction } from "@/app/actions";
+import { getFollowStatsAction } from "@/lib/actions";
 import { FollowButton } from "@/components/pages/dashboard/FollowButton";
 import { FollowListModal } from "@/components/pages/dashboard/FollowListModal";
 
