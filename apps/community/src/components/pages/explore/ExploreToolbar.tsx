@@ -9,28 +9,29 @@ import {
   Input,
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue
 } from "@codebay/ui";
+import type { ExploreContentType, ExploreSort } from "@/lib/explore";
 import type { TagOption } from "@/lib/tags";
-import type { ExploreContentType } from "@/lib/explore";
 import { ExploreContentTypeSegment } from "@/components/pages/explore/ExploreContentTypeSegment";
 
-const AUTHOR_ALL = "__all__";
-
-export type ExploreAuthorOption = {
-  id: string;
-  label: string;
-};
+const SORT_OPTIONS: { value: ExploreSort; label: string }[] = [
+  { value: "date", label: "Date" },
+  { value: "views", label: "Post views" },
+  { value: "comments", label: "Comments" },
+  { value: "engagements", label: "Engagements" }
+];
 
 export type ExploreToolbarProps = {
   tags: TagOption[];
   contentType: ExploreContentType;
   initialQuery?: string;
   initialTag?: string | null;
-  initialAuthorId?: string | null;
-  authorOptions: ExploreAuthorOption[];
+  initialSort: ExploreSort;
 };
 
 export function ExploreToolbar({
@@ -38,8 +39,7 @@ export function ExploreToolbar({
   contentType,
   initialQuery = "",
   initialTag = null,
-  initialAuthorId = null,
-  authorOptions
+  initialSort
 }: ExploreToolbarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,14 +47,18 @@ export function ExploreToolbar({
 
   const currentTag = initialTag ?? searchParams.get("tag");
   const currentQuery = initialQuery ?? searchParams.get("q") ?? "";
-  const currentAuthor = initialAuthorId;
+  const currentSort = (searchParams.get("sort") as ExploreSort | null);
+  const sortValue: ExploreSort =
+    currentSort === "views" || currentSort === "comments" || currentSort === "engagements"
+      ? currentSort
+      : initialSort;
 
   const setExploreParams = useCallback(
     (updates: {
       type?: ExploreContentType;
       q?: string;
       tag?: string | null;
-      author?: string | null;
+      sort?: ExploreSort;
     }) => {
       const next = new URLSearchParams(searchParams.toString());
 
@@ -70,9 +74,9 @@ export function ExploreToolbar({
         if (updates.tag) next.set("tag", updates.tag);
         else next.delete("tag");
       }
-      if (updates.author !== undefined) {
-        if (updates.author) next.set("author", updates.author);
-        else next.delete("author");
+      if (updates.sort !== undefined) {
+        if (updates.sort === "date") next.delete("sort");
+        else next.set("sort", updates.sort);
       }
 
       const queryString = next.toString();
@@ -138,32 +142,40 @@ export function ExploreToolbar({
     />
   );
 
-  const authorSelect =
-    authorOptions.length > 0 ? (
-      <Select
-        value={currentAuthor ?? AUTHOR_ALL}
-        onValueChange={(value) => {
-          if (value === AUTHOR_ALL) setExploreParams({ author: null });
-          else setExploreParams({ author: value });
-        }}
-        disabled={isPending}
+  const sortOptionLabel = SORT_OPTIONS.find((o) => o.value === sortValue)?.label ?? "Date";
+
+  const sortSelect = (
+    <Select
+      value={sortValue}
+      onValueChange={(value) => {
+        const v = value as ExploreSort;
+        setExploreParams({ sort: v });
+      }}
+      disabled={isPending}
+    >
+      <SelectTrigger
+        className="h-10 w-full shrink-0 sm:max-w-[15rem] lg:max-w-[16rem]"
+        aria-label={`Sort results by ${sortOptionLabel}`}
       >
-        <SelectTrigger
-          className="h-10 w-full shrink-0 sm:max-w-[9rem] lg:w-[9rem]"
-          aria-label="Filter by author"
-        >
-          <SelectValue placeholder="Author" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={AUTHOR_ALL}>All authors</SelectItem>
-          {authorOptions.map((opt) => (
-            <SelectItem key={opt.id} value={opt.id}>
+        <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
+          <span className="shrink-0 text-muted-foreground">Sort by</span>
+          <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+            <SelectValue placeholder="Choose order" />
+          </span>
+        </div>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectLabel className="pl-2 pr-2 text-xs font-semibold text-muted-foreground">Sort results</SelectLabel>
+          {SORT_OPTIONS.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
             </SelectItem>
           ))}
-        </SelectContent>
-      </Select>
-    ) : null;
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  );
 
   return (
     <div
@@ -176,7 +188,7 @@ export function ExploreToolbar({
           {tags.length > 0 ? (
             <div className="w-full shrink-0 lg:w-auto">{topicDropdown}</div>
           ) : null}
-          {authorSelect ? <div className="min-w-0 shrink-0">{authorSelect}</div> : null}
+          <div className="min-w-0 shrink-0">{sortSelect}</div>
           <div className="min-w-0 w-full max-w-full flex-1 basis-0">
             {searchForm}
           </div>

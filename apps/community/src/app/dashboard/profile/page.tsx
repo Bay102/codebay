@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SegmentNavbar } from "@codebay/ui";
 import { getPreferredTagIdsAction } from "@/lib/actions";
 import { getNewsletterSettingsAction } from "@/lib/newsletter";
 import { getFollowing } from "@/lib/follows";
 import { PreferredTopicsSection } from "@/components/pages/dashboard/PreferredTopicsSection";
 import { NewsletterPreferencesSection } from "@/components/pages/dashboard/NewsletterPreferencesSection";
 import { ProfileSettingsForm } from "@/components/pages/dashboard/ProfileSettingsForm";
+import { SettingsSectionCard } from "@/components/pages/settings/SettingsSectionCard";
 import { fetchDashboardProfile, fetchUserBlogPostsWithStats } from "@/lib/dashboard";
 import { fetchAllTags } from "@/lib/tags";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -55,31 +56,26 @@ export default async function DashboardProfilePage() {
               Keep your profile updated for the dashboard and your public author page.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/dashboard"
-              className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-            >
-              Back to dashboard
-            </Link>
-            <Link
-              href="/settings"
-              className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-            >
-              Account settings
-            </Link>
-            <Link
-              href={`/${profile.username}`}
-              className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-            >
-              View profile
-            </Link>
+          <div className="flex w-full min-w-0 shrink-0 justify-end sm:w-auto">
+            <SegmentNavbar
+              aria-label="Profile settings actions"
+              className="w-full sm:w-auto"
+              links={[
+                { href: "/dashboard", label: "Back to dashboard", kind: "primary" },
+                { href: "/settings", label: "Account settings", kind: "neutral" },
+                { href: `/${profile.username}`, label: "View profile", kind: "neutral" }
+              ]}
+            />
           </div>
         </div>
 
-        <section className="mb-8 border border-border/70 bg-card/70 p-5 sm:p-6">
-          <PreferredTopicsSection allowedTags={allowedTags} initialPreferredTagIds={preferredTagIds} />
-        </section>
+        <SettingsSectionCard ariaLabel="Topics you follow" collapsible defaultCollapsed>
+          <PreferredTopicsSection
+            allowedTags={allowedTags}
+            initialPreferredTagIds={preferredTagIds}
+            showSectionTitle={false}
+          />
+        </SettingsSectionCard>
 
         <section className="mb-8 border border-border/70 bg-card/70 p-5 sm:p-6">
           <NewsletterPreferencesSection followingUsers={followingUsers} initialSettings={newsletterSettings} />

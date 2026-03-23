@@ -18,28 +18,39 @@ export const metadata: Metadata = {
 
 const whyJoinSlides: CtaCarouselSlide[] = [
   {
+    icon: "discussions",
     title: "Real-world engineering discussions",
     body: "See how other teams ship AI features, debug production issues, and reason about architecture trade-offs."
   },
   {
+    icon: "community",
     title: "Connect with like-minded tech professionals",
     body: "Join discussions, share your knowledge, and learn from others in the community."
   },
   {
+    icon: "updates",
     title: "Follow updates from your favorite topics",
     body: "Get notified when new blog posts and discussions are published on your preferred topics."
   },
   {
+    icon: "engage",
     title: "Engage with the community",
     body: "Comment on blog posts, react to discussions, and get feedback from other members."
+  },
+  {
+    icon: "newsletter",
+    title: "Newsletters built around your interests",
+    body: "Create custom-tailored email digests so subscribers get the topics, authors, and cadence that fit how they follow you."
   }
 ];
 
 export default async function CommunityLandingPage() {
   const supabase = await createServerSupabaseClient();
+
   const {
     data: { user }
   } = await supabase?.auth.getUser() ?? { data: { user: null } };
+
   const hasSession = !!user;
 
   return (
@@ -55,7 +66,7 @@ export default async function CommunityLandingPage() {
               eyebrow="Community Highlights"
               heading=""
               slides={whyJoinSlides}
-              className="mt-4 hover:shadow-lg hover:border-border/40 hover:bg-card/70"
+              className="hover:border-border/40 hover:bg-card/70 hover:shadow-lg"
             />
           )}
         </InViewSection>

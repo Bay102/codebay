@@ -61,7 +61,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-4xl">
+      <section className="mx-auto w-full max-w-5xl pb-6 ">
         <div className="mt-0 grid gap-4 md:grid-cols-1">
           <ProfileOverviewCard
             profile={profileWithFollowStats}

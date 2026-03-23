@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SegmentNavbar } from "@codebay/ui";
 import { getPreferredTagIdsAction } from "@/lib/actions";
 import { getNewsletterSettingsAction } from "@/lib/newsletter";
 import { getFollowing } from "@/lib/follows";
@@ -50,19 +50,15 @@ export default async function SettingsPage() {
               Control how the community is personalized for you. More options will appear here over time.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              href="/dashboard"
-              className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/dashboard/profile"
-              className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-            >
-              Profile &amp; blog
-            </Link>
+          <div className="flex w-full min-w-0 shrink-0 justify-end sm:w-auto">
+            <SegmentNavbar
+              aria-label="Settings page actions"
+              className="w-full sm:w-auto"
+              links={[
+                { href: "/dashboard", label: "Dashboard", kind: "primary" },
+                { href: "/dashboard/profile", label: "Profile & blog", kind: "neutral" }
+              ]}
+            />
           </div>
         </div>
 

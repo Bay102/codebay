@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { ExploreSort } from "@/lib/explore";
 import type { Database, Tables } from "@/lib/database";
 
 type DiscussionRow = Tables<"discussions">;
@@ -220,6 +221,25 @@ function matchSearchPhrase(item: DiscussionListItem, phrase: string): boolean {
   );
 }
 
+function sortDiscussionsForExplore(items: DiscussionListItem[], sort: ExploreSort): DiscussionListItem[] {
+  const copy = [...items];
+  switch (sort) {
+    case "date":
+      return copy.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    case "views":
+      // No per-thread view metric; reactions approximate reach/attention.
+      return copy.sort((a, b) => b.reactionCount - a.reactionCount);
+    case "comments":
+      return copy.sort((a, b) => b.commentCount - a.commentCount);
+    case "engagements":
+      return copy.sort(
+        (a, b) => b.commentCount + b.reactionCount - (a.commentCount + a.reactionCount)
+      );
+    default:
+      return copy;
+  }
+}
+
 /** Trending or list: discussions with comment_count and reaction_count in one query. */
 export async function getDiscussionsWithCounts(
   supabase: SupabaseClient<Database>,
@@ -236,6 +256,8 @@ export async function getDiscussionsWithCounts(
     tagFilter?: string;
     /** Match discussions tagged with any of these topic names (stored on `discussions.tags`). */
     anyOfTagNames?: string[];
+    /** Explore list sort; widens the recent pool when sorting by metrics. Omit to keep legacy trending/date behavior. */
+    exploreSort?: ExploreSort;
   } = {}
 ): Promise<DiscussionListItem[]> {
   const {
@@ -246,14 +268,20 @@ export async function getDiscussionsWithCounts(
     orderByTrend = true,
     search,
     tagFilter,
-    anyOfTagNames
+    anyOfTagNames,
+    exploreSort
   } = options;
 
   if (authorIds !== undefined && authorIds.length === 0 && !authorId) {
     return [];
   }
 
-  const fetchLimit = search ? Math.min(100, limit * 4) : limit;
+  const metricSort = exploreSort != null && exploreSort !== "date";
+  const fetchLimit = search
+    ? Math.min(100, limit * 4)
+    : metricSort
+      ? Math.min(200, Math.max(limit * 4, 96))
+      : limit;
   const fetchOffset = search ? 0 : offset;
 
   let query = supabase
@@ -338,7 +366,11 @@ export async function getDiscussionsWithCounts(
     items = items.filter((item) => matchSearchPhrase(item, search));
   }
 
-  if (orderByTrend && !authorId) {
+  if (exploreSort === "comments" || exploreSort === "views" || exploreSort === "engagements") {
+    items = sortDiscussionsForExplore(items, exploreSort);
+  } else if (exploreSort === "date") {
+    items = sortDiscussionsForExplore(items, "date");
+  } else if (orderByTrend && !authorId) {
     const now = Date.now();
 
     function computeTrendingScore(item: DiscussionListItem): number {
@@ -367,6 +399,8 @@ export async function getDiscussionsWithCounts(
   }
 
   if (search?.trim()) {
+    items = items.slice(offset, offset + limit);
+  } else if (metricSort) {
     items = items.slice(offset, offset + limit);
   }
 
