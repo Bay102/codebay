@@ -18,7 +18,8 @@ export async function GET() {
 
   const activity = await fetchDashboardActivity(supabase, {
     userId: user.id,
-    userEmail: user.email ?? undefined,
+    userEmail: user.email ?? null,
+    postMapBySlug: {},
     limit: 1
   });
 
