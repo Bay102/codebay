@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader as SharedAppHeader, CodeBayLogo, MenuThemeController } from "@codebay/ui";
 import type { AppHeaderMenuItem, SidebarNavItemButton, SidebarNavItemLink } from "@codebay/ui";
@@ -81,6 +81,7 @@ function getMenuItems(
 export function CommunityAppHeader() {
   const router = useRouter();
   const { user, supabase } = useAuth();
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
   const handleSignOut = useCallback(async () => {
     if (!supabase) {
@@ -107,12 +108,47 @@ export function CommunityAppHeader() {
     [myBlogHref, myProfileHref, isAuthenticated, handleSignOut]
   );
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadUnreadStatus() {
+      if (!user) {
+        if (active) {
+          setHasUnreadNotifications(false);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/notifications/unread", { method: "GET" });
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as { hasUnread?: boolean };
+        if (active) {
+          setHasUnreadNotifications(Boolean(payload.hasUnread));
+        }
+      } catch {
+        // Fail silently in header chrome; the badge is an enhancement.
+      }
+    }
+
+    loadUnreadStatus();
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
   return (
     <SharedAppHeader
       homeHref="/"
       logo={<CodeBayLogo className="h-6 w-auto md:h-8" />}
       menuItems={menuItems}
       menuFooter={<MenuThemeController />}
+      hasNotifications={hasUnreadNotifications}
+      notificationHref={isAuthenticated ? "/dashboard?notifications=open" : undefined}
+      notificationAriaLabel="Open notifications"
     />
   );
 }

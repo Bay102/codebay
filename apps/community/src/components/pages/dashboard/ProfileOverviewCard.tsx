@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ExternalLink, Globe2 } from "lucide-react";
 import { BlogPostCard, Tag } from "@codebay/ui";
-import type { DashboardBlogPostStats, DashboardProfile } from "@/lib/dashboard";
+import type { DashboardBlogPostStats, DashboardProfile, FeaturedProject } from "@/lib/dashboard";
 import { blogUrl } from "@/lib/site-urls";
 import { ProfileHeaderWithFollow } from "@/components/pages/dashboard/ProfileHeaderWithFollow";
 import { mapDashboardBlogPostToBlogPostCardData } from "@/lib/ui-mappers";
@@ -46,6 +46,61 @@ function getProjectFaviconUrl(url: string): string | null {
   return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64`;
 }
 
+function FeaturedProjectCard({ project }: { project: FeaturedProject }) {
+  const hostname = project.url ? getProjectHostname(project.url) : null;
+  const faviconUrl = project.url ? getProjectFaviconUrl(project.url) : null;
+
+  return (
+    <div className="flex h-full min-h-0 flex-col border border-border/70 bg-background/70 p-2.5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-medium text-foreground">{project.title}</p>
+        {faviconUrl ? (
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/80">
+            <img
+              src={faviconUrl}
+              alt=""
+              aria-hidden="true"
+              className="h-4 w-4 rounded-sm object-contain"
+              loading="lazy"
+            />
+          </div>
+        ) : (
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/80 text-muted-foreground">
+            <Globe2 className="h-3.5 w-3.5" />
+          </div>
+        )}
+      </div>
+      {project.description ? (
+        <p className="mt-0.5 text-[11px] leading-5 text-muted-foreground">{project.description}</p>
+      ) : null}
+      {project.url ? (
+        <div className="mt-auto pt-2">
+          <Link
+            href={project.url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex w-fit max-w-full items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
+          >
+            {faviconUrl ? (
+              <img
+                src={faviconUrl}
+                alt=""
+                aria-hidden="true"
+                className="h-3.5 w-3.5 shrink-0 rounded-sm object-contain"
+                loading="lazy"
+              />
+            ) : (
+              <Globe2 className="h-3.5 w-3.5 shrink-0" />
+            )}
+            {hostname ? <span className="truncate text-muted-foreground">{hostname}</span> : null}
+            <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+          </Link>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewerId = null }: ProfileOverviewCardProps) {
   const publishedPosts = posts.filter((post) => post.status === "published");
 
@@ -57,66 +112,78 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
     profile.followerCount !== undefined && profile.followingCount !== undefined;
   const showFollowSection = hasFollowStats && viewerId != null;
 
-  return (
-    <article className="border border-border/70 bg-card/70 p-5 sm:p-6 md:pt-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
-        <div className="flex flex-wrap items-center justify-end gap-2">
+  const featuredProjectsList = profile.featuredProjects.slice(0, 3);
+  const featuredPostsList = featuredPosts.slice(0, 3);
+  const usePairedFeaturedRows = featuredProjectsList.length > 0 && featuredPostsList.length > 0;
+  const pairedRowCount = Math.max(featuredProjectsList.length, featuredPostsList.length);
+
+  const profileActionLinks = (
+    <>
+      <Link
+        href={`/blog/${profile.username}`}
+        className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+      >
+        View blog
+      </Link>
+      {showEditLink ? (
+        <>
           <Link
-            href={`/blog/${profile.username}`}
+            href={`/${profile.username}`}
             className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
           >
-            View blog
+            View public profile
           </Link>
-          {showEditLink ? (
-            <>
-              <Link
-                href={`/${profile.username}`}
-                className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-              >
-                View public profile
-              </Link>
-              <Link
-                href="/dashboard/profile"
-                className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-              >
-                Edit profile
-              </Link>
-            </>
-          ) : null}
-        </div>
-      </div>
+          <Link
+            href="/dashboard/profile"
+            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
+          >
+            Edit profile
+          </Link>
+        </>
+      ) : null}
+    </>
+  );
 
-      <div className="mt-4">
-        {showFollowSection ? (
-          <ProfileHeaderWithFollow
-            profileId={profile.id}
-            username={profile.username}
-            name={profile.name}
-            avatarUrl={profile.avatarUrl}
-            initialFollowerCount={profile.followerCount ?? 0}
-            initialFollowingCount={profile.followingCount ?? 0}
-            initialIsFollowing={profile.isFollowing}
-            showEditLink={showEditLink}
-            viewerId={viewerId}
-            showFollowSection={true}
-          />
-        ) : (
-          <div className="flex items-start gap-4">
-            {profile.avatarUrl ? (
-              <img src={profile.avatarUrl} alt={`${profile.name} avatar`} className="h-14 w-14 rounded-full border border-border/70 object-cover shrink-0" />
-            ) : (
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
-                {buildInitials(profile.name)}
+  return (
+    <article className="border border-border/70 bg-card/70 p-5 sm:p-6 md:pt-6">
+      {showFollowSection ? (
+        <ProfileHeaderWithFollow
+          profileId={profile.id}
+          username={profile.username}
+          name={profile.name}
+          avatarUrl={profile.avatarUrl}
+          initialFollowerCount={profile.followerCount ?? 0}
+          initialFollowingCount={profile.followingCount ?? 0}
+          initialIsFollowing={profile.isFollowing}
+          showEditLink={showEditLink}
+          viewerId={viewerId}
+          showFollowSection={true}
+          actionLinks={profileActionLinks}
+        />
+      ) : (
+        <>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
+            <div className="flex flex-wrap items-center justify-end gap-2">{profileActionLinks}</div>
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-start gap-4">
+              {profile.avatarUrl ? (
+                <img src={profile.avatarUrl} alt={`${profile.name} avatar`} className="h-14 w-14 rounded-full border border-border/70 object-cover shrink-0" />
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
+                  {buildInitials(profile.name)}
+                </div>
+              )}
+              <div>
+                <p className="text-base font-semibold text-foreground">{profile.name}</p>
+                <p className="text-sm text-muted-foreground">@{profile.username}</p>
               </div>
-            )}
-            <div>
-              <p className="text-base font-semibold text-foreground">{profile.name}</p>
-              <p className="text-sm text-muted-foreground">@{profile.username}</p>
             </div>
           </div>
-        )}
-      </div>
+        </>
+      )}
 
       <p className="mt-4 text-sm leading-7 text-muted-foreground">
         {profile.bio?.trim() ? profile.bio : "Add a short bio to personalize your author presence."}
@@ -183,96 +250,132 @@ export function ProfileOverviewCard({ profile, posts, showEditLink = true, viewe
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured projects</p>
-            {profile.featuredProjects.length > 0 ? (
-              <div className="mt-2 space-y-1.5">
-                {profile.featuredProjects.slice(0, 3).map((project) => {
-                  const hostname = project.url ? getProjectHostname(project.url) : null;
-                  const faviconUrl = project.url ? getProjectFaviconUrl(project.url) : null;
+        {usePairedFeaturedRows ? (
+          <>
+            {/*
+              Below md, a 2-col grid becomes one column: headers stack, then each "pair" row
+              stacks project+post and empty cells use hidden md:flex — wrong order and missing cards.
+              Use full-width stacked sections on small screens; paired equal-height rows from md up.
+            */}
+            <div className="space-y-5 md:hidden">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured projects</p>
+                <div className="mt-2 space-y-1.5">
+                  {featuredProjectsList.map((project) => (
+                    <FeaturedProjectCard key={project.title} project={project} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured posts</p>
+                <div className="mt-2 space-y-2">
+                  {featuredPostsList.map((post) => {
+                    const href = `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`;
+                    const cardData = mapDashboardBlogPostToBlogPostCardData(post);
+                    return (
+                      <BlogPostCard
+                        key={post.id}
+                        post={cardData}
+                        href={href}
+                        variant="compact"
+                        showAuthor={false}
+                        showDate
+                        showEngagement
+                        showTags={false}
+                        className="bg-background/70"
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="hidden md:block">
+              <div className="grid gap-5 md:grid-cols-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured projects</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured posts</p>
+              </div>
+              <div className="mt-2 flex flex-col gap-2">
+                {Array.from({ length: pairedRowCount }, (_, index) => {
+                  const project = featuredProjectsList[index];
+                  const post = featuredPostsList[index];
+                  const href =
+                    post != null ? `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}` : "";
+                  const cardData = post != null ? mapDashboardBlogPostToBlogPostCardData(post) : null;
 
                   return (
-                    <div key={project.title} className="border border-border/70 bg-background/70 p-2.5">
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-medium text-foreground">{project.title}</p>
-                        {faviconUrl ? (
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/80">
-                            <img
-                              src={faviconUrl}
-                              alt=""
-                              aria-hidden="true"
-                              className="h-4 w-4 rounded-sm object-contain"
-                              loading="lazy"
-                            />
-                          </div>
+                    <div
+                      key={`featured-pair-${index}`}
+                      className="grid gap-5 md:grid-cols-2 md:items-stretch"
+                    >
+                      <div className={`min-h-0 flex flex-col ${project ? "" : "hidden md:flex"}`}>
+                        {project ? <FeaturedProjectCard project={project} /> : <div className="min-h-0 flex-1" aria-hidden />}
+                      </div>
+                      <div className={`min-h-0 flex flex-col ${post ? "" : "hidden md:flex"}`}>
+                        {post && cardData ? (
+                          <BlogPostCard
+                            post={cardData}
+                            href={href}
+                            variant="compact"
+                            showAuthor={false}
+                            showDate
+                            showEngagement
+                            showTags={false}
+                            className="h-full min-h-0 bg-background/70"
+                          />
                         ) : (
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/70 bg-card/80 text-muted-foreground">
-                            <Globe2 className="h-3.5 w-3.5" />
-                          </div>
+                          <div className="min-h-0 flex-1" aria-hidden />
                         )}
                       </div>
-                      {project.description ? (
-                        <p className="mt-0.5 text-[11px] leading-5 text-muted-foreground">{project.description}</p>
-                      ) : null}
-                      {project.url ? (
-                        <Link
-                          href={project.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-border/70 bg-card px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
-                        >
-                          {faviconUrl ? (
-                            <img
-                              src={faviconUrl}
-                              alt=""
-                              aria-hidden="true"
-                              className="h-3.5 w-3.5 rounded-sm object-contain"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Globe2 className="h-3.5 w-3.5" />
-                          )}
-                          {hostname ? <span className="text-muted-foreground">{hostname}</span> : null}
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </Link>
-                      ) : null}
                     </div>
                   );
                 })}
               </div>
-            ) : (
-              <p className="mt-2 text-sm text-muted-foreground">No featured projects yet.</p>
-            )}
-          </div>
+            </div>
+          </>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured projects</p>
+              {profile.featuredProjects.length > 0 ? (
+                <div className="mt-2 space-y-1.5">
+                  {featuredProjectsList.map((project) => (
+                    <FeaturedProjectCard key={project.title} project={project} />
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">No featured projects yet.</p>
+              )}
+            </div>
 
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured posts</p>
-            {featuredPosts.length > 0 ? (
-              <div className="mt-2 space-y-2">
-                {featuredPosts.slice(0, 3).map((post) => {
-                  const href = `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`;
-                  const cardData = mapDashboardBlogPostToBlogPostCardData(post);
-                  return (
-                    <BlogPostCard
-                      key={post.id}
-                      post={cardData}
-                      href={href}
-                      variant="compact"
-                      showAuthor={false}
-                      showDate
-                      showEngagement
-                      showTags={false}
-                      className="bg-background/70"
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="mt-2 text-sm text-muted-foreground">No featured posts yet.</p>
-            )}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Featured posts</p>
+              {featuredPosts.length > 0 ? (
+                <div className="mt-2 space-y-2">
+                  {featuredPostsList.map((post) => {
+                    const href = `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`;
+                    const cardData = mapDashboardBlogPostToBlogPostCardData(post);
+                    return (
+                      <BlogPostCard
+                        key={post.id}
+                        post={cardData}
+                        href={href}
+                        variant="compact"
+                        showAuthor={false}
+                        showDate
+                        showEngagement
+                        showTags={false}
+                        className="bg-background/70"
+                      />
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">No featured posts yet.</p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </article>
   );

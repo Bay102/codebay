@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { FollowStats } from "@/lib/follows";
 import { getFollowStatsAction } from "@/lib/actions";
 import { FollowButton } from "@/components/pages/dashboard/FollowButton";
@@ -19,6 +19,8 @@ type ProfileHeaderWithFollowProps = {
   viewerId: string | null;
   /** Only show follow section (counts + button) when this is true (e.g. public profile or dashboard with counts). */
   showFollowSection: boolean;
+  /** Profile action links (e.g. View blog); rendered after the Follow button when it is shown. */
+  actionLinks: ReactNode;
 };
 
 function getInitials(name: string): string {
@@ -38,7 +40,8 @@ export function ProfileHeaderWithFollow({
   initialIsFollowing,
   showEditLink,
   viewerId,
-  showFollowSection
+  showFollowSection,
+  actionLinks
 }: ProfileHeaderWithFollowProps) {
   const [followerCount, setFollowerCount] = useState(initialFollowerCount);
   const [followingCount, setFollowingCount] = useState(initialFollowingCount);
@@ -57,48 +60,53 @@ export function ProfileHeaderWithFollow({
 
   return (
     <>
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex min-w-0 flex-1 items-start gap-4">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={`${name} avatar`} className="h-14 w-14 shrink-0 rounded-full border border-border/70 object-cover" />
-          ) : (
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
-              {getInitials(name)}
-            </div>
-          )}
-          <div className="min-w-0 flex-1">
-            <p className="text-base font-semibold text-foreground">{name}</p>
-            <p className="text-sm text-muted-foreground">@{username}</p>
-            {showCounts ? (
-              <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                <button
-                  type="button"
-                  onClick={() => setFollowersOpen(true)}
-                  className="hover:text-foreground hover:underline"
-                >
-                  {followerCount} {followerCount === 1 ? "follower" : "followers"}
-                </button>
-                <span aria-hidden>·</span>
-                <button
-                  type="button"
-                  onClick={() => setFollowingOpen(true)}
-                  className="hover:text-foreground hover:underline"
-                >
-                  {followingCount} following
-                </button>
-              </div>
-            ) : null}
-          </div>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {showFollowButton ? (
+            <FollowButton
+              profileUserId={profileId}
+              initialIsFollowing={isFollowing}
+              onSuccess={handleFollowSuccess}
+              getFollowStatsAction={getFollowStatsAction}
+              variant="default"
+            />
+          ) : null}
+          {actionLinks}
         </div>
-        {showFollowButton ? (
-          <FollowButton
-            profileUserId={profileId}
-            initialIsFollowing={isFollowing}
-            onSuccess={handleFollowSuccess}
-            getFollowStatsAction={getFollowStatsAction}
-            variant="default"
-          />
-        ) : null}
+      </div>
+
+      <div className="mt-4 flex items-start gap-4">
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={`${name} avatar`} className="h-14 w-14 shrink-0 rounded-full border border-border/70 object-cover" />
+        ) : (
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border/70 bg-secondary text-sm font-semibold">
+            {getInitials(name)}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-base font-semibold text-foreground">{name}</p>
+          <p className="text-sm text-muted-foreground">@{username}</p>
+          {showCounts ? (
+            <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+              <button
+                type="button"
+                onClick={() => setFollowersOpen(true)}
+                className="hover:text-foreground hover:underline"
+              >
+                {followerCount} {followerCount === 1 ? "follower" : "followers"}
+              </button>
+              <span aria-hidden>·</span>
+              <button
+                type="button"
+                onClick={() => setFollowingOpen(true)}
+                className="hover:text-foreground hover:underline"
+              >
+                {followingCount} following
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <FollowListModal

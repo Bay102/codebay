@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { SegmentNavbar } from "@codebay/ui";
 import { blogUrl } from "@/lib/site-urls";
 import { buildBlogSummary, fetchDashboardProfile, fetchUserBlogPostsWithStats } from "@/lib/dashboard";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -211,16 +212,16 @@ export default async function CommunityBlogDashboardPage({
               Manage your drafts and published posts from the community app.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <FocusButton href="/dashboard/blog/new" colorVariant="primary">
-              New post
-            </FocusButton>
-            <FocusButton href="/dashboard" borderVariant="bordered" glassVariant="off">
-              Back to dashboard
-            </FocusButton>
-            <FocusButton href={publicBlogUrl} borderVariant="bordered" glassVariant="off">
-              View my blog
-            </FocusButton>
+          <div className="flex w-full min-w-0 shrink-0 justify-end sm:w-auto">
+            <SegmentNavbar
+              aria-label="Blog dashboard actions"
+              className="w-full sm:w-auto"
+              links={[
+                { href: "/dashboard/blog/new", label: "New post", kind: "primary" },
+                { href: "/dashboard", label: "Back to dashboard", kind: "neutral" },
+                { href: publicBlogUrl, label: "View my blog", kind: "neutral" }
+              ]}
+            />
           </div>
         </div>
 

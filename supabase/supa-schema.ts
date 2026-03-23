@@ -444,38 +444,6 @@ export type Database = {
           },
         ]
       }
-      tags: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          name: string
-          slug: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name: string
-          slug: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name?: string
-          slug?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "tags_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "community_users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       newsletter_muted_follows: {
         Row: {
           created_at: string
@@ -496,7 +464,7 @@ export type Database = {
           {
             foreignKeyName: "newsletter_muted_follows_user_follows_fkey"
             columns: ["subscriber_id", "following_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "user_follows"
             referencedColumns: ["follower_id", "following_id"]
           },
@@ -573,6 +541,38 @@ export type Database = {
             foreignKeyName: "newsletter_settings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "community_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tags: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tags_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "community_users"
             referencedColumns: ["id"]
           },

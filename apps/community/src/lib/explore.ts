@@ -16,6 +16,16 @@ export function parseExploreTypeParam(value: unknown): ExploreContentType {
   return value === "blogs" ? "blogs" : "discussions";
 }
 
+/** URL `sort` param for Explore filtered lists (blog + discussions). */
+export type ExploreSort = "date" | "views" | "comments" | "engagements";
+
+export function parseExploreSortParam(value: unknown): ExploreSort {
+  if (value === "views" || value === "comments" || value === "engagements") {
+    return value;
+  }
+  return "date";
+}
+
 /**
  * Preferred topic display names for the signed-in user (`user_preferred_tags` → `tags.name`).
  */

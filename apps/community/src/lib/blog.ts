@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json, Tables } from "@/lib/database";
+import type { ExploreSort } from "@/lib/explore";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export interface BlogPostSection {
@@ -214,11 +215,18 @@ export async function getBlogPostsForCommunityList(
     authorIds?: string[];
     /** Match posts tagged with any of these topic names (`blog_posts.tags`). */
     anyOfTagNames?: string[];
+    /** When set and not `date`, fetch a larger recent pool so in-memory sort by metrics is meaningful. */
+    exploreSort?: ExploreSort;
   } = {}
 ): Promise<BlogPostListItem[]> {
-  const { limit = 32, offset = 0, search, tagFilter, authorId, authorIds, anyOfTagNames } = options;
+  const { limit = 32, offset = 0, search, tagFilter, authorId, authorIds, anyOfTagNames, exploreSort } = options;
   const hasSearch = Boolean(search?.trim());
-  const fetchLimit = hasSearch ? Math.min(100, limit * 4) : limit;
+  const metricSort = exploreSort != null && exploreSort !== "date";
+  const fetchLimit = hasSearch
+    ? Math.min(100, limit * 4)
+    : metricSort
+      ? Math.min(200, Math.max(limit * 4, 96))
+      : limit;
   const fetchOffset = hasSearch ? 0 : offset;
 
   if (authorIds !== undefined && authorIds.length === 0 && !authorId) {
@@ -428,6 +436,36 @@ export interface BlogEngagementCounts {
   views: number;
   reactions: number;
   comments: number;
+}
+
+/** Re-order blog list rows after `fetchBlogEngagementCounts` using the same metrics as the cards. */
+export function sortBlogPostsForExplore(
+  posts: BlogPostListItem[],
+  engagementBySlug: Record<string, BlogEngagementCounts>,
+  sort: ExploreSort
+): BlogPostListItem[] {
+  const get = (slug: string) => engagementBySlug[slug] ?? { views: 0, reactions: 0, comments: 0 };
+  const copy = [...posts];
+  switch (sort) {
+    case "date":
+      return copy.sort((a, b) => {
+        const ta = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+        const tb = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+        return tb - ta;
+      });
+    case "views":
+      return copy.sort((a, b) => get(b.slug).views - get(a.slug).views);
+    case "comments":
+      return copy.sort((a, b) => get(b.slug).comments - get(a.slug).comments);
+    case "engagements":
+      return copy.sort((a, b) => {
+        const ea = get(a.slug).reactions + get(a.slug).comments;
+        const eb = get(b.slug).reactions + get(b.slug).comments;
+        return eb - ea;
+      });
+    default:
+      return copy;
+  }
 }
 
 export async function fetchBlogEngagementCounts(

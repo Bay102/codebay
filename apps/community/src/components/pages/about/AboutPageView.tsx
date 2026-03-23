@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  ArrowRight,
   Compass,
   LayoutGrid,
   Mail,
@@ -10,7 +9,7 @@ import {
   Target,
   Users
 } from "lucide-react";
-import { SurfaceCard } from "@codebay/ui";
+import { SegmentNavbar, SurfaceCard } from "@codebay/ui";
 
 export function AboutPageView() {
   return (
@@ -157,26 +156,16 @@ export function AboutPageView() {
 
         <div className="flex flex-col gap-3 border-t border-border/60 pt-8 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
           <p className="text-sm text-muted-foreground">Ready to explore?</p>
-          <div className="flex flex-wrap gap-2 sm:gap-3">
-            <Link
-              href="/join"
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-            >
-              Join the community
-              <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <Link
-              href="/discussions"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-card/70 px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-            >
-              Browse discussions
-            </Link>
-            <Link
-              href="/blogs"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-border bg-card/70 px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-            >
-              Read blogs
-            </Link>
+          <div className="flex w-full min-w-0 justify-stretch sm:shrink-0 sm:w-auto sm:justify-end">
+            <SegmentNavbar
+              aria-label="Explore CodingBay Community"
+              className="w-full sm:w-auto"
+              links={[
+                { href: "/join", label: "Join the community", kind: "primary" },
+                { href: "/discussions", label: "Browse discussions", kind: "neutral" },
+                { href: "/blogs", label: "Read blogs", kind: "neutral" }
+              ]}
+            />
           </div>
         </div>
       </section>

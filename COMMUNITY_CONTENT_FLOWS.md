@@ -277,7 +277,7 @@ This gives a closed loop where:
 
 ### Behavior
 
-1. **Scoped filters** — If the URL includes any of `tag` (topic **name**, same as `/discussions` / `/blogs`), `author` (valid `community_users.id` UUID), or `q` (search text), the page shows a single **Results** list for the active content type (`type=discussions` by default, or `type=blogs`). Data comes from `getDiscussionsWithCounts` or `getBlogPostsForCommunityList` with `tagFilter`, `authorId`, and `search`. Discussions use **trending** sort unless a single author filter is applied.
+1. **Scoped filters** — If the URL includes any of `tag` (topic **name**, same as `/discussions` / `/blogs`), `author` (valid `community_users.id` UUID), `q` (search text), or a non-default `sort` (`views`, `comments`, `engagements`; default is date/newest), the page shows a single **Results** list for the active content type (`type=discussions` by default, or `type=blogs`). Data comes from `getDiscussionsWithCounts` or `getBlogPostsForCommunityList` with `tagFilter`, `authorId`, `search`, and `exploreSort`. Blog posts are reordered after `fetchBlogEngagementCounts` via `sortBlogPostsForExplore`. Discussions use **trending** sort only when no explicit `exploreSort` is passed (e.g. personalized feeds); Explore **date** sort uses newest-first and skips trending.
 
 2. **Signed in, no scoped filters** — Two sections per type:
    - **From people you follow:** `following_id` values from `user_follows` for the viewer are passed as `authorIds` to the list helpers (discussions: trending among those authors; blog: `published_at` descending).
@@ -290,7 +290,7 @@ This gives a closed loop where:
 - `getDiscussionsWithCounts` (`apps/community/src/lib/discussions.ts`): optional `authorIds` and `anyOfTagNames` (Postgres `overlaps` on `discussions.tags`). Empty `authorIds` with no `authorId` returns no rows.
 - `getBlogPostsForCommunityList` (`apps/community/src/lib/blog.ts`): optional `authorId`, `authorIds`, and `anyOfTagNames` on `blog_posts.tags`. Same empty-array rule for `authorIds`.
 
-The **Explore** toolbar (client) writes `type`, `tag`, `author`, and `q`. The author control lists people the viewer **follows**; if the URL contains another valid author id, that profile is loaded once so the select stays in sync.
+The **Explore** toolbar (client) writes `type`, `tag`, `q`, and `sort` (`date` | `views` | `comments` | `engagements`). Legacy `author` in the URL is still honored for filtering when present; there is no author dropdown (search covers author names).
 
 ---
 

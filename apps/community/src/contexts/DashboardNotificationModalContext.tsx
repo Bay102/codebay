@@ -11,8 +11,14 @@ const DashboardNotificationModalContext = createContext<DashboardNotificationMod
   null
 );
 
-export function DashboardNotificationModalProvider({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+export function DashboardNotificationModalProvider({
+  children,
+  initialOpen = false
+}: {
+  children: ReactNode;
+  initialOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(initialOpen);
   const value: DashboardNotificationModalContextValue = {
     open,
     setOpen: useCallback((next: boolean) => setOpen(next), [])

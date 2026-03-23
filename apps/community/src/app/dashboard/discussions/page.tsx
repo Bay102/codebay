@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SegmentNavbar } from "@codebay/ui";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { DiscussionManagementCard } from "@/components/pages/dashboard/DiscussionManagementCard";
@@ -51,12 +51,13 @@ export default async function DashboardDiscussionsPage() {
               Start and manage your discussion threads.
             </p>
           </div>
-          <Link
-            href="/dashboard"
-            className="inline-flex h-10 items-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary/70"
-          >
-            Back to dashboard
-          </Link>
+          <div className="flex w-full min-w-0 shrink-0 justify-end sm:w-auto">
+            <SegmentNavbar
+              aria-label="Discussions page actions"
+              className="w-full sm:w-auto"
+              links={[{ href: "/dashboard", label: "Back to dashboard", kind: "primary" }]}
+            />
+          </div>
         </div>
 
         <DiscussionManagementCard discussions={discussions} authorName={profile.name} allowedTags={allowedTags} />

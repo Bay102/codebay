@@ -83,7 +83,6 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
               borderVariant="bordered"
               sizeVariant="sm"
               radiusVariant="square"
-              className="w-full shrink-0"
             >
               New blog post
             </FocusButton>

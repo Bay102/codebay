@@ -15,7 +15,7 @@ export { AuthEmailPasswordForm } from "./AuthEmailPasswordForm";
 export type { AuthEmailPasswordFormProps } from "./AuthEmailPasswordForm";
 export { SurfaceCard } from "./SurfaceCard";
 export { CtaCarousel } from "./CtaCarousel";
-export type { CtaCarouselProps, CtaCarouselSlide } from "./CtaCarousel";
+export type { CtaCarouselProps, CtaCarouselSlide, CtaCarouselSlideIcon } from "./CtaCarousel";
 export type {
   ProfileCardData,
   BlogPostCardData,
@@ -75,6 +75,8 @@ export {
 } from "./select";
 export { Popover, PopoverTrigger, PopoverContent } from "./popover";
 export { Separator } from "./separator";
+export { SegmentNavbar } from "./SegmentNavbar";
+export type { SegmentNavbarProps, SegmentNavbarLink } from "./SegmentNavbar";
 export {
   Sheet,
   SheetClose,

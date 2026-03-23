@@ -7,13 +7,18 @@ import { fetchAllTags } from "@/lib/tags";
 import { getFollowing } from "@/lib/follows";
 import {
   fetchPreferredTopicNames,
+  parseExploreSortParam,
   parseExploreTypeParam,
   parseUuidSearchParam
 } from "@/lib/explore";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
-import { fetchBlogEngagementCounts, getBlogPostsForCommunityList } from "@/lib/blog";
+import {
+  fetchBlogEngagementCounts,
+  getBlogPostsForCommunityList,
+  sortBlogPostsForExplore
+} from "@/lib/blog";
 import { CommunityListingsHero, type ListingsHeroStat } from "@/components/pages/community/CommunityListingsHero";
-import { ExploreToolbar, type ExploreAuthorOption } from "@/components/pages/explore/ExploreToolbar";
+import { ExploreToolbar } from "@/components/pages/explore/ExploreToolbar";
 import {
   ExploreFilteredFeed,
   ExploreGuestFeed,
@@ -22,13 +27,13 @@ import {
 
 export const metadata: Metadata = {
   title: "Explore",
-  description: "Discover discussions and blog posts by topic, author, and your interests."
+  description: "Discover discussions and blog posts by topic, search, sort, and your interests."
 };
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ type?: string; tag?: string; author?: string; q?: string }>;
+  searchParams: Promise<{ type?: string; tag?: string; author?: string; q?: string; sort?: string }>;
 };
 
 export default async function ExplorePage({ searchParams }: PageProps) {
@@ -36,6 +41,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const contentType = parseExploreTypeParam(resolved.type);
   const tag = typeof resolved.tag === "string" && resolved.tag.trim() ? resolved.tag.trim() : undefined;
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
+  const exploreSort = parseExploreSortParam(resolved.sort);
 
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
@@ -66,28 +72,15 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     userId ? getFollowing(supabase, userId, 200, 0) : Promise.resolve([])
   ]);
 
-  let authorOptions: ExploreAuthorOption[] = followingProfiles.map((p) => ({
-    id: p.id,
-    label: p.name?.trim() || `@${p.username}`
-  }));
-
   let effectiveAuthorId = parseUuidSearchParam(resolved.author);
   if (effectiveAuthorId) {
     const { data: authorRow } = await supabase
       .from("community_users")
-      .select("id,name,username")
+      .select("id")
       .eq("id", effectiveAuthorId)
       .maybeSingle();
     if (!authorRow) {
       effectiveAuthorId = undefined;
-    } else if (!authorOptions.some((o) => o.id === effectiveAuthorId)) {
-      authorOptions = [
-        ...authorOptions,
-        {
-          id: authorRow.id,
-          label: authorRow.name?.trim() || `@${authorRow.username}`
-        }
-      ];
     }
   }
 
@@ -95,12 +88,16 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     userId ? await fetchPreferredTopicNames(supabase, userId) : [];
 
   const followingIds = followingProfiles.map((p) => p.id);
-  const hasScopedFilters = Boolean(tag || effectiveAuthorId || q?.trim());
+  const useExplicitExploreList = Boolean(
+    tag || effectiveAuthorId || q?.trim() || exploreSort !== "date"
+  );
+  const hasPersonalizedFeed =
+    userId && !tag && !effectiveAuthorId && !(q?.trim()) && exploreSort === "date";
 
   let stats: ListingsHeroStat[];
   let feed: ReactNode;
 
-  if (hasScopedFilters) {
+  if (useExplicitExploreList) {
     if (contentType === "discussions") {
       const discussions = await getDiscussionsWithCounts(supabase, {
         limit: 48,
@@ -108,7 +105,8 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         orderByTrend: !effectiveAuthorId,
         search: q,
         tagFilter: tag,
-        authorId: effectiveAuthorId
+        authorId: effectiveAuthorId,
+        exploreSort
       });
       stats = [
         { label: "Matches", value: String(discussions.length), detail: "discussions" },
@@ -123,14 +121,16 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         />
       );
     } else {
-      const posts = await getBlogPostsForCommunityList(supabase, {
+      let posts = await getBlogPostsForCommunityList(supabase, {
         limit: 48,
         search: q,
         tagFilter: tag,
-        authorId: effectiveAuthorId
+        authorId: effectiveAuthorId,
+        exploreSort
       });
       const engagementBySlug =
         posts.length > 0 ? await fetchBlogEngagementCounts(posts.map((p) => p.slug)) : {};
+      posts = sortBlogPostsForExplore(posts, engagementBySlug, exploreSort).slice(0, 48);
       stats = [
         { label: "Matches", value: String(posts.length), detail: "blog posts" },
         { label: "Topic catalog", value: String(tags.length), detail: "tags to pick from" }
@@ -144,7 +144,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         />
       );
     }
-  } else if (userId) {
+  } else if (hasPersonalizedFeed) {
     stats = [
       {
         label: "Creators you follow",
@@ -185,9 +185,9 @@ export default async function ExplorePage({ searchParams }: PageProps) {
           EyebrowIcon={Compass}
           eyebrow="Discover"
           title="Explore"
-          description="Switch between discussions and blog posts, narrow by topic or author, or browse feeds tuned to people and topics you follow."
+          description="Switch between discussions and blog posts, narrow by topic or search, sort results, or browse feeds tuned to people and topics you follow."
           chips={[
-            { Icon: Filter, label: "Topic & author filters" },
+            { Icon: Filter, label: "Topic, search & sort" },
             { Icon: Users, label: "From your network" },
             { Icon: contentType === "blogs" ? Rss : MessageSquareText, label: contentType === "blogs" ? "Long-form posts" : "Community threads" },
             { Icon: Sparkles, label: "Matches your interests" }
@@ -199,8 +199,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
             contentType={contentType}
             initialQuery={q}
             initialTag={tag ?? null}
-            initialAuthorId={effectiveAuthorId ?? null}
-            authorOptions={authorOptions}
+            initialSort={exploreSort}
           />
         </CommunityListingsHero>
 

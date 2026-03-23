@@ -15,7 +15,7 @@ type TrendingProfilesTickerProps = {
   getFollowStatsAction: (profileUserId: string) => Promise<FollowStats>;
 };
 
-const AUTO_SCROLL_INTERVAL = 5000;
+const AUTO_SCROLL_INTERVAL = 8000;
 
 /** Cards per page = 2 rows × columns (Tailwind sm=640, md=768). */
 function getCardsPerPage(width: number): number {
@@ -125,11 +125,10 @@ export function TrendingProfilesTicker({ profiles, getFollowStatsAction }: Trend
                     type="button"
                     onClick={() => setPageIndex(page)}
                     aria-current={isActive ? "page" : undefined}
-                    className={`inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full border px-1.5 text-[10px] font-semibold tracking-[0.16em] uppercase transition-colors ${
-                      isActive
-                        ? "border-primary/80 bg-primary/90 text-primary-foreground shadow-sm"
-                        : "border-border/60 bg-background/90 text-muted-foreground hover:bg-secondary/80"
-                    }`}
+                    className={`inline-flex h-6 min-w-[1.5rem] items-center justify-center rounded-full border px-1.5 text-[10px] font-semibold tracking-[0.16em] uppercase transition-colors ${isActive
+                      ? "border-primary/80 bg-primary/90 text-primary-foreground shadow-sm"
+                      : "border-border/60 bg-background/90 text-muted-foreground hover:bg-secondary/80"
+                      }`}
                   >
                     {page + 1}
                   </button>
