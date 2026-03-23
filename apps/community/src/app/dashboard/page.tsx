@@ -30,7 +30,13 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function CommunityDashboardPage() {
+type CommunityDashboardPageProps = {
+  searchParams: Promise<{ notifications?: string }>;
+};
+
+export default async function CommunityDashboardPage({ searchParams }: CommunityDashboardPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const shouldOpenNotificationsModal = resolvedSearchParams.notifications === "open";
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
     redirect("/join");
@@ -123,7 +129,7 @@ export default async function CommunityDashboardPage() {
     <main className="bg-background">
       <section className="mx-auto w-full max-w-7xl px-2 pb-5 sm:px-6 lg:px-8">
 
-        <DashboardNotificationModalProvider>
+        <DashboardNotificationModalProvider initialOpen={shouldOpenNotificationsModal}>
           <DashboardHero
             name={profile.name}
             stats={{

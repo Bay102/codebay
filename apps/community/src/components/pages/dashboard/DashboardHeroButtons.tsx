@@ -20,8 +20,11 @@ export function DashboardHeroButtons({ hasSession, variant = "landing", classNam
                 { href: "/join", label: "Join the community", kind: "primary" as const },
                 { href: "/join?mode=signin", label: "Sign in", kind: "neutral" as const }
               ]
-            : [{ href: "/dashboard", label: "Dashboard", kind: "primary" as const }]),
-          { href: "/explore", label: "Explore", kind: "neutral" },
+            : [
+                { href: "/explore", label: "Explore", kind: "primary" as const },
+                { href: "/dashboard", label: "Dashboard", kind: "neutral" as const }
+              ]),
+          ...(!hasSession ? [{ href: "/explore", label: "Explore", kind: "neutral" as const }] : []),
           ...(hasSession
             ? [
                 { href: "/dashboard/discussions/new", label: "Start a discussion", kind: "neutral" as const },

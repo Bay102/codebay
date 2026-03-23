@@ -2,6 +2,7 @@
 
 import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { User } from "lucide-react";
 import type { TablesUpdate } from "@/lib/database";
 import type { DashboardBlogPostStats, DashboardProfile, FeaturedProject, ProfileLink } from "@/lib/dashboard";
 import { isUsernamePlaceholderPendingClaim, isValidCommunityUsername } from "@/lib/community-username";
@@ -82,12 +83,12 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
   const [name, setName] = useState(profile.name);
   const [username, setUsername] = useState(profile.username);
   const [bio, setBio] = useState(profile.bio ?? "");
-  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl ?? "");
   const [techStackInput, setTechStackInput] = useState(profile.techStack.join(", "));
   const [featuredProjectsInput, setFeaturedProjectsInput] = useState(featuredProjectsToInput(profile.featuredProjects));
   const [profileLinksInput, setProfileLinksInput] = useState(profileLinksToInput(profile.profileLinks));
   const [featuredPostSlugs, setFeaturedPostSlugs] = useState<string[]>(profile.featuredPostSlugs);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(profile.avatarUrl ?? "");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -97,6 +98,20 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
     setUsername(profile.username);
     setUsernameAvailability("idle");
   }, [profile.username]);
+
+  useEffect(() => {
+    if (!avatarFile) {
+      setAvatarPreviewUrl(profile.avatarUrl ?? "");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(avatarFile);
+    setAvatarPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [avatarFile, profile.avatarUrl]);
 
   type UsernameLookupResult =
     | { ok: true }
@@ -174,7 +189,7 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
     const profileLinks = parseProfileLinksInput(profileLinksInput);
 
     setIsSaving(true);
-    let nextAvatarUrl: string | null = avatarUrl.trim() || null;
+    let nextAvatarUrl: string | null = profile.avatarUrl?.trim() || null;
 
     if (avatarFile) {
       const userId = session.user.id;
@@ -327,17 +342,24 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="profile-avatar-url" className="text-sm font-medium">
+          <label htmlFor="profile-avatar-file" className="text-sm font-medium">
             Profile photo
           </label>
-          <input
-            id="profile-avatar-url"
-            value={avatarUrl}
-            onChange={(event) => setAvatarUrl(event.target.value)}
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            placeholder="https://example.com/avatar.png"
-          />
-          <div className="space-y-1">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="h-16 w-16 overflow-hidden rounded-full border border-border/70 bg-muted/40">
+                {avatarPreviewUrl ? (
+                  <img src={avatarPreviewUrl} alt="Profile photo preview" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                    <User className="h-7 w-7" aria-hidden />
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Upload an image to update your public profile photo.
+              </p>
+            </div>
             <input
               id="profile-avatar-file"
               type="file"
@@ -348,9 +370,6 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
               }}
               className="block w-full text-sm text-muted-foreground file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-foreground hover:file:bg-secondary/80"
             />
-            <p className="text-xs text-muted-foreground">
-              You can paste a URL above or upload an image. Uploaded images are stored securely and used on your public profile.
-            </p>
           </div>
         </div>
 

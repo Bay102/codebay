@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { SurfaceCard } from "@codebay/ui";
@@ -98,11 +99,23 @@ export function DismissibleNextStepsCard({ steps, onDismiss }: DismissibleNextSt
       <ul className="mt-4 space-y-2.5 text-sm text-muted-foreground">
         <li className="flex items-start gap-2">
           {renderStatusIcon(profileComplete)}
-          <span>Set up your profile details and preferences.</span>
+          <span>
+            Set up your profile details and preferences{" "}
+            <Link href="/dashboard/profile" className="underline underline-offset-4 hover:text-foreground">
+              here
+            </Link>
+            .
+          </span>
         </li>
         <li className="flex items-start gap-2">
           {renderStatusIcon(preferredTopicsComplete)}
-          <span>Choose your preferred topics to follow.</span>
+          <span>
+            Choose your preferred topics to follow{" "}
+            <Link href="/settings" className="underline underline-offset-4 hover:text-foreground">
+              here
+            </Link>
+            .
+          </span>
         </li>
         <li className="flex items-start gap-2">
           {renderStatusIcon(discussionOrPublishedComplete)}

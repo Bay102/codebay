@@ -70,9 +70,9 @@ export async function ForYouSection({ userId }: ForYouSectionProps) {
           className="mt-3 hover:shadow-lg hover:border-border/40 hover:bg-card/80"
         >
           <p className="text-sm text-muted-foreground">
-            Choose topics you follow in{" "}
+            Choose your preferred topics to follow{" "}
             <Link href="/settings" className="font-medium text-primary underline-offset-4 hover:underline">
-              settings
+              here
             </Link>{" "}
             to see relevant blog posts and discussions here.
           </p>
