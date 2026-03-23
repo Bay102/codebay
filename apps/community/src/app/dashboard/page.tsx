@@ -170,7 +170,12 @@ export default async function CommunityDashboardPage({ searchParams }: Community
         <SectionSeparator />
 
         <div className="grid gap-4 md:grid-cols-1">
-          <ProfileOverviewCard profile={profileWithFollowStats} posts={posts} viewerId={user.id} />
+          <ProfileOverviewCard
+            profile={profileWithFollowStats}
+            posts={posts}
+            discussions={discussions}
+            viewerId={user.id}
+          />
         </div>
 
         <div className="mt-6">

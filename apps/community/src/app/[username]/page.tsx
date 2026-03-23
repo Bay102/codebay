@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOverviewCard";
 import { fetchDashboardProfile, fetchUserBlogPostsWithStats } from "@/lib/dashboard";
+import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -38,9 +39,10 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
   const userId = userRow.id as string;
 
-  const [profile, posts, followResult] = await Promise.all([
+  const [profile, posts, discussions, followResult] = await Promise.all([
     fetchDashboardProfile(supabase, userId),
     fetchUserBlogPostsWithStats(supabase, userId),
+    getDiscussionsWithCounts(supabase, { authorId: userId, limit: 6, orderByTrend: false }),
     supabase.auth.getUser().then(async ({ data: { user } }) => {
       const followStats = await getFollowStatsForProfile(supabase, userId, user?.id ?? null);
       return { followStats, viewerId: user?.id ?? null };
@@ -66,6 +68,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           <ProfileOverviewCard
             profile={profileWithFollowStats}
             posts={posts}
+            discussions={discussions}
             showEditLink={false}
             viewerId={viewerId}
           />
