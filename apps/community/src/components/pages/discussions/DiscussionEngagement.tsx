@@ -3,9 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import type { DiscussionComment } from "@/lib/discussions";
 import { setDiscussionReaction } from "@/lib/discussions";
 import { communityUrl, siteUrl } from "@/lib/site-urls";
 import { EngagementPanel } from "@/components/shared/engagement/EngagementPanel";
+import { CustomButton } from "@/components/shared/buttons/CustomButton";
+import { DiscussionCommentTree } from "@/components/pages/discussions/DiscussionCommentTree";
 
 const reactionOptions = [
   { type: "like", label: "Helpful", icon: "👍" },
@@ -21,13 +24,17 @@ type DiscussionEngagementProps = {
   slug: string;
   initialCommentCount: number;
   initialViewerReactions: Partial<Record<ReactionType, ReactionResponse>>;
+  initialComments: DiscussionComment[];
+  viewerId: string | null;
 };
 
 export function DiscussionEngagement({
   discussionId,
   slug,
   initialCommentCount,
-  initialViewerReactions
+  initialViewerReactions,
+  initialComments,
+  viewerId
 }: DiscussionEngagementProps) {
   const { supabase, user, isLoading: isAuthLoading } = useAuth();
 
@@ -42,6 +49,9 @@ export function DiscussionEngagement({
   const [reactionSubmitting, setReactionSubmitting] = useState<ReactionType | null>(null);
   const reactionInProgressRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
+  const [areCommentsVisible, setAreCommentsVisible] = useState(false);
+  const [isCommentComposerOpen, setIsCommentComposerOpen] = useState(false);
+  const [commentCount, setCommentCount] = useState(initialCommentCount);
 
   useEffect(() => {
     if (!supabase) {
@@ -109,7 +119,7 @@ export function DiscussionEngagement({
   const signInHref = `/sign-in?redirect=${encodeURIComponent(postPath)}`;
   const engagementSubtitle = isLoading
     ? "Loading engagement..."
-    : `${totalReactions} reaction${totalReactions === 1 ? "" : "s"} - ${initialCommentCount} comment${initialCommentCount === 1 ? "" : "s"
+    : `${totalReactions} reaction${totalReactions === 1 ? "" : "s"} - ${commentCount} comment${commentCount === 1 ? "" : "s"
     }`;
 
   const reactionCards = reactionOptions.map((option) => {
@@ -124,7 +134,7 @@ export function DiscussionEngagement({
       icon: option.icon,
       summary:
         totalForType > 0
-          ? `${upPct}% positive - ${totalForType} vote${totalForType === 1 ? "" : "s"}`
+          ? `${upPct}% - ${totalForType} vote${totalForType === 1 ? "" : "s"}`
           : "No feedback yet",
       progressPct: totalForType > 0 ? upPct : 0,
       actions: !hasReactedToType
@@ -190,16 +200,70 @@ export function DiscussionEngagement({
   };
 
   return (
-    <EngagementPanel
-      subtitle={engagementSubtitle}
-      cards={reactionCards}
-      hasEngagementAccess={hasEngagementAccess}
-      joinHref={communityJoinHref}
-      signInHref={signInHref}
-      accessCopy="Reactions are available for community members."
-      error={error}
-      density="compact"
-    />
+    <section className="mx-auto w-full">
+      <div className="border border-border/70 bg-card p-2.5 sm:p-3">
+        <EngagementPanel
+          variant="embedded"
+          subtitle={engagementSubtitle}
+          cards={reactionCards}
+          hasEngagementAccess={hasEngagementAccess}
+          joinHref={communityJoinHref}
+          signInHref={signInHref}
+          accessCopy="Reactions and comments are available for community members."
+          error={error}
+          density="compact"
+        />
+
+        <div className="mt-4 border-t border-border/70 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground">Comments</p>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <CustomButton
+                size="xs"
+                fontWeight="medium"
+                radius="none"
+                className="shrink-0"
+                onClick={() => setAreCommentsVisible((visible) => !visible)}
+                aria-expanded={areCommentsVisible}
+              >
+                {areCommentsVisible
+                  ? "Hide comments"
+                  : commentCount > 0
+                    ? `Show comments (${commentCount})`
+                    : "Show comments"}
+              </CustomButton>
+              {hasEngagementAccess ? (
+                <CustomButton
+                  type="button"
+                  size="xs"
+                  fontWeight="medium"
+                  radius="none"
+                  className="shrink-0"
+                  aria-expanded={isCommentComposerOpen}
+                  onClick={() => setIsCommentComposerOpen((open) => !open)}
+                >
+                  {isCommentComposerOpen ? "Hide comment box" : "Comment"}
+                </CustomButton>
+              ) : null}
+            </div>
+          </div>
+
+          {areCommentsVisible ? (
+            <div className="mt-4">
+              <DiscussionCommentTree
+                discussionId={discussionId}
+                initialComments={initialComments}
+                viewerId={viewerId}
+                composerOpen={isCommentComposerOpen}
+                onComposerOpenChange={setIsCommentComposerOpen}
+                hideComposerToggle
+                onTotalCommentsChange={setCommentCount}
+              />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </section>
   );
 }
 

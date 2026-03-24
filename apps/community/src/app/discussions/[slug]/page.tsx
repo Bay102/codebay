@@ -10,7 +10,6 @@ import {
 } from "@/lib/discussions";
 import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
 import { DiscussionEngagement } from "@/components/pages/discussions/DiscussionEngagement";
-import { DiscussionCommentTree } from "@/components/pages/discussions/DiscussionCommentTree";
 import { Tag } from "@codebay/ui";
 
 export const metadata: Metadata = {
@@ -107,16 +106,6 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
             slug={slug}
             initialCommentCount={counts.commentCount}
             initialViewerReactions={counts.viewerReactions ?? {}}
-          />
-        </div>
-
-        <div className="mt-8">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-            Comments ({comments.length})
-          </h2>
-          <DiscussionCommentTree
-            discussionId={discussion.id}
-            slug={slug}
             initialComments={comments}
             viewerId={viewerId}
           />

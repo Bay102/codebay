@@ -50,27 +50,27 @@ function getProjectFaviconUrl(url: string): string | null {
 
 type ProfileActivityFeedItem =
   | {
-      id: string;
-      kind: "discussion";
-      title: string;
-      href: string;
-      createdAt: string;
-      metricLabel: string;
-      metricValue: number;
-      actionText: string;
-      ctaText: string;
-    }
+    id: string;
+    kind: "discussion";
+    title: string;
+    href: string;
+    createdAt: string;
+    metricLabel: string;
+    metricValue: number;
+    actionText: string;
+    ctaText: string;
+  }
   | {
-      id: string;
-      kind: "blog";
-      title: string;
-      href: string;
-      createdAt: string;
-      metricLabel: string;
-      metricValue: number;
-      actionText: string;
-      ctaText: string;
-    };
+    id: string;
+    kind: "blog";
+    title: string;
+    href: string;
+    createdAt: string;
+    metricLabel: string;
+    metricValue: number;
+    actionText: string;
+    ctaText: string;
+  };
 
 function formatActivityDate(value: string): string {
   const date = new Date(value);
@@ -135,7 +135,7 @@ function buildProfileActivityFeedItems(
   return [...recentDiscussions, ...recentPosts]
     .filter((item) => item.createdAt.trim().length > 0)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 6);
+    .slice(0, 12);
 }
 
 function FeaturedProjectCard({ project }: { project: FeaturedProject }) {
@@ -196,7 +196,7 @@ function FeaturedProjectCard({ project }: { project: FeaturedProject }) {
 function SectionHeading({ children, className = "" }: { children: string; className?: string }) {
   return (
     <p
-      className={`flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/95 ${className}`}
+      className={`flex w-full items-center gap-2 border border-border/70 bg-background/70 px-2.5 py-1.5 text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground/95 ${className}`}
     >
       <span className="h-1.5 w-1.5 rounded-full bg-primary/80" aria-hidden />
       <span>{children}</span>
@@ -211,10 +211,19 @@ export function ProfileOverviewCard({
   showEditLink = true,
   viewerId = null
 }: ProfileOverviewCardProps) {
+  const RECENT_ACTIVITY_VISIBLE_COUNT = 3;
   const publishedPosts = posts.filter((post) => post.status === "published");
+  const featuredPostsFromSelection = publishedPosts.filter((post) =>
+    profile.featuredPostSlugs.includes(post.slug)
+  );
+  const featuredPostsFromPostFlags = publishedPosts.filter((post) => post.isFeatured);
   const featuredPosts = profile.hasFeaturedPostSelection
-    ? publishedPosts.filter((post) => profile.featuredPostSlugs.includes(post.slug))
-    : publishedPosts.slice(0, 3);
+    ? featuredPostsFromSelection.length > 0
+      ? featuredPostsFromSelection
+      : featuredPostsFromPostFlags
+    : featuredPostsFromPostFlags.length > 0
+      ? featuredPostsFromPostFlags
+      : publishedPosts.slice(0, 3);
 
   const hasFollowStats =
     profile.followerCount !== undefined && profile.followingCount !== undefined;
@@ -223,6 +232,7 @@ export function ProfileOverviewCard({
   const featuredProjectsList = profile.featuredProjects.slice(0, 3);
   const featuredPostsList = featuredPosts.slice(0, 3);
   const activityFeedItems = buildProfileActivityFeedItems(publishedPosts, discussions);
+  const hasOverflowingActivity = activityFeedItems.length > RECENT_ACTIVITY_VISIBLE_COUNT;
 
   const profileActionLinks = (
     <>
@@ -292,12 +302,12 @@ export function ProfileOverviewCard({
         </>
       )}
 
-      <p className="mt-4 text-sm leading-7 text-muted-foreground md:max-w-[calc(50%-0.75rem)]">
-        {profile.bio?.trim() ? profile.bio : "Add a short bio to personalize your author presence."}
-      </p>
-
-      <div className="mt-6 grid gap-6 md:grid-cols-2">
+      <div className="mt-4 grid gap-6 md:grid-cols-2 md:items-start">
         <div className="space-y-6">
+          <p className="text-sm leading-7 text-muted-foreground">
+            {profile.bio?.trim() ? profile.bio : "Add a short bio to personalize your author presence."}
+          </p>
+
           <div>
             <SectionHeading>Tech stack</SectionHeading>
             {profile.techStack.length > 0 ? (
@@ -329,15 +339,15 @@ export function ProfileOverviewCard({
                       rel="noreferrer"
                       aria-label={ariaLabel}
                       title={ariaLabel}
-                      className="inline-flex size-8 shrink-0 items-center justify-center rounded-sm border border-border/80 bg-background text-foreground transition-colors hover:border-primary/50 hover:text-primary"
+                      className="inline-flex size-8 shrink-0 items-center justify-center text-foreground transition-colors hover:border-primary/50 hover:text-primary"
                     >
-                      <span className="flex h-5 w-5 items-center justify-center rounded-[3px] border border-border/60 bg-card/80">
+                      <span className="flex h-5 w-5 items-center justify-center bg-card/80">
                         {faviconUrl ? (
                           <img
                             src={faviconUrl}
                             alt=""
                             aria-hidden="true"
-                            className="h-3.5 w-3.5 rounded-[2px] object-contain"
+                            className="h-6 w-6 object-contain"
                             loading="lazy"
                           />
                         ) : (
@@ -356,7 +366,7 @@ export function ProfileOverviewCard({
           <div>
             <SectionHeading>Featured projects</SectionHeading>
             {profile.featuredProjects.length > 0 ? (
-              <div className="mt-2 space-y-2">
+              <div className="space-y-2">
                 {featuredProjectsList.map((project) => (
                   <FeaturedProjectCard key={project.title} project={project} />
                 ))}
@@ -370,9 +380,15 @@ export function ProfileOverviewCard({
         <div className="space-y-6">
           <div>
             <SectionHeading>Recent activity</SectionHeading>
-            <div className="mt-2 border border-border/70 bg-background/70 p-2.5 sm:p-3.5">
+            <div className="border border-border/70 bg-background/70 p-2.5 sm:p-3.5">
               {activityFeedItems.length > 0 ? (
-                <div className="space-y-2.5 md:max-h-[24rem] md:overflow-y-auto md:pr-1">
+                <div
+                  className={`space-y-2.5 ${
+                    hasOverflowingActivity
+                      ? "max-h-[19rem] overflow-y-auto pr-1 scrollbar-none"
+                      : ""
+                  }`}
+                >
                   {activityFeedItems.map((item) => (
                     <Link
                       key={item.id}
@@ -421,7 +437,7 @@ export function ProfileOverviewCard({
           <div>
             <SectionHeading>Featured posts</SectionHeading>
             {featuredPosts.length > 0 ? (
-              <div className="mt-2 space-y-2">
+              <div className="space-y-2">
                 {featuredPostsList.map((post) => {
                   const href = `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`;
                   const cardData = mapDashboardBlogPostToBlogPostCardData(post);

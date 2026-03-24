@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AppHeader as SharedAppHeader, MenuThemeController, SiteLogo } from "@codebay/ui";
 import type { AppHeaderMenuItem, SidebarNavItemButton, SidebarNavItemLink } from "@codebay/ui";
 import { useAuth } from "@/contexts/AuthContext";
@@ -80,6 +80,7 @@ function getMenuItems(
 
 export function CommunityAppHeader() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, supabase } = useAuth();
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
@@ -102,6 +103,16 @@ export function CommunityAppHeader() {
   const myBlogHref = username ? `/blog/${username}` : "/blog";
   const myProfileHref = username ? `/${username}` : "/";
   const isAuthenticated = Boolean(user);
+  const notificationHref = isAuthenticated ? "/dashboard?notifications=open" : undefined;
+
+  const handleNotificationClick = useCallback(() => {
+    if (pathname !== "/dashboard") {
+      return;
+    }
+
+    window.dispatchEvent(new Event("dashboard:open-notifications"));
+    router.replace("/dashboard?notifications=open", { scroll: false });
+  }, [pathname, router]);
 
   const menuItems = useMemo(
     () => getMenuItems(myBlogHref, myProfileHref, isAuthenticated, handleSignOut),
@@ -147,8 +158,9 @@ export function CommunityAppHeader() {
       menuItems={menuItems}
       menuFooter={<MenuThemeController />}
       hasNotifications={hasUnreadNotifications}
-      notificationHref={isAuthenticated ? "/dashboard?notifications=open" : undefined}
+      notificationHref={notificationHref}
       notificationAriaLabel="Open notifications"
+      onNotificationClick={handleNotificationClick}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 
 type DashboardNotificationModalContextValue = {
   open: boolean;
@@ -19,6 +19,15 @@ export function DashboardNotificationModalProvider({
   initialOpen?: boolean;
 }) {
   const [open, setOpen] = useState(initialOpen);
+
+  useEffect(() => {
+    const handleOpenRequest = () => setOpen(true);
+    window.addEventListener("dashboard:open-notifications", handleOpenRequest);
+    return () => {
+      window.removeEventListener("dashboard:open-notifications", handleOpenRequest);
+    };
+  }, []);
+
   const value: DashboardNotificationModalContextValue = {
     open,
     setOpen: useCallback((next: boolean) => setOpen(next), [])

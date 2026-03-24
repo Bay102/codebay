@@ -179,6 +179,14 @@ function parseSummaryParts(summary: string): { primary: string; secondary: strin
   };
 }
 
+function getVoteTextFromSecondary(secondary: string | null): string | null {
+  if (!secondary) return null;
+  const match = secondary.match(/^(\d[\d,]*)\s+vote(?:s)?$/i);
+  if (!match) return null;
+  const count = match[1];
+  return `${count} vote${count === "1" ? "" : "s"}`;
+}
+
 type ReactionTileProps = {
   card: EngagementReactionCard;
   compact: boolean;
@@ -225,6 +233,8 @@ function ReactionTileActions({
 
 function ReactionTile({ card, compact }: ReactionTileProps) {
   const { primary, secondary } = parseSummaryParts(card.summary);
+  const voteText = getVoteTextFromSecondary(secondary);
+  const hasFeedbackSummary = primary.trim().toLowerCase() !== "no feedback yet";
 
   return (
     <div
@@ -263,11 +273,23 @@ function ReactionTile({ card, compact }: ReactionTileProps) {
                 <span className="truncate text-[11px] font-semibold leading-tight text-foreground sm:text-xs">
                   {card.label}
                 </span>
-                <span className="shrink-0 text-xs font-semibold tabular-nums tracking-tight text-foreground sm:text-sm">
-                  {primary}
-                </span>
+                <div className="shrink-0 text-right">
+                  {hasFeedbackSummary ? (
+                    <span className="text-xs font-semibold tabular-nums tracking-tight text-foreground sm:text-sm">
+                      {primary}
+                    </span>
+                  ) : null}
+                  {voteText ? (
+                    <>
+                      <span className="ml-1 text-[9px] leading-tight text-muted-foreground sm:text-[10px]">•</span>
+                      <span className="ml-1 text-[9px] leading-tight text-muted-foreground sm:text-[10px]">
+                        {voteText}
+                      </span>
+                    </>
+                  ) : null}
+                </div>
               </div>
-              {secondary ? (
+              {secondary && !voteText ? (
                 <p className="mt-px text-[9px] leading-tight text-muted-foreground sm:text-[10px]">{secondary}</p>
               ) : null}
             </div>
@@ -289,10 +311,18 @@ function ReactionTile({ card, compact }: ReactionTileProps) {
             </div>
 
             <div className="min-w-0 space-y-0.5">
-              <p className="text-lg font-semibold tabular-nums tracking-tight leading-tight text-foreground sm:text-xl">
-                {primary}
-              </p>
-              {secondary ? <p className="text-xs leading-tight text-muted-foreground">{secondary}</p> : null}
+              {hasFeedbackSummary ? (
+                <p className="text-lg font-semibold tabular-nums tracking-tight leading-tight text-foreground sm:text-xl">
+                  {primary}
+                  {voteText ? (
+                    <>
+                      <span className="ml-1.5 text-xs font-normal text-muted-foreground">•</span>
+                      <span className="ml-1.5 text-xs font-normal text-muted-foreground">{voteText}</span>
+                    </>
+                  ) : null}
+                </p>
+              ) : null}
+              {secondary && !voteText ? <p className="text-xs leading-tight text-muted-foreground">{secondary}</p> : null}
             </div>
           </>
         )}
