@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bold, Italic, List, ListOrdered, Code, Code2 } from "lucide-react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+
+type AiActionId = "fix-grammar" | "improve-clarity" | "shorten" | "expand";
 
 type DiscussionRichTextEditorProps = {
   id: string;
@@ -29,6 +31,17 @@ function plainTextToHtml(value: string): string {
 }
 
 export function DiscussionRichTextEditor({ id, value, onChange, disabled }: DiscussionRichTextEditorProps) {
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const aiActions: { id: AiActionId; label: string }[] = useMemo(
+    () => [
+      { id: "fix-grammar", label: "Fix grammar" },
+      { id: "improve-clarity", label: "Improve clarity" },
+      { id: "shorten", label: "More concise" },
+      { id: "expand", label: "Expand" }
+    ],
+    []
+  );
+
   const editor = useEditor(
     {
       extensions: [StarterKit],
@@ -56,6 +69,50 @@ export function DiscussionRichTextEditor({ id, value, onChange, disabled }: Disc
       editor.commands.setContent(nextContent, false);
     }
   }, [editor, value]);
+
+  const runAiAction = async (actionId: AiActionId) => {
+    if (!editor) return;
+    const text = editor.getText();
+    if (!text.trim()) return;
+
+    setIsAiLoading(true);
+    try {
+      const instructionByAction: Record<AiActionId, string> = {
+        "fix-grammar":
+          "Rewrite this discussion post with correct grammar, spelling, and punctuation. Preserve the meaning and length as much as possible.",
+        "improve-clarity":
+          "Rewrite this discussion post to be clearer and easier to understand while keeping the same meaning and roughly the same length.",
+        shorten: "Rewrite this discussion post to be more concise while preserving the key ideas.",
+        expand:
+          "Expand this discussion post with a bit more detail and supporting explanation, while keeping it appropriate for a technical community discussion."
+      };
+
+      const response = await fetch("/api/ai/blog-edit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          text,
+          instruction: instructionByAction[actionId],
+          scope: "section"
+        })
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      const json = (await response.json()) as { editedText?: string };
+      if (!json.editedText) {
+        return;
+      }
+
+      onChange(plainTextToHtml(json.editedText));
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   if (!editor) {
     return null;
@@ -101,7 +158,7 @@ export function DiscussionRichTextEditor({ id, value, onChange, disabled }: Disc
           <button
             type="button"
             onClick={() => apply("bold")}
-            disabled={disabled}
+            disabled={disabled || isAiLoading}
             className={toolbarButtonClass(editor.isActive("bold"))}
             aria-label="Bold"
           >
@@ -110,7 +167,7 @@ export function DiscussionRichTextEditor({ id, value, onChange, disabled }: Disc
           <button
             type="button"
             onClick={() => apply("italic")}
-            disabled={disabled}
+            disabled={disabled || isAiLoading}
             className={toolbarButtonClass(editor.isActive("italic"))}
             aria-label="Italic"
           >
@@ -120,7 +177,7 @@ export function DiscussionRichTextEditor({ id, value, onChange, disabled }: Disc
           <button
             type="button"
             onClick={() => apply("bulletList")}
-            disabled={disabled}
+            disabled={disabled || isAiLoading}
             className={toolbarButtonClass(editor.isActive("bulletList"))}
             aria-label="Bullet list"
           >
@@ -129,7 +186,7 @@ export function DiscussionRichTextEditor({ id, value, onChange, disabled }: Disc
           <button
             type="button"
             onClick={() => apply("orderedList")}
-            disabled={disabled}
+            disabled={disabled || isAiLoading}
             className={toolbarButtonClass(editor.isActive("orderedList"))}
             aria-label="Numbered list"
           >
@@ -139,7 +196,7 @@ export function DiscussionRichTextEditor({ id, value, onChange, disabled }: Disc
           <button
             type="button"
             onClick={() => apply("inlineCode")}
-            disabled={disabled}
+            disabled={disabled || isAiLoading}
             className={toolbarButtonClass(editor.isActive("code"))}
             aria-label="Inline code"
           >
@@ -148,12 +205,26 @@ export function DiscussionRichTextEditor({ id, value, onChange, disabled }: Disc
           <button
             type="button"
             onClick={() => apply("codeBlock")}
-            disabled={disabled}
+            disabled={disabled || isAiLoading}
             className={toolbarButtonClass(editor.isActive("codeBlock"))}
             aria-label="Code block"
           >
             <Code2 className="h-3.5 w-3.5" />
           </button>
+          <span className="mx-1 h-4 w-px bg-border/70" aria-hidden />
+          <div className="flex flex-wrap items-center gap-1">
+            {aiActions.map((action) => (
+              <button
+                key={action.id}
+                type="button"
+                disabled={disabled || isAiLoading}
+                onClick={() => void runAiAction(action.id)}
+                className="inline-flex h-7 items-center rounded-md border border-transparent px-2 text-[11px] font-medium text-muted-foreground transition-colors hover:border-border hover:bg-secondary disabled:opacity-50"
+              >
+                {action.label}
+              </button>
+            ))}
+          </div>
         </div>
         <EditorContent editor={editor} />
       </div>

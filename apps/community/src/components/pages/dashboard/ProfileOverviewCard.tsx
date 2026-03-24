@@ -55,8 +55,7 @@ type ProfileActivityFeedItem =
     title: string;
     href: string;
     createdAt: string;
-    metricLabel: string;
-    metricValue: number;
+    metricSegments: string[];
     actionText: string;
     ctaText: string;
   }
@@ -66,8 +65,7 @@ type ProfileActivityFeedItem =
     title: string;
     href: string;
     createdAt: string;
-    metricLabel: string;
-    metricValue: number;
+    metricSegments: string[];
     actionText: string;
     ctaText: string;
   };
@@ -111,8 +109,7 @@ function buildProfileActivityFeedItems(
     title: discussion.title,
     href: `/discussions/${discussion.slug}`,
     createdAt: discussion.createdAt,
-    metricLabel: "comments",
-    metricValue: discussion.commentCount,
+    metricSegments: [`${discussion.reactionCount} reactions`, `${discussion.commentCount} comments`],
     actionText: "started a discussion",
     ctaText: "View discussion"
   }));
@@ -126,8 +123,7 @@ function buildProfileActivityFeedItems(
       title: post.title,
       href: `${blogUrl}/${buildAuthorSegment(post.authorName)}/${post.slug}`,
       createdAt: post.publishedAt ?? post.updatedAt ?? post.createdAt ?? "",
-      metricLabel: "views",
-      metricValue: post.views,
+      metricSegments: [`${post.views} views`, `${post.reactions} reactions`, `${post.comments} comments`],
       actionText: "published a blog post",
       ctaText: "View post"
     }));
@@ -415,7 +411,7 @@ export function ProfileOverviewCard({
                           </p>
                           <div className="mt-2 flex items-center justify-between border-t border-border/60 pt-2">
                             <span className="text-[11px] text-muted-foreground">
-                              {item.metricValue} {item.metricLabel}
+                              {item.metricSegments.join(" · ")}
                             </span>
                             <span className="text-[11px] font-medium text-primary transition-opacity group-hover:opacity-85">
                               {item.ctaText}
