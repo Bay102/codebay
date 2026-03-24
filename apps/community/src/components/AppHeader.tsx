@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AppHeader as SharedAppHeader, CodeBayLogo, MenuThemeController } from "@codebay/ui";
+import { AppHeader as SharedAppHeader, MenuThemeController, SiteLogo } from "@codebay/ui";
 import type { AppHeaderMenuItem, SidebarNavItemButton, SidebarNavItemLink } from "@codebay/ui";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -143,7 +143,7 @@ export function CommunityAppHeader() {
   return (
     <SharedAppHeader
       homeHref="/"
-      logo={<CodeBayLogo className="h-6 w-auto md:h-8" />}
+      logo={<SiteLogo className="h-6 w-auto md:h-8" />}
       menuItems={menuItems}
       menuFooter={<MenuThemeController />}
       hasNotifications={hasUnreadNotifications}

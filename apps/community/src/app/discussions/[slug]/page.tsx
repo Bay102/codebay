@@ -106,9 +106,7 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
             discussionId={discussion.id}
             slug={slug}
             initialCommentCount={counts.commentCount}
-            initialViewerReactionType={
-              (counts.viewerReactionType as "like" | "insightful" | "love" | null) ?? null
-            }
+            initialViewerReactions={counts.viewerReactions ?? {}}
           />
         </div>
 

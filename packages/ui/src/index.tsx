@@ -10,7 +10,7 @@ export type {
   SidebarNavItemButton,
   SidebarNavItemGroup,
 } from "./SidebarNavMenu";
-export { CodeBayLogo } from "./CodeBayLogo";
+export { SiteLogo } from "./SiteLogo";
 export { AuthEmailPasswordForm } from "./AuthEmailPasswordForm";
 export type { AuthEmailPasswordFormProps } from "./AuthEmailPasswordForm";
 export { SurfaceCard } from "./SurfaceCard";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ThumbsUp } from "lucide-react";
+import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { setDiscussionReaction } from "@/lib/discussions";
 import { communityUrl, siteUrl } from "@/lib/site-urls";
@@ -14,28 +14,30 @@ const reactionOptions = [
 ] as const;
 
 type ReactionType = (typeof reactionOptions)[number]["type"];
+type ReactionResponse = "up" | "down";
 
 type DiscussionEngagementProps = {
   discussionId: string;
   slug: string;
   initialCommentCount: number;
-  initialViewerReactionType: ReactionType | null;
+  initialViewerReactions: Partial<Record<ReactionType, ReactionResponse>>;
 };
 
 export function DiscussionEngagement({
   discussionId,
   slug,
   initialCommentCount,
-  initialViewerReactionType
+  initialViewerReactions
 }: DiscussionEngagementProps) {
   const { supabase, user, isLoading: isAuthLoading } = useAuth();
 
-  const [reactionCounts, setReactionCounts] = useState<Record<ReactionType, number>>({
-    like: 0,
-    insightful: 0,
-    love: 0
+  const [reactionCounts, setReactionCounts] = useState<Record<ReactionType, { up: number; down: number }>>({
+    like: { up: 0, down: 0 },
+    insightful: { up: 0, down: 0 },
+    love: { up: 0, down: 0 }
   });
-  const [viewerReactionType, setViewerReactionType] = useState<ReactionType | null>(initialViewerReactionType);
+  const [userReactions, setUserReactions] =
+    useState<Partial<Record<ReactionType, ReactionResponse>>>(initialViewerReactions);
   const [isLoading, setIsLoading] = useState(true);
   const [reactionSubmitting, setReactionSubmitting] = useState<ReactionType | null>(null);
   const reactionInProgressRef = useRef(false);
@@ -56,7 +58,7 @@ export function DiscussionEngagement({
 
       const { data, error: reactionsError } = await supabase
         .from("discussion_reactions")
-        .select("reaction_type,user_id")
+        .select("reaction_type,response,user_id")
         .eq("discussion_id", discussionId);
 
       if (!isMounted) return;
@@ -67,21 +69,26 @@ export function DiscussionEngagement({
         return;
       }
 
-      const nextCounts: Record<ReactionType, number> = { like: 0, insightful: 0, love: 0 };
-      let nextViewerReaction: ReactionType | null = initialViewerReactionType;
+      const nextCounts: Record<ReactionType, { up: number; down: number }> = {
+        like: { up: 0, down: 0 },
+        insightful: { up: 0, down: 0 },
+        love: { up: 0, down: 0 }
+      };
+      const nextUserReactions: Partial<Record<ReactionType, ReactionResponse>> = {};
 
       (data ?? []).forEach((row) => {
         const type = row.reaction_type as ReactionType;
         if (!(type in nextCounts)) return;
-        nextCounts[type] += 1;
+        const response: ReactionResponse = row.response === "down" ? "down" : "up";
+        nextCounts[type][response] += 1;
 
-        if (!nextViewerReaction && user && row.user_id === user.id) {
-          nextViewerReaction = type;
+        if (user && row.user_id === user.id) {
+          nextUserReactions[type] = response;
         }
       });
 
       setReactionCounts(nextCounts);
-      setViewerReactionType(nextViewerReaction);
+      setUserReactions(nextUserReactions);
       setIsLoading(false);
     };
 
@@ -90,10 +97,13 @@ export function DiscussionEngagement({
     return () => {
       isMounted = false;
     };
-  }, [discussionId, initialViewerReactionType, supabase, user]);
+  }, [discussionId, supabase, user]);
 
   const hasEngagementAccess = Boolean(user && supabase);
-  const totalReactions = Object.values(reactionCounts).reduce((sum, value) => sum + value, 0);
+  const totalReactions = Object.values(reactionCounts).reduce(
+    (sum, value) => sum + value.up + value.down,
+    0
+  );
   const postPath = `/discussions/${slug}`;
   const communityJoinHref = `${communityUrl}/join?redirect=${encodeURIComponent(`${siteUrl}${postPath}`)}`;
   const signInHref = `/sign-in?redirect=${encodeURIComponent(postPath)}`;
@@ -103,26 +113,32 @@ export function DiscussionEngagement({
     }`;
 
   const reactionCards = reactionOptions.map((option) => {
-    const count = reactionCounts[option.type];
-    const pct = totalReactions > 0 ? Math.round((count / totalReactions) * 100) : 0;
-    const hasReacted = viewerReactionType !== null;
-    const canReact =
-      hasEngagementAccess && !isLoading && !isAuthLoading && reactionSubmitting === null && !hasReacted;
+    const counts = reactionCounts[option.type];
+    const totalForType = counts.up + counts.down;
+    const upPct = totalForType > 0 ? Math.round((counts.up / totalForType) * 100) : 0;
+    const hasReactedToType = !!userReactions[option.type];
+    const canReact = hasEngagementAccess && !isLoading && !isAuthLoading && reactionSubmitting === null;
 
     return {
       label: option.label,
       icon: option.icon,
       summary:
-        totalReactions > 0
-          ? `${pct}% - ${count} vote${count === 1 ? "" : "s"}`
+        totalForType > 0
+          ? `${upPct}% positive - ${totalForType} vote${totalForType === 1 ? "" : "s"}`
           : "No feedback yet",
-      progressPct: totalReactions > 0 ? pct : 0,
-      actions: !hasReacted && hasEngagementAccess
+      progressPct: totalForType > 0 ? upPct : 0,
+      actions: !hasReactedToType
         ? {
           primary: {
             icon: <ThumbsUp className="h-4 w-4" strokeWidth={2} aria-hidden />,
-            onClick: () => void handleReact(option.type),
+            onClick: () => void handleReact(option.type, "up"),
             ariaLabel: `Mark this discussion as ${option.label.toLowerCase()}`,
+            disabled: !canReact
+          },
+          secondary: {
+            icon: <ThumbsDown className="h-4 w-4" strokeWidth={2} aria-hidden />,
+            onClick: () => void handleReact(option.type, "down"),
+            ariaLabel: `This discussion was not ${option.label.toLowerCase()}`,
             disabled: !canReact
           }
         }
@@ -130,7 +146,7 @@ export function DiscussionEngagement({
     } as const;
   });
 
-  const handleReact = async (type: ReactionType) => {
+  const handleReact = async (type: ReactionType, response: ReactionResponse) => {
     if (!supabase) {
       setError("Discussion engagement is unavailable because Supabase is not configured.");
       return;
@@ -143,14 +159,14 @@ export function DiscussionEngagement({
 
     if (reactionInProgressRef.current) return;
 
-    // One reaction per viewer per discussion.
-    if (viewerReactionType) return;
+    // One vote per reaction type (matches blog engagement behavior).
+    if (userReactions[type]) return;
 
     reactionInProgressRef.current = true;
     setReactionSubmitting(type);
     setError(null);
 
-    const ok = await setDiscussionReaction(supabase, discussionId, user.id, type);
+    const ok = await setDiscussionReaction(supabase, discussionId, user.id, type, response);
 
     reactionInProgressRef.current = false;
     setReactionSubmitting(null);
@@ -162,9 +178,15 @@ export function DiscussionEngagement({
 
     setReactionCounts((previous) => ({
       ...previous,
-      [type]: previous[type] + 1
+      [type]: {
+        up: previous[type].up + (response === "up" ? 1 : 0),
+        down: previous[type].down + (response === "down" ? 1 : 0)
+      }
     }));
-    setViewerReactionType(type);
+    setUserReactions((previous) => ({
+      ...previous,
+      [type]: response
+    }));
   };
 
   return (

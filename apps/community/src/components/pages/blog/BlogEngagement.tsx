@@ -555,7 +555,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
 
   return (
     <section className="mx-auto mt-4 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
-      <div className="border border-border/70 bg-card p-3 sm:p-4">
+      <div className="border border-border/70 bg-card p-2.5 sm:p-3">
         <EngagementPanel
           variant="embedded"
           density="compact"

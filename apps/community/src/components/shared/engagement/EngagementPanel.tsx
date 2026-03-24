@@ -184,6 +184,45 @@ type ReactionTileProps = {
   compact: boolean;
 };
 
+function ReactionTileActions({
+  actions,
+  compact
+}: {
+  actions: NonNullable<EngagementReactionCard["actions"]>;
+  compact: boolean;
+}) {
+  return (
+    <div className={cn("flex shrink-0 flex-wrap items-center justify-end", compact ? "gap-0.5" : "gap-1.5")}>
+      <button
+        type="button"
+        className={cn(
+          "inline-flex items-center justify-center rounded-md border border-border/70 bg-background/90 text-muted-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
+          compact ? "h-6 w-6 [&_svg]:h-3 [&_svg]:w-3" : "h-9 w-9 rounded-lg"
+        )}
+        onClick={actions.primary.onClick}
+        disabled={actions.primary.disabled}
+        aria-label={actions.primary.ariaLabel}
+      >
+        {actions.primary.icon}
+      </button>
+      {actions.secondary ? (
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center justify-center border border-transparent bg-muted/60 text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
+            compact ? "h-6 w-6 rounded-md [&_svg]:h-3 [&_svg]:w-3" : "h-9 w-9 rounded-lg"
+          )}
+          onClick={actions.secondary.onClick}
+          disabled={actions.secondary.disabled}
+          aria-label={actions.secondary.ariaLabel}
+        >
+          {actions.secondary.icon}
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 function ReactionTile({ card, compact }: ReactionTileProps) {
   const { primary, secondary } = parseSummaryParts(card.summary);
 
@@ -191,7 +230,7 @@ function ReactionTile({ card, compact }: ReactionTileProps) {
     <div
       className={cn(
         "group relative flex min-h-0 flex-col overflow-hidden border border-border/50 bg-gradient-to-b from-card/90 to-background/40 shadow-sm transition-[border-color,box-shadow] hover:border-border hover:shadow-md",
-        compact ? "rounded-lg p-2" : "rounded-xl p-3 sm:p-3"
+        compact ? "rounded-md px-1.5 py-1 sm:px-2 sm:py-1.5" : "rounded-xl p-3 sm:p-3"
       )}
     >
       <div
@@ -210,78 +249,56 @@ function ReactionTile({ card, compact }: ReactionTileProps) {
         aria-hidden
       />
 
-      <div className={cn("relative flex min-h-0 flex-1 flex-col", compact ? "gap-1" : "gap-2")}>
-        <div className="flex items-start justify-between gap-1.5 sm:gap-2">
-          <div className={cn("flex min-w-0 items-center", compact ? "gap-1.5" : "gap-2")}>
+      <div className={cn("relative flex min-h-0 flex-1 flex-col", compact ? "gap-0.5" : "gap-2")}>
+        {compact ? (
+          <div className="flex min-w-0 items-center gap-1.5">
             <span
-              className={cn(
-                "flex shrink-0 items-center justify-center border border-border/50 bg-background/80 shadow-sm",
-                compact ? "h-7 w-7 rounded-md text-sm" : "h-9 w-9 rounded-xl text-lg"
-              )}
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-border/50 bg-background/80 text-xs shadow-sm"
               aria-hidden
             >
               {card.icon}
             </span>
-            <span
-              className={cn(
-                "truncate font-semibold leading-tight text-foreground",
-                compact ? "text-xs" : "text-sm"
-              )}
-            >
-              {card.label}
-            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline justify-between gap-1.5">
+                <span className="truncate text-[11px] font-semibold leading-tight text-foreground sm:text-xs">
+                  {card.label}
+                </span>
+                <span className="shrink-0 text-xs font-semibold tabular-nums tracking-tight text-foreground sm:text-sm">
+                  {primary}
+                </span>
+              </div>
+              {secondary ? (
+                <p className="mt-px text-[9px] leading-tight text-muted-foreground sm:text-[10px]">{secondary}</p>
+              ) : null}
+            </div>
+            {card.actions ? <ReactionTileActions actions={card.actions} compact /> : null}
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <span
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-border/50 bg-background/80 text-lg shadow-sm"
+                  aria-hidden
+                >
+                  {card.icon}
+                </span>
+                <span className="truncate text-sm font-semibold leading-tight text-foreground">{card.label}</span>
+              </div>
+              {card.actions ? <ReactionTileActions actions={card.actions} compact={false} /> : null}
+            </div>
 
-        <div className={cn("min-w-0", compact ? "space-y-0" : "space-y-0.5")}>
-          <p
-            className={cn(
-              "font-semibold tabular-nums tracking-tight text-foreground leading-tight",
-              compact ? "text-sm sm:text-base" : "text-lg sm:text-xl"
-            )}
-          >
-            {primary}
-          </p>
-          {secondary ? (
-            <p className={cn("text-muted-foreground leading-tight", compact ? "text-[10px]" : "text-xs")}>
-              {secondary}
-            </p>
-          ) : null}
-        </div>
-
-        {card.actions ? (
-          <div className={cn("mt-auto flex flex-wrap items-center", compact ? "gap-1 pt-0.5" : "gap-1.5 pt-1")}>
-            <button
-              type="button"
-              className={cn(
-                "inline-flex items-center justify-center rounded-md border border-border/70 bg-background/90 text-muted-foreground shadow-sm transition-colors hover:border-primary/30 hover:bg-primary/5 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-                compact ? "h-7 w-7" : "h-9 w-9 rounded-lg"
-              )}
-              onClick={card.actions.primary.onClick}
-              disabled={card.actions.primary.disabled}
-              aria-label={card.actions.primary.ariaLabel}
-            >
-              {card.actions.primary.icon}
-            </button>
-            {card.actions.secondary ? (
-              <button
-                type="button"
-                className={cn(
-                  "inline-flex items-center justify-center border border-transparent bg-muted/60 text-muted-foreground transition-colors hover:border-border/70 hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-                  compact ? "h-7 w-7 rounded-md" : "h-9 w-9 rounded-lg"
-                )}
-                onClick={card.actions.secondary.onClick}
-                disabled={card.actions.secondary.disabled}
-                aria-label={card.actions.secondary.ariaLabel}
-              >
-                {card.actions.secondary.icon}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
+            <div className="min-w-0 space-y-0.5">
+              <p className="text-lg font-semibold tabular-nums tracking-tight leading-tight text-foreground sm:text-xl">
+                {primary}
+              </p>
+              {secondary ? <p className="text-xs leading-tight text-muted-foreground">{secondary}</p> : null}
+            </div>
+          </>
+        )}
 
         {card.footer ? (
-          <div className={cn("border-t border-border/40", compact ? "pt-1.5" : "pt-2")}>{card.footer}</div>
+          <div className={cn("border-t border-border/40", compact ? "pt-1" : "pt-2")}>{card.footer}</div>
         ) : null}
       </div>
     </div>
@@ -303,8 +320,8 @@ export function EngagementPanel({
 
   const body = (
     <>
-      <div className={cn("flex flex-col", compact ? "gap-2" : "gap-5")}>
-        <header className={cn("border-b border-border/50", compact ? "pb-2 sm:pb-2.5" : "pb-3 sm:pb-4")}>
+      <div className={cn("flex flex-col", compact ? "gap-1.5" : "gap-5")}>
+        <header className={cn("border-b border-border/50", compact ? "pb-1.5 sm:pb-2" : "pb-3 sm:pb-4")}>
           <div className="flex flex-col gap-0.5 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
             <div className="min-w-0">
               <p
@@ -324,7 +341,7 @@ export function EngagementPanel({
           className={cn(
             "grid w-full min-w-0",
             cards.length <= 1 ? "grid-cols-1" : cards.length === 2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1 sm:grid-cols-3",
-            compact ? "gap-1.5 sm:gap-2" : "gap-3 sm:gap-4"
+            compact ? "gap-1 sm:gap-1.5" : "gap-3 sm:gap-4"
           )}
           role="list"
           aria-label="Reaction breakdown"
@@ -366,7 +383,7 @@ export function EngagementPanel({
       <div
         className={cn(
           "border border-border/70 bg-card",
-          compact ? "p-3 sm:p-4" : "p-5 sm:p-6"
+          compact ? "p-2.5 sm:p-3" : "p-5 sm:p-6"
         )}
       >
         {body}

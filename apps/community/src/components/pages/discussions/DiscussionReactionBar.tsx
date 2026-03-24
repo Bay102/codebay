@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 import { COMMUNITY_REACTION_TYPES, type CommunityReactionType } from "@/components/pages/dashboard/dashboard-activity-icons";
 import { setDiscussionReaction } from "@/lib/discussions";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const REACTION_TYPES = COMMUNITY_REACTION_TYPES;
 
 type ReactionType = CommunityReactionType;
+type ReactionResponse = "up" | "down";
 
 type ReactionCounts = Record<ReactionType, number>;
 
@@ -17,7 +18,7 @@ type DiscussionReactionBarProps = {
   slug: string;
   initialCommentCount: number;
   initialReactionCount: number;
-  initialViewerReactionType: ReactionType | null;
+  initialViewerReactions: Partial<Record<ReactionType, ReactionResponse>>;
 };
 
 export function DiscussionReactionBar({
@@ -25,7 +26,7 @@ export function DiscussionReactionBar({
   slug,
   initialCommentCount,
   initialReactionCount,
-  initialViewerReactionType
+  initialViewerReactions
 }: DiscussionReactionBarProps) {
   const { supabase, user } = useAuth();
 
@@ -34,7 +35,8 @@ export function DiscussionReactionBar({
     insightful: 0,
     love: 0
   });
-  const [viewerReactionType, setViewerReactionType] = useState<ReactionType | null>(initialViewerReactionType);
+  const [viewerReactions, setViewerReactions] =
+    useState<Partial<Record<ReactionType, ReactionResponse>>>(initialViewerReactions);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export function DiscussionReactionBar({
     const loadReactions = async () => {
       const { data, error } = await supabase
         .from("discussion_reactions")
-        .select("reaction_type")
+        .select("reaction_type,response,user_id")
         .eq("discussion_id", discussionId);
 
       if (!isMounted || error || !data) {
@@ -66,6 +68,17 @@ export function DiscussionReactionBar({
       });
 
       setReactionCounts(nextCounts);
+
+      if (user) {
+        const nextViewerReactions: Partial<Record<ReactionType, ReactionResponse>> = {};
+        data.forEach((row: { reaction_type: string; response: string; user_id: string | null }) => {
+          if (row.user_id !== user.id) return;
+          const type = row.reaction_type as ReactionType;
+          if (!(type in nextCounts)) return;
+          nextViewerReactions[type] = row.response === "down" ? "down" : "up";
+        });
+        setViewerReactions(nextViewerReactions);
+      }
     };
 
     void loadReactions();
@@ -73,24 +86,21 @@ export function DiscussionReactionBar({
     return () => {
       isMounted = false;
     };
-  }, [discussionId, supabase]);
+  }, [discussionId, supabase, user]);
 
   const hasEngagementAccess = Boolean(user && supabase);
 
-  const handleReaction = async (reactionType: ReactionType) => {
+  const handleReaction = async (reactionType: ReactionType, response: ReactionResponse) => {
     if (!supabase || !user || isLoading) return;
-
-    // Hard one-reaction rule: once a viewer has reacted for this discussion,
-    // they cannot change or add another reaction (including across reloads).
-    if (viewerReactionType !== null) return;
+    if (viewerReactions[reactionType]) return;
 
     setIsLoading(true);
 
     try {
-      const ok = await setDiscussionReaction(supabase, discussionId, user.id, reactionType);
+      const ok = await setDiscussionReaction(supabase, discussionId, user.id, reactionType, response);
       if (!ok) return;
 
-      setViewerReactionType(reactionType);
+      setViewerReactions((previous) => ({ ...previous, [reactionType]: response }));
       setReactionCounts((previous) => ({
         ...previous,
         [reactionType]: (previous[reactionType] ?? 0) + 1
@@ -145,25 +155,35 @@ export function DiscussionReactionBar({
         {hasEngagementAccess ? (
           <div className="flex shrink-0 items-center gap-2 md:justify-end">
             {REACTION_TYPES.map(({ type, label, Icon, iconColor }) => {
-              const isSelected = viewerReactionType === type;
-              const isLocked = viewerReactionType !== null;
+              const hasReactedToType = viewerReactions[type] != null;
 
               return (
-                <button
+                <div
                   key={type}
-                  type="button"
-                  className={`inline-flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${isSelected
-                      ? "border-border/60 bg-muted cursor-default"
-                      : "border-border/70 bg-background hover:bg-secondary/70"
-                    } ${isSelected ? iconColor : "text-muted-foreground"}`}
-                  onClick={() => void handleReaction(type)}
-                  disabled={isLoading || isLocked}
-                  aria-label={label}
-                  aria-pressed={isSelected}
-                  aria-disabled={isSelected || undefined}
+                  className="inline-flex items-center gap-1 rounded-full border border-border/70 bg-background px-1 py-1"
                 >
-                  <Icon className="h-4 w-4" strokeWidth={2} aria-hidden />
-                </button>
+                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full ${iconColor}`}>
+                    <Icon className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                  </span>
+                  <button
+                    type="button"
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={() => void handleReaction(type, "up")}
+                    disabled={isLoading || hasReactedToType}
+                    aria-label={`Upvote ${label}`}
+                  >
+                    <ThumbsUp className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                  </button>
+                  <button
+                    type="button"
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-secondary/70 disabled:cursor-not-allowed disabled:opacity-60"
+                    onClick={() => void handleReaction(type, "down")}
+                    disabled={isLoading || hasReactedToType}
+                    aria-label={`Downvote ${label}`}
+                  >
+                    <ThumbsDown className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
+                  </button>
+                </div>
               );
             })}
           </div>
