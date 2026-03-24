@@ -25,6 +25,8 @@ export type AppHeaderProps = {
   notificationHref?: string;
   /** Accessible label for the notifications shortcut button. */
   notificationAriaLabel?: string;
+  /** Optional callback fired when the notifications shortcut is clicked. */
+  onNotificationClick?: () => void;
 };
 
 function MenuIcon() {
@@ -56,7 +58,8 @@ export function AppHeader({
   menuFooter,
   hasNotifications = false,
   notificationHref,
-  notificationAriaLabel = "View notifications"
+  notificationAriaLabel = "View notifications",
+  onNotificationClick
 }: AppHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -76,6 +79,7 @@ export function AppHeader({
               href={notificationHref}
               aria-label={notificationAriaLabel}
               className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
+              onClick={onNotificationClick}
             >
               {hasNotifications ? (
                 <span

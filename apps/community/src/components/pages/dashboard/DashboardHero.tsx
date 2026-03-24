@@ -90,16 +90,20 @@ export function DashboardHero({
     <SurfaceCard
       as="section"
       variant="borderless"
-      className="relative overflow-hidden border border-border/40 bg-card/70 p-5 shadow-xl sm:p-6 lg:p-8"
+      className="relative isolate overflow-hidden rounded-tl-3xl border border-border/40 bg-card/70 p-5 shadow-xl sm:p-6 lg:p-8"
     >
-      {/* Decorative layers (aligned with main community hero) */}
-      <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/[0.08] via-transparent to-transparent" aria-hidden />
+      {/* Decorative layers (aligned with main community hero); radii match outer card to avoid corner halos */}
+      <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-br from-primary/[0.08] via-transparent to-transparent" aria-hidden />
       <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 rounded-full bg-primary/10 blur-3xl" aria-hidden />
       <div className="pointer-events-none absolute bottom-0 left-0 h-40 w-40 rounded-full bg-primary/10 blur-3xl" aria-hidden />
       <div
-        className="pointer-events-none absolute inset-0 opacity-30 [background-image:linear-gradient(to_right,rgba(148,163,184,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.12)_1px,transparent_1px)] [background-size:2.75rem_2.75rem] [mask-image:radial-gradient(circle_at_center,black,transparent_85%)]"
+        className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-30 [background-image:linear-gradient(to_right,rgba(148,163,184,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.12)_1px,transparent_1px)] [background-size:2.75rem_2.75rem] [mask-image:radial-gradient(circle_at_center,black,transparent_85%)]"
         aria-hidden
       />
+      <div className="absolute left-6 top-6 z-20 hidden items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary md:inline-flex lg:left-8 lg:top-8">
+        <LayoutDashboard className="h-3.5 w-3.5" />
+        Your Dashboard
+      </div>
       {/* Signal beam (uses globals.css signal-sweep animation) */}
       <div className="pointer-events-none absolute inset-x-0 top-[calc(42%+16px)] hidden px-5 sm:block sm:px-6 lg:px-8" aria-hidden>
         <div className="relative h-12">
@@ -118,7 +122,7 @@ export function DashboardHero({
       <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
         <div className="max-w-3xl pb-2">
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary md:hidden">
             <LayoutDashboard className="h-3.5 w-3.5" />
             Your Dashboard
           </div>

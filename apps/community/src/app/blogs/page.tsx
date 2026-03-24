@@ -61,7 +61,7 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
 
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-6xl px-5 pb-12 sm:px-6 sm:pb-14 lg:px-8">
+      <section className="mx-auto w-full max-w-7xl px-5 pb-12 sm:px-6 sm:pb-14 lg:px-8">
         <CommunityListingsHero
           EyebrowIcon={Rss}
           eyebrow="Community writing"

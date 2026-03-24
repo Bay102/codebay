@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { AppHeader as SharedAppHeader, CodeBayLogo, MenuThemeController } from "@codebay/ui";
+import { usePathname, useRouter } from "next/navigation";
+import { AppHeader as SharedAppHeader, MenuThemeController, SiteLogo } from "@codebay/ui";
 import type { AppHeaderMenuItem, SidebarNavItemButton, SidebarNavItemLink } from "@codebay/ui";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -14,9 +14,9 @@ function getMenuItems(
 ): AppHeaderMenuItem[] {
   const primaryItems: AppHeaderMenuItem[] = [
     { type: "link", href: "/", label: "Home" },
+    ...(isAuthenticated ? [{ type: "link", href: "/dashboard", label: "Dashboard" } satisfies AppHeaderMenuItem] : []),
     { type: "link", href: "/explore", label: "Explore" },
     { type: "link", href: "/about", label: "About" },
-    ...(isAuthenticated ? [{ type: "link", href: "/dashboard", label: "My Dashboard" } satisfies AppHeaderMenuItem] : []),
   ];
 
   const discussionChildren: SidebarNavItemLink[] = [
@@ -57,19 +57,19 @@ function getMenuItems(
 
   const discussionsGroup: AppHeaderMenuItem = {
     type: "group",
-    label: "Discussions",
+    label: "My Discussions",
     children: discussionChildren,
   };
 
   return [
     ...primaryItems,
+    searchGroup,
     ...(discussionChildren.length > 0 ? [discussionsGroup] : []),
     {
       type: "group",
-      label: "Blog",
+      label: "My Blog",
       children: blogChildren,
     },
-    searchGroup,
     {
       type: "group",
       label: "Account",
@@ -80,6 +80,7 @@ function getMenuItems(
 
 export function CommunityAppHeader() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, supabase } = useAuth();
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
@@ -102,6 +103,16 @@ export function CommunityAppHeader() {
   const myBlogHref = username ? `/blog/${username}` : "/blog";
   const myProfileHref = username ? `/${username}` : "/";
   const isAuthenticated = Boolean(user);
+  const notificationHref = isAuthenticated ? "/dashboard?notifications=open" : undefined;
+
+  const handleNotificationClick = useCallback(() => {
+    if (pathname !== "/dashboard") {
+      return;
+    }
+
+    window.dispatchEvent(new Event("dashboard:open-notifications"));
+    router.replace("/dashboard?notifications=open", { scroll: false });
+  }, [pathname, router]);
 
   const menuItems = useMemo(
     () => getMenuItems(myBlogHref, myProfileHref, isAuthenticated, handleSignOut),
@@ -143,12 +154,13 @@ export function CommunityAppHeader() {
   return (
     <SharedAppHeader
       homeHref="/"
-      logo={<CodeBayLogo className="h-6 w-auto md:h-8" />}
+      logo={<SiteLogo className="h-6 w-auto md:h-8" />}
       menuItems={menuItems}
       menuFooter={<MenuThemeController />}
       hasNotifications={hasUnreadNotifications}
-      notificationHref={isAuthenticated ? "/dashboard?notifications=open" : undefined}
+      notificationHref={notificationHref}
       notificationAriaLabel="Open notifications"
+      onNotificationClick={handleNotificationClick}
     />
   );
 }

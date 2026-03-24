@@ -8,7 +8,7 @@ import type { Tables, TablesInsert } from "@/lib/database";
 import { communityUrl, siteUrl } from "@/lib/site-urls";
 import { useAuth } from "@/contexts/AuthContext";
 import { EngagementPanel } from "@/components/shared/engagement/EngagementPanel";
-import { FocusButton } from "@/components/shared/buttons/FocusButton";
+import { CustomButton } from "@/components/shared/buttons/CustomButton";
 
 type ReactionType = "like" | "insightful" | "love";
 type ReactionResponse = "up" | "down";
@@ -130,23 +130,27 @@ function CommentThread({
             className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
           />
           <div className="flex gap-2">
-            <button
+            <CustomButton
               type="submit"
+              radius="none"
+              size="xs"
+              fontWeight="medium"
               disabled={isSubmittingReply || !replyBody.trim()}
-              className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmittingReply ? "Posting..." : "Post reply"}
-            </button>
-            <button
+            </CustomButton>
+            <CustomButton
               type="button"
-              className="rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
+              radius="none"
+              size="xs"
+              fontWeight="medium"
               onClick={() => {
                 onReplyClick(comment.id);
                 onReplyBodyChange("");
               }}
             >
               Cancel
-            </button>
+            </CustomButton>
           </div>
         </form>
       ) : null}
@@ -531,7 +535,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
       icon: option.icon,
       summary:
         totalForType > 0
-          ? `${upPct}% positive - ${totalForType} vote${totalForType === 1 ? "" : "s"}`
+          ? `${upPct}% - ${totalForType} vote${totalForType === 1 ? "" : "s"}`
           : "No feedback yet",
       progressPct: totalForType > 0 ? upPct : 0,
       actions: !hasReactedToType
@@ -555,7 +559,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
 
   return (
     <section className="mx-auto mt-4 w-full max-w-5xl px-5 sm:px-6 lg:px-8">
-      <div className="border border-border/70 bg-card p-3 sm:p-4">
+      <div className="border border-border/70 bg-card p-2.5 sm:p-3">
         <EngagementPanel
           variant="embedded"
           density="compact"
@@ -572,12 +576,10 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-xs font-semibold tracking-wide text-muted-foreground">Comments</p>
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <FocusButton
-                radiusVariant="small"
-                colorVariant="plain"
-                borderVariant="bordered"
-                sizeVariant="sm"
-                glassVariant="off"
+              <CustomButton
+                radius="none"
+                size="xs"
+                fontWeight="medium"
                 className="shrink-0"
                 onClick={() => setAreCommentsVisible((visible) => !visible)}
                 aria-expanded={areCommentsVisible}
@@ -587,15 +589,13 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                   : comments.length > 0
                     ? `Show comments (${totalCommentCount})`
                     : "Show comments"}
-              </FocusButton>
+              </CustomButton>
               {hasEngagementAccess ? (
-                <FocusButton
+                <CustomButton
                   type="button"
-                  radiusVariant="small"
-                  colorVariant="plain"
-                  borderVariant="bordered"
-                  sizeVariant="sm"
-                  glassVariant="off"
+                  radius="none"
+                  size="xs"
+                  fontWeight="medium"
                   className="shrink-0"
                   aria-expanded={isCommentComposerOpen}
                   aria-controls="blog-comment-composer"
@@ -610,7 +610,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                   }}
                 >
                   {isCommentComposerOpen ? "Hide comment box" : "Comment"}
-                </FocusButton>
+                </CustomButton>
               ) : null}
             </div>
           </div>
@@ -685,16 +685,15 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
                   className="w-full resize-y rounded-md border border-input bg-background px-3 py-2 text-sm outline-none transition-shadow placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
-              <FocusButton
+              <CustomButton
                 type="submit"
-                radiusVariant="small"
-                colorVariant="primary"
-                borderVariant="bordered"
-                sizeVariant="sm"
+                radius="none"
+                size="xs"
+                fontWeight="medium"
                 disabled={isSubmittingComment || !commentBody.trim()}
               >
                 {isSubmittingComment ? "Posting..." : "Post comment"}
-              </FocusButton>
+              </CustomButton>
             </form>
           ) : null}
         </div>

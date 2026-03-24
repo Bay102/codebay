@@ -55,9 +55,7 @@ export function TopicSelector({
     const bodyTokens = normalizeTokens(contextBody);
     const allTokens = new Set([...titleTokens, ...bodyTokens]);
 
-    if (allTokens.size === 0) {
-      return allowedTags.slice(0, maxQuickTopics);
-    }
+    if (allTokens.size === 0) return [];
 
     const scores = allowedTags.map((tag) => {
       const tagTokens = normalizeTokens(tag.name);
@@ -73,9 +71,7 @@ export function TopicSelector({
     scores.sort((a, b) => b.score - a.score || a.tag.name.localeCompare(b.tag.name));
     const withScore = scores.filter((entry) => entry.score > 0).map((entry) => entry.tag);
 
-    if (withScore.length === 0) {
-      return allowedTags.slice(0, maxQuickTopics);
-    }
+    if (withScore.length === 0) return [];
 
     return withScore.slice(0, maxQuickTopics);
   }, [allowedTags, contextTitle, contextBody, maxQuickTopics]);
@@ -109,7 +105,9 @@ export function TopicSelector({
     setQuery("");
   };
 
-  const showQuickTopics = quickTopics.length > 0;
+  const hasTitleInput = (contextTitle?.trim().length ?? 0) >= 3;
+  const hasTopicSearchInput = query.trim().length >= 3;
+  const showQuickTopics = quickTopics.length > 0 && (hasTitleInput || hasTopicSearchInput);
 
   return (
     <div className="space-y-1.5">

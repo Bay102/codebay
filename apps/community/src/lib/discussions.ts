@@ -19,7 +19,7 @@ interface DiscussionWithAuthor extends DiscussionRow {
 interface DiscussionCounts {
   commentCount: number;
   reactionCount: number;
-  viewerReactionType?: string | null;
+  viewerReactions?: Partial<Record<string, "up" | "down">>;
 }
 
 export interface DiscussionListItem {
@@ -140,17 +140,24 @@ export async function getDiscussionCounts(
     viewerId
       ? supabase
           .from("discussion_reactions")
-          .select("reaction_type")
+          .select("reaction_type,response")
           .eq("discussion_id", discussionId)
           .eq("user_id", viewerId)
-          .maybeSingle()
-      : Promise.resolve({ data: null, error: null })
+      : Promise.resolve({ data: [], error: null })
   ]);
+
+  const viewerReactions = (viewerRes.data ?? []).reduce<Partial<Record<string, "up" | "down">>>(
+    (acc, row) => {
+      acc[row.reaction_type] = row.response === "down" ? "down" : "up";
+      return acc;
+    },
+    {}
+  );
 
   return {
     commentCount: commentsRes.count ?? 0,
     reactionCount: reactionsRes.count ?? 0,
-    viewerReactionType: viewerRes.data?.reaction_type ?? null
+    viewerReactions
   };
 }
 
@@ -468,19 +475,21 @@ export async function createDiscussionComment(
   return data.id;
 }
 
-/** Add a reaction if the viewer has not reacted yet (one reaction per user per discussion). */
+/** Add a reaction response for one type if the viewer has not already set one for that type. */
 export async function setDiscussionReaction(
   supabase: SupabaseClient<Database>,
   discussionId: string,
   userId: string,
-  reactionType: string
+  reactionType: string,
+  response: "up" | "down"
 ): Promise<boolean> {
-  // Check for an existing reaction from this user on this discussion.
+  // Check for an existing reaction for this specific type.
   const { data: existing, error: existingError } = await supabase
     .from("discussion_reactions")
     .select("id, reaction_type")
     .eq("discussion_id", discussionId)
     .eq("user_id", userId)
+    .eq("reaction_type", reactionType)
     .maybeSingle();
 
   if (existingError && existingError.code !== "PGRST116") {
@@ -489,14 +498,15 @@ export async function setDiscussionReaction(
   }
 
   if (existing) {
-    // User has already reacted on this discussion; do not allow another reaction.
+    // User has already voted for this reaction type; do not allow another vote.
     return false;
   }
 
   const { error } = await supabase.from("discussion_reactions").insert({
     discussion_id: discussionId,
     user_id: userId,
-    reaction_type: reactionType
+    reaction_type: reactionType,
+    response
   });
   return !error;
 }

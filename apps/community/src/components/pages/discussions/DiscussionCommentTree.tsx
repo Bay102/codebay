@@ -1,19 +1,30 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { DiscussionComment } from "@/lib/discussions";
 import { createDiscussionComment, getDiscussionComments } from "@/lib/discussions";
 import { useAuth } from "@/contexts/AuthContext";
 import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
+import { FocusButton } from "@/components/shared/buttons/FocusButton";
+import { CustomButton } from "@/components/shared/buttons/CustomButton";
 
 type DiscussionCommentTreeProps = {
   discussionId: string;
-  slug: string;
   initialComments: DiscussionComment[];
   viewerId: string | null;
+  composerOpen?: boolean;
+  onComposerOpenChange?: (nextOpen: boolean) => void;
+  hideComposerToggle?: boolean;
+  onTotalCommentsChange?: (count: number) => void;
 };
+
+function countCommentsInTree(comments: DiscussionComment[]): number {
+  return comments.reduce((sum, comment) => {
+    return sum + 1 + countCommentsInTree(comment.replies);
+  }, 0);
+}
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -36,14 +47,12 @@ function countDescendantReplies(comment: DiscussionComment): number {
 function CommentNode({
   comment,
   discussionId,
-  slug,
   viewerId,
   onReplySubmitted,
   depth = 0
 }: {
   comment: DiscussionComment;
   discussionId: string;
-  slug: string;
   viewerId: string | null;
   onReplySubmitted: () => void | Promise<void>;
   depth?: number;
@@ -172,7 +181,6 @@ function CommentNode({
                     key={reply.id}
                     comment={reply}
                     discussionId={discussionId}
-                    slug={slug}
                     viewerId={viewerId}
                     onReplySubmitted={async () => onReplySubmitted()}
                     depth={depth + 1}
@@ -189,15 +197,29 @@ function CommentNode({
 
 export function DiscussionCommentTree({
   discussionId,
-  slug,
   initialComments,
-  viewerId
+  viewerId,
+  composerOpen,
+  onComposerOpenChange,
+  hideComposerToggle = false,
+  onTotalCommentsChange
 }: DiscussionCommentTreeProps) {
   const [comments, setComments] = useState(initialComments);
   const [newCommentBody, setNewCommentBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isCommentFormOpen, setIsCommentFormOpen] = useState(false);
+  const [internalComposerOpen, setInternalComposerOpen] = useState(false);
   const { supabase, user } = useAuth();
+  const isComposerOpen = composerOpen ?? internalComposerOpen;
+
+  const setComposerOpen = useCallback(
+    (nextOpen: boolean) => {
+      onComposerOpenChange?.(nextOpen);
+      if (composerOpen === undefined) {
+        setInternalComposerOpen(nextOpen);
+      }
+    },
+    [composerOpen, onComposerOpenChange]
+  );
 
   const refreshComments = useCallback(async () => {
     if (!supabase) return;
@@ -230,8 +252,14 @@ export function DiscussionCommentTree({
     }
   };
 
+  const totalComments = useMemo(() => countCommentsInTree(comments), [comments]);
+
+  useEffect(() => {
+    onTotalCommentsChange?.(totalComments);
+  }, [onTotalCommentsChange, totalComments]);
+
   return (
-    <div className="mt-4">
+    <div>
       {comments.length === 0 ? (
         <p className="text-sm text-muted-foreground">No comments yet.</p>
       ) : (
@@ -241,7 +269,6 @@ export function DiscussionCommentTree({
               <CommentNode
                 comment={comment}
                 discussionId={discussionId}
-                slug={slug}
                 viewerId={viewerId}
                 onReplySubmitted={refreshComments}
                 depth={0}
@@ -254,14 +281,14 @@ export function DiscussionCommentTree({
       <div className="mt-6">
         {viewerId && supabase && user ? (
           <>
-            {!isCommentFormOpen ? (
-              <button
-                type="button"
-                onClick={() => setIsCommentFormOpen(true)}
-                className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+            {!hideComposerToggle && !isComposerOpen ? (
+              <CustomButton
+                radius="sm"
+                size="sm"
+                onClick={() => setComposerOpen(true)}
               >
                 Add a comment
-              </button>
+              </CustomButton>
             ) : (
               <form onSubmit={handleSubmitComment}>
                 <textarea
@@ -273,23 +300,28 @@ export function DiscussionCommentTree({
                   disabled={isSubmitting}
                 />
                 <div className="mt-2 flex gap-2">
-                  <button
+                  <CustomButton
                     type="submit"
+                    radius="none"
+                    size="xs"
+                    fontWeight="medium"
                     disabled={isSubmitting || !newCommentBody.trim()}
-                    className="rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-70"
                   >
-                    {isSubmitting ? "Sending…" : "Comment"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsCommentFormOpen(false);
-                      setNewCommentBody("");
-                    }}
-                    className="rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary/70"
-                  >
-                    Cancel
-                  </button>
+                    {isSubmitting ? "Posting..." : "Post comment"}
+                  </CustomButton>
+                  {!hideComposerToggle ? (
+                    <CustomButton
+                      type="button"
+                      radius="none"
+                      size="sm"
+                      onClick={() => {
+                        setComposerOpen(false);
+                        setNewCommentBody("");
+                      }}
+                    >
+                      Cancel
+                    </CustomButton>
+                  ) : null}
                 </div>
               </form>
             )}
