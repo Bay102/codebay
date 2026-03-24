@@ -14,9 +14,9 @@ function getMenuItems(
 ): AppHeaderMenuItem[] {
   const primaryItems: AppHeaderMenuItem[] = [
     { type: "link", href: "/", label: "Home" },
+    ...(isAuthenticated ? [{ type: "link", href: "/dashboard", label: "Dashboard" } satisfies AppHeaderMenuItem] : []),
     { type: "link", href: "/explore", label: "Explore" },
     { type: "link", href: "/about", label: "About" },
-    ...(isAuthenticated ? [{ type: "link", href: "/dashboard", label: "My Dashboard" } satisfies AppHeaderMenuItem] : []),
   ];
 
   const discussionChildren: SidebarNavItemLink[] = [
@@ -57,19 +57,19 @@ function getMenuItems(
 
   const discussionsGroup: AppHeaderMenuItem = {
     type: "group",
-    label: "Discussions",
+    label: "My Discussions",
     children: discussionChildren,
   };
 
   return [
     ...primaryItems,
+    searchGroup,
     ...(discussionChildren.length > 0 ? [discussionsGroup] : []),
     {
       type: "group",
-      label: "Blog",
+      label: "My Blog",
       children: blogChildren,
     },
-    searchGroup,
     {
       type: "group",
       label: "Account",
