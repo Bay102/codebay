@@ -5,7 +5,6 @@ import { Activity, Bell, FileText, LayoutDashboard, MessageSquareText } from "lu
 import { SurfaceCard } from "@codebay/ui";
 import type { DashboardActivityItem } from "@/lib/dashboard";
 import { getDashboardActivityIcon } from "@/components/pages/dashboard/dashboard-activity-icons";
-import { useDashboardNotificationModal } from "@/contexts/DashboardNotificationModalContext";
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
 
 type DashboardHeroStats = {
@@ -20,7 +19,7 @@ type DashboardHeroProps = {
   stats?: DashboardHeroStats;
   /** When hub setup is complete, pass up to 3 unread activity items for the notification quick view. */
   quickViewActivityItems?: DashboardActivityItem[];
-  /** When set, "View all" opens the notifications modal instead of linking to #activity. */
+  /** When set, overrides the default action (open global notifications modal). */
   onViewAllNotifications?: () => void;
 };
 
@@ -71,8 +70,8 @@ export function DashboardHero({
   quickViewActivityItems = [],
   onViewAllNotifications: onViewAllNotificationsProp
 }: DashboardHeroProps) {
-  const modal = useDashboardNotificationModal();
-  const onViewAllNotifications = onViewAllNotificationsProp ?? (modal ? () => modal.setOpen(true) : undefined);
+  const onViewAllNotifications =
+    onViewAllNotificationsProp ?? (() => window.dispatchEvent(new Event("dashboard:open-notifications")));
   const greeting = getTimeGreeting();
   const allStepsComplete = stats && stats.nextStepsTotal > 0 && stats.nextStepsDone >= stats.nextStepsTotal;
   const discussionCount = stats?.discussionCount ?? 0;
@@ -177,22 +176,13 @@ export function DashboardHero({
                   <Bell className="h-3.5 w-3.5 text-primary" />
                   Notifications
                 </div>
-                {onViewAllNotifications ? (
-                  <button
-                    type="button"
-                    onClick={onViewAllNotifications}
-                    className="text-[11px] font-medium text-primary transition-colors hover:underline"
-                  >
-                    View all
-                  </button>
-                ) : (
-                  <Link
-                    href="/dashboard#activity"
-                    className="text-[11px] font-medium text-primary transition-colors hover:underline"
-                  >
-                    View all
-                  </Link>
-                )}
+                <button
+                  type="button"
+                  onClick={onViewAllNotifications}
+                  className="text-[11px] font-medium text-primary transition-colors hover:underline"
+                >
+                  View all
+                </button>
               </div>
               <div className="mt-3 min-h-[3.5rem] divide-y divide-border/50">
                 {quickViewItems.length > 0 ? (

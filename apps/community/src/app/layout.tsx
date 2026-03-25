@@ -4,6 +4,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { CodeBayThemeProvider } from "@codebay/theme/theme-provider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CommunityAppHeader } from "@/components/AppHeader";
+import { GlobalNotificationsModal } from "@/components/notifications/GlobalNotificationsModal";
 import { siteUrl } from "@/lib/site-urls";
 import "./globals.css";
 
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <CodeBayThemeProvider storageKey="codebay-theme-community">
           <AuthProvider>
             <CommunityAppHeader />
+            <GlobalNotificationsModal />
             {children}
           </AuthProvider>
         </CodeBayThemeProvider>

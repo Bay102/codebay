@@ -2,18 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, CheckCheck, CheckCircle2 } from "lucide-react";
+import { Check, CheckCircle2 } from "lucide-react";
 import type { DashboardActivityItem } from "@/lib/dashboard";
 import { getDashboardActivityIcon } from "@/components/pages/dashboard/dashboard-activity-icons";
 import { useAuth } from "@/contexts/AuthContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@codebay/ui";
+import { NotificationsDialog } from "@/components/notifications/NotificationsDialog";
 
 type ActivityOverviewCardProps = {
   items: DashboardActivityItem[];
   allItems: DashboardActivityItem[];
-  /** When true, only mount the modal logic (hide the on-page card). */
-  hideCard?: boolean;
-  /** When provided, the notifications modal is controlled from the parent (e.g. hero "View all"). */
+  /** When provided, the notifications modal is controlled from the parent. */
   modalOpen?: boolean;
   onModalOpenChange?: (open: boolean) => void;
 };
@@ -41,7 +39,6 @@ function formatActivityDetails(item: DashboardActivityItem): string {
 export function ActivityOverviewCard({
   items,
   allItems,
-  hideCard = false,
   modalOpen: controlledModalOpen,
   onModalOpenChange
 }: ActivityOverviewCardProps) {
@@ -50,22 +47,20 @@ export function ActivityOverviewCard({
   const isControlled = controlledModalOpen !== undefined && onModalOpenChange !== undefined;
   const modalOpen = isControlled ? controlledModalOpen : internalModalOpen;
   const setModalOpen = isControlled ? onModalOpenChange : setInternalModalOpen;
-  const [modalItems, setModalItems] = useState(
-    () => allItems.filter((item) => !item.isRead)
-  );
+  const [modalItems, setModalItems] = useState(() => allItems.filter((item) => !item.isRead));
   const [markingIds, setMarkingIds] = useState<Set<string>>(new Set());
-  const [markingAll, setMarkingAll] = useState(false);
   const { supabase } = useAuth();
 
   const hasActivity = overviewItems.length > 0;
   const visibleOverviewItems = overviewItems.slice(0, 3);
 
-  const handleMarkRead = async (activityId: string) => {
-    if (!supabase) {
-      return;
-    }
+  const handleUnreadRemoved = (ids: string[]) => {
+    const idSet = new Set(ids);
+    setOverviewItems((previous) => previous.filter((item) => !idSet.has(item.id)));
+  };
 
-    if (markingIds.has(activityId)) {
+  const handleCompactMarkRead = async (activityId: string) => {
+    if (!supabase || markingIds.has(activityId)) {
       return;
     }
 
@@ -83,52 +78,18 @@ export function ActivityOverviewCard({
 
     setOverviewItems((previous) => previous.filter((item) => item.id !== activityId));
     setModalItems((previous) => previous.filter((item) => item.id !== activityId));
+    window.dispatchEvent(new Event("community:notifications-unread-refresh"));
   };
 
-  const handleMarkAllRead = async () => {
-    if (!supabase) {
-      return;
-    }
-
-    if (markingAll) {
-      return;
-    }
-
-    const unreadItems = modalItems.filter((item) => !item.isRead);
-    if (unreadItems.length === 0) {
-      return;
-    }
-
-    const ids = unreadItems.map((item) => item.id);
-    setMarkingAll(true);
-
-    try {
-      await supabase
-        .from("dashboard_activity_reads")
-        .insert(ids.map((activityId) => ({ activity_id: activityId })));
-    } finally {
-      setMarkingAll(false);
-    }
-
-    setOverviewItems((previous) => previous.filter((item) => !ids.includes(item.id)));
-    setModalItems((previous) => previous.filter((item) => !ids.includes(item.id)));
-  };
-
-  const renderActivityItem = (item: DashboardActivityItem, variant: "compact" | "full") => {
-    const isMarking = markingIds.has(item.id) || markingAll;
-    const details = formatActivityDetails(item);
+  const renderActivityItem = (item: DashboardActivityItem) => {
+    const isMarking = markingIds.has(item.id);
     const { Icon, iconClassName } = getDashboardActivityIcon(item);
+    const details = formatActivityDetails(item);
     const leftContent = (
       <div className="flex gap-3">
         <div className="shrink-0 pt-0.5" aria-hidden>
-          <span
-            className={`inline-flex items-center justify-center rounded-full border border-border/60 bg-background/80 ${variant === "compact" ? "h-8 w-8" : "h-9 w-9"
-              }`}
-          >
-            <Icon
-              className={`${variant === "compact" ? "h-3.5 w-3.5" : "h-4 w-4"} ${iconClassName}`}
-              strokeWidth={2}
-            />
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-border/60 bg-background/80">
+            <Icon className={`h-3.5 w-3.5 ${iconClassName}`} strokeWidth={2} />
           </span>
         </div>
         <div className="min-w-0 flex-1">
@@ -149,10 +110,7 @@ export function ActivityOverviewCard({
       <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div className="min-w-0 flex-1">
           {item.href ? (
-            <Link
-              href={item.href}
-              className="block"
-            >
+            <Link href={item.href} className="block">
               {leftContent}
             </Link>
           ) : (
@@ -172,7 +130,7 @@ export function ActivityOverviewCard({
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                void handleMarkRead(item.id);
+                void handleCompactMarkRead(item.id);
               }}
               disabled={isMarking}
             >
@@ -184,49 +142,25 @@ export function ActivityOverviewCard({
       </div>
     );
 
-    const className =
-      variant === "compact"
-        ? "block border border-border/70 bg-background/70 p-3 transition-colors hover:bg-secondary/70"
-        : "block border border-border/70 bg-background/70 p-3";
-
     return (
-      <div key={item.id} className={className}>
+      <div
+        key={item.id}
+        className="block border border-border/70 bg-background/70 p-3 transition-colors hover:bg-secondary/70"
+      >
         {baseContent}
       </div>
     );
   };
 
   const modal = (
-    <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader className="flex flex-row items-center justify-between gap-3 space-y-0 text-left">
-          <DialogTitle>Notifications</DialogTitle>
-          {modalItems.length > 0 ? (
-            <button
-              type="button"
-              className="inline-flex h-8 items-center justify-center gap-2 rounded-full border border-border/70 bg-background px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
-              onClick={() => void handleMarkAllRead()}
-              disabled={markingAll}
-            >
-              <CheckCheck className="h-4 w-4" />
-              <span className="whitespace-nowrap">Dismiss all notifications</span>
-            </button>
-          ) : null}
-        </DialogHeader>
-        {modalItems.length > 0 ? (
-          <div className="mt-2 max-h-[60vh] space-y-2 overflow-y-auto pr-1">
-            {modalItems.map((item) => renderActivityItem(item, "full"))}
-          </div>
-        ) : (
-          <p className="mt-2 text-sm text-muted-foreground">You have no recent activity.</p>
-        )}
-      </DialogContent>
-    </Dialog>
+    <NotificationsDialog
+      open={modalOpen}
+      onOpenChange={setModalOpen}
+      items={modalItems}
+      onItemsChange={setModalItems}
+      onUnreadRemoved={handleUnreadRemoved}
+    />
   );
-
-  if (hideCard) {
-    return modal;
-  }
 
   return (
     <article className="border border-border/70 bg-card/70 p-5 sm:p-6">
@@ -245,7 +179,7 @@ export function ActivityOverviewCard({
 
       {hasActivity ? (
         <div className="mt-4 space-y-3">
-          {visibleOverviewItems.map((item) => renderActivityItem(item, "compact"))}
+          {visibleOverviewItems.map((item) => renderActivityItem(item))}
         </div>
       ) : (
         <p className="mt-4 text-sm text-muted-foreground">

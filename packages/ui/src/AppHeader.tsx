@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { ReactNode } from "react";
+import type { MouseEventHandler, ReactNode } from "react";
 import Link from "next/link";
 import { SidebarNavMenu } from "./SidebarNavMenu";
 import type { SidebarNavMenuItem } from "./SidebarNavMenu";
@@ -25,8 +25,8 @@ export type AppHeaderProps = {
   notificationHref?: string;
   /** Accessible label for the notifications shortcut button. */
   notificationAriaLabel?: string;
-  /** Optional callback fired when the notifications shortcut is clicked. */
-  onNotificationClick?: () => void;
+  /** Optional callback fired when the notifications shortcut is clicked (e.g. prevent default navigation). */
+  onNotificationClick?: MouseEventHandler<HTMLAnchorElement>;
 };
 
 function MenuIcon() {
