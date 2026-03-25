@@ -56,7 +56,8 @@ export default async function SettingsPage() {
               className="w-full sm:w-auto"
               links={[
                 { href: "/dashboard", label: "Dashboard", kind: "primary" },
-                { href: "/dashboard/profile", label: "Profile & blog", kind: "neutral" }
+                { href: "/dashboard/profile", label: "Edit profile", kind: "neutral" },
+                { href: "/explore", label: "Explore", kind: "neutral" }
               ]}
             />
           </div>

@@ -163,6 +163,7 @@ export function CommunityAppHeader() {
       homeHref="/"
       logo={<SiteLogo className="h-6 w-auto md:h-8" />}
       menuItems={menuItems}
+      toolbarLinks={[{ href: "/explore", label: "Explore" }]}
       menuFooter={<MenuThemeController />}
       hasNotifications={hasUnreadNotifications}
       notificationHref={notificationHref}

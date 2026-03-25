@@ -27,6 +27,8 @@ export type AppHeaderProps = {
   notificationAriaLabel?: string;
   /** Optional callback fired when the notifications shortcut is clicked (e.g. prevent default navigation). */
   onNotificationClick?: MouseEventHandler<HTMLAnchorElement>;
+  /** Optional text links in the header bar (before notifications), e.g. quick access to Explore. */
+  toolbarLinks?: Array<{ href: string; label: string }>;
 };
 
 function MenuIcon() {
@@ -59,7 +61,8 @@ export function AppHeader({
   hasNotifications = false,
   notificationHref,
   notificationAriaLabel = "View notifications",
-  onNotificationClick
+  onNotificationClick,
+  toolbarLinks
 }: AppHeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -74,6 +77,15 @@ export function AppHeader({
         </Link>
 
         <div className="flex items-center gap-2">
+          {toolbarLinks?.map((link) => (
+            <Link
+              key={`${link.href}:${link.label}`}
+              href={link.href}
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-border/80 bg-background/60 px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+            >
+              {link.label}
+            </Link>
+          ))}
           {notificationHref ? (
             <Link
               href={notificationHref}
