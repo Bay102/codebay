@@ -4,8 +4,12 @@ import type { Database } from "@/lib/database";
 import { hasSupabaseConfig, supabaseAnonKey, supabaseUrl } from "@/lib/supabase/config";
 
 export async function updateSession(request: NextRequest) {
+  // Preserve the incoming request headers; mutating only cookies on `request` avoids Edge quirks
+  // where omitting headers breaks Supabase cookie refresh (see @supabase/ssr Next.js guidance).
   let response = NextResponse.next({
-    request
+    request: {
+      headers: request.headers
+    }
   });
 
   if (!hasSupabaseConfig) {
@@ -21,7 +25,9 @@ export async function updateSession(request: NextRequest) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
 
         response = NextResponse.next({
-          request
+          request: {
+            headers: request.headers
+          }
         });
 
         cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));

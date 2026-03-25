@@ -44,13 +44,33 @@ function buildRedirectUrl(destination: string, baseUrl: string): string {
   return new URL(destination, baseUrl).toString();
 }
 
+/** Public origin for redirects — prefer forwarded host behind load balancers so session cookies stay on the browser's host. */
+function getPublicOrigin(request: NextRequest): string {
+  const requestUrl = new URL(request.url);
+
+  if (process.env.NODE_ENV === "development") {
+    return requestUrl.origin;
+  }
+
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+
+  if (forwardedHost) {
+    const protocol = forwardedProto && forwardedProto.length > 0 ? forwardedProto : "https";
+    return `${protocol}://${forwardedHost}`;
+  }
+
+  return requestUrl.origin;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const nextParam = searchParams.get("next") ?? searchParams.get("redirect");
 
   const redirectDestination = resolveRedirectDestination(nextParam);
-  const redirectUrl = buildRedirectUrl(redirectDestination, request.url);
+  const publicOrigin = getPublicOrigin(request);
+  const redirectUrl = buildRedirectUrl(redirectDestination, publicOrigin);
 
   if (!code) {
     return NextResponse.redirect(redirectUrl);
