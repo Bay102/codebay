@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { ActivityOverviewCard } from "@/components/pages/dashboard/ActivityOverviewCard";
 import { DismissibleNextStepsCard } from "@/components/pages/community/DismissibleNextStepsCard";
-import { useDashboardNotificationModal } from "@/contexts/DashboardNotificationModalContext";
 import type { DashboardActivityItem } from "@/lib/dashboard";
 
 type NextStepsState = {
@@ -20,11 +19,8 @@ type DashboardActivitySectionProps = {
   nextSteps: NextStepsState;
   overviewActivityItems: DashboardActivityItem[];
   activityItems: DashboardActivityItem[];
-  /** Hide the on-page notifications card (modal still works via hero). */
+  /** Hide the on-page notifications card (header / hero open the global notifications modal). */
   hideNotificationsCard?: boolean;
-  /** When set, the notifications modal can be opened from outside (e.g. hero "View all"). */
-  notificationModalOpen?: boolean;
-  onNotificationModalOpenChange?: (open: boolean) => void;
 };
 
 export function DashboardActivitySection({
@@ -32,14 +28,9 @@ export function DashboardActivitySection({
   nextSteps,
   overviewActivityItems,
   activityItems,
-  hideNotificationsCard = false,
-  notificationModalOpen: notificationModalOpenProp,
-  onNotificationModalOpenChange: onNotificationModalOpenChangeProp
+  hideNotificationsCard = false
 }: DashboardActivitySectionProps) {
   const [nextStepsVisible, setNextStepsVisible] = useState(showNextSteps);
-  const modal = useDashboardNotificationModal();
-  const notificationModalOpen = notificationModalOpenProp ?? modal?.open;
-  const onNotificationModalOpenChange = onNotificationModalOpenChangeProp ?? modal?.setOpen;
   const hasTwoCards = showNextSteps && nextStepsVisible && !hideNotificationsCard;
   const gridCols = hasTwoCards ? "md:grid-cols-2" : "md:grid-cols-1";
 
@@ -48,23 +39,8 @@ export function DashboardActivitySection({
       {showNextSteps ? (
         <DismissibleNextStepsCard steps={nextSteps} onDismiss={() => setNextStepsVisible(false)} />
       ) : null}
-      {hideNotificationsCard ? (
-        <div className="hidden">
-          <ActivityOverviewCard
-            hideCard
-            items={overviewActivityItems}
-            allItems={activityItems}
-            modalOpen={notificationModalOpen}
-            onModalOpenChange={onNotificationModalOpenChange}
-          />
-        </div>
-      ) : (
-        <ActivityOverviewCard
-          items={overviewActivityItems}
-          allItems={activityItems}
-          modalOpen={notificationModalOpen}
-          onModalOpenChange={onNotificationModalOpenChange}
-        />
+      {hideNotificationsCard ? null : (
+        <ActivityOverviewCard items={overviewActivityItems} allItems={activityItems} />
       )}
     </div>
   );

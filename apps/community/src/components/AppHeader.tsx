@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, type MouseEventHandler } from "react";
+import { useRouter } from "next/navigation";
 import { AppHeader as SharedAppHeader, MenuThemeController, SiteLogo } from "@codebay/ui";
 import type { AppHeaderMenuItem, SidebarNavItemButton, SidebarNavItemLink } from "@codebay/ui";
 import { useAuth } from "@/contexts/AuthContext";
@@ -80,7 +80,6 @@ function getMenuItems(
 
 export function CommunityAppHeader() {
   const router = useRouter();
-  const pathname = usePathname();
   const { user, supabase } = useAuth();
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
@@ -103,16 +102,18 @@ export function CommunityAppHeader() {
   const myBlogHref = username ? `/blog/${username}` : "/blog";
   const myProfileHref = username ? `/${username}` : "/";
   const isAuthenticated = Boolean(user);
-  const notificationHref = isAuthenticated ? "/dashboard?notifications=open" : undefined;
+  const notificationHref = isAuthenticated ? "/dashboard" : undefined;
 
-  const handleNotificationClick = useCallback(() => {
-    if (pathname !== "/dashboard") {
+  const handleNotificationClick = useCallback<MouseEventHandler<HTMLAnchorElement>>((event) => {
+    if (event.button !== 0) {
       return;
     }
-
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
     window.dispatchEvent(new Event("dashboard:open-notifications"));
-    router.replace("/dashboard?notifications=open", { scroll: false });
-  }, [pathname, router]);
+  }, []);
 
   const menuItems = useMemo(
     () => getMenuItems(myBlogHref, myProfileHref, isAuthenticated, handleSignOut),
@@ -146,8 +147,14 @@ export function CommunityAppHeader() {
     }
 
     loadUnreadStatus();
+
+    const refreshUnread = () => {
+      void loadUnreadStatus();
+    };
+    window.addEventListener("community:notifications-unread-refresh", refreshUnread);
     return () => {
       active = false;
+      window.removeEventListener("community:notifications-unread-refresh", refreshUnread);
     };
   }, [user]);
 
@@ -156,6 +163,7 @@ export function CommunityAppHeader() {
       homeHref="/"
       logo={<SiteLogo className="h-6 w-auto md:h-8" />}
       menuItems={menuItems}
+      toolbarLinks={[{ href: "/explore", label: "Explore" }]}
       menuFooter={<MenuThemeController />}
       hasNotifications={hasUnreadNotifications}
       notificationHref={notificationHref}

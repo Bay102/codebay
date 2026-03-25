@@ -19,8 +19,6 @@ import {
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { SectionSeparator } from "@/components/pages/community/SectionSeparator";
-import { DashboardNotificationModalProvider } from "@/contexts/DashboardNotificationModalContext";
-
 const DashboardKpiRowAny = DashboardKpiRow as React.ComponentType<any>;
 
 export const metadata: Metadata = {
@@ -30,13 +28,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-type CommunityDashboardPageProps = {
-  searchParams: Promise<{ notifications?: string }>;
-};
-
-export default async function CommunityDashboardPage({ searchParams }: CommunityDashboardPageProps) {
-  const resolvedSearchParams = await searchParams;
-  const shouldOpenNotificationsModal = resolvedSearchParams.notifications === "open";
+export default async function CommunityDashboardPage() {
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
     redirect("/join");
@@ -129,28 +121,26 @@ export default async function CommunityDashboardPage({ searchParams }: Community
     <main className="bg-background">
       <section className="mx-auto w-full max-w-7xl px-2 pb-5 sm:px-6 lg:px-8">
 
-        <DashboardNotificationModalProvider initialOpen={shouldOpenNotificationsModal}>
-          <DashboardHero
-            name={profile.name}
-            stats={{
-              discussionCount: discussions.length,
-              publishedPostCount: blogSummary.publishedCount,
-              nextStepsDone: Object.values(nextSteps).filter(Boolean).length,
-              nextStepsTotal: Object.keys(nextSteps).length
-            }}
-            quickViewActivityItems={!hasAnyIncompleteStep ? overviewActivityItems.slice(0, 3) : undefined}
-          />
+        <DashboardHero
+          name={profile.name}
+          stats={{
+            discussionCount: discussions.length,
+            publishedPostCount: blogSummary.publishedCount,
+            nextStepsDone: Object.values(nextSteps).filter(Boolean).length,
+            nextStepsTotal: Object.keys(nextSteps).length
+          }}
+          quickViewActivityItems={!hasAnyIncompleteStep ? overviewActivityItems.slice(0, 3) : undefined}
+        />
 
-          <div id="activity" className="mt-6">
-            <DashboardActivitySection
-              showNextSteps={hasAnyIncompleteStep}
-              nextSteps={nextSteps}
-              overviewActivityItems={overviewActivityItems}
-              activityItems={activityItems}
-              hideNotificationsCard
-            />
-          </div>
-        </DashboardNotificationModalProvider>
+        <div id="activity" className="mt-6">
+          <DashboardActivitySection
+            showNextSteps={hasAnyIncompleteStep}
+            nextSteps={nextSteps}
+            overviewActivityItems={overviewActivityItems}
+            activityItems={activityItems}
+            hideNotificationsCard
+          />
+        </div>
 
         <DashboardKpiRowAny
           blogSummary={blogSummary}

@@ -4,7 +4,19 @@ import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "lucide-react";
 import type { TablesUpdate } from "@/lib/database";
-import type { DashboardBlogPostStats, DashboardProfile, FeaturedProject, ProfileLink } from "@/lib/dashboard";
+import type { DashboardBlogPostStats, DashboardProfile } from "@/lib/dashboard";
+import {
+  FeaturedProjectsEditor,
+  buildFeaturedProjectsFromRows,
+  buildRowsFromFeaturedProjects,
+  type FeaturedProjectRow
+} from "@/components/pages/dashboard/FeaturedProjectsEditor";
+import {
+  ProfileLinksEditor,
+  buildLinkRowsFromProfileLinks,
+  buildProfileLinksFromRows,
+  type ProfileLinkRow
+} from "@/components/pages/dashboard/ProfileLinksEditor";
 import { isUsernamePlaceholderPendingClaim, isValidCommunityUsername } from "@/lib/community-username";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -12,65 +24,6 @@ type ProfileSettingsFormProps = {
   profile: DashboardProfile;
   blogPosts: DashboardBlogPostStats[];
 };
-
-function featuredProjectsToInput(projects: FeaturedProject[]): string {
-  return projects
-    .map((project) => [project.title, project.url ?? "", project.description].join(" | "))
-    .join("\n");
-}
-
-function parseFeaturedProjects(input: string): FeaturedProject[] {
-  return input
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [titlePart = "", urlPart = "", descriptionPart = ""] = line.split("|").map((part) => part.trim());
-      const title = titlePart;
-      if (!title) {
-        return null;
-      }
-
-      const normalizedUrl = !urlPart ? null : /^https?:\/\//i.test(urlPart) ? urlPart : `https://${urlPart}`;
-      return {
-        title,
-        url: normalizedUrl,
-        description: descriptionPart
-      } satisfies FeaturedProject;
-    })
-    .filter((item): item is FeaturedProject => item !== null);
-}
-
-function profileLinksToInput(links: ProfileLink[]): string {
-  return links
-    .map((link) => [link.label, link.url].join(" | "))
-    .join("\n");
-}
-
-function parseProfileLinksInput(input: string): ProfileLink[] {
-  return input
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [labelPart = "", urlPart = ""] = line.split("|").map((part) => part.trim());
-      const label = labelPart;
-      if (!label) {
-        return null;
-      }
-
-      const normalizedUrl = !urlPart ? null : /^https?:\/\//i.test(urlPart) ? urlPart : `https://${urlPart}`;
-      if (!normalizedUrl) {
-        return null;
-      }
-
-      return {
-        label,
-        url: normalizedUrl
-      } satisfies ProfileLink;
-    })
-    .filter((item): item is ProfileLink => item !== null);
-}
 
 type UsernameAvailability = "idle" | "checking" | "available" | "taken" | "invalid";
 
@@ -84,8 +37,10 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
   const [username, setUsername] = useState(profile.username);
   const [bio, setBio] = useState(profile.bio ?? "");
   const [techStackInput, setTechStackInput] = useState(profile.techStack.join(", "));
-  const [featuredProjectsInput, setFeaturedProjectsInput] = useState(featuredProjectsToInput(profile.featuredProjects));
-  const [profileLinksInput, setProfileLinksInput] = useState(profileLinksToInput(profile.profileLinks));
+  const [projectRows, setProjectRows] = useState<FeaturedProjectRow[]>(() =>
+    buildRowsFromFeaturedProjects(profile.featuredProjects)
+  );
+  const [linkRows, setLinkRows] = useState<ProfileLinkRow[]>(() => buildLinkRowsFromProfileLinks(profile.profileLinks));
   const [featuredPostSlugs, setFeaturedPostSlugs] = useState<string[]>(profile.featuredPostSlugs);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState(profile.avatarUrl ?? "");
@@ -98,6 +53,14 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
     setUsername(profile.username);
     setUsernameAvailability("idle");
   }, [profile.username]);
+
+  useEffect(() => {
+    setLinkRows(buildLinkRowsFromProfileLinks(profile.profileLinks));
+  }, [profile.profileLinks]);
+
+  useEffect(() => {
+    setProjectRows(buildRowsFromFeaturedProjects(profile.featuredProjects));
+  }, [profile.featuredProjects]);
 
   useEffect(() => {
     if (!avatarFile) {
@@ -185,8 +148,8 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
       .split(",")
       .map((entry) => entry.trim())
       .filter(Boolean);
-    const featuredProjects = parseFeaturedProjects(featuredProjectsInput);
-    const profileLinks = parseProfileLinksInput(profileLinksInput);
+    const featuredProjects = buildFeaturedProjectsFromRows(projectRows);
+    const profileLinks = buildProfileLinksFromRows(linkRows);
 
     setIsSaving(true);
     let nextAvatarUrl: string | null = profile.avatarUrl?.trim() || null;
@@ -400,39 +363,9 @@ export function ProfileSettingsForm({ profile, blogPosts }: ProfileSettingsFormP
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="profile-featured-projects" className="text-sm font-medium">
-            Featured projects
-          </label>
-          <textarea
-            id="profile-featured-projects"
-            value={featuredProjectsInput}
-            onChange={(event) => setFeaturedProjectsInput(event.target.value)}
-            rows={5}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            placeholder={"One per line:\nProject title | https://project-url.com | short description"}
-          />
-          <p className="text-xs text-muted-foreground">
-            List up to three projects. Only the first three lines will be shown on your public profile.
-          </p>
-        </div>
+        <FeaturedProjectsEditor rows={projectRows} onRowsChange={setProjectRows} />
 
-        <div className="space-y-2">
-          <label htmlFor="profile-links" className="text-sm font-medium">
-            Links
-          </label>
-          <textarea
-            id="profile-links"
-            value={profileLinksInput}
-            onChange={(event) => setProfileLinksInput(event.target.value)}
-            rows={4}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            placeholder={"One per line:\nLabel | https://your-link.com"}
-          />
-          <p className="text-xs text-muted-foreground">
-            Add links to your website, GitHub, Twitter, or anywhere else you want people to find you.
-          </p>
-        </div>
+        <ProfileLinksEditor rows={linkRows} onRowsChange={setLinkRows} />
 
         <div className="space-y-2">
           <p className="text-sm font-medium">Featured blog posts</p>
