@@ -20,7 +20,7 @@ import type { TagOption } from "@/lib/tags";
 import { ExploreContentTypeSegment } from "@/components/pages/explore/ExploreContentTypeSegment";
 
 const SORT_OPTIONS: { value: ExploreSort; label: string }[] = [
-  { value: "date", label: "Date" },
+  { value: "date", label: "Recent" },
   { value: "views", label: "Post views" },
   { value: "comments", label: "Comments" },
   { value: "engagements", label: "Engagements" }
@@ -75,8 +75,7 @@ export function ExploreToolbar({
         else next.delete("tag");
       }
       if (updates.sort !== undefined) {
-        if (updates.sort === "date") next.delete("sort");
-        else next.set("sort", updates.sort);
+        next.set("sort", updates.sort);
       }
 
       const queryString = next.toString();
@@ -142,7 +141,7 @@ export function ExploreToolbar({
     />
   );
 
-  const sortOptionLabel = SORT_OPTIONS.find((o) => o.value === sortValue)?.label ?? "Date";
+  const sortOptionLabel = SORT_OPTIONS.find((o) => o.value === sortValue)?.label ?? "Recent";
 
   const sortSelect = (
     <Select

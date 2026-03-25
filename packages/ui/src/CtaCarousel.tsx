@@ -78,7 +78,7 @@ export function CtaCarousel({
   const innerContent = (
     <div
       className={cn(
-        "relative overflow-hidden rounded-xl border border-primary/15 bg-gradient-to-br from-primary/[0.09] via-card/80 to-card/40 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-5",
+        "relative overflow-hidden border border-primary/15 bg-gradient-to-br from-primary/[0.09] via-card/80 to-card/40 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-5",
         "before:pointer-events-none before:absolute before:-right-12 before:-top-12 before:h-40 before:w-40 before:rounded-full before:bg-primary/10 before:blur-3xl"
       )}
     >

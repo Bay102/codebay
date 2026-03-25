@@ -41,6 +41,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const contentType = parseExploreTypeParam(resolved.type);
   const tag = typeof resolved.tag === "string" && resolved.tag.trim() ? resolved.tag.trim() : undefined;
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
+  const hasExplicitSortParam = typeof resolved.sort === "string" && resolved.sort.trim().length > 0;
   const exploreSort = parseExploreSortParam(resolved.sort);
 
   const supabase = await createServerSupabaseClient();
@@ -88,11 +89,9 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     userId ? await fetchPreferredTopicNames(supabase, userId) : [];
 
   const followingIds = followingProfiles.map((p) => p.id);
-  const useExplicitExploreList = Boolean(
-    tag || effectiveAuthorId || q?.trim() || exploreSort !== "date"
-  );
+  const useExplicitExploreList = Boolean(tag || effectiveAuthorId || q?.trim() || hasExplicitSortParam);
   const hasPersonalizedFeed =
-    userId && !tag && !effectiveAuthorId && !(q?.trim()) && exploreSort === "date";
+    userId && !tag && !effectiveAuthorId && !(q?.trim()) && exploreSort === "date" && !hasExplicitSortParam;
 
   let stats: ListingsHeroStat[];
   let feed: ReactNode;

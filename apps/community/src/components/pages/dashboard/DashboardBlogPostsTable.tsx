@@ -105,7 +105,7 @@ export function DashboardBlogPostsTable({
                     </td>
                     <td className="py-3 px-2">
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${isPublished
+                        className={`inline-flex rounded-sm px-2 py-0.5 text-xs font-medium ${isPublished
                           ? "border border-primary/30 bg-primary/10 text-primary"
                           : "border border-border/70 bg-muted/50 text-muted-foreground"
                           }`}
