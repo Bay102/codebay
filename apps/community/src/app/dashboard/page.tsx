@@ -4,14 +4,14 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { DashboardActivitySection } from "@/components/pages/dashboard/DashboardActivitySection";
-import { DashboardBlogPostsTable } from "@/components/pages/dashboard/DashboardBlogPostsTable";
-import { DashboardDiscussionsTable } from "@/components/pages/dashboard/DashboardDiscussionsTable";
+import { DashboardEngagementTables } from "@/components/pages/dashboard/DashboardEngagementTables";
 import { DashboardHero } from "@/components/pages/dashboard/DashboardHero";
-import { DashboardKpiRow } from "@/components/pages/dashboard/DashboardKpiRow";
 import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOverviewCard";
 import {
   buildBlogSummary,
   fetchDashboardActivity,
+  fetchDashboardDiscussionSummary,
+  fetchDiscussionEngagementKpisByPeriod,
   fetchDashboardProfile,
   fetchEngagementKpisByPeriod,
   fetchUserBlogPostsWithStats
@@ -19,7 +19,6 @@ import {
 import { getFollowStatsForProfile } from "@/lib/follows";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { SectionSeparator } from "@/components/pages/community/SectionSeparator";
-const DashboardKpiRowAny = DashboardKpiRow as React.ComponentType<any>;
 
 export const metadata: Metadata = {
   title: "Community Dashboard",
@@ -42,11 +41,12 @@ export default async function CommunityDashboardPage() {
     redirect("/");
   }
 
-  const [profile, posts, followStats, discussions] = await Promise.all([
+  const [profile, posts, followStats, discussions, discussionSummary] = await Promise.all([
     fetchDashboardProfile(supabase, user.id),
     fetchUserBlogPostsWithStats(supabase, user.id),
     getFollowStatsForProfile(supabase, user.id, user.id),
-    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 10, orderByTrend: false })
+    getDiscussionsWithCounts(supabase, { authorId: user.id, limit: 10, orderByTrend: false }),
+    fetchDashboardDiscussionSummary(supabase, user.id)
   ]);
 
   if (!profile) {
@@ -72,11 +72,18 @@ export default async function CommunityDashboardPage() {
 
   const overviewActivityItems = activityItems.filter((item) => !item.isRead).slice(0, 8);
 
-  const postSlugs = posts.map((post) => post.slug);
-  const kpiPeriodSummary = await fetchEngagementKpisByPeriod(supabase, {
-    slugs: postSlugs,
-    periods: ["7d", "30d", "90d", "6m"]
-  });
+  const blogPostSlugs = posts.map((post) => post.slug);
+  const discussionIds = discussions.map((discussion) => discussion.id);
+  const [blogKpiPeriodSummary, discussionKpiPeriodSummary] = await Promise.all([
+    fetchEngagementKpisByPeriod(supabase, {
+      slugs: blogPostSlugs,
+      periods: ["7d", "30d", "90d", "6m"]
+    }),
+    fetchDiscussionEngagementKpisByPeriod(supabase, {
+      discussionIds,
+      periods: ["7d", "30d", "90d", "6m"]
+    })
+  ]);
 
   const { count: preferredTagsCount } = await supabase
     .from("user_preferred_tags")
@@ -124,8 +131,6 @@ export default async function CommunityDashboardPage() {
         <DashboardHero
           name={profile.name}
           stats={{
-            discussionCount: discussions.length,
-            publishedPostCount: blogSummary.publishedCount,
             nextStepsDone: Object.values(nextSteps).filter(Boolean).length,
             nextStepsTotal: Object.keys(nextSteps).length
           }}
@@ -142,20 +147,14 @@ export default async function CommunityDashboardPage() {
           />
         </div>
 
-        <DashboardKpiRowAny
+        <DashboardEngagementTables
+          posts={posts}
+          discussions={discussions}
           blogSummary={blogSummary}
-          discussionCount={discussions.length}
-          followerCount={followStats.followerCount}
-          kpiPeriodSummary={kpiPeriodSummary}
+          discussionSummary={discussionSummary}
+          blogKpiPeriodSummary={blogKpiPeriodSummary}
+          discussionKpiPeriodSummary={discussionKpiPeriodSummary}
         />
-
-        <div className="mt-6">
-          <DashboardBlogPostsTable posts={posts} maxRows={8} />
-        </div>
-
-        <div className="mt-6">
-          <DashboardDiscussionsTable discussions={discussions} maxRows={8} />
-        </div>
 
         <SectionSeparator />
 

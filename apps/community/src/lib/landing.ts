@@ -335,6 +335,7 @@ export type ForYouDiscussion = {
   authorAvatarUrl: string | null;
   createdAt: string;
   tags: string[];
+  viewCount: number;
   commentCount: number;
   reactionCount: number;
 };
@@ -370,10 +371,15 @@ export async function fetchForYouDiscussions(
   if (error || !rows || rows.length === 0) return [];
 
   const ids = (rows as { id: string }[]).map((r) => r.id);
-  const [commentRes, reactionRes] = await Promise.all([
+  const [viewRes, commentRes, reactionRes] = await Promise.all([
+    supabase.from("discussion_views").select("discussion_id").in("discussion_id", ids),
     supabase.from("discussion_comments").select("discussion_id").in("discussion_id", ids),
     supabase.from("discussion_reactions").select("discussion_id").in("discussion_id", ids)
   ]);
+  const viewByDiscussion = new Map<string, number>();
+  (viewRes.data ?? []).forEach((r: { discussion_id: string }) => {
+    viewByDiscussion.set(r.discussion_id, (viewByDiscussion.get(r.discussion_id) ?? 0) + 1);
+  });
   const commentByDiscussion = new Map<string, number>();
   (commentRes.data ?? []).forEach((r: { discussion_id: string }) => {
     commentByDiscussion.set(r.discussion_id, (commentByDiscussion.get(r.discussion_id) ?? 0) + 1);
@@ -402,6 +408,7 @@ export async function fetchForYouDiscussions(
       authorAvatarUrl: r.community_users?.avatar_url ?? null,
       createdAt: r.created_at,
       tags: r.tags ?? [],
+      viewCount: viewByDiscussion.get(r.id) ?? 0,
       commentCount: commentByDiscussion.get(r.id) ?? 0,
       reactionCount: reactionByDiscussion.get(r.id) ?? 0
     })

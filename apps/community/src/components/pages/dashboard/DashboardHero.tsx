@@ -8,8 +8,6 @@ import { getDashboardActivityIcon } from "@/components/pages/dashboard/dashboard
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
 
 type DashboardHeroStats = {
-  discussionCount: number;
-  publishedPostCount: number;
   nextStepsDone: number;
   nextStepsTotal: number;
 };
@@ -74,8 +72,6 @@ export function DashboardHero({
     onViewAllNotificationsProp ?? (() => window.dispatchEvent(new Event("dashboard:open-notifications")));
   const greeting = getTimeGreeting();
   const allStepsComplete = stats && stats.nextStepsTotal > 0 && stats.nextStepsDone >= stats.nextStepsTotal;
-  const discussionCount = stats?.discussionCount ?? 0;
-  const publishedCount = stats?.publishedPostCount ?? 0;
 
   const stepsLabel =
     stats && stats.nextStepsTotal > 0
@@ -99,10 +95,6 @@ export function DashboardHero({
         className="pointer-events-none absolute inset-0 rounded-[inherit] opacity-30 [background-image:linear-gradient(to_right,rgba(148,163,184,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.12)_1px,transparent_1px)] [background-size:2.75rem_2.75rem] [mask-image:radial-gradient(circle_at_center,black,transparent_85%)]"
         aria-hidden
       />
-      <div className="absolute left-6 top-6 z-20 hidden items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary md:inline-flex lg:left-8 lg:top-8">
-        <LayoutDashboard className="h-3.5 w-3.5" />
-        Your Dashboard
-      </div>
       {/* Signal beam (uses globals.css signal-sweep animation) */}
       <div className="pointer-events-none absolute inset-x-0 top-[calc(42%+16px)] hidden px-5 sm:block sm:px-6 lg:px-8" aria-hidden>
         <div className="relative h-12">
@@ -120,9 +112,8 @@ export function DashboardHero({
 
       <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)] lg:items-end">
         <div className="max-w-3xl pb-2">
-
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary md:hidden">
-            <LayoutDashboard className="h-3.5 w-3.5" />
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
+            <LayoutDashboard className="h-3.5 w-3.5 shrink-0" aria-hidden />
             Your Dashboard
           </div>
 
@@ -154,21 +145,7 @@ export function DashboardHero({
           <DashboardHeroButtons hasSession variant="dashboard" />
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
-          <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Discussions</div>
-            <div className="mt-1.5 font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
-              {discussionCount}
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">your threads</div>
-          </div>
-          <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Published</div>
-            <div className="mt-1.5 font-mono-ticker text-xl font-semibold leading-none text-foreground sm:text-2xl">
-              {publishedCount}
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">blog posts</div>
-          </div>
+        <div className="grid gap-3 sm:grid-cols-1 lg:grid-cols-1">
           {showNotificationQuickView ? (
             <div className="border border-border/60 bg-background/80 p-4 backdrop-blur">
               <div className="flex items-center justify-between gap-2">

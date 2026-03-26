@@ -17,6 +17,7 @@ interface DiscussionWithAuthor extends DiscussionRow {
 }
 
 interface DiscussionCounts {
+  viewCount: number;
   commentCount: number;
   reactionCount: number;
   viewerReactions?: Partial<Record<string, "up" | "down">>;
@@ -34,6 +35,7 @@ export interface DiscussionListItem {
   createdAt: string;
   updatedAt: string;
   tags: string[];
+  viewCount: number;
   commentCount: number;
   reactionCount: number;
 }
@@ -128,7 +130,11 @@ export async function getDiscussionCounts(
   discussionId: string,
   viewerId?: string | null
 ): Promise<DiscussionCounts> {
-  const [commentsRes, reactionsRes, viewerRes] = await Promise.all([
+  const [viewsRes, commentsRes, reactionsRes, viewerRes] = await Promise.all([
+    supabase
+      .from("discussion_views")
+      .select("id", { count: "exact", head: true })
+      .eq("discussion_id", discussionId),
     supabase
       .from("discussion_comments")
       .select("id", { count: "exact", head: true })
@@ -155,6 +161,7 @@ export async function getDiscussionCounts(
   );
 
   return {
+    viewCount: viewsRes.count ?? 0,
     commentCount: commentsRes.count ?? 0,
     reactionCount: reactionsRes.count ?? 0,
     viewerReactions
@@ -234,8 +241,7 @@ function sortDiscussionsForExplore(items: DiscussionListItem[], sort: ExploreSor
     case "date":
       return copy.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     case "views":
-      // No per-thread view metric; reactions approximate reach/attention.
-      return copy.sort((a, b) => b.reactionCount - a.reactionCount);
+      return copy.sort((a, b) => b.viewCount - a.viewCount);
     case "comments":
       return copy.sort((a, b) => b.commentCount - a.commentCount);
     case "engagements":
@@ -332,11 +338,16 @@ export async function getDiscussionsWithCounts(
   if (error || !rows || rows.length === 0) return [];
 
   const ids = rows.map((r) => (r as { id: string }).id);
-  const [commentCounts, reactionCounts] = await Promise.all([
+  const [viewCounts, commentCounts, reactionCounts] = await Promise.all([
+    supabase.from("discussion_views").select("discussion_id").in("discussion_id", ids),
     supabase.from("discussion_comments").select("discussion_id").in("discussion_id", ids),
     supabase.from("discussion_reactions").select("discussion_id").in("discussion_id", ids)
   ]);
 
+  const viewByDiscussion = new Map<string, number>();
+  (viewCounts.data ?? []).forEach((r: { discussion_id: string }) => {
+    viewByDiscussion.set(r.discussion_id, (viewByDiscussion.get(r.discussion_id) ?? 0) + 1);
+  });
   const commentByDiscussion = new Map<string, number>();
   (commentCounts.data ?? []).forEach((r: { discussion_id: string }) => {
     commentByDiscussion.set(r.discussion_id, (commentByDiscussion.get(r.discussion_id) ?? 0) + 1);
@@ -364,6 +375,7 @@ export async function getDiscussionsWithCounts(
       createdAt: r.created_at,
       updatedAt: r.updated_at,
       tags: (r as { tags?: string[] }).tags ?? [],
+      viewCount: viewByDiscussion.get(r.id) ?? 0,
       commentCount: commentByDiscussion.get(r.id) ?? 0,
       reactionCount: reactionByDiscussion.get(r.id) ?? 0
     };

@@ -153,7 +153,7 @@ export function ExploreToolbar({
       disabled={isPending}
     >
       <SelectTrigger
-        className="h-10 w-full shrink-0 sm:max-w-[15rem] lg:max-w-[16rem]"
+        className="h-10 w-full shrink-0 sm:max-w-[12rem] md:w-[14rem] lg:w-[18rem]"
         aria-label={`Sort results by ${sortOptionLabel}`}
       >
         <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">

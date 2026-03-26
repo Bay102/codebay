@@ -2,11 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Eye, Heart, MessageCircle, MessageSquare, Minus, Users } from "lucide-react";
-import type { DashboardBlogSummary, DashboardKpiPeriodSummary, KpiPeriod } from "@/lib/dashboard";
+import type {
+  DashboardBlogSummary,
+  DashboardDiscussionSummary,
+  DashboardKpiPeriodSummary,
+  KpiPeriod
+} from "@/lib/dashboard";
 
 type DashboardKpiRowProps = {
   blogSummary: DashboardBlogSummary;
-  discussionCount: number;
+  discussionSummary: DashboardDiscussionSummary;
   followerCount: number;
   kpiPeriodSummary: DashboardKpiPeriodSummary | null;
 };
@@ -56,7 +61,7 @@ const PERIOD_OPTIONS: { key: KpiPeriod; label: string }[] = [
 
 export function DashboardKpiRow({
   blogSummary,
-  discussionCount,
+  discussionSummary,
   followerCount,
   kpiPeriodSummary
 }: DashboardKpiRowProps) {
@@ -118,9 +123,27 @@ export function DashboardKpiRow({
       },
       {
         label: "Discussions",
-        value: discussionCount,
-        formattedValue: discussionCount.toLocaleString(),
+        value: discussionSummary.totalDiscussions,
+        formattedValue: discussionSummary.totalDiscussions.toLocaleString(),
         icon: MessageSquare
+      },
+      {
+        label: "Views",
+        value: discussionSummary.totalViews,
+        formattedValue: formatCompact(discussionSummary.totalViews),
+        icon: Eye
+      },
+      {
+        label: "Reactions",
+        value: discussionSummary.totalReactions,
+        formattedValue: formatCompact(discussionSummary.totalReactions),
+        icon: Heart
+      },
+      {
+        label: "Comments",
+        value: discussionSummary.totalComments,
+        formattedValue: formatCompact(discussionSummary.totalComments),
+        icon: MessageCircle
       },
       {
         label: "Followers",
@@ -135,11 +158,18 @@ export function DashboardKpiRow({
     blogSummary.totalReactions,
     blogSummary.viewsLast30Days,
     comparisonLabel,
-    discussionCount,
+    discussionSummary.totalComments,
+    discussionSummary.totalDiscussions,
+    discussionSummary.totalReactions,
+    discussionSummary.totalViews,
     followerCount,
     hasPeriodDataForActive,
     kpiPeriodSummary
   ]);
+
+  const blogItems = items.slice(0, 3);
+  const discussionItems = items.slice(3, 7);
+  const audienceItems = items.slice(7);
 
   return (
     <section className="mt-6">
@@ -180,8 +210,131 @@ export function DashboardKpiRow({
         ) : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-        {items.map(
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,2.2fr)_minmax(0,1fr)]">
+        <div>
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Blog metrics
+          </div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+            {blogItems.map(
+              ({
+                label,
+                formattedValue,
+                icon: Icon,
+                delta,
+                deltaPercent,
+                comparisonLabel: itemComparison
+              }) => {
+                const hasDelta = typeof delta === "number" && typeof deltaPercent === "number";
+                const isIncrease = hasDelta && delta > 0;
+                const isDecrease = hasDelta && delta < 0;
+
+                let deltaLabel: string | null = null;
+                if (hasDelta) {
+                  deltaLabel = `${delta > 0 ? "+" : ""}${formatPercent(deltaPercent!)}${itemComparison ? ` ${itemComparison}` : ""
+                    }`;
+                }
+
+                const showNaBadge =
+                  !hasDelta &&
+                  typeof delta === "number" &&
+                  delta !== 0 &&
+                  (!deltaPercent || Number.isNaN(deltaPercent));
+
+                return (
+                  <div
+                    key={label}
+                    className="group border border-border/70 bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card/80"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background/60">
+                        <Icon className="h-5 w-5 text-primary/80" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          {label}
+                        </p>
+                        <p className="mt-0.5 font-mono-ticker text-xl font-semibold tabular-nums text-foreground sm:text-2xl">
+                          {formattedValue}
+                        </p>
+                        {hasDelta && deltaLabel ? (
+                          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium tabular-nums">
+                            <span
+                              className={[
+                                "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5",
+                                isIncrease
+                                  ? "bg-emerald-500/10 text-emerald-400"
+                                  : isDecrease
+                                    ? "bg-rose-500/10 text-rose-400"
+                                    : "bg-muted text-muted-foreground"
+                              ].join(" ")}
+                            >
+                              {isIncrease ? (
+                                <ArrowUpRight className="h-3 w-3" />
+                              ) : isDecrease ? (
+                                <ArrowDownRight className="h-3 w-3" />
+                              ) : (
+                                <Minus className="h-3 w-3" />
+                              )}
+                              <span>{deltaLabel}</span>
+                            </span>
+                          </p>
+                        ) : showNaBadge ? (
+                          <p className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+                            <span className="rounded-full bg-muted/60 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.16em]">
+                              N/A
+                            </span>
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Discussion metrics
+          </div>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {discussionItems.map(
+              ({
+                label,
+                formattedValue,
+                icon: Icon
+              }) => (
+                <div
+                  key={`discussion-${label}`}
+                  className="group border border-border/70 bg-card/70 p-4 transition-colors hover:border-primary/40 hover:bg-card/80"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border/60 bg-background/60">
+                      <Icon className="h-5 w-5 text-primary/80" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        {label}
+                      </p>
+                      <p className="mt-0.5 font-mono-ticker text-xl font-semibold tabular-nums text-foreground sm:text-2xl">
+                        {formattedValue}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            Audience
+          </div>
+          <div className="grid grid-cols-1 gap-3">
+            {audienceItems.map(
           ({
             label,
             formattedValue,
@@ -257,6 +410,8 @@ export function DashboardKpiRow({
             );
           }
         )}
+          </div>
+        </div>
       </div>
     </section>
   );

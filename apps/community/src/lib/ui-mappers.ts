@@ -92,6 +92,7 @@ export function mapForYouDiscussionToDiscussionCardData(discussion: ForYouDiscus
     authorAvatarUrl: discussion.authorAvatarUrl,
     authorUsername: discussion.authorUsername,
     tags: discussion.tags,
+    viewCount: discussion.viewCount,
     commentCount: discussion.commentCount,
     reactionCount: discussion.reactionCount,
   };
@@ -107,6 +108,7 @@ export function mapDiscussionListItemToDiscussionCardData(item: DiscussionListIt
     authorAvatarUrl: item.authorAvatarUrl,
     authorUsername: item.authorUsername,
     tags: item.tags,
+    viewCount: item.viewCount,
     commentCount: item.commentCount,
     reactionCount: item.reactionCount,
   };

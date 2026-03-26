@@ -118,7 +118,7 @@ export function NewDiscussionForm({
           radiusVariant="square"
           sizeVariant="sm"
         >
-          {isSubmitting ? "Creating…" : "Create discussion"}
+          {isSubmitting ? "Posting…" : "Post"}
         </FocusButton>
         {showCancelButton ? (
           <button

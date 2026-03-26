@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { MessageSquareText, Zap } from "lucide-react";
+import { Eye, MessageSquareText, Zap } from "lucide-react";
 import { SurfaceCard } from "../SurfaceCard";
 import { Tag } from "../Tag";
 import { cn } from "../utils";
@@ -115,6 +115,12 @@ export function DiscussionCard({
 
                 {showEngagement ? (
                   <div className="ml-auto flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Eye className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                      <span className="tabular-nums">{discussion.viewCount}</span>
+                      <span className="sr-only">views</span>
+                    </span>
+                    <span aria-hidden>·</span>
                     <span className="inline-flex items-center gap-1.5">
                       <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
                       <span className="tabular-nums">{discussion.commentCount}</span>
