@@ -168,7 +168,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
     <SurfaceCard
       as="section"
       variant="borderless"
-      className="relative isolate overflow-hidden rounded-tl-3xl border border-border/40 bg-card/70 p-5 shadow-xl sm:p-6 lg:p-8"
+      className="relative isolate overflow-hidden rounded-tl-3xl border border-border/40 bg-card/70 p-5 shadow-xl sm:p-6 lg:p-6"
     >
       <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-br from-primary/[0.08] via-transparent to-transparent" />
       <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
@@ -241,7 +241,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
 
           <div className="grid gap-3">
             <div className="grid items-stretch gap-3 lg:grid-cols-2">
-              <div className="flex h-64 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
+              <div className="flex h-64 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 backdrop-blur sm:p-4 lg:h-56">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <MessageSquareText className="h-3.5 w-3.5 text-primary" />
                   Live discussion
@@ -301,7 +301,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
                 )}
               </div>
 
-              <div className="flex h-64 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 sm:p-4 backdrop-blur">
+              <div className="flex h-64 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 backdrop-blur sm:p-4 lg:h-56">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <Rss className="h-3.5 w-3.5 text-primary" />
                   Featured post

@@ -10,7 +10,7 @@ import {
 } from "@/lib/discussions";
 import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
 import { DiscussionEngagement } from "@/components/pages/discussions/DiscussionEngagement";
-import { Tag } from "@codebay/ui";
+import { CardShareLinkButton, Tag } from "@codebay/ui";
 
 export const metadata: Metadata = {
   title: "Discussion",
@@ -51,6 +51,8 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
     getDiscussionComments(supabase, discussion.id)
   ]);
 
+  const discussionPath = `/discussions/${discussion.slug}`;
+
   return (
     <main className="bg-background">
       <section className="mx-auto w-full max-w-4xl px-5 py-5 sm:px-6 lg:px-8">
@@ -73,12 +75,15 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
               />
             </Link>
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Link href={`/${discussion.author.username}`} className="font-medium text-foreground hover:underline">
-                  {discussion.author.name} (@{discussion.author.username})
-                </Link>
-                <span aria-hidden>·</span>
-                <time dateTime={discussion.created_at}>{formatDate(discussion.created_at)}</time>
+              <div className="flex flex-wrap items-start justify-between gap-2 gap-y-1">
+                <div className="flex min-w-0 flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <Link href={`/${discussion.author.username}`} className="font-medium text-foreground hover:underline">
+                    {discussion.author.name} (@{discussion.author.username})
+                  </Link>
+                  <span aria-hidden>·</span>
+                  <time dateTime={discussion.created_at}>{formatDate(discussion.created_at)}</time>
+                </div>
+                <CardShareLinkButton href={discussionPath} className="shrink-0" />
               </div>
               <h1 className="mt-2 text-xl font-semibold text-foreground sm:text-2xl">{discussion.title}</h1>
               {discussion.tags.length > 0 ? (

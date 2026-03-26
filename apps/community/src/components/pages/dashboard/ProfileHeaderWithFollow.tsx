@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { SegmentNavbar, type SegmentNavbarLink } from "@codebay/ui";
 import type { FollowStats } from "@/lib/follows";
 import { getFollowStatsAction } from "@/lib/actions";
 import { FollowButton } from "@/components/pages/dashboard/FollowButton";
@@ -20,7 +21,7 @@ type ProfileHeaderWithFollowProps = {
   /** Only show follow section (counts + button) when this is true (e.g. public profile or dashboard with counts). */
   showFollowSection: boolean;
   /** Profile action links (e.g. View blog); rendered after the Follow button when it is shown. */
-  actionLinks: ReactNode;
+  actionLinks: SegmentNavbarLink[];
 };
 
 function getInitials(name: string): string {
@@ -72,7 +73,11 @@ export function ProfileHeaderWithFollow({
               variant="default"
             />
           ) : null}
-          {actionLinks}
+          <SegmentNavbar
+            aria-label="Profile actions"
+            links={actionLinks}
+            className="w-full p-0.5 sm:w-auto"
+          />
         </div>
       </div>
 

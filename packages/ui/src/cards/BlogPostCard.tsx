@@ -4,7 +4,7 @@ import { Eye, MessageSquareText, Zap } from "lucide-react";
 import { SurfaceCard } from "../SurfaceCard";
 import { Tag } from "../Tag";
 import { cn } from "../utils";
-import { PostTypeBadge } from "./PostTypeBadge";
+import { CardShareLinkButton } from "./CardShareLinkButton";
 import type { BlogPostCardData } from "./types";
 
 export type BlogPostCardVariant = "default" | "compact" | "list";
@@ -66,11 +66,11 @@ export function BlogPostCard({
         className,
       )}
     >
-      <PostTypeBadge type="blog" />
+      <CardShareLinkButton href={href} className="absolute right-2 top-2" />
       <Link href={href} className="flex h-full flex-col">
         <div className="flex min-h-0 flex-1 flex-wrap items-stretch justify-between gap-3">
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1 pr-14">
+            <div className="min-h-0 flex-1 pr-9">
               {showDate || showAuthor ? (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   {showAuthorAvatar && post.authorAvatarUrl ? (
