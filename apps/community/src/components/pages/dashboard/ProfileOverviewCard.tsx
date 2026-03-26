@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ExternalLink, FileText, Globe2, MessageSquareText } from "lucide-react";
-import { BlogPostCard, Tag } from "@codebay/ui";
+import { BlogPostCard, SegmentNavbar, Tag, type SegmentNavbarLink } from "@codebay/ui";
 import type { DashboardBlogPostStats, DashboardProfile, FeaturedProject } from "@/lib/dashboard";
 import { blogUrl } from "@/lib/site-urls";
 import { ProfileHeaderWithFollow } from "@/components/pages/dashboard/ProfileHeaderWithFollow";
@@ -234,32 +234,13 @@ export function ProfileOverviewCard({
   const activityFeedItems = buildProfileActivityFeedItems(publishedPosts, discussions);
   const hasOverflowingActivity = activityFeedItems.length > RECENT_ACTIVITY_VISIBLE_COUNT;
 
-  const profileActionLinks = (
-    <>
-      <Link
-        href={`/blog/${profile.username}`}
-        className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-      >
-        View blog
-      </Link>
-      {showEditLink ? (
-        <>
-          <Link
-            href={`/${profile.username}`}
-            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-          >
-            View public profile
-          </Link>
-          <Link
-            href="/dashboard/profile"
-            className="inline-flex h-8 items-center rounded-md border border-border px-3 text-xs font-medium transition-colors hover:bg-secondary/70"
-          >
-            Edit profile
-          </Link>
-        </>
-      ) : null}
-    </>
-  );
+  const profileActionLinks: SegmentNavbarLink[] = showEditLink
+    ? [
+      { href: "/dashboard/profile", label: "Edit profile", kind: "primary" },
+      { href: `/blog/${profile.username}`, label: "View blog", kind: "neutral" },
+      { href: `/${profile.username}`, label: "View public profile", kind: "neutral" }
+    ]
+    : [{ href: `/blog/${profile.username}`, label: "View blog", kind: "primary" }];
 
   return (
     <article className="border border-border/70 bg-card/70 p-5 sm:p-6 md:pt-6">
@@ -281,7 +262,11 @@ export function ProfileOverviewCard({
         <>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
-            <div className="flex flex-wrap items-center justify-end gap-2">{profileActionLinks}</div>
+            <SegmentNavbar
+              aria-label="Profile actions"
+              links={profileActionLinks}
+              className="w-full p-0.5 sm:w-auto"
+            />
           </div>
 
           <div className="mt-4">
@@ -383,11 +368,10 @@ export function ProfileOverviewCard({
             <div className="border border-border/70 bg-background/70 p-2.5 sm:p-3.5">
               {activityFeedItems.length > 0 ? (
                 <div
-                  className={`space-y-2.5 ${
-                    hasOverflowingActivity
-                      ? "max-h-[19rem] overflow-y-auto pr-1 scrollbar-none"
-                      : ""
-                  }`}
+                  className={`space-y-2.5 ${hasOverflowingActivity
+                    ? "max-h-[19rem] overflow-y-auto pr-1 scrollbar-none"
+                    : ""
+                    }`}
                 >
                   {activityFeedItems.map((item) => (
                     <Link

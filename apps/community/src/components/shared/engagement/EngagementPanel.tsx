@@ -275,7 +275,7 @@ function ReactionTile({ card, compact }: ReactionTileProps) {
                 </span>
                 <div className="shrink-0 text-right">
                   {hasFeedbackSummary ? (
-                    <span className="text-xs font-semibold tabular-nums tracking-tight text-foreground sm:text-sm">
+                    <span className="text-[0.45rem] font-semibold tabular-nums tracking-tight text-foreground sm:text-[0.525rem]">
                       {primary}
                     </span>
                   ) : null}

@@ -30,6 +30,8 @@ export { BlogPostCard } from "./cards/BlogPostCard";
 export type { BlogPostCardProps, BlogPostCardVariant } from "./cards/BlogPostCard";
 export { DiscussionCard } from "./cards/DiscussionCard";
 export type { DiscussionCardProps, DiscussionCardVariant } from "./cards/DiscussionCard";
+export { CardShareLinkButton } from "./cards/CardShareLinkButton";
+export type { CardShareLinkButtonProps } from "./cards/CardShareLinkButton";
 export { SiteFooter } from "./SiteFooter";
 export type { SiteFooterProps, SiteFooterLinkItem } from "./SiteFooter";
 export { Button, buttonVariants } from "./button";

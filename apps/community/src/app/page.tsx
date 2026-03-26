@@ -59,7 +59,7 @@ export default async function CommunityLandingPage() {
         <InViewSection>
           <CommunityHeroSection hasSession={hasSession} />
 
-          {/* <TrendingTopicsSection /> */}
+          <TrendingTopicsSection />
 
           {!hasSession && (
             <CtaCarousel

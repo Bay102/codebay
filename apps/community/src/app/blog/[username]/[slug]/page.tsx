@@ -1,5 +1,5 @@
 import type { Metadata, ResolvingMetadata } from "next";
-import { parseBlogSectionBlock, Tag } from "@codebay/ui";
+import { CardShareLinkButton, parseBlogSectionBlock, Tag } from "@codebay/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogEngagement } from "@/components/pages/blog/BlogEngagement";
@@ -101,6 +101,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     fetchBlogPostReactionBreakdown(post.slug)
   ]);
   const engagementCounts = engagementBySlug[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
+  const postPath = `/blog/${authorSegment}/${post.slug}`;
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -120,7 +121,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${siteUrl}/blog/${authorSegment}/${post.slug}`
+      "@id": `${siteUrl}${postPath}`
     },
     keywords: post.tags.join(", ")
   };
@@ -131,7 +132,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
       <section className="mx-auto w-full max-w-5xl px-5 pb-6 sm:px-6 lg:px-8">
         <div className="border border-border/60 bg-card/40 px-6 py-8 sm:px-8 md:px-10">
-          <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Insights</p>
+          <div className="flex items-start justify-between gap-3">
+            <p className="text-sm font-medium uppercase tracking-wide text-primary">CodeBay Insights</p>
+            <CardShareLinkButton href={postPath} className="shrink-0" />
+          </div>
           <h1 className="font-hero mt-3 max-w-4xl text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             {post.title}
           </h1>
@@ -159,7 +163,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   articles: [
                     {
                       title: post.title,
-                      href: `/blog/${authorSegment}/${post.slug}`
+                      href: postPath
                     }
                   ],
                   profileLinks: authorProfile.profileLinks
