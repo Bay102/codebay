@@ -9,6 +9,7 @@ import {
   fetchPreferredTopicNames,
   parseExploreSortParam,
   parseExploreTypeParam,
+  parseForYouExploreParam,
   parseUuidSearchParam
 } from "@/lib/explore";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
@@ -33,7 +34,14 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ type?: string; tag?: string; author?: string; q?: string; sort?: string }>;
+  searchParams: Promise<{
+    type?: string;
+    tag?: string;
+    author?: string;
+    q?: string;
+    sort?: string;
+    forYou?: string;
+  }>;
 };
 
 export default async function ExplorePage({ searchParams }: PageProps) {
@@ -41,7 +49,9 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const contentType = parseExploreTypeParam(resolved.type);
   const tag = typeof resolved.tag === "string" && resolved.tag.trim() ? resolved.tag.trim() : undefined;
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
+  const hasExplicitSortParam = typeof resolved.sort === "string" && resolved.sort.trim().length > 0;
   const exploreSort = parseExploreSortParam(resolved.sort);
+  const preferPersonalizedExplore = parseForYouExploreParam(resolved.forYou);
 
   const supabase = await createServerSupabaseClient();
   if (!supabase) {
@@ -88,11 +98,17 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     userId ? await fetchPreferredTopicNames(supabase, userId) : [];
 
   const followingIds = followingProfiles.map((p) => p.id);
-  const useExplicitExploreList = Boolean(
-    tag || effectiveAuthorId || q?.trim() || exploreSort !== "date"
-  );
   const hasPersonalizedFeed =
-    userId && !tag && !effectiveAuthorId && !(q?.trim()) && exploreSort === "date";
+    Boolean(userId) &&
+    preferPersonalizedExplore &&
+    !tag &&
+    !effectiveAuthorId &&
+    !(q?.trim()) &&
+    exploreSort === "date" &&
+    !hasExplicitSortParam;
+  const useExplicitExploreList = Boolean(
+    tag || effectiveAuthorId || q?.trim() || hasExplicitSortParam || (userId && !hasPersonalizedFeed)
+  );
 
   let stats: ListingsHeroStat[];
   let feed: ReactNode;

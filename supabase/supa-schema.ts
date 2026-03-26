@@ -406,6 +406,32 @@ export type Database = {
           },
         ]
       }
+      discussion_views: {
+        Row: {
+          created_at: string
+          discussion_id: string
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          discussion_id: string
+          id?: number
+        }
+        Update: {
+          created_at?: string
+          discussion_id?: string
+          id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_views_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discussions: {
         Row: {
           author_id: string

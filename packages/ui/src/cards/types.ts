@@ -45,6 +45,7 @@ export type DiscussionCardData = {
   authorAvatarUrl?: string | null;
   authorUsername: string;
   tags: string[];
+  viewCount: number;
   commentCount: number;
   reactionCount: number;
 };

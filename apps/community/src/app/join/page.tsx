@@ -55,8 +55,8 @@ const whyJoinSlides: CtaCarouselSlide[] = [
 export default function CommunityJoinPage() {
   return (
     <main className="bg-background">
-      <section className="mx-auto w-full max-w-6xl px-5 sm:px-6 md:pt-5 lg:px-8">
-        <SurfaceCard as="div" variant="card">
+      <section className="mx-auto w-full max-w-6xl pb-10 px-5 sm:px-6 md:pt-5 lg:px-8">
+        <SurfaceCard as="div" variant="panel">
           <p className="text-sm font-medium uppercase tracking-wide text-primary">Establish your presence</p>
           <h1 className="font-hero mt-3 max-w-4xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl md:text-4xl">
             Join the CodingBay Community
@@ -67,7 +67,7 @@ export default function CommunityJoinPage() {
           </p>
         </SurfaceCard>
 
-        <CtaCarousel slides={whyJoinSlides} intervalMs={5000} />
+        <CtaCarousel slides={whyJoinSlides} intervalMs={5000} variant="panel" />
 
         <section id="community-auth" className="mt-4">
           <Suspense

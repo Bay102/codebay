@@ -4,6 +4,7 @@ import { Eye, MessageSquareText, Zap } from "lucide-react";
 import { SurfaceCard } from "../SurfaceCard";
 import { Tag } from "../Tag";
 import { cn } from "../utils";
+import { PostTypeBadge } from "./PostTypeBadge";
 import type { BlogPostCardData } from "./types";
 
 export type BlogPostCardVariant = "default" | "compact" | "list";
@@ -60,15 +61,16 @@ export function BlogPostCard({
       as="article"
       variant="card"
       className={cn(
-        "flex h-full flex-col transition-all hover:shadow-lg hover:border-border/40 hover:bg-card/80",
+        "relative flex h-full flex-col transition-all hover:border-border/40 hover:bg-card/80 hover:shadow-lg",
         spacing,
         className,
       )}
     >
+      <PostTypeBadge type="blog" />
       <Link href={href} className="flex h-full flex-col">
         <div className="flex min-h-0 flex-1 flex-wrap items-stretch justify-between gap-3">
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1">
+            <div className="min-h-0 flex-1 pr-14">
               {showDate || showAuthor ? (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   {showAuthorAvatar && post.authorAvatarUrl ? (

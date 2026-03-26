@@ -66,11 +66,10 @@ export default async function NewCommunityBlogPostPage() {
 
             <FocusButton
               href="/dashboard/blog"
-              radiusVariant="small"
+              radiusVariant="square"
               colorVariant="plain"
-              borderVariant="bordered"
+              borderVariant="borderless"
               sizeVariant="sm"
-              className="shrink-0 self-start"
             >
               Back
             </FocusButton>

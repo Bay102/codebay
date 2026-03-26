@@ -88,6 +88,13 @@ export interface DashboardBlogSummary {
   topPostByViews: DashboardBlogPostStats | null;
 }
 
+export interface DashboardDiscussionSummary {
+  totalDiscussions: number;
+  totalViews: number;
+  totalReactions: number;
+  totalComments: number;
+}
+
 export type KpiPeriod = "7d" | "30d" | "90d" | "6m";
 
 export interface PeriodMetric {
@@ -343,6 +350,27 @@ async function fetchCountForWindow(
   return count ?? 0;
 }
 
+async function fetchDiscussionCountForWindow(
+  supabase: SupabaseClient<Database>,
+  table: "discussion_views" | "discussion_reactions" | "discussion_comments",
+  discussionIds: string[],
+  startIso: string,
+  endIso: string
+): Promise<number> {
+  if (discussionIds.length === 0) {
+    return 0;
+  }
+
+  const { count } = await supabase
+    .from(table)
+    .select("*", { count: "exact", head: true })
+    .in("discussion_id", discussionIds)
+    .gte("created_at", startIso)
+    .lt("created_at", endIso);
+
+  return count ?? 0;
+}
+
 function buildPeriodMetric(current: number, previous: number): PeriodMetric {
   const delta = current - previous;
   if (previous <= 0) {
@@ -439,6 +467,114 @@ export async function fetchEngagementKpisByPeriod(
   };
 }
 
+export async function fetchDiscussionEngagementKpisByPeriod(
+  supabase: SupabaseClient<Database>,
+  {
+    discussionIds,
+    periods = ["7d", "30d", "90d", "6m"]
+  }: {
+    discussionIds: string[];
+    periods?: KpiPeriod[];
+  }
+): Promise<DashboardKpiPeriodSummary | null> {
+  if (discussionIds.length === 0) {
+    return null;
+  }
+
+  const now = Date.now();
+  const periodDurations: Record<KpiPeriod, number> = {
+    "7d": 7,
+    "30d": 30,
+    "90d": 90,
+    "6m": 180
+  };
+
+  const activePeriods = periods.filter((period): period is KpiPeriod => period in periodDurations);
+  if (activePeriods.length === 0) {
+    return null;
+  }
+
+  const views: Partial<Record<KpiPeriod, PeriodMetric>> = {};
+  const reactions: Partial<Record<KpiPeriod, PeriodMetric>> = {};
+  const comments: Partial<Record<KpiPeriod, PeriodMetric>> = {};
+
+  for (const period of activePeriods) {
+    const days = periodDurations[period];
+    const durationMs = days * 86_400_000;
+
+    const currentStart = new Date(now - durationMs);
+    const previousStart = new Date(now - durationMs * 2);
+    const previousEnd = currentStart;
+
+    const currentStartIso = currentStart.toISOString();
+    const currentEndIso = new Date(now).toISOString();
+    const previousStartIso = previousStart.toISOString();
+    const previousEndIso = previousEnd.toISOString();
+
+    const [viewsCurrent, viewsPrevious] = await Promise.all([
+      fetchDiscussionCountForWindow(
+        supabase,
+        "discussion_views",
+        discussionIds,
+        currentStartIso,
+        currentEndIso
+      ),
+      fetchDiscussionCountForWindow(
+        supabase,
+        "discussion_views",
+        discussionIds,
+        previousStartIso,
+        previousEndIso
+      )
+    ]);
+
+    const [reactionsCurrent, reactionsPrevious] = await Promise.all([
+      fetchDiscussionCountForWindow(
+        supabase,
+        "discussion_reactions",
+        discussionIds,
+        currentStartIso,
+        currentEndIso
+      ),
+      fetchDiscussionCountForWindow(
+        supabase,
+        "discussion_reactions",
+        discussionIds,
+        previousStartIso,
+        previousEndIso
+      )
+    ]);
+
+    const [commentsCurrent, commentsPrevious] = await Promise.all([
+      fetchDiscussionCountForWindow(
+        supabase,
+        "discussion_comments",
+        discussionIds,
+        currentStartIso,
+        currentEndIso
+      ),
+      fetchDiscussionCountForWindow(
+        supabase,
+        "discussion_comments",
+        discussionIds,
+        previousStartIso,
+        previousEndIso
+      )
+    ]);
+
+    views[period] = buildPeriodMetric(viewsCurrent, viewsPrevious);
+    reactions[period] = buildPeriodMetric(reactionsCurrent, reactionsPrevious);
+    comments[period] = buildPeriodMetric(commentsCurrent, commentsPrevious);
+  }
+
+  return {
+    periods: activePeriods,
+    views: views as Record<KpiPeriod, PeriodMetric>,
+    reactions: reactions as Record<KpiPeriod, PeriodMetric>,
+    comments: comments as Record<KpiPeriod, PeriodMetric>
+  };
+}
+
 export async function fetchUserBlogPostsWithStats(
   supabase: SupabaseClient<Database>,
   userId: string
@@ -510,6 +646,48 @@ export function buildBlogSummary(posts: DashboardBlogPostStats[]): DashboardBlog
     totalComments: posts.reduce((accumulator, post) => accumulator + post.comments, 0),
     latestDraft: sortedDrafts[0] ?? null,
     topPostByViews
+  };
+}
+
+export async function fetchDashboardDiscussionSummary(
+  supabase: SupabaseClient<Database>,
+  userId: string
+): Promise<DashboardDiscussionSummary> {
+  const { data: authoredDiscussions, count: discussionCount } = await supabase
+    .from("discussions")
+    .select("id", { count: "exact" })
+    .eq("author_id", userId);
+
+  const discussionIds = ((authoredDiscussions ?? []) as Array<{ id: string }>).map((row) => row.id);
+  if (discussionIds.length === 0) {
+    return {
+      totalDiscussions: 0,
+      totalViews: 0,
+      totalReactions: 0,
+      totalComments: 0
+    };
+  }
+
+  const [viewsResult, reactionsResult, commentsResult] = await Promise.all([
+    supabase
+      .from("discussion_views")
+      .select("id", { count: "exact", head: true })
+      .in("discussion_id", discussionIds),
+    supabase
+      .from("discussion_reactions")
+      .select("id", { count: "exact", head: true })
+      .in("discussion_id", discussionIds),
+    supabase
+      .from("discussion_comments")
+      .select("id", { count: "exact", head: true })
+      .in("discussion_id", discussionIds)
+  ]);
+
+  return {
+    totalDiscussions: discussionCount ?? discussionIds.length,
+    totalViews: viewsResult.count ?? 0,
+    totalReactions: reactionsResult.count ?? 0,
+    totalComments: commentsResult.count ?? 0
   };
 }
 

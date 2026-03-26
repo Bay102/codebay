@@ -26,6 +26,13 @@ export function parseExploreSortParam(value: unknown): ExploreSort {
   return "date";
 }
 
+/** Opt-in `forYou` query flag: follow + preferred-topic sections instead of a single date-sorted Results list. */
+export function parseForYouExploreParam(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  const v = value.trim().toLowerCase();
+  return v === "1" || v === "true" || v === "yes";
+}
+
 /**
  * Preferred topic display names for the signed-in user (`user_preferred_tags` → `tags.name`).
  */

@@ -22,6 +22,7 @@ type ReactionResponse = "up" | "down";
 type DiscussionEngagementProps = {
   discussionId: string;
   slug: string;
+  initialViewCount: number;
   initialCommentCount: number;
   initialViewerReactions: Partial<Record<ReactionType, ReactionResponse>>;
   initialComments: DiscussionComment[];
@@ -31,6 +32,7 @@ type DiscussionEngagementProps = {
 export function DiscussionEngagement({
   discussionId,
   slug,
+  initialViewCount,
   initialCommentCount,
   initialViewerReactions,
   initialComments,
@@ -52,6 +54,8 @@ export function DiscussionEngagement({
   const [areCommentsVisible, setAreCommentsVisible] = useState(false);
   const [isCommentComposerOpen, setIsCommentComposerOpen] = useState(false);
   const [commentCount, setCommentCount] = useState(initialCommentCount);
+  const [viewCount, setViewCount] = useState(initialViewCount);
+  const hasRecordedViewRef = useRef(false);
 
   useEffect(() => {
     if (!supabase) {
@@ -61,6 +65,7 @@ export function DiscussionEngagement({
     }
 
     let isMounted = true;
+    hasRecordedViewRef.current = false;
 
     const loadData = async () => {
       setIsLoading(true);
@@ -100,6 +105,14 @@ export function DiscussionEngagement({
       setReactionCounts(nextCounts);
       setUserReactions(nextUserReactions);
       setIsLoading(false);
+
+      if (hasRecordedViewRef.current) return;
+      hasRecordedViewRef.current = true;
+
+      const { error: viewError } = await supabase.from("discussion_views").insert({ discussion_id: discussionId });
+      if (!viewError && isMounted) {
+        setViewCount((previous) => previous + 1);
+      }
     };
 
     void loadData();
@@ -119,7 +132,7 @@ export function DiscussionEngagement({
   const signInHref = `/sign-in?redirect=${encodeURIComponent(postPath)}`;
   const engagementSubtitle = isLoading
     ? "Loading engagement..."
-    : `${totalReactions} reaction${totalReactions === 1 ? "" : "s"} - ${commentCount} comment${commentCount === 1 ? "" : "s"
+    : `${viewCount.toLocaleString()} views - ${totalReactions} reaction${totalReactions === 1 ? "" : "s"} - ${commentCount} comment${commentCount === 1 ? "" : "s"
     }`;
 
   const reactionCards = reactionOptions.map((option) => {

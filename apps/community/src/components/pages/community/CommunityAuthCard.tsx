@@ -8,6 +8,7 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import type { TablesInsert } from "@/lib/database";
 import { isValidCommunityUsername } from "@/lib/community-username";
 import { blogUrl, mainUrl, siteUrl } from "@/lib/site-urls";
+import { CustomButton } from "@/components/shared/buttons/CustomButton";
 
 type AuthMode = "signup" | "signin";
 

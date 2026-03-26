@@ -1,11 +1,21 @@
 import Link from "next/link";
-import { ExternalLink, FileText, Pencil } from "lucide-react";
-import type { DashboardBlogPostStats } from "@/lib/dashboard";
+import { ArrowDownRight, ArrowUpRight, ExternalLink, FileText, Minus, Pencil } from "lucide-react";
+import type { DashboardBlogPostStats, DashboardBlogSummary } from "@/lib/dashboard";
 import { buildPostUrl } from "@/lib/blog-urls";
 import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 type DashboardBlogPostsTableProps = {
   posts: DashboardBlogPostStats[];
+  summary: DashboardBlogSummary;
+  metrics: {
+    views: number;
+    reactions: number;
+    comments: number;
+    viewsLabel: string;
+    viewsDelta?: { delta: number; deltaPercent: number | null; comparisonLabel: string } | null;
+    reactionsDelta?: { delta: number; deltaPercent: number | null; comparisonLabel: string } | null;
+    commentsDelta?: { delta: number; deltaPercent: number | null; comparisonLabel: string } | null;
+  };
   maxRows?: number;
 };
 
@@ -20,8 +30,44 @@ function formatDate(value: string | null): string {
   }).format(date);
 }
 
+function formatPercent(value: number): string {
+  const rounded = Math.abs(value) >= 10 ? Math.round(value) : Math.round(value * 10) / 10;
+  return `${Math.abs(rounded)}%`;
+}
+
+function DeltaBadge({
+  delta
+}: {
+  delta: { delta: number; deltaPercent: number | null; comparisonLabel: string } | null | undefined;
+}) {
+  if (!delta || delta.deltaPercent === null) return null;
+  const isIncrease = delta.delta > 0;
+  const isDecrease = delta.delta < 0;
+  const Icon = isIncrease ? ArrowUpRight : isDecrease ? ArrowDownRight : Minus;
+  return (
+    <span
+      className={[
+        "mt-1 inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums",
+        isIncrease
+          ? "bg-emerald-500/10 text-emerald-400"
+          : isDecrease
+            ? "bg-rose-500/10 text-rose-400"
+            : "bg-muted text-muted-foreground"
+      ].join(" ")}
+    >
+      <Icon className="h-3 w-3" />
+      <span>
+        {delta.delta > 0 ? "+" : ""}
+        {formatPercent(delta.deltaPercent)} {delta.comparisonLabel}
+      </span>
+    </span>
+  );
+}
+
 export function DashboardBlogPostsTable({
   posts,
+  summary,
+  metrics,
   maxRows = 8
 }: DashboardBlogPostsTableProps) {
   const displayPosts = posts.slice(0, maxRows);
@@ -49,6 +95,36 @@ export function DashboardBlogPostsTable({
             Manage all
             <FileText className="h-4 w-4" />
           </Link>
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
+        <div className="border border-border/60 bg-background/70 p-3">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">{metrics.viewsLabel}</p>
+          <p className="mt-1 font-mono-ticker text-xl font-semibold text-foreground">
+            {metrics.views.toLocaleString()}
+          </p>
+          <DeltaBadge delta={metrics.viewsDelta} />
+        </div>
+        <div className="border border-border/60 bg-background/70 p-3">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Reactions</p>
+          <p className="mt-1 font-mono-ticker text-xl font-semibold text-foreground">
+            {metrics.reactions.toLocaleString()}
+          </p>
+          <DeltaBadge delta={metrics.reactionsDelta} />
+        </div>
+        <div className="border border-border/60 bg-background/70 p-3">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Comments</p>
+          <p className="mt-1 font-mono-ticker text-xl font-semibold text-foreground">
+            {metrics.comments.toLocaleString()}
+          </p>
+          <DeltaBadge delta={metrics.commentsDelta} />
+        </div>
+        <div className="border border-border/60 bg-background/70 p-3">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Published</p>
+          <p className="mt-1 font-mono-ticker text-xl font-semibold text-foreground">
+            {summary.publishedCount.toLocaleString()}
+          </p>
         </div>
       </div>
 
@@ -105,7 +181,7 @@ export function DashboardBlogPostsTable({
                     </td>
                     <td className="py-3 px-2">
                       <span
-                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${isPublished
+                        className={`inline-flex rounded-sm px-2 py-0.5 text-xs font-medium ${isPublished
                           ? "border border-primary/30 bg-primary/10 text-primary"
                           : "border border-border/70 bg-muted/50 text-muted-foreground"
                           }`}

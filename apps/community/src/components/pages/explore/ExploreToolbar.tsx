@@ -20,7 +20,7 @@ import type { TagOption } from "@/lib/tags";
 import { ExploreContentTypeSegment } from "@/components/pages/explore/ExploreContentTypeSegment";
 
 const SORT_OPTIONS: { value: ExploreSort; label: string }[] = [
-  { value: "date", label: "Date" },
+  { value: "date", label: "Recent" },
   { value: "views", label: "Post views" },
   { value: "comments", label: "Comments" },
   { value: "engagements", label: "Engagements" }
@@ -75,8 +75,7 @@ export function ExploreToolbar({
         else next.delete("tag");
       }
       if (updates.sort !== undefined) {
-        if (updates.sort === "date") next.delete("sort");
-        else next.set("sort", updates.sort);
+        next.set("sort", updates.sort);
       }
 
       const queryString = next.toString();
@@ -142,7 +141,7 @@ export function ExploreToolbar({
     />
   );
 
-  const sortOptionLabel = SORT_OPTIONS.find((o) => o.value === sortValue)?.label ?? "Date";
+  const sortOptionLabel = SORT_OPTIONS.find((o) => o.value === sortValue)?.label ?? "Recent";
 
   const sortSelect = (
     <Select
@@ -154,7 +153,7 @@ export function ExploreToolbar({
       disabled={isPending}
     >
       <SelectTrigger
-        className="h-10 w-full shrink-0 sm:max-w-[15rem] lg:max-w-[16rem]"
+        className="h-10 w-full shrink-0 sm:max-w-[12rem] md:w-[14rem] lg:w-[18rem]"
         aria-label={`Sort results by ${sortOptionLabel}`}
       >
         <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">

@@ -109,7 +109,11 @@ function buildProfileActivityFeedItems(
     title: discussion.title,
     href: `/discussions/${discussion.slug}`,
     createdAt: discussion.createdAt,
-    metricSegments: [`${discussion.reactionCount} reactions`, `${discussion.commentCount} comments`],
+    metricSegments: [
+      `${discussion.viewCount} views`,
+      `${discussion.reactionCount} reactions`,
+      `${discussion.commentCount} comments`
+    ],
     actionText: "started a discussion",
     ctaText: "View discussion"
   }));

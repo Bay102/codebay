@@ -81,7 +81,7 @@ export function AppHeader({
             <Link
               key={`${link.href}:${link.label}`}
               href={link.href}
-              className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg border border-border/80 bg-background/60 px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-none border border-border/80 bg-background/60 px-3 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
             >
               {link.label}
             </Link>
@@ -90,7 +90,7 @@ export function AppHeader({
             <Link
               href={notificationHref}
               aria-label={notificationAriaLabel}
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-none border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
               onClick={onNotificationClick}
             >
               {hasNotifications ? (
@@ -119,7 +119,7 @@ export function AppHeader({
           <button
             type="button"
             aria-label="Open header menu"
-            className="relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
+            className="relative inline-flex h-10 w-10 items-center justify-center rounded-none border border-border/80 bg-background/60 text-foreground transition-colors hover:bg-secondary/70"
             onClick={() => setMenuOpen(true)}
           >
             <MenuIcon />

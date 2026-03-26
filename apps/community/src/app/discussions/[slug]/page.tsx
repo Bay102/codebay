@@ -104,6 +104,7 @@ export default async function DiscussionPage({ params }: DiscussionPageProps) {
           <DiscussionEngagement
             discussionId={discussion.id}
             slug={slug}
+            initialViewCount={counts.viewCount}
             initialCommentCount={counts.commentCount}
             initialViewerReactions={counts.viewerReactions ?? {}}
             initialComments={comments}

@@ -72,7 +72,7 @@ function NavGroup({
       <button
         type="button"
         onClick={() => setExpanded((e) => !e)}
-        className="flex w-full items-center justify-between gap-2 rounded-md px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+        className="flex w-full items-center justify-between gap-2 rounded-none px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
         aria-expanded={expanded}
       >
         <span>{group.label}</span>
@@ -104,7 +104,7 @@ function NavGroup({
                       key={`${child.label}-${index}`}
                       type="button"
                       onClick={handleItemSelect}
-                      className="rounded-md px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+                      className="rounded-none px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
                     >
                       {child.label}
                     </button>
@@ -131,7 +131,7 @@ function NavGroup({
                     child.onSelect();
                     handleItemSelect();
                   }}
-                  className="rounded-md px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
+                  className="rounded-none px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground"
                 >
                   {child.label}
                 </button>
@@ -190,7 +190,7 @@ export function SidebarNavMenu({
                   key={`${item.href}-${index}`}
                   href={item.href}
                   onClick={handleClose}
-                  className="rounded-md px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+                  className="rounded-none px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
                 >
                   {item.label}
                 </Link>
@@ -204,7 +204,7 @@ export function SidebarNavMenu({
                   item.onSelect();
                   handleClose();
                 }}
-                className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
+                className="rounded-none px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors hover:bg-secondary/70"
               >
                 {item.label}
               </button>

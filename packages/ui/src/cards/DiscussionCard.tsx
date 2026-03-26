@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { MessageSquareText, Zap } from "lucide-react";
+import { Eye, MessageSquareText, Zap } from "lucide-react";
 import { SurfaceCard } from "../SurfaceCard";
 import { Tag } from "../Tag";
 import { cn } from "../utils";
+import { PostTypeBadge } from "./PostTypeBadge";
 import type { DiscussionCardData } from "./types";
 
 export type DiscussionCardVariant = "default" | "compact";
@@ -55,15 +56,16 @@ export function DiscussionCard({
       as="article"
       variant="card"
       className={cn(
-        "flex h-full flex-col transition-all hover:shadow-lg hover:border-border/40 hover:bg-card/80",
+        "relative flex h-full flex-col transition-all hover:border-border/40 hover:bg-card/80 hover:shadow-lg",
         spacing,
         className,
       )}
     >
+      <PostTypeBadge type="discussion" />
       <Link href={href} className="flex h-full flex-col">
         <div className="flex min-h-0 flex-1 flex-wrap items-stretch justify-between gap-3">
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <div className="min-h-0 flex-1">
+            <div className="min-h-0 flex-1 pr-14">
               {showAuthor || showDate ? (
                 <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   {showAuthorAvatar && discussion.authorAvatarUrl ? (
@@ -113,6 +115,12 @@ export function DiscussionCard({
 
                 {showEngagement ? (
                   <div className="ml-auto flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Eye className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                      <span className="tabular-nums">{discussion.viewCount}</span>
+                      <span className="sr-only">views</span>
+                    </span>
+                    <span aria-hidden>·</span>
                     <span className="inline-flex items-center gap-1.5">
                       <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
                       <span className="tabular-nums">{discussion.commentCount}</span>

@@ -314,7 +314,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label htmlFor="post-description" className="text-sm font-medium">
-              Description
+              Intro
             </label>
             <textarea
               id="post-description"
