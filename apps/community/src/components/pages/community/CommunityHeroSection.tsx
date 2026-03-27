@@ -241,7 +241,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
 
           <div className="grid gap-3">
             <div className="grid items-stretch gap-3 lg:grid-cols-2">
-              <div className="flex h-64 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 backdrop-blur sm:p-4 lg:h-56">
+              <div className="flex min-h-56 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 backdrop-blur sm:min-h-64 sm:p-4 lg:min-h-56">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <MessageSquareText className="h-3.5 w-3.5 text-primary" />
                   Live discussion
@@ -301,7 +301,7 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
                 )}
               </div>
 
-              <div className="flex h-64 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 backdrop-blur sm:p-4 lg:h-56">
+              <div className="flex min-h-56 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 backdrop-blur sm:min-h-64 sm:p-4 lg:min-h-56">
                 <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
                   <Rss className="h-3.5 w-3.5 text-primary" />
                   Featured post

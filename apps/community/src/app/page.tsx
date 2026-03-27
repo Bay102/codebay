@@ -59,16 +59,16 @@ export default async function CommunityLandingPage() {
         <InViewSection>
           <CommunityHeroSection hasSession={hasSession} />
 
-          <TrendingTopicsSection />
+          {/* <TrendingTopicsSection /> */}
 
-          {!hasSession && (
-            <CtaCarousel
-              eyebrow="Community Highlights"
-              heading=""
-              slides={whyJoinSlides}
-              className="hover:border-border/40 hover:bg-card/70 hover:shadow-lg"
-            />
-          )}
+          {/* {!hasSession && ( */}
+          <CtaCarousel
+            eyebrow="Community Highlights"
+            heading=""
+            slides={whyJoinSlides}
+            className="hover:border-border/40 hover:bg-card/70 hover:shadow-lg"
+          />
+          {/* )} */}
         </InViewSection>
 
         <ForYouSection userId={user?.id ?? null} />
