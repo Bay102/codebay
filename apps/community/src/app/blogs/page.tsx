@@ -6,6 +6,7 @@ import { fetchBlogEngagementCounts, getBlogPostsForCommunityList } from "@/lib/b
 import { buildBlogPostPath } from "@/lib/blog-urls";
 import { fetchAllTags } from "@/lib/tags";
 import { parseScoreModeParam, parseScorePeriodParam } from "@/lib/explore";
+import { DEFAULT_SCORE_MODE, DEFAULT_SCORE_PERIOD } from "@/lib/content-scoring";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
 import { FocusButton } from "@/components/shared/buttons/FocusButton";
@@ -48,8 +49,8 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
   const resolved = await searchParams;
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
   const tag = typeof resolved.tag === "string" ? resolved.tag : undefined;
-  const scoreMode = parseScoreModeParam(resolved.score) ?? "hot";
-  const scorePeriod = parseScorePeriodParam(resolved.period) ?? "7d";
+  const scoreMode = parseScoreModeParam(resolved.score) ?? DEFAULT_SCORE_MODE;
+  const scorePeriod = parseScorePeriodParam(resolved.period) ?? DEFAULT_SCORE_PERIOD;
 
   const [posts, tags] = await Promise.all([
     getBlogPostsForCommunityList(supabase, {

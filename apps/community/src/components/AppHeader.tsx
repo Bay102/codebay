@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type MouseEventHandler } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEventHandler } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader as SharedAppHeader, MenuThemeController, SiteLogo } from "@codebay/ui";
 import type { AppHeaderMenuItem, SidebarNavItemButton, SidebarNavItemLink } from "@codebay/ui";
@@ -82,6 +82,8 @@ export function CommunityAppHeader() {
   const router = useRouter();
   const { user, supabase } = useAuth();
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+  const isMountedRef = useRef(true);
+  const unreadRequestRef = useRef<Promise<void> | null>(null);
 
   const handleSignOut = useCallback(async () => {
     if (!supabase) {
@@ -101,6 +103,7 @@ export function CommunityAppHeader() {
 
   const myBlogHref = username ? `/blog/${username}` : "/blog";
   const myProfileHref = username ? `/${username}` : "/";
+  const userId = user?.id ?? null;
   const isAuthenticated = Boolean(user);
   const notificationHref = isAuthenticated ? "/dashboard" : undefined;
 
@@ -120,17 +123,26 @@ export function CommunityAppHeader() {
     [myBlogHref, myProfileHref, isAuthenticated, handleSignOut]
   );
 
-  useEffect(() => {
-    let active = true;
+  useEffect(
+    () => () => {
+      isMountedRef.current = false;
+    },
+    [],
+  );
 
-    async function loadUnreadStatus() {
-      if (!user) {
-        if (active) {
-          setHasUnreadNotifications(false);
-        }
-        return;
+  const loadUnreadStatus = useCallback(async () => {
+    if (!userId) {
+      if (isMountedRef.current) {
+        setHasUnreadNotifications(false);
       }
+      return;
+    }
 
+    if (unreadRequestRef.current) {
+      return unreadRequestRef.current;
+    }
+
+    const unreadRequest = (async () => {
       try {
         const response = await fetch("/api/notifications/unread", { method: "GET" });
         if (!response.ok) {
@@ -138,25 +150,34 @@ export function CommunityAppHeader() {
         }
 
         const payload = (await response.json()) as { hasUnread?: boolean };
-        if (active) {
+        if (isMountedRef.current) {
           setHasUnreadNotifications(Boolean(payload.hasUnread));
         }
       } catch {
         // Fail silently in header chrome; the badge is an enhancement.
+      } finally {
+        unreadRequestRef.current = null;
       }
-    }
+    })();
 
-    loadUnreadStatus();
+    unreadRequestRef.current = unreadRequest;
+    return unreadRequest;
+  }, [userId]);
 
+  useEffect(() => {
+    void loadUnreadStatus();
+  }, [loadUnreadStatus]);
+
+  useEffect(() => {
     const refreshUnread = () => {
       void loadUnreadStatus();
     };
+
     window.addEventListener("community:notifications-unread-refresh", refreshUnread);
     return () => {
-      active = false;
       window.removeEventListener("community:notifications-unread-refresh", refreshUnread);
     };
-  }, [user]);
+  }, [loadUnreadStatus]);
 
   return (
     <SharedAppHeader

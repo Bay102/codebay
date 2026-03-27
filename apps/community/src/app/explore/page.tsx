@@ -14,7 +14,7 @@ import {
   parseForYouExploreParam,
   parseUuidSearchParam
 } from "@/lib/explore";
-import { getScoreModeLabel } from "@/lib/content-scoring";
+import { DEFAULT_SCORE_MODE, DEFAULT_SCORE_PERIOD, getScoreModeLabel } from "@/lib/content-scoring";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import {
   fetchBlogEngagementCounts,
@@ -60,8 +60,8 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const exploreSort = parseExploreSortParam(resolved.sort);
   const parsedScoreMode = parseScoreModeParam(resolved.score);
   const parsedScorePeriod = parseScorePeriodParam(resolved.period);
-  const scoreMode = parsedScoreMode ?? "hot";
-  const scorePeriod = parsedScorePeriod ?? "7d";
+  const scoreMode = parsedScoreMode ?? DEFAULT_SCORE_MODE;
+  const scorePeriod = parsedScorePeriod ?? DEFAULT_SCORE_PERIOD;
   const preferPersonalizedExplore = parseForYouExploreParam(resolved.forYou);
 
   const supabase = await createServerSupabaseClient();

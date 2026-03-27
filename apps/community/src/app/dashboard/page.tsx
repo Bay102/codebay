@@ -10,6 +10,8 @@ import { ProfileOverviewCard } from "@/components/pages/dashboard/ProfileOvervie
 import {
   buildBlogSummary,
   fetchDashboardActivity,
+  fetchBlogEngagementCountsBySlugByPeriod,
+  fetchDiscussionEngagementCountsByIdByPeriod,
   fetchDashboardDiscussionSummary,
   fetchDiscussionEngagementKpisByPeriod,
   fetchDashboardProfile,
@@ -74,7 +76,7 @@ export default async function CommunityDashboardPage() {
 
   const blogPostSlugs = posts.map((post) => post.slug);
   const discussionIds = discussions.map((discussion) => discussion.id);
-  const [blogKpiPeriodSummary, discussionKpiPeriodSummary] = await Promise.all([
+  const [blogKpiPeriodSummary, discussionKpiPeriodSummary, blogCountsByPeriod, discussionCountsByPeriod] = await Promise.all([
     fetchEngagementKpisByPeriod(supabase, {
       slugs: blogPostSlugs,
       periods: ["24h", "7d", "30d", "90d", "6m"]
@@ -82,7 +84,9 @@ export default async function CommunityDashboardPage() {
     fetchDiscussionEngagementKpisByPeriod(supabase, {
       discussionIds,
       periods: ["24h", "7d", "30d", "90d", "6m"]
-    })
+    }),
+    fetchBlogEngagementCountsBySlugByPeriod(supabase, blogPostSlugs, ["24h", "7d", "30d", "90d", "6m"]),
+    fetchDiscussionEngagementCountsByIdByPeriod(supabase, discussionIds, ["24h", "7d", "30d", "90d", "6m"])
   ]);
 
   const { count: preferredTagsCount } = await supabase
@@ -154,6 +158,8 @@ export default async function CommunityDashboardPage() {
           discussionSummary={discussionSummary}
           blogKpiPeriodSummary={blogKpiPeriodSummary}
           discussionKpiPeriodSummary={discussionKpiPeriodSummary}
+          blogCountsByPeriod={blogCountsByPeriod}
+          discussionCountsByPeriod={discussionCountsByPeriod}
         />
 
         <SectionSeparator />

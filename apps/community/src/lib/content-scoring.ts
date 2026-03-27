@@ -25,14 +25,18 @@ const SCORE_PERIOD_HOURS: Record<ScorePeriod, number> = {
 export const SCORE_PERIODS: ScorePeriod[] = ["24h", "7d", "30d", "365d"];
 export const SCORE_MODES: ScoreMode[] = ["hot", "quality"];
 
+/** URL-agnostic defaults when `score` / `period` query params are omitted */
+export const DEFAULT_SCORE_MODE: ScoreMode = "quality";
+export const DEFAULT_SCORE_PERIOD: ScorePeriod = "7d";
+
 export function getScoreModeLabel(mode: ScoreMode): string {
   return mode === "hot" ? "Momentum" : "Impact";
 }
 
 export function getScoreModeDescription(mode: ScoreMode): string {
   return mode === "hot"
-    ? "Momentum prioritizes recent activity and fast-rising posts."
-    : "Impact prioritizes sustained engagement over a longer window.";
+    ? "Surfaces what is gaining traction in the period you choose—threads and posts people are engaging with right now. Use it when you want to jump into active conversations or spot what is newly resonant."
+    : "Surfaces posts and discussions that have built meaningful engagement over a chosen period—not just a quick spike.";
 }
 
 export function isScoreMode(value: string | null | undefined): value is ScoreMode {

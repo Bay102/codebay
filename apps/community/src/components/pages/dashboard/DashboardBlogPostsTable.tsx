@@ -267,6 +267,8 @@ export function DashboardBlogPostsTable({
                         points={post.momentumGraphPoints}
                         showModeLabel={false}
                         periodLabelOverride={periodLabel}
+                        showNumericScore
+                        showScoreTooltip
                       />
                     </td>
                     <td className="py-3 px-2 text-right">
@@ -275,6 +277,8 @@ export function DashboardBlogPostsTable({
                         points={post.impactGraphPoints}
                         showModeLabel={false}
                         periodLabelOverride={periodLabel}
+                        showNumericScore
+                        showScoreTooltip
                       />
                     </td>
                     <td className="py-3 pl-2 text-muted-foreground">

@@ -119,6 +119,14 @@ export interface DashboardKpiPeriodSummary {
   comments: Record<KpiPeriod, PeriodMetric>;
 }
 
+export interface EngagementCounts {
+  views: number;
+  reactions: number;
+  comments: number;
+}
+
+export type EngagementCountsByPeriod = Record<KpiPeriod, EngagementCounts>;
+
 export type ActivityKind =
   | "reply"
   | "comment"
@@ -363,6 +371,148 @@ async function fetchCountForWindow(
     .lt("created_at", endIso);
 
   return count ?? 0;
+}
+
+function buildEmptyPeriodCounts(periods: KpiPeriod[]): EngagementCountsByPeriod {
+  return periods.reduce(
+    (accumulator, period) => {
+      accumulator[period] = { views: 0, reactions: 0, comments: 0 };
+      return accumulator;
+    },
+    {} as EngagementCountsByPeriod
+  );
+}
+
+function getPeriodDurationsInDays(): Record<KpiPeriod, number> {
+  return {
+    "24h": 1,
+    "7d": 7,
+    "30d": 30,
+    "90d": 90,
+    "6m": 183
+  };
+}
+
+function buildPeriodStartMs(periods: KpiPeriod[], nowMs: number): Record<KpiPeriod, number> {
+  const dayMs = 86_400_000;
+  const durations = getPeriodDurationsInDays();
+  return periods.reduce(
+    (accumulator, period) => {
+      accumulator[period] = nowMs - durations[period] * dayMs;
+      return accumulator;
+    },
+    {} as Record<KpiPeriod, number>
+  );
+}
+
+function incrementPeriodCountsForRow(
+  store: Record<string, EngagementCountsByPeriod>,
+  key: string,
+  createdAt: string,
+  metric: keyof EngagementCounts,
+  periods: KpiPeriod[],
+  periodStartMs: Record<KpiPeriod, number>
+): void {
+  const rowTs = new Date(createdAt).getTime();
+  if (!Number.isFinite(rowTs)) return;
+  const target = store[key];
+  if (!target) return;
+  periods.forEach((period) => {
+    if (rowTs >= periodStartMs[period]) {
+      target[period][metric] += 1;
+    }
+  });
+}
+
+export async function fetchBlogEngagementCountsBySlugByPeriod(
+  supabase: SupabaseClient<Database>,
+  slugs: string[],
+  periods: KpiPeriod[] = ["24h", "7d", "30d", "90d", "6m"]
+): Promise<Record<string, EngagementCountsByPeriod>> {
+  const activePeriods = periods.filter((period): period is KpiPeriod => period in getPeriodDurationsInDays());
+  const result = Object.fromEntries(slugs.map((slug) => [slug, buildEmptyPeriodCounts(activePeriods)]));
+  if (slugs.length === 0 || activePeriods.length === 0) return result;
+
+  const durations = getPeriodDurationsInDays();
+  const maxWindowDays = Math.max(...activePeriods.map((period) => durations[period]));
+  const nowMs = Date.now();
+  const periodStartMs = buildPeriodStartMs(activePeriods, nowMs);
+  const minStartIso = new Date(nowMs - maxWindowDays * 86_400_000).toISOString();
+
+  const [viewsResult, reactionsResult, commentsResult] = await Promise.all([
+    supabase.from("blog_post_views").select("slug,created_at").in("slug", slugs).gte("created_at", minStartIso),
+    supabase
+      .from("blog_post_reactions")
+      .select("slug,created_at")
+      .in("slug", slugs)
+      .gte("created_at", minStartIso),
+    supabase
+      .from("blog_post_comments")
+      .select("slug,created_at")
+      .in("slug", slugs)
+      .eq("is_approved", true)
+      .gte("created_at", minStartIso)
+  ]);
+
+  (viewsResult.data ?? []).forEach((row: { slug: string; created_at: string }) => {
+    incrementPeriodCountsForRow(result, row.slug, row.created_at, "views", activePeriods, periodStartMs);
+  });
+  (reactionsResult.data ?? []).forEach((row: { slug: string; created_at: string }) => {
+    incrementPeriodCountsForRow(result, row.slug, row.created_at, "reactions", activePeriods, periodStartMs);
+  });
+  (commentsResult.data ?? []).forEach((row: { slug: string; created_at: string }) => {
+    incrementPeriodCountsForRow(result, row.slug, row.created_at, "comments", activePeriods, periodStartMs);
+  });
+
+  return result;
+}
+
+export async function fetchDiscussionEngagementCountsByIdByPeriod(
+  supabase: SupabaseClient<Database>,
+  discussionIds: string[],
+  periods: KpiPeriod[] = ["24h", "7d", "30d", "90d", "6m"]
+): Promise<Record<string, EngagementCountsByPeriod>> {
+  const activePeriods = periods.filter((period): period is KpiPeriod => period in getPeriodDurationsInDays());
+  const result = Object.fromEntries(
+    discussionIds.map((discussionId) => [discussionId, buildEmptyPeriodCounts(activePeriods)])
+  );
+  if (discussionIds.length === 0 || activePeriods.length === 0) return result;
+
+  const durations = getPeriodDurationsInDays();
+  const maxWindowDays = Math.max(...activePeriods.map((period) => durations[period]));
+  const nowMs = Date.now();
+  const periodStartMs = buildPeriodStartMs(activePeriods, nowMs);
+  const minStartIso = new Date(nowMs - maxWindowDays * 86_400_000).toISOString();
+
+  const [viewsResult, reactionsResult, commentsResult] = await Promise.all([
+    supabase
+      .from("discussion_views")
+      .select("discussion_id,created_at")
+      .in("discussion_id", discussionIds)
+      .gte("created_at", minStartIso),
+    supabase
+      .from("discussion_reactions")
+      .select("discussion_id,created_at")
+      .in("discussion_id", discussionIds)
+      .gte("created_at", minStartIso),
+    supabase
+      .from("discussion_comments")
+      .select("discussion_id,created_at")
+      .in("discussion_id", discussionIds)
+      .gte("created_at", minStartIso)
+  ]);
+
+  (viewsResult.data ?? []).forEach((row: { discussion_id: string; created_at: string }) => {
+    incrementPeriodCountsForRow(result, row.discussion_id, row.created_at, "views", activePeriods, periodStartMs);
+  });
+  (reactionsResult.data ?? []).forEach((row: { discussion_id: string; created_at: string }) => {
+    incrementPeriodCountsForRow(result, row.discussion_id, row.created_at, "reactions", activePeriods, periodStartMs);
+  });
+  (commentsResult.data ?? []).forEach((row: { discussion_id: string; created_at: string }) => {
+    incrementPeriodCountsForRow(result, row.discussion_id, row.created_at, "comments", activePeriods, periodStartMs);
+  });
+
+  return result;
 }
 
 async function fetchDiscussionCountForWindow(

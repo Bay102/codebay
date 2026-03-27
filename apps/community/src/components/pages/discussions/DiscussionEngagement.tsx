@@ -57,6 +57,16 @@ export function DiscussionEngagement({
   const [viewCount, setViewCount] = useState(initialViewCount);
   const hasRecordedViewRef = useRef(false);
 
+  const handleCommentComposerToggle = () => {
+    setIsCommentComposerOpen((open) => {
+      const nextOpen = !open;
+      if (nextOpen) {
+        setAreCommentsVisible(true);
+      }
+      return nextOpen;
+    });
+  };
+
   useEffect(() => {
     if (!supabase) {
       setIsLoading(false);
@@ -253,7 +263,7 @@ export function DiscussionEngagement({
                   radius="none"
                   className="shrink-0"
                   aria-expanded={isCommentComposerOpen}
-                  onClick={() => setIsCommentComposerOpen((open) => !open)}
+                  onClick={handleCommentComposerToggle}
                 >
                   {isCommentComposerOpen ? "Hide comment box" : "Comment"}
                 </CustomButton>
