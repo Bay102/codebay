@@ -33,6 +33,12 @@ export type AnimatedCardSectionProps<T> = {
   gridClassName?: string;
   footerClassName?: string;
   headerSlot?: ReactNode;
+  titleRightSlot?: ReactNode;
+  /**
+   * When enabled, stack header content on base/md and place the view-all link
+   * above the title block. Desktop keeps a split layout.
+   */
+  stackHeaderOnMobile?: boolean;
   children?: ReactNode;
 } & Omit<HTMLAttributes<HTMLElement>, "children">;
 
@@ -106,6 +112,8 @@ export function AnimatedCardSection<T>({
   gridClassName,
   footerClassName,
   headerSlot,
+  titleRightSlot,
+  stackHeaderOnMobile = false,
   children,
   style,
   ...rest
@@ -165,24 +173,44 @@ export function AnimatedCardSection<T>({
       {...rest}
     >
       {(eyebrow || title || subtitle || viewAllHref) && (
-        <div className={cn("flex items-center justify-between gap-2", headerClassName)}>
-          <div className="min-w-0">
+        <div
+          className={cn(
+            stackHeaderOnMobile
+              ? "flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between"
+              : "flex items-center justify-between gap-2",
+            headerClassName
+          )}
+        >
+          {stackHeaderOnMobile && viewAllHref ? (
+            <Link
+              href={viewAllHref}
+              className="self-start text-sm font-medium text-primary hover:underline lg:order-2 lg:shrink-0"
+            >
+              {viewAllLabel}
+            </Link>
+          ) : null}
+
+          <div className={cn("min-w-0", stackHeaderOnMobile && "w-full lg:order-1")}>
             {eyebrow ? (
               <p className="text-xs font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
             ) : null}
             {title ? (
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                {title}
-              </h2>
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  {title}
+                </h2>
+                {titleRightSlot ? <div className="shrink-0">{titleRightSlot}</div> : null}
+              </div>
             ) : null}
             {subtitle ? (
               <p className="mt-1 text-xs text-muted-foreground">
                 {subtitle}
               </p>
             ) : null}
-            {headerSlot ? <div className="mt-2">{headerSlot}</div> : null}
+            {headerSlot ? <div className={cn("mt-2", stackHeaderOnMobile && "w-full")}>{headerSlot}</div> : null}
           </div>
-          {viewAllHref ? (
+
+          {!stackHeaderOnMobile && viewAllHref ? (
             <Link
               href={viewAllHref}
               className="shrink-0 text-sm font-medium text-primary hover:underline"

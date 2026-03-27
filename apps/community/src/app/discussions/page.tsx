@@ -4,6 +4,7 @@ import { MessageSquareText, RadioTower, Users, Zap } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { parseScoreModeParam, parseScorePeriodParam } from "@/lib/explore";
+import { DEFAULT_SCORE_MODE, DEFAULT_SCORE_PERIOD } from "@/lib/content-scoring";
 import { fetchAllTags } from "@/lib/tags";
 import { DiscussionCard, SurfaceCard } from "@codebay/ui";
 import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
@@ -47,8 +48,8 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
   const resolved = await searchParams;
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
   const tag = typeof resolved.tag === "string" ? resolved.tag : undefined;
-  const scoreMode = parseScoreModeParam(resolved.score) ?? "hot";
-  const scorePeriod = parseScorePeriodParam(resolved.period) ?? "7d";
+  const scoreMode = parseScoreModeParam(resolved.score) ?? DEFAULT_SCORE_MODE;
+  const scorePeriod = parseScorePeriodParam(resolved.period) ?? DEFAULT_SCORE_PERIOD;
 
   const [discussions, tags] = await Promise.all([
     getDiscussionsWithCounts(supabase, {

@@ -28,6 +28,11 @@ type ContentScoreSwitcherProps = {
   period: ScorePeriod;
   contentType?: ExploreContentType;
   enableContentTypeToggle?: boolean;
+  showInfoButton?: boolean;
+  className?: string;
+};
+
+type ScoreModeInfoButtonProps = {
   className?: string;
 };
 
@@ -48,13 +53,13 @@ export function ContentScoreSwitcher({
   period,
   contentType = "discussions",
   enableContentTypeToggle = false,
+  showInfoButton = true,
   className
 }: ContentScoreSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
-  const [isInfoOpen, setIsInfoOpen] = useState(false);
   const activeModeOption = MODE_OPTIONS.find((option) => option.value === mode) ?? MODE_OPTIONS[0];
   const ActiveModeIcon = mode === "hot" ? Flame : Target;
 
@@ -164,36 +169,52 @@ export function ContentScoreSwitcher({
             </Select>
         </div>
 
-        <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/60 bg-background/70 text-muted-foreground transition-colors hover:text-foreground"
-              aria-label="Explain scoring modes"
-              onMouseEnter={() => setIsInfoOpen(true)}
-              onMouseLeave={() => setIsInfoOpen(false)}
-            >
-              <Info className="h-4 w-4" aria-hidden />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            side="bottom"
-            className="max-w-[20rem] text-xs leading-5"
-            onMouseEnter={() => setIsInfoOpen(true)}
-            onMouseLeave={() => setIsInfoOpen(false)}
-          >
-            <p className="flex items-start gap-1.5">
-              <Flame className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
-              <span><strong>{getScoreModeLabel("hot")}:</strong> {getScoreModeDescription("hot")}</span>
-            </p>
-            <p className="mt-1 flex items-start gap-1.5">
-              <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
-              <span><strong>{getScoreModeLabel("quality")}:</strong> {getScoreModeDescription("quality")}</span>
-            </p>
-          </PopoverContent>
-        </Popover>
+        {showInfoButton ? <ScoreModeInfoButton /> : null}
       </div>
     </div>
+  );
+}
+
+export function ScoreModeInfoButton({ className }: ScoreModeInfoButtonProps) {
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+
+  return (
+    <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/60 bg-background/70 text-muted-foreground transition-colors hover:text-foreground",
+            className
+          )}
+          aria-label="Explain scoring modes"
+          onMouseEnter={() => setIsInfoOpen(true)}
+          onMouseLeave={() => setIsInfoOpen(false)}
+        >
+          <Info className="h-4 w-4" aria-hidden />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        side="bottom"
+        className="max-w-[22rem] space-y-2 text-xs leading-relaxed text-popover-foreground"
+        onMouseEnter={() => setIsInfoOpen(true)}
+        onMouseLeave={() => setIsInfoOpen(false)}
+      >
+        <p className="flex items-start gap-1.5">
+          <Flame className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
+          <span className="text-pretty">
+            <strong className="text-foreground">{getScoreModeLabel("hot")}.</strong> {getScoreModeDescription("hot")}
+          </span>
+        </p>
+        <p className="flex items-start gap-1.5">
+          <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
+          <span className="text-pretty">
+            <strong className="text-foreground">{getScoreModeLabel("quality")}.</strong>{" "}
+            {getScoreModeDescription("quality")}
+          </span>
+        </p>
+      </PopoverContent>
+    </Popover>
   );
 }

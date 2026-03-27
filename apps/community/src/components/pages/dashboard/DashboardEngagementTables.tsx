@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { DashboardBlogPostsTable } from "@/components/pages/dashboard/DashboardBlogPostsTable";
 import { DashboardDiscussionsTable } from "@/components/pages/dashboard/DashboardDiscussionsTable";
 import type {
+  EngagementCountsByPeriod,
   DashboardBlogPostStats,
   DashboardBlogSummary,
   DashboardDiscussionSummary,
@@ -19,6 +20,8 @@ type DashboardEngagementTablesProps = {
   discussionSummary: DashboardDiscussionSummary;
   blogKpiPeriodSummary: DashboardKpiPeriodSummary | null;
   discussionKpiPeriodSummary: DashboardKpiPeriodSummary | null;
+  blogCountsByPeriod: Record<string, EngagementCountsByPeriod>;
+  discussionCountsByPeriod: Record<string, EngagementCountsByPeriod>;
 };
 
 const PERIOD_OPTIONS: { key: KpiPeriod; label: string }[] = [
@@ -52,9 +55,41 @@ export function DashboardEngagementTables({
   blogSummary,
   discussionSummary,
   blogKpiPeriodSummary,
-  discussionKpiPeriodSummary
+  discussionKpiPeriodSummary,
+  blogCountsByPeriod,
+  discussionCountsByPeriod
 }: DashboardEngagementTablesProps) {
   const [activePeriod, setActivePeriod] = useState<KpiPeriod>("30d");
+
+  const postsForActivePeriod = useMemo(
+    () =>
+      posts.map((post) => {
+        const periodCounts = blogCountsByPeriod[post.slug]?.[activePeriod];
+        if (!periodCounts) return post;
+        return {
+          ...post,
+          views: periodCounts.views,
+          reactions: periodCounts.reactions,
+          comments: periodCounts.comments
+        };
+      }),
+    [activePeriod, blogCountsByPeriod, posts]
+  );
+
+  const discussionsForActivePeriod = useMemo(
+    () =>
+      discussions.map((discussion) => {
+        const periodCounts = discussionCountsByPeriod[discussion.id]?.[activePeriod];
+        if (!periodCounts) return discussion;
+        return {
+          ...discussion,
+          viewCount: periodCounts.views,
+          reactionCount: periodCounts.reactions,
+          commentCount: periodCounts.comments
+        };
+      }),
+    [activePeriod, discussionCountsByPeriod, discussions]
+  );
 
   const blogMetrics = useMemo(() => {
     const hasPeriodData = Boolean(
@@ -181,7 +216,7 @@ export function DashboardEngagementTables({
       </div>
 
       <DashboardBlogPostsTable
-        posts={posts}
+        posts={postsForActivePeriod}
         summary={blogSummary}
         metrics={blogMetrics}
         maxRows={8}
@@ -189,7 +224,7 @@ export function DashboardEngagementTables({
       />
       <div className="mt-6">
         <DashboardDiscussionsTable
-          discussions={discussions}
+          discussions={discussionsForActivePeriod}
           summary={discussionSummary}
           metrics={discussionMetrics}
           maxRows={8}

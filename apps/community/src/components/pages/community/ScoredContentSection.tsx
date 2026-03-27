@@ -4,10 +4,11 @@ import type { ScoreMode, ScorePeriod } from "@/lib/content-scoring";
 import { buildContentScoreSummary } from "@/lib/content-scoring";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
-import { fetchBlogEngagementCounts, getBlogPostsForCommunityList } from "@/lib/blog";
+import { getBlogPostsForCommunityList } from "@/lib/blog";
 import { buildBlogPostPath } from "@/lib/blog-urls";
 import { mapDiscussionListItemToDiscussionCardData, mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
 import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
+import { ScoreModeInfoButton } from "@/components/pages/community/ContentScoreSwitcher";
 
 type ScoredContentSectionProps = {
   contentType: ExploreContentType;
@@ -50,6 +51,8 @@ export async function ScoredContentSection({
         title={title}
         subtitle={description}
         headerSlot={controlsSlot}
+        titleRightSlot={<ScoreModeInfoButton />}
+        stackHeaderOnMobile
         columns={{ base: 1, sm: 2 }}
         viewAllHref={viewAllHref}
         viewAllLabel={viewAllLabel}
@@ -93,20 +96,21 @@ export async function ScoredContentSection({
   });
   if (posts.length === 0) return null;
 
-  const engagementBySlug = await fetchBlogEngagementCounts(posts.map((p) => p.slug));
-
   return (
     <AnimatedCardSection
       as="section"
       title={title}
       subtitle={description}
       headerSlot={controlsSlot}
+      titleRightSlot={<ScoreModeInfoButton />}
+      stackHeaderOnMobile
       columns={{ base: 1, md: 2 }}
       viewAllHref={viewAllHref}
       viewAllLabel={viewAllLabel}
     >
       {posts.map((post) => {
-        const counts = engagementBySlug[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
+        const counts =
+          post.scoreSummary?.metrics ?? { views: 0, reactions: 0, comments: 0 };
         const scoreSummary =
           post.scoreSummary ??
           buildContentScoreSummary({

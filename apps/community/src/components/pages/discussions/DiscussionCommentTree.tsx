@@ -60,7 +60,7 @@ function CommentNode({
   const [replyOpen, setReplyOpen] = useState(false);
   const [replyBody, setReplyBody] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [threadCollapsed, setThreadCollapsed] = useState(false);
+  const [threadCollapsed, setThreadCollapsed] = useState(comment.replies.length > 0);
   const { supabase, user } = useAuth();
 
   const descendantReplyCount = countDescendantReplies(comment);
@@ -281,7 +281,8 @@ export function DiscussionCommentTree({
       <div className="mt-6">
         {viewerId && supabase && user ? (
           <>
-            {!hideComposerToggle && !isComposerOpen ? (
+            {!isComposerOpen ? (
+              !hideComposerToggle ? (
               <CustomButton
                 radius="sm"
                 size="sm"
@@ -289,6 +290,7 @@ export function DiscussionCommentTree({
               >
                 Add a comment
               </CustomButton>
+              ) : null
             ) : (
               <form onSubmit={handleSubmitComment}>
                 <textarea

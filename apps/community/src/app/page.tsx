@@ -3,7 +3,7 @@ import { CtaCarousel, type CtaCarouselSlide } from "@codebay/ui";
 import { InViewSection } from "@/components/shared/InViewSection";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { parseExploreTypeParam, parseScoreModeParam, parseScorePeriodParam } from "@/lib/explore";
-import { getScoreModeLabel } from "@/lib/content-scoring";
+import { DEFAULT_SCORE_MODE, DEFAULT_SCORE_PERIOD, getScoreModeLabel } from "@/lib/content-scoring";
 import { CommunityHeroSection } from "@/components/pages/community/CommunityHeroSection";
 import { ContentScoreSwitcher } from "@/components/pages/community/ContentScoreSwitcher";
 import { ScoredContentSection } from "@/components/pages/community/ScoredContentSection";
@@ -67,8 +67,8 @@ export default async function CommunityLandingPage({ searchParams }: CommunityLa
   } = await supabase?.auth.getUser() ?? { data: { user: null } };
 
   const hasSession = !!user;
-  const scoreMode = parseScoreModeParam(resolvedSearchParams.score) ?? "hot";
-  const scorePeriod = parseScorePeriodParam(resolvedSearchParams.period) ?? "7d";
+  const scoreMode = parseScoreModeParam(resolvedSearchParams.score) ?? DEFAULT_SCORE_MODE;
+  const scorePeriod = parseScorePeriodParam(resolvedSearchParams.period) ?? DEFAULT_SCORE_PERIOD;
   const scoreContentType = parseExploreTypeParam(resolvedSearchParams.type);
   const scoredSectionTitle = `${getScoreModeLabel(scoreMode)} ${scoreContentType === "blogs" ? "blog posts" : "discussions"}`;
 
@@ -80,14 +80,15 @@ export default async function CommunityLandingPage({ searchParams }: CommunityLa
 
           {/* <TrendingTopicsSection /> */}
 
-          {/* {!hasSession && ( */}
-          <CtaCarousel
-            eyebrow="Community Highlights"
-            heading=""
-            slides={whyJoinSlides}
-            className="hover:border-border/40 hover:bg-card/70 hover:shadow-lg"
-          />
-          {/* )} */}
+          {!hasSession && (
+            <CtaCarousel
+              eyebrow="Community Highlights"
+              heading=""
+              slides={whyJoinSlides}
+              intervalMs={6000}
+              className="hover:border-border/40 hover:bg-card/70 hover:shadow-lg"
+            />
+          )}
         </InViewSection>
 
         <InViewSection as="section" className="mt-8">
@@ -100,6 +101,7 @@ export default async function CommunityLandingPage({ searchParams }: CommunityLa
                 period={scorePeriod}
                 contentType={scoreContentType}
                 enableContentTypeToggle
+                showInfoButton={false}
               />
             }
             contentType={scoreContentType}

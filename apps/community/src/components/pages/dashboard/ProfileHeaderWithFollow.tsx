@@ -61,9 +61,8 @@ export function ProfileHeaderWithFollow({
 
   return (
     <>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Profile</h2>
-        <div className="flex flex-wrap items-center justify-end gap-2">
+      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div className="order-1 mb-1 flex w-full flex-wrap items-center justify-start gap-2 md:order-2 md:mb-0 md:w-auto md:justify-end">
           {showFollowButton ? (
             <FollowButton
               profileUserId={profileId}
@@ -76,9 +75,10 @@ export function ProfileHeaderWithFollow({
           <SegmentNavbar
             aria-label="Profile actions"
             links={actionLinks}
-            className="w-full p-0.5 sm:w-auto"
+            className="inline-flex w-auto max-w-full flex-row flex-wrap items-stretch justify-start gap-1 p-0.5 [&_a]:min-h-9 [&_a]:w-auto [&_a]:flex-none [&_a]:px-2.5 [&_a]:py-1.5 [&_a]:text-xs"
           />
         </div>
+        <h2 className="order-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground md:order-1">Profile</h2>
       </div>
 
       <div className="mt-4 flex items-start gap-4">
