@@ -37,10 +37,10 @@ const MODE_OPTIONS: { value: ScoreMode; label: string }[] = [
 ];
 
 const PERIOD_OPTIONS: { value: ScorePeriod; label: string }[] = [
-  { value: "24h", label: "Last 24h" },
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "365d", label: "Last year" }
+  { value: "24h", label: "24h" },
+  { value: "7d", label: "7 days" },
+  { value: "30d", label: "30 days" },
+  { value: "365d", label: "Year" }
 ];
 
 export function ContentScoreSwitcher({
@@ -183,8 +183,14 @@ export function ContentScoreSwitcher({
             onMouseEnter={() => setIsInfoOpen(true)}
             onMouseLeave={() => setIsInfoOpen(false)}
           >
-            <p><strong>{getScoreModeLabel("hot")}:</strong> {getScoreModeDescription("hot")}</p>
-            <p className="mt-1"><strong>{getScoreModeLabel("quality")}:</strong> {getScoreModeDescription("quality")}</p>
+            <p className="flex items-start gap-1.5">
+              <Flame className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
+              <span><strong>{getScoreModeLabel("hot")}:</strong> {getScoreModeDescription("hot")}</span>
+            </p>
+            <p className="mt-1 flex items-start gap-1.5">
+              <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
+              <span><strong>{getScoreModeLabel("quality")}:</strong> {getScoreModeDescription("quality")}</span>
+            </p>
           </PopoverContent>
         </Popover>
       </div>
