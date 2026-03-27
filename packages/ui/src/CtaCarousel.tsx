@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell, Heart, MessageSquare, Newspaper, Users, type LucideIcon } from "lucide-react";
+import { Bell, Flame, Heart, MessageSquare, Newspaper, Target, Users, type LucideIcon } from "lucide-react";
 import { SurfaceCard } from "./SurfaceCard";
 import { cn } from "./utils";
 
@@ -22,6 +22,10 @@ export type CtaCarouselSlide = {
    * Optional Lucide icon key shown beside the slide copy for stronger visual hierarchy.
    */
   icon?: CtaCarouselSlideIcon;
+  /**
+   * Optional visual demo for a slide.
+   */
+  preview?: "score-markers";
 };
 
 export type CtaCarouselProps = {
@@ -74,11 +78,38 @@ export function CtaCarousel({
 
   const activeSlide = slides[index];
   const IconComponent = activeSlide.icon ? SLIDE_ICONS[activeSlide.icon] : null;
+  const showScorePreview = activeSlide.preview === "score-markers";
+  const previewPlaceholder = (
+    <div className="h-[54px] w-[108px] rounded-md border border-transparent bg-transparent" aria-hidden />
+  );
+  const scorePreview = showScorePreview ? (
+    <div className="rounded-md border border-border/70 bg-background/70 px-2 py-1.5">
+      <div className="inline-flex items-center gap-1.5">
+        <span className="inline-flex items-center gap-1 rounded border border-border/60 bg-card px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-foreground/90">
+          <Flame className="h-3 w-3 text-primary/90" aria-hidden />
+          <span>24H</span>
+        </span>
+        <span className="inline-flex items-center gap-1 rounded border border-border/60 bg-card px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-foreground/90">
+          <Target className="h-3 w-3 text-primary/90" aria-hidden />
+          <span>30D</span>
+        </span>
+      </div>
+      <svg
+        viewBox="0 0 108 22"
+        className="mt-1.5 h-5.5 w-[108px] text-primary/80"
+        role="img"
+        aria-label="Momentum and Impact trend example"
+      >
+        <path d="M2 16 L16 15 L28 11 L40 13 L54 8 L66 10 L78 6 L92 8 L106 4" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.9" />
+        <path d="M2 20 L16 18 L28 17 L40 14 L54 13 L66 11 L78 10 L92 8 L106 7" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.45" />
+      </svg>
+    </div>
+  ) : null;
 
   const innerContent = (
     <div
       className={cn(
-        "relative overflow-hidden border border-primary/15 bg-gradient-to-br from-primary/[0.09] via-card/80 to-card/40 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-5",
+        "relative overflow-hidden border border-primary/15 bg-gradient-to-br from-primary/[0.09] via-card/80 to-card/40 p-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-4",
         "before:pointer-events-none before:absolute before:-right-12 before:-top-12 before:h-40 before:w-40 before:rounded-full before:bg-primary/10 before:blur-3xl"
       )}
     >
@@ -95,18 +126,20 @@ export function CtaCarousel({
             className="flex shrink-0 justify-center sm:justify-start"
             aria-hidden
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/25 to-primary/5 ring-1 ring-primary/25 shadow-sm sm:h-[4.5rem] sm:w-[4.5rem]">
-              <IconComponent className="h-8 w-8 text-primary sm:h-9 sm:w-9" strokeWidth={1.75} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 ring-1 ring-primary/25 shadow-sm sm:h-14 sm:w-14">
+              <IconComponent className="h-6 w-6 text-primary sm:h-7 sm:w-7" strokeWidth={1.75} />
             </div>
           </div>
         )}
         <div className="min-w-0 flex-1 text-center sm:text-left">
-          <h3 className="text-base font-semibold tracking-tight text-foreground sm:text-lg">{activeSlide.title}</h3>
-          <p className="mt-2 text-sm leading-7 text-muted-foreground sm:text-base sm:leading-8">{activeSlide.body}</p>
+          <div className="mb-2 hidden justify-end sm:flex">{showScorePreview ? scorePreview : previewPlaceholder}</div>
+          <h3 className="text-sm font-semibold tracking-tight text-foreground sm:text-base">{activeSlide.title}</h3>
+          <p className="mt-1.5 text-xs leading-6 text-muted-foreground sm:text-sm sm:leading-7">{activeSlide.body}</p>
+          <div className="mt-3 inline-flex sm:hidden">{showScorePreview ? scorePreview : previewPlaceholder}</div>
         </div>
       </div>
 
-      <div className="mt-4 flex justify-center gap-1.5 sm:justify-start">
+      <div className="mt-3 flex justify-center gap-1.5 sm:justify-start">
         {slides.map((slide, i) => (
           <button
             key={slide.title}

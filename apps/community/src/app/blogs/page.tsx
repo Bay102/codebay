@@ -112,7 +112,7 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
             </p>
           </SurfaceCard>
         ) : (
-          <div className="mt-6 space-y-3">
+          <div className="mt-6 grid gap-3 lg:grid-cols-2">
             {posts.map((post) => {
               const counts = engagementBySlug[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
               const cardData = mapLandingFeaturedPostToBlogPostCardData({

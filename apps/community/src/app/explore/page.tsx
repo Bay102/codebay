@@ -62,7 +62,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const parsedScorePeriod = parseScorePeriodParam(resolved.period);
   const scoreMode = parsedScoreMode ?? "hot";
   const scorePeriod = parsedScorePeriod ?? "7d";
-  const hasScoreRanking = Boolean(parsedScoreMode && parsedScorePeriod);
   const preferPersonalizedExplore = parseForYouExploreParam(resolved.forYou);
 
   const supabase = await createServerSupabaseClient();
@@ -118,14 +117,20 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     !(q?.trim()) &&
     exploreSort === "date" &&
     !hasExplicitSortParam;
+  const shouldShowDefaultScoredFeed =
+    !preferPersonalizedExplore &&
+    !tag &&
+    !effectiveAuthorId &&
+    !(q?.trim()) &&
+    !hasExplicitSortParam;
   const useExplicitExploreList = Boolean(
-    tag || effectiveAuthorId || q?.trim() || hasExplicitSortParam || hasScoreRanking || (userId && !hasPersonalizedFeed)
+    tag || effectiveAuthorId || q?.trim() || hasExplicitSortParam || (userId && !hasPersonalizedFeed)
   );
 
   let stats: ListingsHeroStat[];
   let feed: ReactNode;
 
-  if (hasScoreRanking && !tag && !effectiveAuthorId && !(q?.trim())) {
+  if (shouldShowDefaultScoredFeed) {
     stats = [
       {
         label: "Score mode",

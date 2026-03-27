@@ -1,20 +1,19 @@
 "use client";
 
-import { useCallback, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Flame, Info, Target } from "lucide-react";
 import { cn } from "@codebay/ui";
 import {
   Button,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
+  SelectValue
 } from "@codebay/ui";
 import type { ExploreContentType } from "@/lib/explore";
 import {
@@ -38,10 +37,10 @@ const MODE_OPTIONS: { value: ScoreMode; label: string }[] = [
 ];
 
 const PERIOD_OPTIONS: { value: ScorePeriod; label: string }[] = [
-  { value: "24h", label: "Last 24h" },
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "365d", label: "Last year" }
+  { value: "24h", label: "24h" },
+  { value: "7d", label: "7 days" },
+  { value: "30d", label: "30 days" },
+  { value: "365d", label: "Year" }
 ];
 
 export function ContentScoreSwitcher({
@@ -55,6 +54,7 @@ export function ContentScoreSwitcher({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
   const activeModeOption = MODE_OPTIONS.find((option) => option.value === mode) ?? MODE_OPTIONS[0];
   const ActiveModeIcon = mode === "hot" ? Flame : Target;
 
@@ -78,47 +78,46 @@ export function ContentScoreSwitcher({
 
   return (
     <div className={className}>
-      <TooltipProvider delayDuration={120}>
-        <div className="flex items-center gap-1.5">
-          <div
-            className={cn(
-              "flex w-full max-w-full flex-col gap-1 rounded-xl border border-border/60 bg-muted/35 p-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)] sm:inline-flex sm:w-auto sm:flex-row sm:flex-wrap sm:items-stretch sm:justify-start"
-            )}
-            role="navigation"
-            aria-label="Score controls"
-          >
-            {enableContentTypeToggle ? (
-              <div className="flex w-full gap-1 sm:w-auto">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className={cn(
-                    "h-10 flex-1 rounded-lg px-3 text-sm font-medium sm:min-w-[7.5rem] sm:flex-none",
-                    contentType === "discussions"
-                      ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
-                      : "text-muted-foreground hover:bg-background hover:text-foreground hover:shadow-sm hover:ring-1 hover:ring-border/60"
-                  )}
-                  disabled={isPending}
-                  onClick={() => setParams({ type: "discussions" })}
-                >
-                  Discussions
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className={cn(
-                    "h-10 flex-1 rounded-lg px-3 text-sm font-medium sm:min-w-[7.5rem] sm:flex-none",
-                    contentType === "blogs"
-                      ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
-                      : "text-muted-foreground hover:bg-background hover:text-foreground hover:shadow-sm hover:ring-1 hover:ring-border/60"
-                  )}
-                  disabled={isPending}
-                  onClick={() => setParams({ type: "blogs" })}
-                >
-                  Blog posts
-                </Button>
-              </div>
-            ) : null}
+      <div className="flex items-center gap-1.5">
+        <div
+          className={cn(
+            "flex w-full max-w-full flex-col gap-1 rounded-xl border border-border/60 bg-muted/35 p-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)] sm:inline-flex sm:w-auto sm:flex-row sm:flex-wrap sm:items-stretch sm:justify-start"
+          )}
+          role="navigation"
+          aria-label="Score controls"
+        >
+          {enableContentTypeToggle ? (
+            <div className="flex w-full gap-1 sm:w-auto">
+              <Button
+                type="button"
+                variant="ghost"
+                className={cn(
+                  "h-10 flex-1 rounded-lg px-3 text-sm font-medium sm:min-w-[7.5rem] sm:flex-none",
+                  contentType === "discussions"
+                    ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
+                    : "text-muted-foreground hover:bg-background hover:text-foreground hover:shadow-sm hover:ring-1 hover:ring-border/60"
+                )}
+                disabled={isPending}
+                onClick={() => setParams({ type: "discussions" })}
+              >
+                Discussions
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className={cn(
+                  "h-10 flex-1 rounded-lg px-3 text-sm font-medium sm:min-w-[7.5rem] sm:flex-none",
+                  contentType === "blogs"
+                    ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
+                    : "text-muted-foreground hover:bg-background hover:text-foreground hover:shadow-sm hover:ring-1 hover:ring-border/60"
+                )}
+                disabled={isPending}
+                onClick={() => setParams({ type: "blogs" })}
+              >
+                Blog posts
+              </Button>
+            </div>
+          ) : null}
 
             <Select
               value={mode}
@@ -163,25 +162,38 @@ export function ContentScoreSwitcher({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/60 bg-background/70 text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="Explain scoring modes"
-              >
-                <Info className="h-4 w-4" aria-hidden />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="bottom" className="max-w-[20rem] text-xs leading-5">
-              <p><strong>{getScoreModeLabel("hot")}:</strong> {getScoreModeDescription("hot")}</p>
-              <p className="mt-1"><strong>{getScoreModeLabel("quality")}:</strong> {getScoreModeDescription("quality")}</p>
-            </TooltipContent>
-          </Tooltip>
         </div>
-      </TooltipProvider>
+
+        <Popover open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/60 bg-background/70 text-muted-foreground transition-colors hover:text-foreground"
+              aria-label="Explain scoring modes"
+              onMouseEnter={() => setIsInfoOpen(true)}
+              onMouseLeave={() => setIsInfoOpen(false)}
+            >
+              <Info className="h-4 w-4" aria-hidden />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            side="bottom"
+            className="max-w-[20rem] text-xs leading-5"
+            onMouseEnter={() => setIsInfoOpen(true)}
+            onMouseLeave={() => setIsInfoOpen(false)}
+          >
+            <p className="flex items-start gap-1.5">
+              <Flame className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
+              <span><strong>{getScoreModeLabel("hot")}:</strong> {getScoreModeDescription("hot")}</span>
+            </p>
+            <p className="mt-1 flex items-start gap-1.5">
+              <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
+              <span><strong>{getScoreModeLabel("quality")}:</strong> {getScoreModeDescription("quality")}</span>
+            </p>
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   );
 }

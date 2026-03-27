@@ -110,7 +110,7 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
 
           </SurfaceCard>
         ) : (
-          <div className="mt-3 space-y-3">
+          <div className="mt-3 grid gap-3 lg:grid-cols-2">
             {discussions.map((item) => {
               const discussion = mapDiscussionListItemToDiscussionCardData(item);
               return (
