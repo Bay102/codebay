@@ -515,7 +515,7 @@ export function BlogEngagement({ slug, postPath }: BlogEngagementProps) {
   const startIndex = (currentPage - 1) * pageSize;
   const visibleComments = comments.slice(startIndex, startIndex + pageSize);
   const communityJoinHref = `${communityUrl}/join?redirect=${encodeURIComponent(`${siteUrl}${postPath}`)}`;
-  const signInHref = `/sign-in?redirect=${encodeURIComponent(postPath)}`;
+  const signInHref = `/join?mode=signin&redirect=${encodeURIComponent(postPath)}`;
   const hasEngagementAccess = !!session;
   const engagementSubtitle =
     viewCount === null

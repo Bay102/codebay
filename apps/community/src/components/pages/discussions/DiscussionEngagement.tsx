@@ -129,7 +129,7 @@ export function DiscussionEngagement({
   );
   const postPath = `/discussions/${slug}`;
   const communityJoinHref = `${communityUrl}/join?redirect=${encodeURIComponent(`${siteUrl}${postPath}`)}`;
-  const signInHref = `/sign-in?redirect=${encodeURIComponent(postPath)}`;
+  const signInHref = `/join?mode=signin&redirect=${encodeURIComponent(postPath)}`;
   const engagementSubtitle = isLoading
     ? "Loading engagement..."
     : `${viewCount.toLocaleString()} views - ${totalReactions} reaction${totalReactions === 1 ? "" : "s"} - ${commentCount} comment${commentCount === 1 ? "" : "s"

@@ -23,6 +23,17 @@ export const metadata: Metadata = {
 const whyJoinSlides: CtaCarouselSlide[] = [
   {
     icon: "discussions",
+    title: "Momentum & Impact ranking built in",
+    body: "Switch views to spot what is rising now vs. proven over time.",
+    preview: "score-markers"
+  },
+  {
+    icon: "newsletter",
+    title: "Newsletters built around your interests",
+    body: "Create custom-tailored email digests so subscribers get the topics, authors, and cadence that fit how they follow you."
+  },
+  {
+    icon: "discussions",
     title: "Real-world engineering discussions",
     body: "See how other teams ship AI features, debug production issues, and reason about architecture trade-offs."
   },
@@ -40,11 +51,6 @@ const whyJoinSlides: CtaCarouselSlide[] = [
     icon: "engage",
     title: "Engage with the community",
     body: "Comment on blog posts, react to discussions, and get feedback from other members."
-  },
-  {
-    icon: "newsletter",
-    title: "Newsletters built around your interests",
-    body: "Create custom-tailored email digests so subscribers get the topics, authors, and cadence that fit how they follow you."
   }
 ];
 

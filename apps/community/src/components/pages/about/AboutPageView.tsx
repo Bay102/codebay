@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  Activity,
   Compass,
   LayoutGrid,
   Mail,
@@ -10,8 +11,23 @@ import {
   Users
 } from "lucide-react";
 import { SegmentNavbar, SurfaceCard } from "@codebay/ui";
+import { buildContentScoreSummary } from "@/lib/content-scoring";
+import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
 
 export function AboutPageView() {
+  const sampleMomentum = buildContentScoreSummary({
+    mode: "hot",
+    period: "24h",
+    metrics: { views: 182, reactions: 47, comments: 29 },
+    publishedAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+  });
+  const sampleImpact = buildContentScoreSummary({
+    mode: "quality",
+    period: "30d",
+    metrics: { views: 1430, reactions: 280, comments: 96 },
+    publishedAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
+  });
+
   return (
     <main className="min-h-screen bg-background">
       <div className="relative isolate overflow-hidden border-b border-border/50 bg-gradient-to-b from-primary/5 via-background to-background">
@@ -134,6 +150,69 @@ export function AboutPageView() {
             </SurfaceCard>
           </div>
         </div>
+
+        <SurfaceCard as="article" variant="panel" className="border-border/60 bg-card/60">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-primary">
+            <Activity className="h-4 w-4" aria-hidden />
+            Momentum & Impact
+          </div>
+          <h2 className="mt-3 text-xl font-semibold text-foreground sm:text-2xl">
+            Ranking that balances speed and depth
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Momentum and Impact are two complementary score modes used across discussions and blogs. Momentum surfaces
+            posts that are accelerating right now, while Impact highlights content with stronger sustained engagement.
+            Together, they make discovery clearer and reduce noisy, one-dimensional sorting.
+          </p>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="border border-border/60 bg-background/70 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">What it is</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                A dual scoring model that combines engagement signals (views, reactions, comments) with time windows
+                so users can switch between fast-moving and high-quality content.
+              </p>
+            </div>
+            <div className="border border-border/60 bg-background/70 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Why it helps</p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Readers find relevant posts faster, creators get better visibility for both trending and evergreen
+                content, and ranking feels more transparent through clear labels and score indicators.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 border border-border/70 bg-background/70 p-4 sm:p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              Example UI (placeholder discussion card)
+            </p>
+            <div className="mt-3 border border-border/60 bg-card/70 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs text-muted-foreground">@alexdev · 6h ago</p>
+                  <h3 className="mt-1 text-sm font-semibold text-foreground sm:text-base">
+                    How are teams adopting AI coding workflows in production?
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    We&apos;ve tested pair-programming with LLMs in CI-heavy repos. Curious what guardrails and review
+                    patterns are working for other teams.
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-1.5">
+                  <ContentScoreMarker summary={sampleMomentum} />
+                  <ContentScoreMarker summary={sampleImpact} />
+                </div>
+              </div>
+              <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                <span>182 views</span>
+                <span>·</span>
+                <span>29 comments</span>
+                <span>·</span>
+                <span>47 reactions</span>
+              </div>
+            </div>
+          </div>
+        </SurfaceCard>
 
         <SurfaceCard
           as="article"
