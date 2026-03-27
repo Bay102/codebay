@@ -14,7 +14,15 @@ interface DiscussionAuthor {
   avatarUrl: string | null;
 }
 
-interface DiscussionWithAuthor extends DiscussionRow {
+interface DiscussionWithAuthor {
+  id: string;
+  author_id: string;
+  title: string;
+  body: string;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+  tags: string[];
   author: DiscussionAuthor;
 }
 
