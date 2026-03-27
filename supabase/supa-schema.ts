@@ -146,7 +146,9 @@ export type Database = {
           excerpt: string | null
           featured_on_community_landing: boolean
           id: string
+          impact_graph_points: Json
           is_featured: boolean
+          momentum_graph_points: Json
           published_at: string | null
           read_time_minutes: number
           sections: Json
@@ -164,7 +166,9 @@ export type Database = {
           excerpt?: string | null
           featured_on_community_landing?: boolean
           id?: string
+          impact_graph_points?: Json
           is_featured?: boolean
+          momentum_graph_points?: Json
           published_at?: string | null
           read_time_minutes?: number
           sections: Json
@@ -182,7 +186,9 @@ export type Database = {
           excerpt?: string | null
           featured_on_community_landing?: boolean
           id?: string
+          impact_graph_points?: Json
           is_featured?: boolean
+          momentum_graph_points?: Json
           published_at?: string | null
           read_time_minutes?: number
           sections?: Json
@@ -438,6 +444,8 @@ export type Database = {
           body: string
           created_at: string
           id: string
+          impact_graph_points: Json
+          momentum_graph_points: Json
           slug: string
           tags: string[]
           title: string
@@ -448,6 +456,8 @@ export type Database = {
           body: string
           created_at?: string
           id?: string
+          impact_graph_points?: Json
+          momentum_graph_points?: Json
           slug: string
           tags?: string[]
           title: string
@@ -458,6 +468,8 @@ export type Database = {
           body?: string
           created_at?: string
           id?: string
+          impact_graph_points?: Json
+          momentum_graph_points?: Json
           slug?: string
           tags?: string[]
           title?: string

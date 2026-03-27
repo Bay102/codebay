@@ -12,4 +12,4 @@
 - Shared UI components are commonly sourced from `@codebay/ui`.
 - Tailwind responsive utilities in this workspace should use mobile-first order: base, `sm`, `md`, `lg`, `xl`, `2xl`.
 - Prefer small, focused components and avoid large “god components”; extract reusable UI by feature when files grow too large.
-- Update `COMMUNITY_CONTENT_FLOWS.md` if core logic relevant to that file changes, or if a new core feature is added create a new section for in that file for that.
+- Update `COMMUNITY_CONTENT_FLOWS.md` and any of the docs inside of it if core logic relevant to that file changes, or if a new core feature is added create a new section for in that file for that.

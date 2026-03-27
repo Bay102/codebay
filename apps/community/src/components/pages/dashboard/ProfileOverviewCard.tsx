@@ -1,11 +1,15 @@
 import Link from "next/link";
-import { ExternalLink, FileText, Globe2, MessageSquareText } from "lucide-react";
+import { ExternalLink, Globe2 } from "lucide-react";
 import { BlogPostCard, SegmentNavbar, Tag, type SegmentNavbarLink } from "@codebay/ui";
 import type { DashboardBlogPostStats, DashboardProfile, FeaturedProject } from "@/lib/dashboard";
 import { blogUrl } from "@/lib/site-urls";
 import { ProfileHeaderWithFollow } from "@/components/pages/dashboard/ProfileHeaderWithFollow";
 import { mapDashboardBlogPostToBlogPostCardData } from "@/lib/ui-mappers";
 import type { DiscussionListItem } from "@/lib/discussions";
+import {
+  ProfileRecentActivitySection,
+  type ProfileRecentActivityItem
+} from "@/components/pages/dashboard/ProfileRecentActivitySection";
 
 type ProfileOverviewCardProps = {
   profile: DashboardProfile;
@@ -48,62 +52,11 @@ function getProjectFaviconUrl(url: string): string | null {
   return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(hostname)}&sz=64`;
 }
 
-type ProfileActivityFeedItem =
-  | {
-    id: string;
-    kind: "discussion";
-    title: string;
-    href: string;
-    createdAt: string;
-    metricSegments: string[];
-    actionText: string;
-    ctaText: string;
-  }
-  | {
-    id: string;
-    kind: "blog";
-    title: string;
-    href: string;
-    createdAt: string;
-    metricSegments: string[];
-    actionText: string;
-    ctaText: string;
-  };
-
-function formatActivityDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Recently";
-
-  const now = Date.now();
-  const diffMs = now - date.getTime();
-  const minuteMs = 60_000;
-  const hourMs = 3_600_000;
-  const dayMs = 86_400_000;
-
-  if (diffMs < hourMs) {
-    const minutes = Math.max(1, Math.floor(diffMs / minuteMs));
-    return `${minutes}m ago`;
-  }
-  if (diffMs < dayMs) {
-    const hours = Math.max(1, Math.floor(diffMs / hourMs));
-    return `${hours}h ago`;
-  }
-  if (diffMs < dayMs * 7) {
-    const days = Math.max(1, Math.floor(diffMs / dayMs));
-    return `${days}d ago`;
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric"
-  }).format(date);
-}
-
 function buildProfileActivityFeedItems(
   posts: DashboardBlogPostStats[],
   discussions: DiscussionListItem[]
-): ProfileActivityFeedItem[] {
-  const recentDiscussions: ProfileActivityFeedItem[] = discussions.slice(0, 6).map((discussion) => ({
+): ProfileRecentActivityItem[] {
+  const recentDiscussions: ProfileRecentActivityItem[] = discussions.slice(0, 6).map((discussion) => ({
     id: `discussion-${discussion.id}`,
     kind: "discussion",
     title: discussion.title,
@@ -115,10 +68,13 @@ function buildProfileActivityFeedItems(
       `${discussion.commentCount} comments`
     ],
     actionText: "started a discussion",
-    ctaText: "View discussion"
+    ctaText: "View discussion",
+    views: discussion.viewCount,
+    reactions: discussion.reactionCount,
+    comments: discussion.commentCount
   }));
 
-  const recentPosts: ProfileActivityFeedItem[] = posts
+  const recentPosts: ProfileRecentActivityItem[] = posts
     .filter((post) => post.status === "published")
     .slice(0, 6)
     .map((post) => ({
@@ -129,7 +85,10 @@ function buildProfileActivityFeedItems(
       createdAt: post.publishedAt ?? post.updatedAt ?? post.createdAt ?? "",
       metricSegments: [`${post.views} views`, `${post.reactions} reactions`, `${post.comments} comments`],
       actionText: "published a blog post",
-      ctaText: "View post"
+      ctaText: "View post",
+      views: post.views,
+      reactions: post.reactions,
+      comments: post.comments
     }));
 
   return [...recentDiscussions, ...recentPosts]
@@ -211,7 +170,6 @@ export function ProfileOverviewCard({
   showEditLink = true,
   viewerId = null
 }: ProfileOverviewCardProps) {
-  const RECENT_ACTIVITY_VISIBLE_COUNT = 3;
   const publishedPosts = posts.filter((post) => post.status === "published");
   const featuredPostsFromSelection = publishedPosts.filter((post) =>
     profile.featuredPostSlugs.includes(post.slug)
@@ -232,7 +190,6 @@ export function ProfileOverviewCard({
   const featuredProjectsList = profile.featuredProjects.slice(0, 3);
   const featuredPostsList = featuredPosts.slice(0, 3);
   const activityFeedItems = buildProfileActivityFeedItems(publishedPosts, discussions);
-  const hasOverflowingActivity = activityFeedItems.length > RECENT_ACTIVITY_VISIBLE_COUNT;
 
   const profileActionLinks: SegmentNavbarLink[] = showEditLink
     ? [
@@ -364,58 +321,10 @@ export function ProfileOverviewCard({
 
         <div className="space-y-6">
           <div>
-            <SectionHeading>Recent activity</SectionHeading>
-            <div className="border border-border/70 bg-background/70 p-2.5 sm:p-3.5">
-              {activityFeedItems.length > 0 ? (
-                <div
-                  className={`space-y-2.5 ${hasOverflowingActivity
-                    ? "max-h-[19rem] overflow-y-auto pr-1 scrollbar-none"
-                    : ""
-                    }`}
-                >
-                  {activityFeedItems.map((item) => (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      className="group block border border-border/60 bg-card/70 p-3 transition-colors hover:border-primary/35 sm:p-3.5"
-                    >
-                      <div className="flex items-start gap-2.5">
-                        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/70 bg-background/80">
-                          {item.kind === "discussion" ? (
-                            <MessageSquareText className="h-3.5 w-3.5 text-primary/90" />
-                          ) : (
-                            <FileText className="h-3.5 w-3.5 text-primary/90" />
-                          )}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px]">
-                            <span className="font-semibold text-foreground">{profile.name}</span>
-                            <span className="text-muted-foreground">{item.actionText}</span>
-                            <span className="text-muted-foreground">·</span>
-                            <span className="text-muted-foreground">{formatActivityDate(item.createdAt)}</span>
-                          </div>
-                          <p className="mt-1 line-clamp-2 text-sm font-medium text-foreground transition-colors group-hover:text-primary">
-                            {item.title}
-                          </p>
-                          <div className="mt-2 flex items-center justify-between border-t border-border/60 pt-2">
-                            <span className="text-[11px] text-muted-foreground">
-                              {item.metricSegments.join(" · ")}
-                            </span>
-                            <span className="text-[11px] font-medium text-primary transition-opacity group-hover:opacity-85">
-                              {item.ctaText}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No recent activity yet. New discussions and published posts will appear here.
-                </p>
-              )}
-            </div>
+            <ProfileRecentActivitySection
+              profileName={profile.name}
+              items={activityFeedItems}
+            />
           </div>
 
           <div>

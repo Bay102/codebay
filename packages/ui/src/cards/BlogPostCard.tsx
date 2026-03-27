@@ -54,7 +54,7 @@ export function BlogPostCard({
         ? "p-4 sm:p-5"
         : "";
 
-  const showFooterRow = (showTags && post.tags.length > 0) || showEngagement;
+  const showFooterRow = (showTags && post.tags.length > 0) || showEngagement || Boolean(headerSlot);
 
   return (
     <Container
@@ -122,36 +122,43 @@ export function BlogPostCard({
                   <div />
                 )}
 
-                {showEngagement ? (
-                  <div className="ml-auto flex shrink-0 items-center gap-2 text-[11px] text-muted-foreground" aria-label="Engagement">
-                    {post.views > 0 ? (
+                <div className="ml-auto flex shrink-0 items-center gap-2">
+                  {headerSlot ? <div className="shrink-0">{headerSlot}</div> : null}
+                  {headerSlot && showEngagement ? (
+                    <span
+                      className="h-3.5 w-px shrink-0 bg-border/70"
+                      aria-hidden
+                    />
+                  ) : null}
+                  {showEngagement ? (
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground" aria-label="Engagement">
+                      {post.views > 0 ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Eye className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                          <span className="tabular-nums">{post.views.toLocaleString()}</span>
+                          <span className="sr-only">views</span>
+                        </span>
+                      ) : null}
+
+                      {post.views > 0 ? <span aria-hidden>·</span> : null}
+
                       <span className="inline-flex items-center gap-1.5">
-                        <Eye className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
-                        <span className="tabular-nums">{post.views.toLocaleString()}</span>
-                        <span className="sr-only">views</span>
+                        <Zap className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                        <span className="tabular-nums">{post.reactions}</span>
+                        <span className="sr-only">reactions</span>
                       </span>
-                    ) : null}
-
-                    {post.views > 0 ? <span aria-hidden>·</span> : null}
-
-                    <span className="inline-flex items-center gap-1.5">
-                      <Zap className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
-                      <span className="tabular-nums">{post.reactions}</span>
-                      <span className="sr-only">reactions</span>
-                    </span>
-                    <span aria-hidden>·</span>
-                    <span className="inline-flex items-center gap-1.5">
-                      <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
-                      <span className="tabular-nums">{post.comments}</span>
-                      <span className="sr-only">comments</span>
-                    </span>
-                  </div>
-                ) : null}
+                      <span aria-hidden>·</span>
+                      <span className="inline-flex items-center gap-1.5">
+                        <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-primary/80" aria-hidden />
+                        <span className="tabular-nums">{post.comments}</span>
+                        <span className="sr-only">comments</span>
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             ) : null}
           </div>
-
-          {headerSlot ? <div className="shrink-0">{headerSlot}</div> : null}
         </div>
 
         {footerSlot ? <div className="mt-3 shrink-0">{footerSlot}</div> : null}

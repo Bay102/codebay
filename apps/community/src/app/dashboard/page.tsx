@@ -77,11 +77,11 @@ export default async function CommunityDashboardPage() {
   const [blogKpiPeriodSummary, discussionKpiPeriodSummary] = await Promise.all([
     fetchEngagementKpisByPeriod(supabase, {
       slugs: blogPostSlugs,
-      periods: ["7d", "30d", "90d", "6m"]
+      periods: ["24h", "7d", "30d", "90d", "6m"]
     }),
     fetchDiscussionEngagementKpisByPeriod(supabase, {
       discussionIds,
-      periods: ["7d", "30d", "90d", "6m"]
+      periods: ["24h", "7d", "30d", "90d", "6m"]
     })
   ]);
 

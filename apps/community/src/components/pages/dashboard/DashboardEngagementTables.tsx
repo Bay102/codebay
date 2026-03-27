@@ -22,6 +22,7 @@ type DashboardEngagementTablesProps = {
 };
 
 const PERIOD_OPTIONS: { key: KpiPeriod; label: string }[] = [
+  { key: "24h", label: "24H" },
   { key: "7d", label: "7D" },
   { key: "30d", label: "30D" },
   { key: "90d", label: "90D" },
@@ -30,6 +31,8 @@ const PERIOD_OPTIONS: { key: KpiPeriod; label: string }[] = [
 
 function getComparisonLabel(period: KpiPeriod): string {
   switch (period) {
+    case "24h":
+      return "vs prev 24h";
     case "7d":
       return "vs prev 7d";
     case "30d":
@@ -177,9 +180,21 @@ export function DashboardEngagementTables({
         </div>
       </div>
 
-      <DashboardBlogPostsTable posts={posts} summary={blogSummary} metrics={blogMetrics} maxRows={8} />
+      <DashboardBlogPostsTable
+        posts={posts}
+        summary={blogSummary}
+        metrics={blogMetrics}
+        maxRows={8}
+        activePeriod={activePeriod}
+      />
       <div className="mt-6">
-        <DashboardDiscussionsTable discussions={discussions} summary={discussionSummary} metrics={discussionMetrics} maxRows={8} />
+        <DashboardDiscussionsTable
+          discussions={discussions}
+          summary={discussionSummary}
+          metrics={discussionMetrics}
+          maxRows={8}
+          activePeriod={activePeriod}
+        />
       </div>
     </section>
   );

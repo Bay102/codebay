@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { CtaCarousel, type CtaCarouselSlide } from "@codebay/ui";
 import { InViewSection } from "@/components/shared/InViewSection";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { parseExploreTypeParam, parseScoreModeParam, parseScorePeriodParam } from "@/lib/explore";
+import { getScoreModeLabel } from "@/lib/content-scoring";
 import { CommunityHeroSection } from "@/components/pages/community/CommunityHeroSection";
+import { ContentScoreSwitcher } from "@/components/pages/community/ContentScoreSwitcher";
+import { ScoredContentSection } from "@/components/pages/community/ScoredContentSection";
 import { TrendingProfilesSection } from "@/components/pages/community/TrendingProfilesSection";
 import { TrendingTopicsSection } from "@/components/pages/community/TrendingTopicsSection";
 import { FeaturedBlogPostsSection } from "@/components/pages/community/FeaturedBlogPostsSection";
@@ -44,7 +48,12 @@ const whyJoinSlides: CtaCarouselSlide[] = [
   }
 ];
 
-export default async function CommunityLandingPage() {
+type CommunityLandingPageProps = {
+  searchParams: Promise<{ score?: string; period?: string; type?: string }>;
+};
+
+export default async function CommunityLandingPage({ searchParams }: CommunityLandingPageProps) {
+  const resolvedSearchParams = await searchParams;
   const supabase = await createServerSupabaseClient();
 
   const {
@@ -52,6 +61,10 @@ export default async function CommunityLandingPage() {
   } = await supabase?.auth.getUser() ?? { data: { user: null } };
 
   const hasSession = !!user;
+  const scoreMode = parseScoreModeParam(resolvedSearchParams.score) ?? "hot";
+  const scorePeriod = parseScorePeriodParam(resolvedSearchParams.period) ?? "7d";
+  const scoreContentType = parseExploreTypeParam(resolvedSearchParams.type);
+  const scoredSectionTitle = `${getScoreModeLabel(scoreMode)} ${scoreContentType === "blogs" ? "blog posts" : "discussions"}`;
 
   return (
     <main className="bg-background">
@@ -59,18 +72,40 @@ export default async function CommunityLandingPage() {
         <InViewSection>
           <CommunityHeroSection hasSession={hasSession} />
 
-          <TrendingTopicsSection />
+          {/* <TrendingTopicsSection /> */}
 
-          {!hasSession && (
-            <CtaCarousel
-              eyebrow="Community Highlights"
-              heading=""
-              slides={whyJoinSlides}
-              className="hover:border-border/40 hover:bg-card/70 hover:shadow-lg"
-            />
-          )}
+          {/* {!hasSession && ( */}
+          <CtaCarousel
+            eyebrow="Community Highlights"
+            heading=""
+            slides={whyJoinSlides}
+            className="hover:border-border/40 hover:bg-card/70 hover:shadow-lg"
+          />
+          {/* )} */}
         </InViewSection>
 
+        <InViewSection as="section" className="mt-8">
+          <ScoredContentSection
+            title={scoredSectionTitle}
+            description="Switch between momentum and impact scoring over your selected period."
+            controlsSlot={
+              <ContentScoreSwitcher
+                mode={scoreMode}
+                period={scorePeriod}
+                contentType={scoreContentType}
+                enableContentTypeToggle
+              />
+            }
+            contentType={scoreContentType}
+            scoreMode={scoreMode}
+            scorePeriod={scorePeriod}
+            limit={4}
+            viewAllHref={scoreContentType === "blogs" ? "/blogs" : "/discussions"}
+            viewAllLabel={scoreContentType === "blogs" ? "View all blog posts →" : "View all discussions →"}
+          />
+        </InViewSection>
+
+        <SectionSeparator />
         <ForYouSection userId={user?.id ?? null} />
         <SectionSeparator />
         <TrendingProfilesSection />

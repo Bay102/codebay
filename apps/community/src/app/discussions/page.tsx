@@ -3,12 +3,15 @@ import Link from "next/link";
 import { MessageSquareText, RadioTower, Users, Zap } from "lucide-react";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
+import { parseScoreModeParam, parseScorePeriodParam } from "@/lib/explore";
 import { fetchAllTags } from "@/lib/tags";
 import { DiscussionCard, SurfaceCard } from "@codebay/ui";
 import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
 import { FocusButton } from "@/components/shared/buttons/FocusButton";
 import { DiscussionsToolbar } from "@/components/pages/discussions/DiscussionsToolbar";
 import { CommunityListingsHero } from "@/components/pages/community/CommunityListingsHero";
+import { ContentScoreSwitcher } from "@/components/pages/community/ContentScoreSwitcher";
+import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
 
 export const metadata: Metadata = {
   title: "Discussions",
@@ -18,7 +21,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ q?: string; tag?: string }>;
+  searchParams: Promise<{ q?: string; tag?: string; score?: string; period?: string }>;
 };
 
 export default async function DiscussionsListPage({ searchParams }: PageProps) {
@@ -44,14 +47,18 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
   const resolved = await searchParams;
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
   const tag = typeof resolved.tag === "string" ? resolved.tag : undefined;
+  const scoreMode = parseScoreModeParam(resolved.score) ?? "hot";
+  const scorePeriod = parseScorePeriodParam(resolved.period) ?? "7d";
 
   const [discussions, tags] = await Promise.all([
     getDiscussionsWithCounts(supabase, {
       limit: 32,
       offset: 0,
-      orderByTrend: true,
+      orderByTrend: false,
       search: q,
-      tagFilter: tag
+      tagFilter: tag,
+      scoreMode,
+      scorePeriod
     }),
     fetchAllTags(supabase)
   ]);
@@ -85,6 +92,11 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
             </FocusButton>
           }
         >
+          <ContentScoreSwitcher
+            mode={scoreMode}
+            period={scorePeriod}
+            className="mb-3"
+          />
           <DiscussionsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} variant="hero" />
         </CommunityListingsHero>
 
@@ -105,6 +117,7 @@ export default async function DiscussionsListPage({ searchParams }: PageProps) {
                 <DiscussionCard
                   key={discussion.id}
                   discussion={discussion}
+                  headerSlot={item.scoreSummary ? <ContentScoreMarker summary={item.scoreSummary} /> : undefined}
                   showAuthorAvatar
                   href={`/discussions/${discussion.slug}`}
                   showAuthor

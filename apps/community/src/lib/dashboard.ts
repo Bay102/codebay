@@ -75,6 +75,8 @@ export interface DashboardBlogPostStats {
   views: number;
   reactions: number;
   comments: number;
+  momentumGraphPoints: number[];
+  impactGraphPoints: number[];
 }
 
 export interface DashboardBlogSummary {
@@ -95,7 +97,7 @@ export interface DashboardDiscussionSummary {
   totalComments: number;
 }
 
-export type KpiPeriod = "7d" | "30d" | "90d" | "6m";
+export type KpiPeriod = "24h" | "7d" | "30d" | "90d" | "6m";
 
 export interface PeriodMetric {
   current: number;
@@ -231,8 +233,21 @@ function isMissingColumnError(error: { message?: string } | null): boolean {
     (error.message.includes("tech_stack") ||
       error.message.includes("featured_projects") ||
       error.message.includes("profile_links") ||
-      error.message.includes("featured_blog_post_slugs"))
+      error.message.includes("featured_blog_post_slugs") ||
+      error.message.includes("momentum_graph_points") ||
+      error.message.includes("impact_graph_points"))
   );
+}
+
+function parseGraphPoints(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => {
+      if (typeof entry === "number" && Number.isFinite(entry)) return Math.min(1, Math.max(0, entry));
+      return null;
+    })
+    .filter((entry): entry is number => entry !== null)
+    .slice(-24);
 }
 
 export async function fetchDashboardProfile(
@@ -395,7 +410,7 @@ export async function fetchEngagementKpisByPeriod(
   supabase: SupabaseClient<Database>,
   {
     slugs,
-    periods = ["7d", "30d", "90d", "6m"]
+    periods = ["24h", "7d", "30d", "90d", "6m"]
   }: {
     slugs: string[];
     periods?: KpiPeriod[];
@@ -408,6 +423,7 @@ export async function fetchEngagementKpisByPeriod(
   const now = Date.now();
 
   const periodDurations: Record<KpiPeriod, number> = {
+    "24h": 1,
     "7d": 7,
     "30d": 30,
     "90d": 90,
@@ -471,7 +487,7 @@ export async function fetchDiscussionEngagementKpisByPeriod(
   supabase: SupabaseClient<Database>,
   {
     discussionIds,
-    periods = ["7d", "30d", "90d", "6m"]
+    periods = ["24h", "7d", "30d", "90d", "6m"]
   }: {
     discussionIds: string[];
     periods?: KpiPeriod[];
@@ -483,6 +499,7 @@ export async function fetchDiscussionEngagementKpisByPeriod(
 
   const now = Date.now();
   const periodDurations: Record<KpiPeriod, number> = {
+    "24h": 1,
     "7d": 7,
     "30d": 30,
     "90d": 90,
@@ -579,17 +596,21 @@ export async function fetchUserBlogPostsWithStats(
   supabase: SupabaseClient<Database>,
   userId: string
 ): Promise<DashboardBlogPostStats[]> {
-  const { data, error } = await supabase
-    .from("blog_posts")
-    .select("id,slug,title,excerpt,author_name,status,is_featured,created_at,updated_at,published_at")
+  const blogPostsQuery = (supabase.from("blog_posts") as any)
+    .select("id,slug,title,excerpt,author_name,status,is_featured,created_at,updated_at,published_at,momentum_graph_points,impact_graph_points")
     .eq("author_id", userId)
     .order("updated_at", { ascending: false, nullsFirst: false });
+
+  const { data, error } = await blogPostsQuery;
 
   if (error || !data) {
     return [];
   }
 
-  const rows = data as BlogPostListRow[];
+  const rows = data as (BlogPostListRow & {
+    momentum_graph_points?: Json | null;
+    impact_graph_points?: Json | null;
+  })[];
   const countsBySlug = await fetchEngagementCountsBySlug(
     supabase,
     rows.map((row) => row.slug)
@@ -608,7 +629,9 @@ export async function fetchUserBlogPostsWithStats(
     publishedAt: row.published_at,
     views: countsBySlug[row.slug]?.views ?? 0,
     reactions: countsBySlug[row.slug]?.reactions ?? 0,
-    comments: countsBySlug[row.slug]?.comments ?? 0
+    comments: countsBySlug[row.slug]?.comments ?? 0,
+    momentumGraphPoints: parseGraphPoints(row.momentum_graph_points ?? []),
+    impactGraphPoints: parseGraphPoints(row.impact_graph_points ?? [])
   }));
 }
 

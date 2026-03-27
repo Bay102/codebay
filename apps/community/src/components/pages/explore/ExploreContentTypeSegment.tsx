@@ -21,16 +21,24 @@ export type ExploreContentTypeSegmentProps = {
   value: ExploreContentType;
   onChange: (next: ExploreContentType) => void;
   disabled?: boolean;
+  showLegend?: boolean;
 };
 
-export function ExploreContentTypeSegment({ value, onChange, disabled }: ExploreContentTypeSegmentProps) {
+export function ExploreContentTypeSegment({
+  value,
+  onChange,
+  disabled,
+  showLegend = true
+}: ExploreContentTypeSegmentProps) {
   const groupId = "explore-content-type";
 
   return (
     <fieldset className="min-w-0 border-0 p-0">
-      <legend className="mb-2 block px-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Content type
-      </legend>
+      {showLegend ? (
+        <legend className="mb-2 block px-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Content type
+        </legend>
+      ) : null}
       <div className="inline-flex max-w-full rounded-xl border border-border/60 bg-muted/35 p-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]">
         {EXPLORE_CONTENT_TYPE_OPTIONS.map((opt) => {
           const selected = value === opt.value;

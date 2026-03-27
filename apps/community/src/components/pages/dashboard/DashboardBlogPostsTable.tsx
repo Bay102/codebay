@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { ArrowDownRight, ArrowUpRight, ExternalLink, FileText, Minus, Pencil } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, ExternalLink, FileText, Flame, Minus, Pencil, Target } from "lucide-react";
 import type { DashboardBlogPostStats, DashboardBlogSummary } from "@/lib/dashboard";
+import type { KpiPeriod } from "@/lib/dashboard";
+import { buildContentScoreSummary } from "@/lib/content-scoring";
 import { buildPostUrl } from "@/lib/blog-urls";
+import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
 import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
 type DashboardBlogPostsTableProps = {
@@ -17,7 +20,32 @@ type DashboardBlogPostsTableProps = {
     commentsDelta?: { delta: number; deltaPercent: number | null; comparisonLabel: string } | null;
   };
   maxRows?: number;
+  activePeriod: KpiPeriod;
 };
+
+function mapKpiToScorePeriod(period: KpiPeriod): "24h" | "7d" | "30d" | "365d" {
+  if (period === "24h") return "24h";
+  if (period === "7d") return "7d";
+  if (period === "30d" || period === "90d") return "30d";
+  return "365d";
+}
+
+function formatKpiPeriodLabel(period: KpiPeriod): string {
+  switch (period) {
+    case "24h":
+      return "24H";
+    case "7d":
+      return "7D";
+    case "30d":
+      return "30D";
+    case "90d":
+      return "90D";
+    case "6m":
+      return "6M";
+    default:
+      return "30D";
+  }
+}
 
 function formatDate(value: string | null): string {
   if (!value) return "—";
@@ -68,9 +96,12 @@ export function DashboardBlogPostsTable({
   posts,
   summary,
   metrics,
-  maxRows = 8
+  maxRows = 8,
+  activePeriod
 }: DashboardBlogPostsTableProps) {
   const displayPosts = posts.slice(0, maxRows);
+  const scorePeriod = mapKpiToScorePeriod(activePeriod);
+  const periodLabel = formatKpiPeriodLabel(activePeriod);
 
   return (
     <div className="border border-border/70 bg-card/70 p-5 sm:p-6">
@@ -134,7 +165,7 @@ export function DashboardBlogPostsTable({
         </p>
       ) : (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[600px] border-collapse text-sm">
+          <table className="w-full min-w-[860px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-border/70">
                 <th className="py-3 pr-4 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -152,6 +183,18 @@ export function DashboardBlogPostsTable({
                 <th className="py-3 px-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Comments
                 </th>
+                <th className="py-3 px-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    <span>Momentum</span>
+                    <Flame className="h-3.5 w-3.5 text-primary/90" aria-hidden />
+                  </span>
+                </th>
+                <th className="py-3 px-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <span className="inline-flex items-center justify-end gap-1">
+                    <span>Impact</span>
+                    <Target className="h-3.5 w-3.5 text-primary/90" aria-hidden />
+                  </span>
+                </th>
                 <th className="py-3 pl-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Updated
                 </th>
@@ -165,6 +208,26 @@ export function DashboardBlogPostsTable({
                 const viewUrl = buildPostUrl(post.authorName, post.slug);
                 const editUrl = `/dashboard/blog/edit/${post.id}`;
                 const isPublished = post.status === "published";
+                const momentumSummary = buildContentScoreSummary({
+                  mode: "hot",
+                  period: scorePeriod,
+                  metrics: {
+                    views: post.views,
+                    reactions: post.reactions,
+                    comments: post.comments
+                  },
+                  publishedAt: post.publishedAt ?? post.createdAt
+                });
+                const impactSummary = buildContentScoreSummary({
+                  mode: "quality",
+                  period: scorePeriod,
+                  metrics: {
+                    views: post.views,
+                    reactions: post.reactions,
+                    comments: post.comments
+                  },
+                  publishedAt: post.publishedAt ?? post.createdAt
+                });
 
                 return (
                   <tr
@@ -197,6 +260,22 @@ export function DashboardBlogPostsTable({
                     </td>
                     <td className="py-3 px-2 text-right tabular-nums text-foreground">
                       {post.comments.toLocaleString()}
+                    </td>
+                    <td className="py-3 px-2 text-right">
+                      <ContentScoreMarker
+                        summary={momentumSummary}
+                        points={post.momentumGraphPoints}
+                        showModeLabel={false}
+                        periodLabelOverride={periodLabel}
+                      />
+                    </td>
+                    <td className="py-3 px-2 text-right">
+                      <ContentScoreMarker
+                        summary={impactSummary}
+                        points={post.impactGraphPoints}
+                        showModeLabel={false}
+                        periodLabelOverride={periodLabel}
+                      />
                     </td>
                     <td className="py-3 pl-2 text-muted-foreground">
                       {formatDate(post.updatedAt)}

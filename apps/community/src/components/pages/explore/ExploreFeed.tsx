@@ -9,6 +9,7 @@ import {
 } from "@/lib/ui-mappers";
 import type { ExploreContentType } from "@/lib/explore";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
 import { ExploreContentSection } from "./ExploreContentSection";
 
 type ExploreFilteredFeedProps = {
@@ -38,6 +39,7 @@ export function ExploreFilteredFeed({
             <DiscussionCard
               key={discussion.id}
               discussion={discussion}
+              headerSlot={item.scoreSummary ? <ContentScoreMarker summary={item.scoreSummary} /> : undefined}
               showAuthorAvatar
               href={`/discussions/${discussion.slug}`}
               showAuthor
@@ -80,6 +82,7 @@ export function ExploreFilteredFeed({
             key={post.id}
             post={cardData}
             href={buildBlogPostPath(post.authorName, post.slug)}
+            headerSlot={post.scoreSummary ? <ContentScoreMarker summary={post.scoreSummary} /> : undefined}
             showAuthorAvatar
             showAuthor
             showDate
@@ -152,6 +155,7 @@ export async function ExplorePersonalizedFeed({
               <DiscussionCard
                 key={discussion.id}
                 discussion={discussion}
+                headerSlot={item.scoreSummary ? <ContentScoreMarker summary={item.scoreSummary} /> : undefined}
                 showAuthorAvatar
                 href={`/discussions/${discussion.slug}`}
                 showAuthor
@@ -182,6 +186,7 @@ export async function ExplorePersonalizedFeed({
               <DiscussionCard
                 key={discussion.id}
                 discussion={discussion}
+                headerSlot={item.scoreSummary ? <ContentScoreMarker summary={item.scoreSummary} /> : undefined}
                 showAuthorAvatar
                 href={`/discussions/${discussion.slug}`}
                 showAuthor
@@ -254,6 +259,7 @@ export async function ExplorePersonalizedFeed({
               key={post.id}
               post={cardData}
               href={buildBlogPostPath(post.authorName, post.slug)}
+              headerSlot={post.scoreSummary ? <ContentScoreMarker summary={post.scoreSummary} /> : undefined}
               showAuthorAvatar
               showAuthor
               showDate
@@ -298,6 +304,7 @@ export async function ExplorePersonalizedFeed({
               key={post.id}
               post={cardData}
               href={buildBlogPostPath(post.authorName, post.slug)}
+              headerSlot={post.scoreSummary ? <ContentScoreMarker summary={post.scoreSummary} /> : undefined}
               showAuthorAvatar
               showAuthor
               showDate
@@ -344,6 +351,7 @@ export async function ExploreGuestFeed({ contentType }: ExploreGuestFeedProps) {
             <DiscussionCard
               key={discussion.id}
               discussion={discussion}
+              headerSlot={item.scoreSummary ? <ContentScoreMarker summary={item.scoreSummary} /> : undefined}
               showAuthorAvatar
               href={`/discussions/${discussion.slug}`}
               showAuthor
@@ -390,6 +398,7 @@ export async function ExploreGuestFeed({ contentType }: ExploreGuestFeedProps) {
             key={post.id}
             post={cardData}
             href={buildBlogPostPath(post.authorName, post.slug)}
+            headerSlot={post.scoreSummary ? <ContentScoreMarker summary={post.scoreSummary} /> : undefined}
             showAuthorAvatar
             showAuthor
             showDate
