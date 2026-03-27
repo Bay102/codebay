@@ -32,6 +32,7 @@ export type ExploreToolbarProps = {
   initialQuery?: string;
   initialTag?: string | null;
   initialSort: ExploreSort;
+  scoreControls?: React.ReactNode;
 };
 
 export function ExploreToolbar({
@@ -39,7 +40,8 @@ export function ExploreToolbar({
   contentType,
   initialQuery = "",
   initialTag = null,
-  initialSort
+  initialSort,
+  scoreControls
 }: ExploreToolbarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -80,7 +82,7 @@ export function ExploreToolbar({
 
       const queryString = next.toString();
       startTransition(() => {
-        router.push(queryString ? `/explore?${queryString}` : "/explore");
+        router.push(queryString ? `/explore?${queryString}` : "/explore", { scroll: false });
       });
     },
     [router, searchParams]
@@ -137,6 +139,7 @@ export function ExploreToolbar({
     <ExploreContentTypeSegment
       value={contentType}
       disabled={isPending}
+      showLegend={false}
       onChange={(type) => setExploreParams({ type })}
     />
   );
@@ -182,7 +185,10 @@ export function ExploreToolbar({
       aria-label="Explore filters"
     >
       <div className="flex min-w-0 max-w-full flex-col gap-3">
-        {contentTypeSegment}
+        <div className="flex min-w-0 max-w-full flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 sm:pt-0.5">{contentTypeSegment}</div>
+          {scoreControls ? <div className="min-w-0 sm:pt-0.5">{scoreControls}</div> : null}
+        </div>
         <div className="flex min-w-0 max-w-full flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
           {tags.length > 0 ? (
             <div className="w-full shrink-0 lg:w-auto">{topicDropdown}</div>

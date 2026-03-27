@@ -2,6 +2,7 @@ import { AnimatedCardSection, DiscussionCard } from "@codebay/ui";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { mapDiscussionListItemToDiscussionCardData } from "@/lib/ui-mappers";
+import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
 
 export async function TrendingDiscussionsSection() {
   const supabase = await createServerSupabaseClient();
@@ -29,6 +30,7 @@ export async function TrendingDiscussionsSection() {
           <DiscussionCard
             key={discussion.id}
             discussion={discussion}
+            headerSlot={item.scoreSummary ? <ContentScoreMarker summary={item.scoreSummary} /> : undefined}
             href={`/discussions/${discussion.slug}`}
             showAuthor
             showAuthorAvatar

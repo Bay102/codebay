@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database";
+import type { ScoreMode, ScorePeriod } from "@/lib/content-scoring";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -24,6 +25,18 @@ export function parseExploreSortParam(value: unknown): ExploreSort {
     return value;
   }
   return "date";
+}
+
+/** Optional score mode for ranked content views. */
+export function parseScoreModeParam(value: unknown): ScoreMode | undefined {
+  return value === "hot" || value === "quality" ? value : undefined;
+}
+
+/** Optional score period for ranked content views. */
+export function parseScorePeriodParam(value: unknown): ScorePeriod | undefined {
+  return value === "24h" || value === "7d" || value === "30d" || value === "365d"
+    ? value
+    : undefined;
 }
 
 /** Opt-in `forYou` query flag: follow + preferred-topic sections instead of a single date-sorted Results list. */

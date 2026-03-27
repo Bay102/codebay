@@ -5,11 +5,14 @@ import { BlogPostCard, SurfaceCard } from "@codebay/ui";
 import { fetchBlogEngagementCounts, getBlogPostsForCommunityList } from "@/lib/blog";
 import { buildBlogPostPath } from "@/lib/blog-urls";
 import { fetchAllTags } from "@/lib/tags";
+import { parseScoreModeParam, parseScorePeriodParam } from "@/lib/explore";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
 import { FocusButton } from "@/components/shared/buttons/FocusButton";
 import { BlogsToolbar } from "@/components/pages/blogs/BlogsToolbar";
 import { CommunityListingsHero } from "@/components/pages/community/CommunityListingsHero";
+import { ContentScoreSwitcher } from "@/components/pages/community/ContentScoreSwitcher";
+import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
 
 export const metadata: Metadata = {
   title: "Blogs",
@@ -19,7 +22,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ q?: string; tag?: string }>;
+  searchParams: Promise<{ q?: string; tag?: string; score?: string; period?: string }>;
 };
 
 export default async function BlogsListPage({ searchParams }: PageProps) {
@@ -45,13 +48,17 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
   const resolved = await searchParams;
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
   const tag = typeof resolved.tag === "string" ? resolved.tag : undefined;
+  const scoreMode = parseScoreModeParam(resolved.score) ?? "hot";
+  const scorePeriod = parseScorePeriodParam(resolved.period) ?? "7d";
 
   const [posts, tags] = await Promise.all([
     getBlogPostsForCommunityList(supabase, {
       limit: 32,
       offset: 0,
       search: q,
-      tagFilter: tag
+      tagFilter: tag,
+      scoreMode,
+      scorePeriod
     }),
     fetchAllTags(supabase)
   ]);
@@ -88,6 +95,11 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
             </FocusButton>
           }
         >
+          <ContentScoreSwitcher
+            mode={scoreMode}
+            period={scorePeriod}
+            className="mb-3"
+          />
           <BlogsToolbar tags={tags} initialQuery={q} initialTag={tag ?? null} variant="hero" />
         </CommunityListingsHero>
 
@@ -122,6 +134,7 @@ export default async function BlogsListPage({ searchParams }: PageProps) {
                   key={post.id}
                   post={cardData}
                   href={buildBlogPostPath(post.authorName, post.slug)}
+                  headerSlot={post.scoreSummary ? <ContentScoreMarker summary={post.scoreSummary} /> : undefined}
                   showAuthorAvatar
                   showAuthor
                   showDate

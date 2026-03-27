@@ -32,6 +32,7 @@ export type AnimatedCardSectionProps<T> = {
   headerClassName?: string;
   gridClassName?: string;
   footerClassName?: string;
+  headerSlot?: ReactNode;
   children?: ReactNode;
 } & Omit<HTMLAttributes<HTMLElement>, "children">;
 
@@ -104,6 +105,7 @@ export function AnimatedCardSection<T>({
   headerClassName,
   gridClassName,
   footerClassName,
+  headerSlot,
   children,
   style,
   ...rest
@@ -164,7 +166,7 @@ export function AnimatedCardSection<T>({
     >
       {(eyebrow || title || subtitle || viewAllHref) && (
         <div className={cn("flex items-center justify-between gap-2", headerClassName)}>
-          <div>
+          <div className="min-w-0">
             {eyebrow ? (
               <p className="text-xs font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
             ) : null}
@@ -178,6 +180,7 @@ export function AnimatedCardSection<T>({
                 {subtitle}
               </p>
             ) : null}
+            {headerSlot ? <div className="mt-2">{headerSlot}</div> : null}
           </div>
           {viewAllHref ? (
             <Link

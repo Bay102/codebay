@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ExploreSort } from "@/lib/explore";
 import type { Database, Tables } from "@/lib/database";
+import type { ContentScoreSummary, ScoreMode, ScorePeriod } from "@/lib/content-scoring";
+import { buildContentScoreSummary, getPeriodStart, toIsoDate } from "@/lib/content-scoring";
 
 type DiscussionRow = Tables<"discussions">;
 type DiscussionCommentRow = Tables<"discussion_comments">;
@@ -38,6 +40,9 @@ export interface DiscussionListItem {
   viewCount: number;
   commentCount: number;
   reactionCount: number;
+  scoreSummary?: ContentScoreSummary;
+  momentumGraphPoints?: number[];
+  impactGraphPoints?: number[];
 }
 
 export interface DiscussionComment {
@@ -235,6 +240,19 @@ function matchSearchPhrase(item: DiscussionListItem, phrase: string): boolean {
   );
 }
 
+function parseGraphPoints(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => {
+      if (typeof entry === "number" && Number.isFinite(entry)) {
+        return Math.min(1, Math.max(0, entry));
+      }
+      return null;
+    })
+    .filter((entry): entry is number => entry !== null)
+    .slice(-24);
+}
+
 function sortDiscussionsForExplore(items: DiscussionListItem[], sort: ExploreSort): DiscussionListItem[] {
   const copy = [...items];
   switch (sort) {
@@ -271,6 +289,8 @@ export async function getDiscussionsWithCounts(
     anyOfTagNames?: string[];
     /** Explore list sort; widens the recent pool when sorting by metrics. Omit to keep legacy trending/date behavior. */
     exploreSort?: ExploreSort;
+    scoreMode?: ScoreMode;
+    scorePeriod?: ScorePeriod;
   } = {}
 ): Promise<DiscussionListItem[]> {
   const {
@@ -282,7 +302,9 @@ export async function getDiscussionsWithCounts(
     search,
     tagFilter,
     anyOfTagNames,
-    exploreSort
+    exploreSort,
+    scoreMode,
+    scorePeriod
   } = options;
 
   if (authorIds !== undefined && authorIds.length === 0 && !authorId) {
@@ -297,7 +319,7 @@ export async function getDiscussionsWithCounts(
       : limit;
   const fetchOffset = search ? 0 : offset;
 
-  let query = supabase
+  let query: any = (supabase
     .from("discussions")
     .select(
       `
@@ -309,13 +331,15 @@ export async function getDiscussionsWithCounts(
       created_at,
       updated_at,
       tags,
+      momentum_graph_points,
+      impact_graph_points,
       community_users!discussions_author_id_fkey (
         name,
         username,
         avatar_url
       )
     `
-    );
+    )) as any;
 
   if (authorId) {
     query = query.eq("author_id", authorId);
@@ -338,10 +362,18 @@ export async function getDiscussionsWithCounts(
   if (error || !rows || rows.length === 0) return [];
 
   const ids = rows.map((r) => (r as { id: string }).id);
+  const sinceIso = scorePeriod ? toIsoDate(getPeriodStart(scorePeriod)) : null;
+  const viewCountQuery = supabase.from("discussion_views").select("discussion_id").in("discussion_id", ids);
+  const commentCountQuery = supabase.from("discussion_comments").select("discussion_id").in("discussion_id", ids);
+  const reactionCountQuery = supabase
+    .from("discussion_reactions")
+    .select("discussion_id")
+    .in("discussion_id", ids);
+
   const [viewCounts, commentCounts, reactionCounts] = await Promise.all([
-    supabase.from("discussion_views").select("discussion_id").in("discussion_id", ids),
-    supabase.from("discussion_comments").select("discussion_id").in("discussion_id", ids),
-    supabase.from("discussion_reactions").select("discussion_id").in("discussion_id", ids)
+    sinceIso ? viewCountQuery.gte("created_at", sinceIso) : viewCountQuery,
+    sinceIso ? commentCountQuery.gte("created_at", sinceIso) : commentCountQuery,
+    sinceIso ? reactionCountQuery.gte("created_at", sinceIso) : reactionCountQuery
   ]);
 
   const viewByDiscussion = new Map<string, number>();
@@ -359,6 +391,8 @@ export async function getDiscussionsWithCounts(
 
   type Row = DiscussionRow & {
     community_users: { name: string; username: string; avatar_url: string | null } | null;
+    momentum_graph_points?: unknown;
+    impact_graph_points?: unknown;
   };
 
   let items: DiscussionListItem[] = (rows as Row[]).map((r) => {
@@ -377,7 +411,9 @@ export async function getDiscussionsWithCounts(
       tags: (r as { tags?: string[] }).tags ?? [],
       viewCount: viewByDiscussion.get(r.id) ?? 0,
       commentCount: commentByDiscussion.get(r.id) ?? 0,
-      reactionCount: reactionByDiscussion.get(r.id) ?? 0
+      reactionCount: reactionByDiscussion.get(r.id) ?? 0,
+      momentumGraphPoints: parseGraphPoints((r as Row).momentum_graph_points),
+      impactGraphPoints: parseGraphPoints((r as Row).impact_graph_points)
     };
   });
 
@@ -385,7 +421,23 @@ export async function getDiscussionsWithCounts(
     items = items.filter((item) => matchSearchPhrase(item, search));
   }
 
-  if (exploreSort === "comments" || exploreSort === "views" || exploreSort === "engagements") {
+  if (scoreMode && scorePeriod) {
+    items = items
+      .map((item) => ({
+        ...item,
+        scoreSummary: buildContentScoreSummary({
+          mode: scoreMode,
+          period: scorePeriod,
+          metrics: {
+            views: item.viewCount,
+            reactions: item.reactionCount,
+            comments: item.commentCount
+          },
+          publishedAt: item.createdAt
+        })
+      }))
+      .sort((a, b) => (b.scoreSummary?.score ?? 0) - (a.scoreSummary?.score ?? 0));
+  } else if (exploreSort === "comments" || exploreSort === "views" || exploreSort === "engagements") {
     items = sortDiscussionsForExplore(items, exploreSort);
   } else if (exploreSort === "date") {
     items = sortDiscussionsForExplore(items, "date");

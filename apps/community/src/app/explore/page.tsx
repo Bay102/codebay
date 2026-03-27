@@ -8,10 +8,13 @@ import { getFollowing } from "@/lib/follows";
 import {
   fetchPreferredTopicNames,
   parseExploreSortParam,
+  parseScoreModeParam,
+  parseScorePeriodParam,
   parseExploreTypeParam,
   parseForYouExploreParam,
   parseUuidSearchParam
 } from "@/lib/explore";
+import { getScoreModeLabel } from "@/lib/content-scoring";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
 import {
   fetchBlogEngagementCounts,
@@ -19,6 +22,8 @@ import {
   sortBlogPostsForExplore
 } from "@/lib/blog";
 import { CommunityListingsHero, type ListingsHeroStat } from "@/components/pages/community/CommunityListingsHero";
+import { ContentScoreSwitcher } from "@/components/pages/community/ContentScoreSwitcher";
+import { ScoredContentSection } from "@/components/pages/community/ScoredContentSection";
 import { ExploreToolbar } from "@/components/pages/explore/ExploreToolbar";
 import {
   ExploreFilteredFeed,
@@ -40,6 +45,8 @@ type PageProps = {
     author?: string;
     q?: string;
     sort?: string;
+    score?: string;
+    period?: string;
     forYou?: string;
   }>;
 };
@@ -51,6 +58,11 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const q = typeof resolved.q === "string" ? resolved.q : undefined;
   const hasExplicitSortParam = typeof resolved.sort === "string" && resolved.sort.trim().length > 0;
   const exploreSort = parseExploreSortParam(resolved.sort);
+  const parsedScoreMode = parseScoreModeParam(resolved.score);
+  const parsedScorePeriod = parseScorePeriodParam(resolved.period);
+  const scoreMode = parsedScoreMode ?? "hot";
+  const scorePeriod = parsedScorePeriod ?? "7d";
+  const hasScoreRanking = Boolean(parsedScoreMode && parsedScorePeriod);
   const preferPersonalizedExplore = parseForYouExploreParam(resolved.forYou);
 
   const supabase = await createServerSupabaseClient();
@@ -107,13 +119,39 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     exploreSort === "date" &&
     !hasExplicitSortParam;
   const useExplicitExploreList = Boolean(
-    tag || effectiveAuthorId || q?.trim() || hasExplicitSortParam || (userId && !hasPersonalizedFeed)
+    tag || effectiveAuthorId || q?.trim() || hasExplicitSortParam || hasScoreRanking || (userId && !hasPersonalizedFeed)
   );
 
   let stats: ListingsHeroStat[];
   let feed: ReactNode;
 
-  if (useExplicitExploreList) {
+  if (hasScoreRanking && !tag && !effectiveAuthorId && !(q?.trim())) {
+    stats = [
+      {
+        label: "Score mode",
+        value: getScoreModeLabel(scoreMode),
+        detail: "ranking strategy"
+      },
+      {
+        label: "Period",
+        value: scorePeriod,
+        detail: "scoring window"
+      },
+      { label: "Topic catalog", value: String(tags.length), detail: "tags to pick from" }
+    ];
+    feed = (
+      <ScoredContentSection
+        title={`${getScoreModeLabel(scoreMode)} ranking`}
+        description="Score-ranked content from the selected period."
+        contentType={contentType}
+        scoreMode={scoreMode}
+        scorePeriod={scorePeriod}
+        limit={12}
+        viewAllHref={contentType === "blogs" ? "/blogs" : "/discussions"}
+        viewAllLabel={contentType === "blogs" ? "View all blog posts →" : "View all discussions →"}
+      />
+    );
+  } else if (useExplicitExploreList) {
     if (contentType === "discussions") {
       const discussions = await getDiscussionsWithCounts(supabase, {
         limit: 48,
@@ -122,7 +160,9 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         search: q,
         tagFilter: tag,
         authorId: effectiveAuthorId,
-        exploreSort
+        exploreSort,
+        scoreMode,
+        scorePeriod
       });
       stats = [
         { label: "Matches", value: String(discussions.length), detail: "discussions" },
@@ -142,7 +182,9 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         search: q,
         tagFilter: tag,
         authorId: effectiveAuthorId,
-        exploreSort
+        exploreSort,
+        scoreMode,
+        scorePeriod
       });
       const engagementBySlug =
         posts.length > 0 ? await fetchBlogEngagementCounts(posts.map((p) => p.slug)) : {};
@@ -216,6 +258,13 @@ export default async function ExplorePage({ searchParams }: PageProps) {
             initialQuery={q}
             initialTag={tag ?? null}
             initialSort={exploreSort}
+            scoreControls={
+              <ContentScoreSwitcher
+                mode={scoreMode}
+                period={scorePeriod}
+                contentType={contentType}
+              />
+            }
           />
         </CommunityListingsHero>
 

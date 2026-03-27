@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Tables } from "@/lib/database";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { buildPostUrl } from "@/lib/blog-urls";
+import type { ContentScoreSummary, ScoreMode, ScorePeriod } from "@/lib/content-scoring";
+import { buildContentScoreSummary, getPeriodStart, toIsoDate } from "@/lib/content-scoring";
 
 type BlogPostRow = Pick<
   Tables<"blog_posts">,
@@ -36,6 +38,7 @@ export type LandingFeaturedPost = {
   views: number;
   reactions: number;
   comments: number;
+  scoreSummary?: ContentScoreSummary;
 };
 
 export type LandingProfile = {
@@ -66,7 +69,10 @@ function scoreEngagement(views: number, reactions: number, comments: number): nu
   return views + reactions * 2 + comments * 3;
 }
 
-export async function fetchFeaturedBlogPosts(limit = 4): Promise<LandingFeaturedPost[]> {
+export async function fetchFeaturedBlogPosts(
+  limit = 4,
+  scoring?: { mode: ScoreMode; period: ScorePeriod }
+): Promise<LandingFeaturedPost[]> {
   const supabase = await getSupabase();
   if (!supabase) return [];
 
@@ -110,15 +116,18 @@ export async function fetchFeaturedBlogPosts(limit = 4): Promise<LandingFeatured
     }
   }
 
-  const engagementMap = await fetchEngagementCountsForSlugs(
-    supabase,
-    rows.map((row) => row.slug)
-  );
+  const sinceIso = scoring ? toIsoDate(getPeriodStart(scoring.period)) : undefined;
+  const engagementMap = await fetchEngagementCountsForSlugs(supabase, rows.map((row) => row.slug), sinceIso);
   const adminFeatured = rows.filter((row) => row.featured_on_community_landing);
 
   if (adminFeatured.length >= limit) {
     return adminFeatured.slice(0, limit).map((row) =>
-      mapPostRowToLandingPost(row, engagementMap[row.slug], row.author_id ? avatarByAuthorId[row.author_id] ?? null : null)
+      mapPostRowToLandingPost(
+        row,
+        engagementMap[row.slug],
+        row.author_id ? avatarByAuthorId[row.author_id] ?? null : null,
+        scoring
+      )
     );
   }
 
@@ -140,13 +149,27 @@ export async function fetchFeaturedBlogPosts(limit = 4): Promise<LandingFeatured
       const denominator = Math.pow(1 + ageDays, decayExponent);
       const score = denominator > 0 ? rawScore / denominator : rawScore;
 
-      return { row, score };
+      const scoreFromMode = scoring
+        ? buildContentScoreSummary({
+            mode: scoring.mode,
+            period: scoring.period,
+            metrics: counts,
+            publishedAt: row.published_at
+          }).score
+        : score;
+
+      return { row, score: scoreFromMode };
     })
     .sort((a, b) => b.score - a.score);
 
   const combined = [...adminFeatured, ...scored.map((item) => item.row)].slice(0, limit);
   return combined.map((row) =>
-    mapPostRowToLandingPost(row, engagementMap[row.slug], row.author_id ? avatarByAuthorId[row.author_id] ?? null : null)
+    mapPostRowToLandingPost(
+      row,
+      engagementMap[row.slug],
+      row.author_id ? avatarByAuthorId[row.author_id] ?? null : null,
+      scoring
+    )
   );
 }
 
@@ -417,7 +440,8 @@ export async function fetchForYouDiscussions(
 
 async function fetchEngagementCountsForSlugs(
   supabase: SupabaseClient<Database>,
-  slugs: string[]
+  slugs: string[],
+  sinceIso?: string
 ): Promise<Record<string, { views: number; reactions: number; comments: number }>> {
   const result: Record<string, { views: number; reactions: number; comments: number }> = {};
   if (slugs.length === 0) return result;
@@ -437,9 +461,9 @@ async function fetchEngagementCountsForSlugs(
     .eq("is_approved", true);
 
   const [viewsResult, reactionsResult, commentsResult] = await Promise.all([
-    viewPromise,
-    reactionsPromise,
-    commentsPromise
+    sinceIso ? viewPromise.gte("created_at", sinceIso) : viewPromise,
+    sinceIso ? reactionsPromise.gte("created_at", sinceIso) : reactionsPromise,
+    sinceIso ? commentsPromise.gte("created_at", sinceIso) : commentsPromise
   ]);
 
   slugs.forEach((slug) => {
@@ -476,9 +500,18 @@ async function fetchEngagementCountsForSlugs(
 function mapPostRowToLandingPost(
   row: BlogPostRow,
   counts: { views: number; reactions: number; comments: number } | undefined,
-  authorAvatarUrl?: string | null
+  authorAvatarUrl?: string | null,
+  scoring?: { mode: ScoreMode; period: ScorePeriod }
 ): LandingFeaturedPost {
   const safeCounts = counts ?? { views: 0, reactions: 0, comments: 0 };
+  const scoreSummary = scoring
+    ? buildContentScoreSummary({
+        mode: scoring.mode,
+        period: scoring.period,
+        metrics: safeCounts,
+        publishedAt: row.published_at
+      })
+    : undefined;
   return {
     id: row.id,
     slug: row.slug,
@@ -491,7 +524,8 @@ function mapPostRowToLandingPost(
     tags: row.tags ?? [],
     views: safeCounts.views,
     reactions: safeCounts.reactions,
-    comments: safeCounts.comments
+    comments: safeCounts.comments,
+    scoreSummary
   };
 }
 

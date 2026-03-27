@@ -1,6 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, Json, Tables } from "@/lib/database";
 import type { ExploreSort } from "@/lib/explore";
+import type { ContentScoreSummary, ScoreMode, ScorePeriod } from "@/lib/content-scoring";
+import { buildContentScoreSummary, getPeriodStart, toIsoDate } from "@/lib/content-scoring";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export interface BlogPostSection {
@@ -186,6 +188,7 @@ export interface BlogPostListItem {
   authorAvatarUrl: string | null;
   publishedAt: string | null;
   tags: string[];
+  scoreSummary?: ContentScoreSummary;
 }
 
 function matchBlogSearchPhrase(item: BlogPostListItem, phrase: string): boolean {
@@ -217,9 +220,22 @@ export async function getBlogPostsForCommunityList(
     anyOfTagNames?: string[];
     /** When set and not `date`, fetch a larger recent pool so in-memory sort by metrics is meaningful. */
     exploreSort?: ExploreSort;
+    scoreMode?: ScoreMode;
+    scorePeriod?: ScorePeriod;
   } = {}
 ): Promise<BlogPostListItem[]> {
-  const { limit = 32, offset = 0, search, tagFilter, authorId, authorIds, anyOfTagNames, exploreSort } = options;
+  const {
+    limit = 32,
+    offset = 0,
+    search,
+    tagFilter,
+    authorId,
+    authorIds,
+    anyOfTagNames,
+    exploreSort,
+    scoreMode,
+    scorePeriod
+  } = options;
   const hasSearch = Boolean(search?.trim());
   const metricSort = exploreSort != null && exploreSort !== "date";
   const fetchLimit = hasSearch
@@ -296,6 +312,28 @@ export async function getBlogPostsForCommunityList(
     publishedAt: r.published_at,
     tags: r.tags ?? []
   }));
+
+  if (scoreMode && scorePeriod) {
+    const engagementBySlug = await fetchBlogEngagementCountsForPeriod(
+      items.map((item) => item.slug),
+      scorePeriod
+    );
+
+    items = items
+      .map((item) => {
+        const metrics = engagementBySlug[item.slug] ?? { views: 0, reactions: 0, comments: 0 };
+        return {
+          ...item,
+          scoreSummary: buildContentScoreSummary({
+            mode: scoreMode,
+            period: scorePeriod,
+            metrics,
+            publishedAt: item.publishedAt
+          })
+        };
+      })
+      .sort((a, b) => (b.scoreSummary?.score ?? 0) - (a.scoreSummary?.score ?? 0));
+  }
 
   if (hasSearch) {
     items = items.filter((item) => matchBlogSearchPhrase(item, search!));
@@ -499,6 +537,44 @@ export async function fetchBlogEngagementCounts(
       reactions: reactionsResult.count ?? 0,
       comments: commentsResult.count ?? 0
     };
+  });
+
+  return result;
+}
+
+export async function fetchBlogEngagementCountsForPeriod(
+  slugs: string[],
+  period: ScorePeriod
+): Promise<Record<string, BlogEngagementCounts>> {
+  const supabase = await createServerSupabaseClient();
+  const empty: BlogEngagementCounts = { views: 0, reactions: 0, comments: 0 };
+  const result = Object.fromEntries(slugs.map((s) => [s, { ...empty }]));
+  if (slugs.length === 0 || !supabase) return result;
+
+  const sinceIso = toIsoDate(getPeriodStart(period));
+  const [viewsResult, reactionsResult, commentsResult] = await Promise.all([
+    supabase.from("blog_post_views").select("slug,created_at").in("slug", slugs).gte("created_at", sinceIso),
+    supabase
+      .from("blog_post_reactions")
+      .select("slug,created_at")
+      .in("slug", slugs)
+      .gte("created_at", sinceIso),
+    supabase
+      .from("blog_post_comments")
+      .select("slug,created_at")
+      .in("slug", slugs)
+      .eq("is_approved", true)
+      .gte("created_at", sinceIso)
+  ]);
+
+  (viewsResult.data ?? []).forEach((row: { slug: string }) => {
+    if (result[row.slug]) result[row.slug].views += 1;
+  });
+  (reactionsResult.data ?? []).forEach((row: { slug: string }) => {
+    if (result[row.slug]) result[row.slug].reactions += 1;
+  });
+  (commentsResult.data ?? []).forEach((row: { slug: string }) => {
+    if (result[row.slug]) result[row.slug].comments += 1;
   });
 
   return result;

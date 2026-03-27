@@ -2,6 +2,7 @@ import { BlogPostCard, AnimatedCardSection } from "@codebay/ui";
 import { fetchFeaturedBlogPosts } from "@/lib/landing";
 import { buildPostUrl } from "@/lib/blog-urls";
 import { mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
+import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
 
 export async function FeaturedBlogPostsSection() {
   const posts = await fetchFeaturedBlogPosts(4);
@@ -26,6 +27,7 @@ export async function FeaturedBlogPostsSection() {
             key={cardData.id}
             post={cardData}
             href={buildPostUrl(post.authorName, post.slug)}
+            headerSlot={post.scoreSummary ? <ContentScoreMarker summary={post.scoreSummary} /> : undefined}
             showAuthor
             showAuthorAvatar
             showDate
