@@ -4,7 +4,7 @@ import type { ScoreMode, ScorePeriod } from "@/lib/content-scoring";
 import { buildContentScoreSummary } from "@/lib/content-scoring";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getDiscussionsWithCounts } from "@/lib/discussions";
-import { getBlogPostsForCommunityList } from "@/lib/blog";
+import { fetchBlogEngagementCounts, getBlogPostsForCommunityList } from "@/lib/blog";
 import { buildBlogPostPath } from "@/lib/blog-urls";
 import { mapDiscussionListItemToDiscussionCardData, mapLandingFeaturedPostToBlogPostCardData } from "@/lib/ui-mappers";
 import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
@@ -18,6 +18,11 @@ type ScoredContentSectionProps = {
   title: string;
   description?: string;
   controlsSlot?: import("react").ReactNode;
+  /**
+   * `"headerEnd"` places score controls in the section header (replacing the in-header view-all link)
+   * and moves view-all below the cards. Default keeps controls under the subtitle (landing layout).
+   */
+  controlsSlotPosition?: "headerSlot" | "headerEnd";
   viewAllHref: string;
   viewAllLabel: string;
 };
@@ -30,6 +35,7 @@ export async function ScoredContentSection({
   title,
   description,
   controlsSlot,
+  controlsSlotPosition = "headerSlot",
   viewAllHref,
   viewAllLabel
 }: ScoredContentSectionProps) {
@@ -45,12 +51,16 @@ export async function ScoredContentSection({
     });
     if (discussions.length === 0) return null;
 
+    const useHeaderEndControls = controlsSlotPosition === "headerEnd" && Boolean(controlsSlot);
+
     return (
       <AnimatedCardSection
         as="section"
         title={title}
         subtitle={description}
-        headerSlot={controlsSlot}
+        headerSlot={useHeaderEndControls ? undefined : controlsSlot}
+        headerEndSlot={useHeaderEndControls ? controlsSlot : undefined}
+        viewAllPlacement={useHeaderEndControls ? "footer" : "header"}
         titleRightSlot={<ScoreModeInfoButton />}
         stackHeaderOnMobile
         columns={{ base: 1, sm: 2 }}
@@ -64,11 +74,7 @@ export async function ScoredContentSection({
             buildContentScoreSummary({
               mode: scoreMode,
               period: scorePeriod,
-              metrics: {
-                views: item.viewCount,
-                reactions: item.reactionCount,
-                comments: item.commentCount
-              },
+              metrics: { views: 0, reactions: 0, comments: 0 },
               publishedAt: item.createdAt
             });
           return (
@@ -96,12 +102,19 @@ export async function ScoredContentSection({
   });
   if (posts.length === 0) return null;
 
+  const engagementTotalsBySlug =
+    posts.length > 0 ? await fetchBlogEngagementCounts(posts.map((p) => p.slug)) : {};
+
+  const useHeaderEndControls = controlsSlotPosition === "headerEnd" && Boolean(controlsSlot);
+
   return (
     <AnimatedCardSection
       as="section"
       title={title}
       subtitle={description}
-      headerSlot={controlsSlot}
+      headerSlot={useHeaderEndControls ? undefined : controlsSlot}
+      headerEndSlot={useHeaderEndControls ? controlsSlot : undefined}
+      viewAllPlacement={useHeaderEndControls ? "footer" : "header"}
       titleRightSlot={<ScoreModeInfoButton />}
       stackHeaderOnMobile
       columns={{ base: 1, md: 2 }}
@@ -109,14 +122,14 @@ export async function ScoredContentSection({
       viewAllLabel={viewAllLabel}
     >
       {posts.map((post) => {
-        const counts =
-          post.scoreSummary?.metrics ?? { views: 0, reactions: 0, comments: 0 };
+        const displayCounts =
+          engagementTotalsBySlug[post.slug] ?? { views: 0, reactions: 0, comments: 0 };
         const scoreSummary =
           post.scoreSummary ??
           buildContentScoreSummary({
             mode: scoreMode,
             period: scorePeriod,
-            metrics: counts,
+            metrics: { views: 0, reactions: 0, comments: 0 },
             publishedAt: post.publishedAt
           });
         const cardData = mapLandingFeaturedPostToBlogPostCardData({
@@ -129,9 +142,9 @@ export async function ScoredContentSection({
           authorAvatarUrl: post.authorAvatarUrl,
           publishedAt: post.publishedAt,
           tags: post.tags,
-          views: counts.views,
-          reactions: counts.reactions,
-          comments: counts.comments
+          views: displayCounts.views,
+          reactions: displayCounts.reactions,
+          comments: displayCounts.comments
         });
         return (
           <BlogPostCard

@@ -19,6 +19,40 @@ Scoring behavior:
 - **Momentum (`hot`)** favors recent engagement with stronger time decay.
 - **Impact (`quality`)** favors sustained engagement and applies confidence scaling.
 
+### Inputs and metrics
+
+All scores use period-scoped **`ScoreMetrics`**: `views`, `reactions`, and `comments` counts for the selected window (not all-time). **`publishedAt`** is an ISO timestamp used only for **Momentum**; **Impact** ignores publish time.
+
+`log1p(x)` means **ln(1 + x)** (natural logarithm). Missing or invalid `publishedAt` is treated as **age 0 hours** for Momentum.
+
+### Momentum (`hot`) — `computeHotScore`
+
+Let `ageHours` = hours since `publishedAt` (≥ 0).
+
+1. **Weighted engagement:**  
+   `views × 1 + reactions × 3 + comments × 5`
+
+2. **Score:**  
+   `log1p(weightedEngagement) / (ageHours + 2)^1.35`
+
+Higher engagement raises the numerator; older posts are penalized by the denominator (gravity-style decay with offset `+2` and exponent `1.35`).
+
+### Impact (`quality`) — `computeQualityScore`
+
+1. **Raw quality (log-weighted mix):**  
+   `0.5 × log1p(views) + 2 × log1p(reactions) + 3 × log1p(comments)`
+
+2. **Confidence factor** (caps influence of very low total activity):  
+   `min(1, (views + reactions + comments) / 25)`
+
+3. **Score:**  
+   `rawQuality × confidenceFactor`
+
+### Dispatch — `computeScore`
+
+- **`quality`:** returns `computeQualityScore(metrics)` only.
+- **`hot`:** returns `computeHotScore(metrics, publishedAt, now)`.
+
 ## Explore Query Params
 
 Explore supports optional score params in addition to existing filter/sort params:
@@ -26,7 +60,7 @@ Explore supports optional score params in addition to existing filter/sort param
 - `score`: `hot` or `quality`
 - `period`: `24h`, `7d`, `30d`, or `365d`
 
-When these are omitted on routes that support scoring (Home, Explore default feed, `/discussions`, `/blogs`), the app uses **`quality` (Impact)** and **`7d`**—see `DEFAULT_SCORE_MODE` / `DEFAULT_SCORE_PERIOD` in `apps/community/src/lib/content-scoring.ts`.
+When these are omitted on routes that support scoring (Home, Explore default feed, `/discussions`, `/blogs`), the app uses **`hot` (Momentum)** and **`7d`**—see `DEFAULT_SCORE_MODE` / `DEFAULT_SCORE_PERIOD` in `apps/community/src/lib/content-scoring.ts`.
 
 When the default Explore feed is shown (no `forYou`, and no scoped filters `tag`, `author`, `q`, and no explicit `sort`), Explore renders a score-ranked section (`ScoredContentSection`) for the selected content type using the current `score` / `period` (including the defaults above when params are omitted).
 
@@ -35,7 +69,7 @@ When the default Explore feed is shown (no `forYou`, and no scoped filters `tag`
 The landing page includes a score control surface (`ContentScoreSwitcher`) and a scored list section (`ScoredContentSection`) so users can switch between:
 
 - discussions vs blog posts
-- Momentum vs Impact (defaults to Impact on first visit)
+- Momentum vs Impact (defaults to Momentum on first visit)
 - 24h / 7d / 30d / 365d windows (defaults to 7 days)
 
 ## Card-Level Score UI
@@ -48,7 +82,7 @@ The marker now uses icon-led mode affordances:
 
 The card marker keeps period context (`24H`, `7D`, `30D`, `1Y`) plus a sparkline.
 
-In `ScoredContentSection`, blog post cards show **views / reactions / comments for the same window as the score** (from `scoreSummary.metrics`), not all-time totals—so Momentum over `24h` matches the engagement numbers on the card.
+In `ScoredContentSection`, **card footers** show **all-time** views / reactions / comments (`fetchBlogEngagementCounts` for blogs; full maps in `getDiscussionsWithCounts` when Momentum/Impact ranking is active). The **score badge and sparkline** still reflect the selected period (`scoreSummary` built from period-scoped metrics in `getDiscussionsWithCounts` / `getBlogPostsForCommunityList`).
 
 ## Dashboard Score Columns + Window Toggle
 

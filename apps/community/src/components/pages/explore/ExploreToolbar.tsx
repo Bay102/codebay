@@ -32,7 +32,6 @@ export type ExploreToolbarProps = {
   initialQuery?: string;
   initialTag?: string | null;
   initialSort: ExploreSort;
-  scoreControls?: React.ReactNode;
 };
 
 export function ExploreToolbar({
@@ -40,8 +39,7 @@ export function ExploreToolbar({
   contentType,
   initialQuery = "",
   initialTag = null,
-  initialSort,
-  scoreControls
+  initialSort
 }: ExploreToolbarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -106,7 +104,7 @@ export function ExploreToolbar({
       allLabel="All topics"
       hidden={tags.length === 0}
       variant="secondary"
-      triggerClassName="h-10 w-full justify-between sm:w-auto sm:min-w-[10.5rem]"
+      triggerClassName="h-10 min-w-0 w-full justify-between"
     />
   );
 
@@ -156,7 +154,7 @@ export function ExploreToolbar({
       disabled={isPending}
     >
       <SelectTrigger
-        className="h-10 w-full shrink-0 sm:max-w-[12rem] md:w-[14rem] lg:w-[18rem]"
+        className="h-10 min-w-0 w-full shrink-0"
         aria-label={`Sort results by ${sortOptionLabel}`}
       >
         <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
@@ -181,22 +179,25 @@ export function ExploreToolbar({
 
   return (
     <div
-      className="min-w-0 max-w-full rounded-xl border border-border/60 bg-background/75 p-3 backdrop-blur-sm sm:p-4"
+      className="min-w-0 max-w-full rounded-xl border border-border/60 bg-background/75 p-2.5 backdrop-blur-sm sm:p-3 md:p-4"
       aria-label="Explore filters"
     >
-      <div className="flex min-w-0 max-w-full flex-col gap-3">
-        <div className="flex min-w-0 max-w-full flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 sm:pt-0.5">{contentTypeSegment}</div>
-          {scoreControls ? <div className="min-w-0 sm:pt-0.5">{scoreControls}</div> : null}
-        </div>
-        <div className="flex min-w-0 max-w-full flex-col gap-3 lg:flex-row lg:items-center lg:gap-3">
+      <div className="flex min-w-0 max-w-full flex-col gap-2 sm:gap-3">
+        <div className="min-w-0 max-w-full">{contentTypeSegment}</div>
+
+        <div className="min-w-0 max-w-full">
           {tags.length > 0 ? (
-            <div className="w-full shrink-0 lg:w-auto">{topicDropdown}</div>
-          ) : null}
-          <div className="min-w-0 shrink-0">{sortSelect}</div>
-          <div className="min-w-0 w-full max-w-full flex-1 basis-0">
-            {searchForm}
-          </div>
+            <div className="grid min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2 md:gap-3 lg:grid-cols-12">
+              <div className="min-w-0 lg:col-span-3">{topicDropdown}</div>
+              <div className="min-w-0 lg:col-span-4">{sortSelect}</div>
+              <div className="min-w-0 sm:col-span-2 lg:col-span-5">{searchForm}</div>
+            </div>
+          ) : (
+            <div className="grid min-w-0 max-w-full grid-cols-1 gap-2 sm:grid-cols-2 md:gap-3 lg:grid-cols-12">
+              <div className="min-w-0 lg:col-span-4">{sortSelect}</div>
+              <div className="min-w-0 sm:col-span-2 lg:col-span-8">{searchForm}</div>
+            </div>
+          )}
         </div>
       </div>
     </div>

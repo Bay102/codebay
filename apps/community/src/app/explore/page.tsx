@@ -152,6 +152,10 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         scoreMode={scoreMode}
         scorePeriod={scorePeriod}
         limit={12}
+        controlsSlotPosition="headerEnd"
+        controlsSlot={
+          <ContentScoreSwitcher mode={scoreMode} period={scorePeriod} contentType={contentType} />
+        }
         viewAllHref={contentType === "blogs" ? "/blogs" : "/discussions"}
         viewAllLabel={contentType === "blogs" ? "View all blog posts →" : "View all discussions →"}
       />
@@ -263,13 +267,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
             initialQuery={q}
             initialTag={tag ?? null}
             initialSort={exploreSort}
-            scoreControls={
-              <ContentScoreSwitcher
-                mode={scoreMode}
-                period={scorePeriod}
-                contentType={contentType}
-              />
-            }
           />
         </CommunityListingsHero>
 

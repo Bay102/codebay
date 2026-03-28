@@ -12,6 +12,7 @@ import {
   DialogTitle,
   getBlogSectionParagraphsFromContent
 } from "@codebay/ui";
+import { BlogPostPreviewDialog } from "./BlogPostPreviewDialog";
 import type { TablesInsert, TablesUpdate } from "@/lib/database";
 import { useAuth } from "@/contexts/AuthContext";
 import { TopicSelector } from "@/components/shared/TopicSelector";
@@ -65,6 +66,33 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+/** Mirrors submit-time section shaping so preview matches the published post body. */
+function buildPreviewSections(form: BlogPostEditorValues): { heading: string; paragraphs: string[] }[] {
+  const normalizedTitle = form.title.trim() || "Untitled";
+  const uiSections =
+    form.sections.length > 0
+      ? form.sections
+      : [
+          {
+            id: "section-1",
+            heading: "",
+            content: ""
+          }
+        ];
+
+  return uiSections
+    .map((section) => ({
+      heading: (section.heading || "").trim(),
+      content: (section.content || "").trim()
+    }))
+    .map(({ heading, content }) => {
+      const effectiveHeading = heading || normalizedTitle;
+      const paragraphs = getBlogSectionParagraphsFromContent(content);
+      return { heading: effectiveHeading, paragraphs };
+    })
+    .filter((section) => section.paragraphs.length > 0);
+}
+
 export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: BlogPostEditorFormProps) {
   const router = useRouter();
   const { supabase, session } = useAuth();
@@ -89,6 +117,7 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isTagsDialogOpen, setIsTagsDialogOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const getAuthorIdentifier = () => {
     const metadataUsername =
@@ -124,6 +153,11 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
     () => allowedTags.map((tag) => ({ id: tag.id, name: tag.name, slug: tag.slug })),
     [allowedTags]
   );
+
+  const previewReadTimeMinutes = useMemo(() => {
+    const readTime = Number.parseInt(form.readTimeMinutes, 10);
+    return Number.isFinite(readTime) && readTime > 0 ? readTime : 6;
+  }, [form.readTimeMinutes]);
 
   const handleSectionsChange = (nextSections: BlogPostSectionDraft[]) => {
     setForm((previous) => ({
@@ -453,18 +487,39 @@ export function BlogPostEditorForm({ mode, initialValues, allowedTags = [] }: Bl
               <option value="published">Published</option>
             </select>
           </label>
-          <FocusButton
-            type="submit"
-            radiusVariant="small"
-            colorVariant="primary"
-            borderVariant="bordered"
-            sizeVariant="md"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Saving..." : form.status === "published" ? "Save & publish" : "Save draft"}
-          </FocusButton>
+          <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              className="h-9"
+              onClick={() => setIsPreviewOpen(true)}
+              aria-label="Preview blog post"
+            >
+              Preview
+            </Button>
+            <FocusButton
+              type="submit"
+              radiusVariant="small"
+              colorVariant="primary"
+              borderVariant="bordered"
+              sizeVariant="md"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : form.status === "published" ? "Save & publish" : "Save draft"}
+            </FocusButton>
+          </div>
         </div>
       </form>
+      <BlogPostPreviewDialog
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        title={form.title}
+        excerpt={form.excerpt}
+        authorName={getDisplayAuthorName() || getAuthorIdentifier()}
+        readTimeMinutes={previewReadTimeMinutes}
+        tags={selectedTagNames}
+        sections={buildPreviewSections(form)}
+      />
     </section>
   );
 }

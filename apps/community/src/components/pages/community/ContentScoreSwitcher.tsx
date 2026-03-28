@@ -19,6 +19,7 @@ import type { ExploreContentType } from "@/lib/explore";
 import {
   getScoreModeDescription,
   getScoreModeLabel,
+  SCORE_MODE_ICON_CLASS,
   type ScoreMode,
   type ScorePeriod
 } from "@/lib/content-scoring";
@@ -28,7 +29,6 @@ type ContentScoreSwitcherProps = {
   period: ScorePeriod;
   contentType?: ExploreContentType;
   enableContentTypeToggle?: boolean;
-  showInfoButton?: boolean;
   className?: string;
 };
 
@@ -53,7 +53,6 @@ export function ContentScoreSwitcher({
   period,
   contentType = "discussions",
   enableContentTypeToggle = false,
-  showInfoButton = true,
   className
 }: ContentScoreSwitcherProps) {
   const router = useRouter();
@@ -83,93 +82,89 @@ export function ContentScoreSwitcher({
 
   return (
     <div className={className}>
-      <div className="flex items-center gap-1.5">
-        <div
-          className={cn(
-            "flex w-full max-w-full flex-col gap-1 rounded-xl border border-border/60 bg-muted/35 p-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)] sm:inline-flex sm:w-auto sm:flex-row sm:flex-wrap sm:items-stretch sm:justify-start"
-          )}
-          role="navigation"
-          aria-label="Score controls"
+      <div
+        className={cn(
+          "flex w-full max-w-full flex-col gap-1 rounded-xl border border-border/60 bg-muted/35 p-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)] sm:inline-flex sm:w-auto sm:flex-row sm:flex-wrap sm:items-stretch sm:justify-start"
+        )}
+        role="navigation"
+        aria-label="Score controls"
+      >
+        {enableContentTypeToggle ? (
+          <div className="flex w-full gap-1 sm:w-auto">
+            <Button
+              type="button"
+              variant="ghost"
+              className={cn(
+                "h-10 flex-1 rounded-lg px-3 text-sm font-medium sm:min-w-[7.5rem] sm:flex-none",
+                contentType === "discussions"
+                  ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
+                  : "text-muted-foreground hover:bg-background hover:text-foreground hover:shadow-sm hover:ring-1 hover:ring-border/60"
+              )}
+              disabled={isPending}
+              onClick={() => setParams({ type: "discussions" })}
+            >
+              Discussions
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className={cn(
+                "h-10 flex-1 rounded-lg px-3 text-sm font-medium sm:min-w-[7.5rem] sm:flex-none",
+                contentType === "blogs"
+                  ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
+                  : "text-muted-foreground hover:bg-background hover:text-foreground hover:shadow-sm hover:ring-1 hover:ring-border/60"
+              )}
+              disabled={isPending}
+              onClick={() => setParams({ type: "blogs" })}
+            >
+              Blog posts
+            </Button>
+          </div>
+        ) : null}
+
+        <Select
+          value={mode}
+          onValueChange={(value) => setParams({ score: value as ScoreMode })}
+          disabled={isPending}
         >
-          {enableContentTypeToggle ? (
-            <div className="flex w-full gap-1 sm:w-auto">
-              <Button
-                type="button"
-                variant="ghost"
-                className={cn(
-                  "h-10 flex-1 rounded-lg px-3 text-sm font-medium sm:min-w-[7.5rem] sm:flex-none",
-                  contentType === "discussions"
-                    ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
-                    : "text-muted-foreground hover:bg-background hover:text-foreground hover:shadow-sm hover:ring-1 hover:ring-border/60"
-                )}
-                disabled={isPending}
-                onClick={() => setParams({ type: "discussions" })}
-              >
-                Discussions
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className={cn(
-                  "h-10 flex-1 rounded-lg px-3 text-sm font-medium sm:min-w-[7.5rem] sm:flex-none",
-                  contentType === "blogs"
-                    ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
-                    : "text-muted-foreground hover:bg-background hover:text-foreground hover:shadow-sm hover:ring-1 hover:ring-border/60"
-                )}
-                disabled={isPending}
-                onClick={() => setParams({ type: "blogs" })}
-              >
-                Blog posts
-              </Button>
+          <SelectTrigger className="h-10 w-full rounded-lg border-0 bg-background text-sm shadow-sm ring-1 ring-border/60 sm:w-[10rem]">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <span className="truncate">{activeModeOption.label}</span>
+              <ActiveModeIcon className={cn("h-3.5 w-3.5", SCORE_MODE_ICON_CLASS[mode])} aria-hidden />
             </div>
-          ) : null}
+          </SelectTrigger>
+          <SelectContent>
+            {MODE_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                <span className="inline-flex items-center gap-1.5">
+                  {option.value === "hot" ? (
+                    <Flame className={cn("h-3.5 w-3.5", SCORE_MODE_ICON_CLASS.hot)} aria-hidden />
+                  ) : (
+                    <Target className={cn("h-3.5 w-3.5", SCORE_MODE_ICON_CLASS.quality)} aria-hidden />
+                  )}
+                  <span>{option.label}</span>
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-            <Select
-              value={mode}
-              onValueChange={(value) => setParams({ score: value as ScoreMode })}
-              disabled={isPending}
-            >
-              <SelectTrigger className="h-10 w-full rounded-lg border-0 bg-background text-sm shadow-sm ring-1 ring-border/60 sm:w-[10rem]">
-                <div className="flex min-w-0 items-center gap-1.5">
-                  <span className="truncate">{activeModeOption.label}</span>
-                  <ActiveModeIcon className="h-3.5 w-3.5 text-primary/90" aria-hidden />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                {MODE_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className="inline-flex items-center gap-1.5">
-                      {option.value === "hot" ? (
-                        <Flame className="h-3.5 w-3.5 text-primary/90" aria-hidden />
-                      ) : (
-                        <Target className="h-3.5 w-3.5 text-primary/90" aria-hidden />
-                      )}
-                      <span>{option.label}</span>
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={period}
-              onValueChange={(value) => setParams({ period: value as ScorePeriod })}
-              disabled={isPending}
-            >
-              <SelectTrigger className="h-10 w-full rounded-lg border-0 bg-background text-sm shadow-sm ring-1 ring-border/60 sm:w-[10rem]">
-                <SelectValue placeholder="Time window" />
-              </SelectTrigger>
-              <SelectContent>
-                {PERIOD_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-        </div>
-
-        {showInfoButton ? <ScoreModeInfoButton /> : null}
+        <Select
+          value={period}
+          onValueChange={(value) => setParams({ period: value as ScorePeriod })}
+          disabled={isPending}
+        >
+          <SelectTrigger className="h-10 w-full rounded-lg border-0 bg-background text-sm shadow-sm ring-1 ring-border/60 sm:w-[10rem]">
+            <SelectValue placeholder="Time window" />
+          </SelectTrigger>
+          <SelectContent>
+            {PERIOD_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -202,13 +197,13 @@ export function ScoreModeInfoButton({ className }: ScoreModeInfoButtonProps) {
         onMouseLeave={() => setIsInfoOpen(false)}
       >
         <p className="flex items-start gap-1.5">
-          <Flame className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
+          <Flame className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", SCORE_MODE_ICON_CLASS.hot)} aria-hidden />
           <span className="text-pretty">
             <strong className="text-foreground">{getScoreModeLabel("hot")}.</strong> {getScoreModeDescription("hot")}
           </span>
         </p>
         <p className="flex items-start gap-1.5">
-          <Target className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary/90" aria-hidden />
+          <Target className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", SCORE_MODE_ICON_CLASS.quality)} aria-hidden />
           <span className="text-pretty">
             <strong className="text-foreground">{getScoreModeLabel("quality")}.</strong>{" "}
             {getScoreModeDescription("quality")}

@@ -27,16 +27,22 @@ export type AnimatedCardSectionProps<T> = {
   emptyState?: ReactNode;
   viewAllHref?: string;
   viewAllLabel?: string;
+  /** When `"footer"`, the view-all link renders below the card grid (right-aligned). Default keeps it in the header. */
+  viewAllPlacement?: "header" | "footer";
   columns?: ColumnsConfig;
   className?: string;
   headerClassName?: string;
   gridClassName?: string;
   footerClassName?: string;
   headerSlot?: ReactNode;
+  /** Renders in the header row on the end side (e.g. top-right with `stackHeaderOnMobile`). */
+  headerEndSlot?: ReactNode;
+  /** Rendered to the left of the title (e.g. icon button). */
   titleRightSlot?: ReactNode;
   /**
-   * When enabled, stack header content on base/md and place the view-all link
-   * above the title block. Desktop keeps a split layout.
+   * When enabled, stack the header on narrow viewports: title first, then the
+   * end slot (e.g. score controls) below. From `md` up, title and end slot sit
+   * on one row (title left, end slot right). In-header view-all follows the end slot.
    */
   stackHeaderOnMobile?: boolean;
   children?: ReactNode;
@@ -106,12 +112,14 @@ export function AnimatedCardSection<T>({
   emptyState,
   viewAllHref,
   viewAllLabel = "View all",
+  viewAllPlacement = "header",
   columns,
   className,
   headerClassName,
   gridClassName,
   footerClassName,
   headerSlot,
+  headerEndSlot,
   titleRightSlot,
   stackHeaderOnMobile = false,
   children,
@@ -164,6 +172,10 @@ export function AnimatedCardSection<T>({
   const hasItems = Array.isArray(items) && items.length > 0 && typeof renderItem === "function";
   const gridClasses = getGridColumnsClasses(columns);
 
+  const showViewAllInHeader = Boolean(viewAllHref && viewAllPlacement === "header");
+  const showHeaderRow =
+    Boolean(eyebrow || title || subtitle || headerSlot || headerEndSlot) || showViewAllInHeader;
+
   return (
     <Component
       ref={ref as any}
@@ -172,34 +184,25 @@ export function AnimatedCardSection<T>({
       style={animationStyle}
       {...rest}
     >
-      {(eyebrow || title || subtitle || viewAllHref) && (
+      {showHeaderRow ? (
         <div
           className={cn(
             stackHeaderOnMobile
-              ? "flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between"
+              ? "flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
               : "flex items-center justify-between gap-2",
             headerClassName
           )}
         >
-          {stackHeaderOnMobile && viewAllHref ? (
-            <Link
-              href={viewAllHref}
-              className="self-start text-sm font-medium text-primary hover:underline lg:order-2 lg:shrink-0"
-            >
-              {viewAllLabel}
-            </Link>
-          ) : null}
-
-          <div className={cn("min-w-0", stackHeaderOnMobile && "w-full lg:order-1")}>
+          <div className={cn("min-w-0", stackHeaderOnMobile && "w-full md:min-w-0 md:flex-1")}>
             {eyebrow ? (
               <p className="text-xs font-semibold uppercase tracking-wide text-primary">{eyebrow}</p>
             ) : null}
             {title ? (
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+              <div className="flex items-center gap-2">
+                {titleRightSlot ? <div className="shrink-0">{titleRightSlot}</div> : null}
+                <h2 className="min-w-0 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                   {title}
                 </h2>
-                {titleRightSlot ? <div className="shrink-0">{titleRightSlot}</div> : null}
               </div>
             ) : null}
             {subtitle ? (
@@ -210,16 +213,30 @@ export function AnimatedCardSection<T>({
             {headerSlot ? <div className={cn("mt-2", stackHeaderOnMobile && "w-full")}>{headerSlot}</div> : null}
           </div>
 
-          {!stackHeaderOnMobile && viewAllHref ? (
-            <Link
-              href={viewAllHref}
-              className="shrink-0 text-sm font-medium text-primary hover:underline"
-            >
-              {viewAllLabel}
-            </Link>
+          {stackHeaderOnMobile && (headerEndSlot || showViewAllInHeader) ? (
+            <div className="w-full shrink-0 self-start md:w-auto md:self-center">
+              {headerEndSlot ? (
+                headerEndSlot
+              ) : showViewAllInHeader ? (
+                <Link href={viewAllHref!} className="text-sm font-medium text-primary hover:underline">
+                  {viewAllLabel}
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
+
+          {!stackHeaderOnMobile && (headerEndSlot || showViewAllInHeader) ? (
+            <div className="flex shrink-0 items-center gap-3">
+              {headerEndSlot}
+              {showViewAllInHeader ? (
+                <Link href={viewAllHref!} className="text-sm font-medium text-primary hover:underline">
+                  {viewAllLabel}
+                </Link>
+              ) : null}
+            </div>
           ) : null}
         </div>
-      )}
+      ) : null}
 
       {hasItems ? (
         <div className={cn("mt-3", ...gridClasses, gridClassName)}>
@@ -230,6 +247,14 @@ export function AnimatedCardSection<T>({
       ) : (
         emptyState ?? null
       )}
+
+      {viewAllHref && viewAllPlacement === "footer" ? (
+        <div className={cn("mt-4 flex justify-end", footerClassName)}>
+          <Link href={viewAllHref} className="text-sm font-medium text-primary hover:underline">
+            {viewAllLabel}
+          </Link>
+        </div>
+      ) : null}
     </Component>
   );
 }

@@ -261,6 +261,55 @@ function parseGraphPoints(value: unknown): number[] {
     .slice(-24);
 }
 
+function aggregateDiscussionIdCounts(rows: { discussion_id: string }[] | null): Map<string, number> {
+  const map = new Map<string, number>();
+  for (const row of rows ?? []) {
+    map.set(row.discussion_id, (map.get(row.discussion_id) ?? 0) + 1);
+  }
+  return map;
+}
+
+/** When `sinceIso` is set, only rows at or after that timestamp are counted. */
+async function fetchDiscussionEngagementCountMaps(
+  supabase: SupabaseClient<Database>,
+  discussionIds: string[],
+  sinceIso: string | null
+): Promise<{
+  views: Map<string, number>;
+  comments: Map<string, number>;
+  reactions: Map<string, number>;
+}> {
+  if (discussionIds.length === 0) {
+    return {
+      views: new Map(),
+      comments: new Map(),
+      reactions: new Map()
+    };
+  }
+
+  const viewBase = supabase.from("discussion_views").select("discussion_id").in("discussion_id", discussionIds);
+  const commentBase = supabase
+    .from("discussion_comments")
+    .select("discussion_id")
+    .in("discussion_id", discussionIds);
+  const reactionBase = supabase
+    .from("discussion_reactions")
+    .select("discussion_id")
+    .in("discussion_id", discussionIds);
+
+  const [viewRes, commentRes, reactionRes] = await Promise.all([
+    sinceIso ? viewBase.gte("created_at", sinceIso) : viewBase,
+    sinceIso ? commentBase.gte("created_at", sinceIso) : commentBase,
+    sinceIso ? reactionBase.gte("created_at", sinceIso) : reactionBase
+  ]);
+
+  return {
+    views: aggregateDiscussionIdCounts(viewRes.data as { discussion_id: string }[] | null),
+    comments: aggregateDiscussionIdCounts(commentRes.data as { discussion_id: string }[] | null),
+    reactions: aggregateDiscussionIdCounts(reactionRes.data as { discussion_id: string }[] | null)
+  };
+}
+
 function sortDiscussionsForExplore(items: DiscussionListItem[], sort: ExploreSort): DiscussionListItem[] {
   const copy = [...items];
   switch (sort) {
@@ -370,32 +419,39 @@ export async function getDiscussionsWithCounts(
   if (error || !rows || rows.length === 0) return [];
 
   const ids = rows.map((r) => (r as { id: string }).id);
-  const sinceIso = scorePeriod ? toIsoDate(getPeriodStart(scorePeriod)) : null;
-  const viewCountQuery = supabase.from("discussion_views").select("discussion_id").in("discussion_id", ids);
-  const commentCountQuery = supabase.from("discussion_comments").select("discussion_id").in("discussion_id", ids);
-  const reactionCountQuery = supabase
-    .from("discussion_reactions")
-    .select("discussion_id")
-    .in("discussion_id", ids);
+  const scoringWithPeriod = Boolean(scoreMode && scorePeriod);
+  const legacyPeriodOnlyFilter = Boolean(scorePeriod && !scoreMode);
+  const singleFetchSinceIso =
+    legacyPeriodOnlyFilter && scorePeriod ? toIsoDate(getPeriodStart(scorePeriod)) : null;
 
-  const [viewCounts, commentCounts, reactionCounts] = await Promise.all([
-    sinceIso ? viewCountQuery.gte("created_at", sinceIso) : viewCountQuery,
-    sinceIso ? commentCountQuery.gte("created_at", sinceIso) : commentCountQuery,
-    sinceIso ? reactionCountQuery.gte("created_at", sinceIso) : reactionCountQuery
-  ]);
+  let viewByDiscussion: Map<string, number>;
+  let commentByDiscussion: Map<string, number>;
+  let reactionByDiscussion: Map<string, number>;
+  let periodViewByDiscussion: Map<string, number>;
+  let periodCommentByDiscussion: Map<string, number>;
+  let periodReactionByDiscussion: Map<string, number>;
 
-  const viewByDiscussion = new Map<string, number>();
-  (viewCounts.data ?? []).forEach((r: { discussion_id: string }) => {
-    viewByDiscussion.set(r.discussion_id, (viewByDiscussion.get(r.discussion_id) ?? 0) + 1);
-  });
-  const commentByDiscussion = new Map<string, number>();
-  (commentCounts.data ?? []).forEach((r: { discussion_id: string }) => {
-    commentByDiscussion.set(r.discussion_id, (commentByDiscussion.get(r.discussion_id) ?? 0) + 1);
-  });
-  const reactionByDiscussion = new Map<string, number>();
-  (reactionCounts.data ?? []).forEach((r: { discussion_id: string }) => {
-    reactionByDiscussion.set(r.discussion_id, (reactionByDiscussion.get(r.discussion_id) ?? 0) + 1);
-  });
+  if (scoringWithPeriod && scorePeriod) {
+    const periodStartIso = toIsoDate(getPeriodStart(scorePeriod));
+    const [allTimeMaps, periodMaps] = await Promise.all([
+      fetchDiscussionEngagementCountMaps(supabase, ids, null),
+      fetchDiscussionEngagementCountMaps(supabase, ids, periodStartIso)
+    ]);
+    viewByDiscussion = allTimeMaps.views;
+    commentByDiscussion = allTimeMaps.comments;
+    reactionByDiscussion = allTimeMaps.reactions;
+    periodViewByDiscussion = periodMaps.views;
+    periodCommentByDiscussion = periodMaps.comments;
+    periodReactionByDiscussion = periodMaps.reactions;
+  } else {
+    const maps = await fetchDiscussionEngagementCountMaps(supabase, ids, singleFetchSinceIso);
+    viewByDiscussion = maps.views;
+    commentByDiscussion = maps.comments;
+    reactionByDiscussion = maps.reactions;
+    periodViewByDiscussion = maps.views;
+    periodCommentByDiscussion = maps.comments;
+    periodReactionByDiscussion = maps.reactions;
+  }
 
   type Row = DiscussionRow & {
     community_users: { name: string; username: string; avatar_url: string | null } | null;
@@ -437,9 +493,9 @@ export async function getDiscussionsWithCounts(
           mode: scoreMode,
           period: scorePeriod,
           metrics: {
-            views: item.viewCount,
-            reactions: item.reactionCount,
-            comments: item.commentCount
+            views: periodViewByDiscussion.get(item.id) ?? 0,
+            reactions: periodReactionByDiscussion.get(item.id) ?? 0,
+            comments: periodCommentByDiscussion.get(item.id) ?? 0
           },
           publishedAt: item.createdAt
         })

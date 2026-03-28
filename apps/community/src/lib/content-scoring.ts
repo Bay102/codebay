@@ -26,8 +26,14 @@ export const SCORE_PERIODS: ScorePeriod[] = ["24h", "7d", "30d", "365d"];
 export const SCORE_MODES: ScoreMode[] = ["hot", "quality"];
 
 /** URL-agnostic defaults when `score` / `period` query params are omitted */
-export const DEFAULT_SCORE_MODE: ScoreMode = "quality";
+export const DEFAULT_SCORE_MODE: ScoreMode = "hot";
 export const DEFAULT_SCORE_PERIOD: ScorePeriod = "7d";
+
+/** Lucide stroke colors for Flame / Target when denoting score modes (matches dashboard + tooltips). */
+export const SCORE_MODE_ICON_CLASS: Record<ScoreMode, string> = {
+  hot: "text-amber-600 dark:text-amber-400",
+  quality: "text-sky-700 dark:text-sky-300"
+};
 
 export function getScoreModeLabel(mode: ScoreMode): string {
   return mode === "hot" ? "Momentum" : "Impact";

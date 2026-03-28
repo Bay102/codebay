@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { cn } from "@codebay/ui";
 import { FileText, Flame, MessageSquareText, Target } from "lucide-react";
-import { buildContentScoreSummary, type ScorePeriod } from "@/lib/content-scoring";
+import { buildContentScoreSummary, SCORE_MODE_ICON_CLASS, type ScorePeriod } from "@/lib/content-scoring";
 import { ContentScoreSparkline } from "@/components/shared/ContentScoreSparkline";
 
 export type ProfileRecentActivityItem = {
@@ -181,7 +182,7 @@ export function ProfileRecentActivitySection({
                       </div>
                       <div className="ml-1 flex shrink-0 items-center gap-1.5">
                         <span className="inline-flex items-center gap-1 rounded border border-border/60 bg-background/75 px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
-                          <Flame className="h-3 w-3 text-primary/90" aria-hidden />
+                          <Flame className={cn("h-3 w-3", SCORE_MODE_ICON_CLASS.hot)} aria-hidden />
                           <ContentScoreSparkline
                             summary={item.momentum}
                             width={24}
@@ -190,7 +191,7 @@ export function ProfileRecentActivitySection({
                           />
                         </span>
                         <span className="inline-flex items-center gap-1 rounded border border-border/60 bg-background/75 px-1.5 py-0.5 text-[10px] font-medium uppercase text-muted-foreground">
-                          <Target className="h-3 w-3 text-primary/90" aria-hidden />
+                          <Target className={cn("h-3 w-3", SCORE_MODE_ICON_CLASS.quality)} aria-hidden />
                           <ContentScoreSparkline
                             summary={item.impact}
                             width={24}
