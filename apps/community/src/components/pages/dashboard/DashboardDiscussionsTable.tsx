@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { cn } from "@codebay/ui";
 import { ArrowDownRight, ArrowUpRight, ExternalLink, Flame, MessageSquare, Minus, Target } from "lucide-react";
-import { buildContentScoreSummary } from "@/lib/content-scoring";
+import { buildContentScoreSummary, SCORE_MODE_ICON_CLASS } from "@/lib/content-scoring";
 import type { DashboardDiscussionSummary, KpiPeriod } from "@/lib/dashboard";
 import type { DiscussionListItem } from "@/lib/discussions";
 import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
@@ -181,13 +182,13 @@ export function DashboardDiscussionsTable({
                 <th className="py-3 px-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <span className="inline-flex items-center justify-end gap-1">
                     <span>Momentum</span>
-                    <Flame className="h-3.5 w-3.5 text-primary/90" aria-hidden />
+                    <Flame className={cn("h-3.5 w-3.5", SCORE_MODE_ICON_CLASS.hot)} aria-hidden />
                   </span>
                 </th>
                 <th className="py-3 px-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <span className="inline-flex items-center justify-end gap-1">
                     <span>Impact</span>
-                    <Target className="h-3.5 w-3.5 text-primary/90" aria-hidden />
+                    <Target className={cn("h-3.5 w-3.5", SCORE_MODE_ICON_CLASS.quality)} aria-hidden />
                   </span>
                 </th>
                 <th className="py-3 pl-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">

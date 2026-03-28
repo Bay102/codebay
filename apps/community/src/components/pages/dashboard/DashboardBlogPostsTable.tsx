@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { cn } from "@codebay/ui";
 import { ArrowDownRight, ArrowUpRight, ExternalLink, FileText, Flame, Minus, Pencil, Target } from "lucide-react";
 import type { DashboardBlogPostStats, DashboardBlogSummary } from "@/lib/dashboard";
 import type { KpiPeriod } from "@/lib/dashboard";
-import { buildContentScoreSummary } from "@/lib/content-scoring";
-import { buildPostUrl } from "@/lib/blog-urls";
+import { buildContentScoreSummary, SCORE_MODE_ICON_CLASS } from "@/lib/content-scoring";
+import { buildBlogPostPath, buildPostUrl } from "@/lib/blog-urls";
 import { ContentScoreMarker } from "@/components/shared/ContentScoreMarker";
 import { FocusButton } from "@/components/shared/buttons/FocusButton";
 
@@ -186,13 +187,13 @@ export function DashboardBlogPostsTable({
                 <th className="py-3 px-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <span className="inline-flex items-center justify-end gap-1">
                     <span>Momentum</span>
-                    <Flame className="h-3.5 w-3.5 text-primary/90" aria-hidden />
+                    <Flame className={cn("h-3.5 w-3.5", SCORE_MODE_ICON_CLASS.hot)} aria-hidden />
                   </span>
                 </th>
                 <th className="py-3 px-2 text-right text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <span className="inline-flex items-center justify-end gap-1">
                     <span>Impact</span>
-                    <Target className="h-3.5 w-3.5 text-primary/90" aria-hidden />
+                    <Target className={cn("h-3.5 w-3.5", SCORE_MODE_ICON_CLASS.quality)} aria-hidden />
                   </span>
                 </th>
                 <th className="py-3 pl-2 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -206,8 +207,10 @@ export function DashboardBlogPostsTable({
             <tbody>
               {displayPosts.map((post) => {
                 const viewUrl = buildPostUrl(post.authorName, post.slug);
+                const publicPostPath = buildBlogPostPath(post.authorName, post.slug);
                 const editUrl = `/dashboard/blog/edit/${post.id}`;
                 const isPublished = post.status === "published";
+                const titleHref = isPublished ? publicPostPath : editUrl;
                 const momentumSummary = buildContentScoreSummary({
                   mode: "hot",
                   period: scorePeriod,
@@ -236,7 +239,7 @@ export function DashboardBlogPostsTable({
                   >
                     <td className="py-3 pr-4">
                       <Link
-                        href={editUrl}
+                        href={titleHref}
                         className="font-medium text-foreground underline-offset-4 hover:underline"
                       >
                         {post.title || "Untitled"}

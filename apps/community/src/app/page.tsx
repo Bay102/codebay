@@ -101,7 +101,6 @@ export default async function CommunityLandingPage({ searchParams }: CommunityLa
                 period={scorePeriod}
                 contentType={scoreContentType}
                 enableContentTypeToggle
-                showInfoButton={false}
               />
             }
             contentType={scoreContentType}

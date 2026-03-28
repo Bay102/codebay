@@ -88,7 +88,7 @@ export function CommunityListingsHero({
             >
               {backLabel}
             </Link>
-            <div className="inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary">
+            <div className="hidden w-fit shrink-0 items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-[11px] font-medium uppercase tracking-[0.24em] text-primary sm:inline-flex">
               <EyebrowIcon className="h-3.5 w-3.5 shrink-0" aria-hidden />
               {eyebrow}
             </div>
@@ -121,7 +121,7 @@ export function CommunityListingsHero({
 
         {stats && stats.length > 0 ? (
           <div className="flex flex-col gap-3">
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+            <div className="hidden gap-3 sm:grid sm:grid-cols-3 lg:grid-cols-1">
               {stats.map((stat) => (
                 <div
                   key={stat.label}

@@ -49,7 +49,7 @@ export function ExploreContentTypeSegment({
               key={opt.value}
               htmlFor={inputId}
               className={cn(
-                "relative flex min-h-[2.5rem] min-w-0 flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-center text-sm font-medium transition-colors peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background sm:min-w-[7.5rem] sm:flex-none",
+                "relative flex min-h-[2.5rem] shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg px-3 py-2 text-center text-sm font-medium transition-colors peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background sm:min-w-[7.5rem]",
                 selected
                   ? "bg-background text-foreground shadow-sm ring-1 ring-border/60"
                   : "text-muted-foreground hover:bg-background/50 hover:text-foreground",
@@ -75,7 +75,7 @@ export function ExploreContentTypeSegment({
                 )}
                 aria-hidden
               />
-              <span className="truncate">{opt.label}</span>
+              <span className="whitespace-nowrap">{opt.label}</span>
             </label>
           );
         })}

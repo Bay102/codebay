@@ -430,14 +430,14 @@ export function BlogRichTextEditor({ sections, onChange, disabled }: BlogRichTex
         ))}
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex w-full justify-center">
         <button
           type="button"
           onClick={addSection}
           disabled={disabled}
-          className="inline-flex items-center gap-1 rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
         >
-          <PlusCircle className="h-3.5 w-3.5" />
+          <PlusCircle className="h-3.5 w-3.5 shrink-0" />
           <span>Add section</span>
         </button>
       </div>
