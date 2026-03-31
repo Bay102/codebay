@@ -24,7 +24,9 @@ const MOCK_BLOG_ITEMS: DigestBlogItem[] = [
     publishedAt: "2025-03-18T14:30:00.000Z",
     viewCount: 1284,
     reactionCount: 42,
-    commentCount: 17
+    commentCount: 17,
+    momentumScore7d: 0.42,
+    impactScore7d: 3.8
   },
   {
     title: "RLS patterns that survived our first 10k daily active users",
@@ -34,7 +36,9 @@ const MOCK_BLOG_ITEMS: DigestBlogItem[] = [
     publishedAt: "2025-03-16T09:15:00.000Z",
     viewCount: 892,
     reactionCount: 31,
-    commentCount: 9
+    commentCount: 9,
+    momentumScore7d: 0.27,
+    impactScore7d: 2.4
   },
   {
     title: "A practical checklist before you add cron to Vercel",
@@ -44,7 +48,9 @@ const MOCK_BLOG_ITEMS: DigestBlogItem[] = [
     publishedAt: "2025-03-12T18:00:00.000Z",
     viewCount: 2103,
     reactionCount: 56,
-    commentCount: 24
+    commentCount: 24,
+    momentumScore7d: 0.63,
+    impactScore7d: 4.9
   }
 ];
 
@@ -56,7 +62,9 @@ const MOCK_DISCUSSION_ITEMS: DigestDiscussionItem[] = [
     authorAvatarUrl: "https://picsum.photos/seed/morganpatel/80/80",
     createdAt: "2025-03-19T11:22:00.000Z",
     commentCount: 34,
-    reactionCount: 18
+    reactionCount: 18,
+    momentumScore7d: 0.58,
+    impactScore7d: 4.1
   },
   {
     title: "Best practices for email digests without annoying power users",
@@ -65,7 +73,9 @@ const MOCK_DISCUSSION_ITEMS: DigestDiscussionItem[] = [
     authorAvatarUrl: null,
     createdAt: "2025-03-17T08:45:00.000Z",
     commentCount: 12,
-    reactionCount: 7
+    reactionCount: 7,
+    momentumScore7d: 0.19,
+    impactScore7d: 1.7
   }
 ];
 
