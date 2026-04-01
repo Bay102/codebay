@@ -26,6 +26,10 @@ export interface DigestBlogItem {
   viewCount: number;
   reactionCount: number;
   commentCount: number;
+  /** 7D Momentum score (hot mode) for rankings line. */
+  momentumScore7d?: number | null;
+  /** 7D Impact score (quality mode) for rankings line. */
+  impactScore7d?: number | null;
 }
 
 export interface DigestDiscussionItem {
@@ -36,6 +40,10 @@ export interface DigestDiscussionItem {
   createdAt: string;
   commentCount: number;
   reactionCount: number;
+  /** 7D Momentum score (hot mode) for rankings line. */
+  momentumScore7d?: number | null;
+  /** 7D Impact score (quality mode) for rankings line. */
+  impactScore7d?: number | null;
 }
 
 type FollowedCreatorsDigestEmailProps = {
@@ -155,6 +163,63 @@ function formatDiscussionEngagement(item: DigestDiscussionItem): string {
   ].join(" · ");
 }
 
+function formatScoreForEmail(score: number | null | undefined, mode: "hot" | "quality"): string {
+  if (!Number.isFinite(score ?? NaN)) return "0.00";
+  const base = score ?? 0;
+  const value = mode === "hot" ? base * 100 : base;
+  if (value === 0) return "0.00";
+  if (value >= 10) return value.toFixed(1);
+  return value.toFixed(2);
+}
+
+function normalizeScoreForSparkline(score: number | null | undefined, mode: "hot" | "quality"): number {
+  if (!Number.isFinite(score ?? NaN)) return 0;
+  const base = score ?? 0;
+  const visualScore = mode === "hot" ? base * 100 : base;
+  const maxReference = mode === "hot" ? 420 : 5;
+  let normalized = Math.log1p(Math.max(0, visualScore)) / Math.log1p(maxReference);
+  normalized = Math.min(1, Math.max(0, normalized));
+  if (mode === "hot") {
+    normalized = Math.pow(normalized, 1.55);
+  }
+  return normalized;
+}
+
+function renderScoreSparkline(score: number | null | undefined, mode: "hot" | "quality") {
+  const width = 40;
+  const height = 14;
+  const baseline = height - 2;
+  const intensity = normalizeScoreForSparkline(score, mode);
+  const peakY = baseline - intensity * (height - 4);
+  const points = [
+    `0,${baseline}`,
+    `${(width * 0.35).toFixed(2)},${baseline}`,
+    `${(width * 0.7).toFixed(2)},${peakY.toFixed(2)}`,
+    `${width},${baseline}`
+  ].join(" ");
+  const strokeColor = mode === "hot" ? "#f97316" : "#38bdf8";
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      aria-hidden="true"
+      style={styles.scoreSparkline}
+    >
+      <polyline
+        points={points}
+        fill="none"
+        stroke={strokeColor}
+        strokeWidth={1.4}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity={0.95}
+      />
+    </svg>
+  );
+}
+
 function DigestAuthorMedia({
   authorName,
   authorAvatarUrl
@@ -269,6 +334,34 @@ export function FollowedCreatorsDigestEmail({
                     <Text className="email-muted" style={styles.itemStats}>
                       {formatBlogEngagement(item)}
                     </Text>
+                    {(item.momentumScore7d != null || item.impactScore7d != null) && (
+                      <div style={styles.scoreRow}>
+                        {item.momentumScore7d != null ? (
+                          <div style={styles.scorePill}>
+                            <span style={styles.scorePillLabel}>Momentum</span>
+                            <span style={styles.scorePillSeparator}>·</span>
+                            <span style={styles.scorePillPeriod}>7D</span>
+                            <span style={styles.scorePillSeparator}>|</span>
+                            <span style={styles.scorePillValueHot}>
+                              {formatScoreForEmail(item.momentumScore7d, "hot")}
+                            </span>
+                            {renderScoreSparkline(item.momentumScore7d, "hot")}
+                          </div>
+                        ) : null}
+                        {item.impactScore7d != null ? (
+                          <div style={styles.scorePill}>
+                            <span style={styles.scorePillLabel}>Impact</span>
+                            <span style={styles.scorePillSeparator}>·</span>
+                            <span style={styles.scorePillPeriod}>7D</span>
+                            <span style={styles.scorePillSeparator}>|</span>
+                            <span style={styles.scorePillValueQuality}>
+                              {formatScoreForEmail(item.impactScore7d, "quality")}
+                            </span>
+                            {renderScoreSparkline(item.impactScore7d, "quality")}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
                   </DigestItemRow>
                 </Section>
               ))}
@@ -304,6 +397,34 @@ export function FollowedCreatorsDigestEmail({
                     <Text className="email-muted" style={styles.itemStats}>
                       {formatDiscussionEngagement(item)}
                     </Text>
+                    {(item.momentumScore7d != null || item.impactScore7d != null) && (
+                      <div style={styles.scoreRow}>
+                        {item.momentumScore7d != null ? (
+                          <div style={styles.scorePill}>
+                            <span style={styles.scorePillLabel}>Momentum</span>
+                            <span style={styles.scorePillSeparator}>·</span>
+                            <span style={styles.scorePillPeriod}>7D</span>
+                            <span style={styles.scorePillSeparator}>|</span>
+                            <span style={styles.scorePillValueHot}>
+                              {formatScoreForEmail(item.momentumScore7d, "hot")}
+                            </span>
+                            {renderScoreSparkline(item.momentumScore7d, "hot")}
+                          </div>
+                        ) : null}
+                        {item.impactScore7d != null ? (
+                          <div style={styles.scorePill}>
+                            <span style={styles.scorePillLabel}>Impact</span>
+                            <span style={styles.scorePillSeparator}>·</span>
+                            <span style={styles.scorePillPeriod}>7D</span>
+                            <span style={styles.scorePillSeparator}>|</span>
+                            <span style={styles.scorePillValueQuality}>
+                              {formatScoreForEmail(item.impactScore7d, "quality")}
+                            </span>
+                            {renderScoreSparkline(item.impactScore7d, "quality")}
+                          </div>
+                        ) : null}
+                      </div>
+                    )}
                   </DigestItemRow>
                 </Section>
               ))}
@@ -491,6 +612,46 @@ const styles: Record<string, CSSProperties> = {
     fontSize: "12px",
     lineHeight: "18px",
     margin: 0
+  },
+  scoreRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "6px",
+    marginTop: "6px"
+  },
+  scorePill: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    borderRadius: "9999px",
+    border: "1px solid #111827",
+    padding: "3px 8px",
+    fontSize: "10px",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    backgroundColor: "#020617",
+    color: "#e5e5e5"
+  },
+  scorePillLabel: {
+    fontWeight: 600
+  },
+  scorePillSeparator: {
+    opacity: 0.6
+  },
+  scorePillPeriod: {
+    opacity: 0.8
+  },
+  scorePillValueHot: {
+    fontWeight: 600,
+    color: "#f97316"
+  },
+  scorePillValueQuality: {
+    fontWeight: 600,
+    color: "#38bdf8"
+  },
+  scoreSparkline: {
+    display: "inline-block",
+    marginLeft: "2px"
   },
   actions: {
     marginTop: "22px"

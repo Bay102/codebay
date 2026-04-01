@@ -2,6 +2,11 @@ import { render } from "@react-email/render";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import type { Database, Enums } from "@/lib/database";
+import { buildContentScoreSummary } from "@/lib/content-scoring";
+import {
+  fetchBlogEngagementCountsBySlugByPeriod,
+  fetchDiscussionEngagementCountsByIdByPeriod
+} from "@/lib/dashboard";
 import {
   FollowedCreatorsDigestEmail,
   type DigestBlogItem,
@@ -187,12 +192,42 @@ async function fetchDigestItemsForUser(
 
     const blogSlugList = (blogRows ?? []).map((row) => row.slug);
     const engagementBySlug = await fetchBlogEngagementBySlugs(supabase, blogSlugList);
+    const engagementBySlugByPeriod = await fetchBlogEngagementCountsBySlugByPeriod(
+      supabase,
+      blogSlugList,
+      ["7d"]
+    );
 
     (blogRows ?? []).forEach((row) => {
       if (!row.author_id) return;
       const author = authorById.get(row.author_id);
       if (!author) return;
       const counts = engagementBySlug[row.slug] ?? { views: 0, reactions: 0, comments: 0 };
+      const periodCounts = engagementBySlugByPeriod[row.slug]?.["7d"] ?? {
+        views: 0,
+        reactions: 0,
+        comments: 0
+      };
+      const momentumSummary = buildContentScoreSummary({
+        mode: "hot",
+        period: "7d",
+        metrics: {
+          views: periodCounts.views,
+          reactions: periodCounts.reactions,
+          comments: periodCounts.comments
+        },
+        publishedAt: row.published_at ?? row.created_at
+      });
+      const impactSummary = buildContentScoreSummary({
+        mode: "quality",
+        period: "7d",
+        metrics: {
+          views: periodCounts.views,
+          reactions: periodCounts.reactions,
+          comments: periodCounts.comments
+        },
+        publishedAt: row.published_at ?? row.created_at
+      });
       blogItems.push({
         title: row.title,
         url: `${baseUrl}/blog/${encodeURIComponent(author.username)}/${encodeURIComponent(row.slug)}`,
@@ -201,7 +236,9 @@ async function fetchDigestItemsForUser(
         publishedAt: row.published_at ?? row.created_at,
         viewCount: counts.views,
         reactionCount: counts.reactions,
-        commentCount: counts.comments
+        commentCount: counts.comments,
+        momentumScore7d: momentumSummary.score,
+        impactScore7d: impactSummary.score
       });
     });
   }
@@ -217,10 +254,40 @@ async function fetchDigestItemsForUser(
 
     const discussionIds = (discussionRows ?? []).map((row) => row.id);
     const { commentById, reactionById } = await fetchDiscussionEngagementByIds(supabase, discussionIds);
+    const engagementByIdByPeriod = await fetchDiscussionEngagementCountsByIdByPeriod(
+      supabase,
+      discussionIds,
+      ["7d"]
+    );
 
     (discussionRows ?? []).forEach((row) => {
       const author = authorById.get(row.author_id);
       if (!author) return;
+      const periodCounts = engagementByIdByPeriod[row.id]?.["7d"] ?? {
+        views: 0,
+        reactions: 0,
+        comments: 0
+      };
+      const momentumSummary = buildContentScoreSummary({
+        mode: "hot",
+        period: "7d",
+        metrics: {
+          views: periodCounts.views,
+          reactions: periodCounts.reactions,
+          comments: periodCounts.comments
+        },
+        publishedAt: row.created_at
+      });
+      const impactSummary = buildContentScoreSummary({
+        mode: "quality",
+        period: "7d",
+        metrics: {
+          views: periodCounts.views,
+          reactions: periodCounts.reactions,
+          comments: periodCounts.comments
+        },
+        publishedAt: row.created_at
+      });
       discussionItems.push({
         title: row.title,
         url: `${baseUrl}/discussions/${encodeURIComponent(row.slug)}`,
@@ -228,7 +295,9 @@ async function fetchDigestItemsForUser(
         authorAvatarUrl: author.avatar_url,
         createdAt: row.created_at,
         commentCount: commentById.get(row.id) ?? 0,
-        reactionCount: reactionById.get(row.id) ?? 0
+        reactionCount: reactionById.get(row.id) ?? 0,
+        momentumScore7d: momentumSummary.score,
+        impactScore7d: impactSummary.score
       });
     });
   }
