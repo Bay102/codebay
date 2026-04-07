@@ -1,106 +1,16 @@
-import Link from "next/link";
-import type { ComponentType } from "react";
-import { Activity, Eye, MessageSquareText, RadioTower, Rss, Sparkles, Users, Zap } from "lucide-react";
+import { Activity, RadioTower, Sparkles, Users } from "lucide-react";
 import { SurfaceCard } from "@codebay/ui";
-import { DiscussionAuthorAvatar } from "@/components/pages/discussions/DiscussionAuthorAvatar";
 import { DashboardHeroButtons } from "@/components/pages/dashboard/DashboardHeroButtons";
-import { buildPostUrl } from "@/lib/blog-urls";
-import { getDiscussionBodyHtml, getDiscussionsWithCounts } from "@/lib/discussions";
+import { buildContentScoreSummary } from "@/lib/content-scoring";
+import { getDiscussionsWithCounts } from "@/lib/discussions";
 import { fetchFeaturedBlogPosts } from "@/lib/landing";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { buildBlogPostPath } from "@/lib/blog-urls";
+import { CommunityHeroHighlightsCarousel } from "@/components/pages/community/CommunityHeroHighlightsCarousel";
 
 type CommunityHeroSectionProps = {
   hasSession: boolean;
 };
-
-type SignalMetric = {
-  label: string;
-  value: number;
-  icon: ComponentType<{ className?: string }>;
-};
-
-function stripCodeFromHtml(html: string): string {
-  if (!html) return html;
-  // Remove <pre> blocks (common for fenced code)
-  let cleaned = html.replace(/<pre[\s\S]*?<\/pre>/gi, "");
-  // Remove standalone <code> blocks while keeping surrounding text
-  cleaned = cleaned.replace(/<code[\s\S]*?<\/code>/gi, "");
-  return cleaned;
-}
-
-function formatCompactNumber(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    notation: "compact",
-    maximumFractionDigits: 1
-  }).format(value);
-}
-
-function formatShortDate(value: string | null): string {
-  if (!value) return "Fresh from the community";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Fresh from the community";
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric"
-  }).format(date);
-}
-
-function SignalMetricGrid({
-  eyebrow,
-  metrics,
-  compact = false
-}: {
-  eyebrow: string;
-  metrics: SignalMetric[];
-  compact?: boolean;
-}) {
-  const columnClassName = metrics.length >= 3 ? "grid-cols-3" : "grid-cols-2";
-
-  return (
-    <div
-      className={`border border-border/60 bg-card/55 backdrop-blur-sm ${compact ? "px-1.5 py-1.5" : "px-2 py-2"}`}
-    >
-      <div
-        className={`flex items-center gap-2 uppercase text-muted-foreground ${compact ? "text-[7px] tracking-[0.18em]" : "text-[8px] tracking-[0.22em]"}`}
-      >
-        <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_10px_rgba(59,130,246,0.55)]" />
-        <span className="font-mono-ticker">{eyebrow}</span>
-      </div>
-
-      <div className={`mt-1.5 grid gap-px overflow-hidden bg-border/50 ${columnClassName}`}>
-        {metrics.map((metric) => {
-          const Icon = metric.icon;
-
-          return (
-            <div
-              key={metric.label}
-              className={`relative min-w-0 bg-background/60 ${compact ? "px-2 py-1.5" : "px-2.5 py-2"}`}
-            >
-              <div
-                className={`pointer-events-none absolute top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent ${compact ? "inset-x-2" : "inset-x-2.5"}`}
-              />
-              <div className="flex items-center justify-between gap-2 lg:justify-end">
-                <span
-                  className={`min-w-0 truncate uppercase text-muted-foreground lg:hidden ${compact ? "text-[7px] tracking-[0.05em]" : "text-[8px] tracking-[0.08em]"}`}
-                >
-                  {metric.label}
-                </span>
-                <Icon className={`shrink-0 text-primary/80 ${compact ? "h-3.5 w-3.5" : "h-4 w-4"}`} />
-              </div>
-              <div
-                className={`font-mono-ticker font-semibold leading-none text-foreground ${compact ? "mt-0.5 text-base sm:text-lg" : "mt-1 text-lg sm:text-xl"}`}
-              >
-                {formatCompactNumber(metric.value)}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionProps) {
   const supabase = await createServerSupabaseClient();
@@ -144,25 +54,51 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
   ]);
 
   const featuredPost = featuredPosts[0] ?? null;
-  const metricItems = [
-    {
-      label: "New blog posts",
-      value: formatCompactNumber(monthlyBlogPostCount),
-      detail: "published this month"
+  const featuredPostEngagement =
+    (featuredPost?.views ?? 0) + (featuredPost?.reactions ?? 0) + (featuredPost?.comments ?? 0);
+  const discussionMomentumSummary = buildContentScoreSummary({
+    mode: "hot",
+    period: "7d",
+    metrics: {
+      views: trendingDiscussion?.viewCount ?? Math.max(0, monthlyDiscussionCount * 4),
+      reactions: trendingDiscussion?.reactionCount ?? Math.max(0, monthlyDiscussionCount),
+      comments: trendingDiscussion?.commentCount ?? Math.max(0, Math.round(monthlyDiscussionCount / 2))
     },
-    {
-      label: "New discussions",
-      value: formatCompactNumber(monthlyDiscussionCount),
-      detail: "created this month"
+    publishedAt: trendingDiscussion?.createdAt ?? new Date().toISOString()
+  });
+
+  const discussionImpactSummary = buildContentScoreSummary({
+    mode: "quality",
+    period: "30d",
+    metrics: {
+      views: trendingDiscussion?.viewCount ?? Math.max(0, monthlyDiscussionCount * 4),
+      reactions: trendingDiscussion?.reactionCount ?? Math.max(0, monthlyDiscussionCount),
+      comments: trendingDiscussion?.commentCount ?? Math.max(0, Math.round(monthlyDiscussionCount / 2))
     },
-    {
-      label: "Post engagement",
-      value: formatCompactNumber(
-        (featuredPost?.views ?? 0) + (featuredPost?.reactions ?? 0) + (featuredPost?.comments ?? 0)
-      ),
-      detail: "views + feedback"
-    }
-  ];
+    publishedAt: trendingDiscussion?.createdAt ?? new Date().toISOString()
+  });
+
+  const blogMomentumSummary = buildContentScoreSummary({
+    mode: "hot",
+    period: "7d",
+    metrics: {
+      views: featuredPost?.views ?? monthlyBlogPostCount * 8,
+      reactions: featuredPost?.reactions ?? Math.max(0, Math.round(featuredPostEngagement / 9)),
+      comments: featuredPost?.comments ?? Math.max(0, Math.round(featuredPostEngagement / 14))
+    },
+    publishedAt: featuredPost?.publishedAt ?? new Date().toISOString()
+  });
+
+  const blogImpactSummary = buildContentScoreSummary({
+    mode: "quality",
+    period: "30d",
+    metrics: {
+      views: featuredPost?.views ?? monthlyBlogPostCount * 8,
+      reactions: featuredPost?.reactions ?? Math.max(0, Math.round(featuredPostEngagement / 9)),
+      comments: featuredPost?.comments ?? Math.max(0, Math.round(featuredPostEngagement / 14))
+    },
+    publishedAt: featuredPost?.publishedAt ?? null
+  });
 
   return (
     <SurfaceCard
@@ -222,130 +158,33 @@ export async function CommunityHeroSection({ hasSession }: CommunityHeroSectionP
         </div>
 
         <div className="grid gap-3">
-          <div className="grid grid-cols-3 gap-2 sm:gap-3">
-            {metricItems.map((metric) => (
-              <div
-                key={metric.label}
-                className="border border-border/60 bg-background/80 p-2.5 backdrop-blur sm:p-3.5"
-              >
-                <div className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px] sm:tracking-[0.24em]">
-                  {metric.label}
-                </div>
-                <div className="mt-1.5 font-mono-ticker text-lg font-semibold uppercase tracking-[0.14em] text-foreground sm:mt-2 sm:text-2xl sm:tracking-[0.18em]">
-                  {metric.value}
-                </div>
-                <div className="mt-0.5 text-[10px] text-muted-foreground sm:mt-1 sm:text-xs">{metric.detail}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid gap-3">
-            <div className="grid items-stretch gap-3 lg:grid-cols-2">
-              <div className="flex min-h-56 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 backdrop-blur sm:min-h-64 sm:p-4 lg:min-h-56">
-                <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-                  <MessageSquareText className="h-3.5 w-3.5 text-primary" />
-                  Live discussion
-                </div>
-                {trendingDiscussion ? (
-                  <div className="mt-2 flex flex-1 flex-col">
-                    <div className="mb-1.5 flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
-                      <Link
-                        href={`/${trendingDiscussion.authorUsername}`}
-                        className="inline-flex shrink-0 items-center transition-opacity hover:opacity-90"
-                      >
-                        <DiscussionAuthorAvatar
-                          name={trendingDiscussion.authorName}
-                          avatarUrl={trendingDiscussion.authorAvatarUrl}
-                          sizeClassName="h-6 w-6"
-                          textClassName="text-[9px]"
-                        />
-                      </Link>
-                      <Link
-                        href={`/${trendingDiscussion.authorUsername}`}
-                        className="truncate transition-colors hover:text-foreground"
-                      >
-                        {trendingDiscussion.authorName}
-                      </Link>
-                    </div>
-                    <Link
-                      href={`/discussions/${trendingDiscussion.slug}`}
-                      className="line-clamp-2 text-sm font-semibold text-foreground transition-colors hover:text-primary sm:text-base"
-                    >
-                      {trendingDiscussion.title}
-                    </Link>
-                    <div
-                      className="mt-1 line-clamp-1 text-xs leading-5 text-muted-foreground prose prose-invert prose-[0.8rem] max-w-none sm:text-sm sm:leading-6 [&_code]:rounded-[4px] [&_code]:bg-muted/80 [&_code]:px-1 [&_code]:py-0.5 [&_pre]:my-1.5 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-muted/80 [&_pre]:p-2 [&_pre]:text-[11px]"
-                      dangerouslySetInnerHTML={{
-                        __html: stripCodeFromHtml(
-                          getDiscussionBodyHtml(
-                            trendingDiscussion.body || "Join the thread and add your perspective to the discussion."
-                          )
-                        )
-                      }}
-                    />
-                    <div className="mt-auto pt-2.5">
-                      <SignalMetricGrid
-                        eyebrow="thread telemetry"
-                        compact
-                        metrics={[
-                          { label: "comments", value: trendingDiscussion.commentCount, icon: MessageSquareText },
-                          { label: "reactions", value: trendingDiscussion.reactionCount, icon: Zap }
-                        ]}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-3 text-sm text-muted-foreground">
-                    New discussion activity will appear here as members start posting.
-                  </div>
-                )}
-              </div>
-
-              <div className="flex min-h-56 flex-col overflow-hidden border border-border/60 bg-background/80 p-3.5 backdrop-blur sm:min-h-64 sm:p-4 lg:min-h-56">
-                <div className="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-                  <Rss className="h-3.5 w-3.5 text-primary" />
-                  Featured post
-                </div>
-                {featuredPost ? (
-                  <div className="mt-2 flex flex-1 flex-col">
-                    <div className="mb-1.5 flex items-center gap-2 text-xs text-muted-foreground sm:text-sm">
-                      <DiscussionAuthorAvatar
-                        name={featuredPost.authorName}
-                        avatarUrl={featuredPost.authorAvatarUrl}
-                        sizeClassName="h-6 w-6"
-                        textClassName="text-[9px]"
-                      />
-                      <span className="truncate">{featuredPost.authorName}</span>
-                    </div>
-                    <Link
-                      href={buildPostUrl(featuredPost.authorName, featuredPost.slug)}
-                      className="line-clamp-2 text-base font-semibold text-foreground transition-colors hover:text-primary"
-                    >
-                      {featuredPost.title}
-                    </Link>
-                    <p className="mt-1.5 text-sm text-muted-foreground">
-                      {formatShortDate(featuredPost.publishedAt)}
-                    </p>
-                    <div className="mt-auto pt-3">
-                      <SignalMetricGrid
-                        eyebrow="post telemetry"
-                        compact
-                        metrics={[
-                          { label: "views", value: featuredPost.views, icon: Eye },
-                          { label: "comments", value: featuredPost.comments, icon: MessageSquareText },
-                          { label: "reactions", value: featuredPost.reactions, icon: Zap }
-                        ]}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mt-3 text-sm text-muted-foreground">
-                    Featured writing will surface here once published posts are available.
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <CommunityHeroHighlightsCarousel
+            featuredDiscussion={
+              trendingDiscussion
+                ? {
+                    title: trendingDiscussion.title,
+                    href: `/discussions/${trendingDiscussion.slug}`,
+                    comments: trendingDiscussion.commentCount,
+                    reactions: trendingDiscussion.reactionCount,
+                    momentumSummary: discussionMomentumSummary,
+                    impactSummary: discussionImpactSummary
+                  }
+                : null
+            }
+            featuredBlog={
+              featuredPost
+                ? {
+                    title: featuredPost.title,
+                    href: buildBlogPostPath(featuredPost.authorName, featuredPost.slug),
+                    views: featuredPost.views,
+                    comments: featuredPost.comments,
+                    reactions: featuredPost.reactions,
+                    momentumSummary: blogMomentumSummary,
+                    impactSummary: blogImpactSummary
+                  }
+                : null
+            }
+          />
         </div>
       </div>
     </SurfaceCard>
