@@ -9,9 +9,9 @@ import { SiteHeader } from "@/components/SiteHeader";
  */
 export function ConditionalHeader() {
   const pathname = usePathname();
-  const isHome = pathname === "/";
+  const hideHeader = pathname === "/" || pathname === "/paused";
 
-  if (isHome) {
+  if (hideHeader) {
     return null;
   }
 
