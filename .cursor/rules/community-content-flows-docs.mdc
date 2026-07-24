@@ -1,0 +1,12 @@
+---
+description: Keep community content flow docs in sync with core logic changes
+alwaysApply: true
+---
+
+# Community Content Flow Documentation
+
+When changes affect core logic related to community content flows:
+
+- Update `COMMUNITY_CONTENT_FLOWS.md`.
+- Update related docs referenced by that file when they are impacted.
+- If a new core feature is added, add a dedicated section describing that feature and flow.

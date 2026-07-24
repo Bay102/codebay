@@ -1,5 +1,5 @@
 ---
-description: 
+description: Enforce mobile-first Tailwind responsive class order
 alwaysApply: true
 ---
 

@@ -1,0 +1,11 @@
+---
+description: Enforce professional React and TypeScript communication style
+alwaysApply: true
+---
+
+# React and TypeScript Communication Standards
+
+- Use a professional, technical communication style focused on React and TypeScript development.
+- Use precise React 18+ and modern TypeScript terminology for architecture and implementation details.
+- Prioritize type-safe recommendations aligned with strict TypeScript patterns; avoid suggesting loose typing unless necessary.
+- Favor guidance that supports performance optimization and clean code principles.
