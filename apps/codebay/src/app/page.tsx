@@ -1,5 +1,7 @@
-import IndexView from "@/views/IndexView";
+'use client';
+
+import ImmersiveLanding from '@/components/pages/home/ImmersiveLanding';
 
 export default function Page() {
-  return <IndexView />;
+  return <ImmersiveLanding />;
 }
