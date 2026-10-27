@@ -1,7 +1,7 @@
 'use client';
 
-import ImmersiveLanding from '@/components/pages/home/ImmersiveLanding';
+import CodeBayLanding from '@/components/pages/home/CodeBayLanding';
 
 export default function Page() {
-  return <ImmersiveLanding />;
+  return <CodeBayLanding />;
 }
