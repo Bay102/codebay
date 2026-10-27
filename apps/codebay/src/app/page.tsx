@@ -1,5 +1,7 @@
-import IndexView from "@/views/IndexView";
+'use client';
+
+import CodeBayLanding from '@/components/pages/home/CodeBayLanding';
 
 export default function Page() {
-  return <IndexView />;
+  return <CodeBayLanding />;
 }
